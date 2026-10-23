@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live TV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans:wght@400;500&family=Noto+Sans+Thai:wght@400;500&family=Roboto:wght@700&display=swap" rel="stylesheet">
+<!--
+  Live TV player, opened with Enter on a channel in the TV Guide (tv-guide.html). From Figma PLAY-player
+  "player Live TV" (1856:21643): channel + programme on top, the free-preview chip / Explore Package, the seek bar and
+  the action buttons at the bottom, over the playing channel.
+  The channel and programme come in the query string (see openPlayer() in tv-guide.html).
+  A 1920x1080 TV screen scaled to the window, like tv-guide.html.
+  Remote / keyboard: arrows move focus, Enter selects, Esc / Back returns to the TV Guide. The controls fade out after
+  a few seconds without a key press; the first key brings them back.
+-->
+<style>
+  :root{
+    color-scheme:dark;
+    --on-surface-variant:#a8a8a8; --inverse-surface:#e8e8e8; --on-inverse-surface:#101010; --outline:#5a5a5a;
+    --surface-container-highest:#4a4a4a; --avatar:#404045;
+    --inter:'Inter', system-ui, sans-serif;
+    --noto:'Noto Sans', 'Noto Sans Thai', system-ui, sans-serif;
+  }
+  html,body{ margin:0; height:100%; background:#000; overflow:hidden; color:#fff; font-family:var(--noto); }
+  #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:#000; }
+  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; background:#000; }
+  video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+
+  /* the controls: scrims top and bottom, then the two bars; all fade out together when idle */
+  .ui{ position:absolute; inset:0; transition:opacity .35s ease; }
+  body.idle .ui{ opacity:0; }
+  .ui{ pointer-events:none; }   /* clicks go through to the picture (play / pause), except on the controls */
+  .ui .item, .ui .play{ pointer-events:auto; }
+  .scrim{ position:absolute; inset:0; pointer-events:none;
+    /* lighter than Figma's (black to 21% / 90% to 7%), so the picture still shows behind the controls */
+    background:linear-gradient(0deg, rgba(0,0,0,.75) 0%, rgba(0,0,0,.45) 18%, rgba(0,0,0,0) 36%), linear-gradient(180deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,0) 26%); }
+
+  /* top: back, channel logo, programme / channel / number / time */
+  .top{ position:absolute; left:0; top:0; padding:60px 90px; display:flex; align-items:center; gap:24px; }
+  .back{ width:80px; height:80px; border-radius:9999px; flex:0 0 auto; }
+  .back img{ display:block; width:80px; height:80px; }
+  .ava{ position:relative; width:80px; height:80px; border-radius:100px; overflow:hidden; flex:0 0 auto; background:var(--avatar); }
+  .ava img{ position:absolute; }
+  .ava img.cover{ inset:0; width:100%; height:100%; object-fit:cover; }
+  .ava img.contain{ left:12%; top:12%; width:76%; height:76%; object-fit:contain; }
+  .ava.txt{ display:flex; align-items:center; justify-content:center; text-align:center; font:700 20px/1.1 var(--noto); }
+  .info{ height:112px; display:flex; flex-direction:column; justify-content:center; gap:24px; min-width:0; }
+  .prog-t{ max-width:1500px; font:700 40px/32px Roboto, sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .meta{ display:flex; align-items:center; gap:16px; font:500 24px/1.2 var(--noto); letter-spacing:-.24px; white-space:nowrap; }
+  .crown{ position:relative; width:40px; height:40px; flex:0 0 auto; }
+  .crown img{ position:absolute; left:6px; top:9.33px; width:28px; height:21.33px; }   /* 32px crown in its 40px box, shape inset 16.67% / 6.25% */
+  .ch-no{ height:40px; box-sizing:border-box; padding:8px 12px; border-radius:8px; display:flex; align-items:center;
+    background:rgba(56,69,76,.7); backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px); font:500 24px/normal var(--noto); }
+
+  /* bottom: free preview + Explore Package, the seek bar, the action buttons */
+  .bottom{ position:absolute; left:0; right:0; bottom:0; padding:60px 90px; display:flex; flex-direction:column; gap:32px; }
+  .cta-row{ display:flex; align-items:center; justify-content:space-between; gap:24px; }
+  .preview{ height:80px; box-sizing:border-box; padding:16px 32px; border-radius:12px; background:rgba(0,0,0,.13);
+    display:flex; align-items:center; font:24px/16px var(--inter); white-space:nowrap; }
+  .preview b{ font-weight:600; color:var(--on-surface-variant); }
+  .preview span{ position:relative; margin-left:36px; font-weight:500; color:var(--inverse-surface); }
+  .preview span::before{ content:'•'; position:absolute; left:-21px; }
+  .explore{ height:84px; box-sizing:border-box; padding:16px 32px; border-radius:12px; border:2px solid var(--outline); background:var(--inverse-surface);
+    display:flex; align-items:center; gap:16px; font:500 24px/32px var(--inter); color:var(--on-inverse-surface); white-space:nowrap; }
+  .explore img{ width:32px; height:32px; display:block; }
+  .no-preview .preview, .no-preview .explore{ visibility:hidden; }
+
+  .seek{ height:32px; display:flex; align-items:center; gap:12px; }
+  .play{ width:40px; height:40px; border-radius:8px; flex:0 0 auto; }
+  .play img{ display:block; width:40px; height:40px; }
+  .seek .tm{ font:400 24px/28px var(--inter); color:var(--on-surface-variant); white-space:nowrap; }
+  /* the track, Figma "Local Seek bar component": at rest a thin 8px bar with no handle (1895:175050); focused 12px with the
+     handle (1895:174905), the bar stopping 10px short of the end for it. --f (0..1) is how far the playhead is */
+  .track{ --f:0; --r:0px; position:relative; flex:1; height:32px; border-radius:6px; }
+  .track .base, .track .buf, .track .played{ position:absolute; left:0; top:12px; height:8px; border-radius:4px;
+    transition:top .2s ease, height .2s ease, border-radius .2s ease, right .2s ease, width .2s ease; }
+  .track .base{ right:var(--r); background:var(--surface-container-highest); }
+  .track .buf{ width:calc(var(--b, 0) * (100% - var(--r))); background:var(--on-surface-variant); opacity:.4; }
+  .track .played{ width:calc(var(--f) * (100% - var(--r))); }
+  .track.on{ --r:10px; }
+  .track.on .base, .track.on .buf, .track.on .played{ top:8px; height:16px; border-radius:8px; }   /* 16px (Figma: 12px) */
+  .track .played{ background:#ff1f1f; }   /* a strong live red */
+  .track .handle{ position:absolute; top:4px; left:calc(var(--f) * (100% - var(--r))); width:24px; height:24px; box-sizing:border-box; margin-left:-12px; border-radius:12px;
+    border:4px solid #fff; background:var(--inverse-surface); box-shadow:0 2px 6px rgba(0,0,0,.25);
+    opacity:0; transform:scale(.3); transition:opacity .2s ease, transform .2s ease; }
+  .track.on .handle{ opacity:1; transform:none; }
+  /* no Time Shift on this programme: the bar stays full at live, with no handle, no play / pause and no Start Over */
+  .no-ts .track .handle, .no-ts .play, .no-ts .btn[data-act="start-over"]{ display:none; }
+
+  /* Time Shift scrubbing: a thumbnail of that moment over the handle, its time under it, and the speed while held */
+  .thumb{ position:absolute; bottom:48px; left:0; width:320px; margin-left:-160px; pointer-events:none; opacity:0; transition:opacity .15s ease; }
+  .thumb.on{ opacity:1; }
+  .thumb .pic{ position:relative; width:320px; height:180px; box-sizing:border-box; border-radius:12px; overflow:hidden; border:3px solid #fff;
+    background:#111; box-shadow:0 6px 20px rgba(0,0,0,.5); }
+  .thumb video{ width:100%; height:100%; object-fit:cover; display:block; }
+  .thumb .t{ margin-top:8px; text-align:center; font:500 24px/28px var(--inter); text-shadow:0 1px 4px rgba(0,0,0,.6); }
+  .thumb .spd{ position:absolute; left:10px; top:10px; padding:4px 10px; border-radius:8px; background:rgba(0,0,0,.65); font:600 20px/24px var(--inter); display:none; }
+  .thumb .spd.on{ display:block; }
+
+  .btns{ display:flex; align-items:center; gap:16px; }
+  /* action buttons: an icon at rest; focused, the label opens beside it as in Figma's "TV / Button" focus state
+     (1867:117993), with the page's usual focus look (the shared glass ring, white icon and label) */
+  .btn{ padding:24px; border-radius:9999px; display:flex; align-items:center; transition:background .2s ease; }
+  .btn img{ width:32px; height:32px; display:block; }
+  .btn .lbl{ max-width:0; overflow:hidden; white-space:nowrap; font:500 24px/32px var(--inter); color:#fff;
+    transition:max-width .25s cubic-bezier(.2,0,0,1), margin-left .25s cubic-bezier(.2,0,0,1); }
+  .btn.focused .lbl{ max-width:320px; margin-left:16px; }
+  .btn.focused, .back.focused{ background:rgba(255,255,255,.3);
+    backdrop-filter:blur(24px) saturate(1.4); -webkit-backdrop-filter:blur(24px) saturate(1.4); }   /* frosted: lighter fill, the picture blurred behind it */
+
+  /* play / pause flash in the middle of the picture, as on Netflix: the new state's icon pops in a dark disc and fades
+     out, whether or not the controls are up */
+  .flash{ position:absolute; left:50%; top:50%; width:160px; height:160px; margin:-80px 0 0 -80px; border-radius:50%; z-index:20; pointer-events:none;
+    display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.45);
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); opacity:0; }
+  .flash img{ width:80px; height:80px; display:block; }
+  .flash.go{ animation:flash .7s cubic-bezier(.2,0,0,1); }
+  @keyframes flash{ 0%{ opacity:0; transform:scale(.6); } 20%{ opacity:1; transform:scale(1); } 60%{ opacity:1; transform:scale(1.05); } 100%{ opacity:0; transform:scale(1.3); } }
+  @media (prefers-reduced-motion: reduce){ .flash.go{ animation:flashFade .7s linear; } @keyframes flashFade{ 0%, 60%{ opacity:1; } 100%{ opacity:0; } } }
+
+  #toast{ position:absolute; left:50%; top:60px; transform:translateX(-50%); padding:14px 26px; border-radius:999px; z-index:30;
+    background:rgba(20,20,24,.9); font-size:24px; opacity:0; transition:opacity .2s ease; pointer-events:none; white-space:nowrap; }
+  #toast.on{ opacity:1; }
+</style>
+</head>
+<body>
+<div id="frame"><div id="screen" data-ring-plain>
+  <video id="video" loop playsinline></video>
+  <div class="ui">
+    <div class="scrim"></div>
+    <div class="top">
+      <div class="back item" data-act="back"><img src="icons/player/back.svg" alt="Back"></div>
+      <div class="ava" id="ava"></div>
+      <div class="info">
+        <div class="prog-t" id="progT"></div>
+        <div class="meta"><span id="chName"></span><span class="crown" id="crown"><img src="icons/player/crown.svg" alt="Premium"></span><span class="ch-no" id="chNo"></span><span id="progTm"></span></div>
+      </div>
+    </div>
+    <div class="bottom" id="bottom">
+      <div class="cta-row">
+        <div class="preview"><b>Free preview</b><span id="previewLeft"></span></div>
+        <div class="explore item" data-act="explore"><img src="icons/player/crown-dark.svg" alt="">Explore Package</div>
+      </div>
+      <div class="seek">
+        <div class="play" id="playBtn" data-act="play"><img id="playIc" src="icons/player/pause.svg" alt="Pause"></div>
+        <div class="tm" id="elapsed"></div>
+        <div class="track item" id="track" data-act="play"><div class="base"></div><div class="buf"></div><div class="played"></div><div class="handle"></div>
+          <div class="thumb" id="thumb"><div class="pic"><video id="thumbV" muted playsinline preload="auto"></video><div class="spd" id="spd"></div></div><div class="t" id="thumbT"></div></div></div>
+      </div>
+      <div class="btns">
+        <div class="btn item" data-act="mini-epg"><img src="icons/player/mini-epg.svg" alt=""><span class="lbl">Browse Channels</span></div>
+        <div class="btn item" data-act="guide"><img src="icons/player/guide.svg" alt=""><span class="lbl">View Program Guide</span></div>
+        <div class="btn item" data-act="start-over"><img src="icons/player/start-over.svg" alt=""><span class="lbl">Start Over</span></div>
+        <div class="btn item" data-act="fav"><img id="favIc" src="icons/player/fav.svg" alt=""><span class="lbl" id="favLbl">Add Favorite</span></div>
+        <div class="btn item" data-act="sub-audio"><img src="icons/player/sub-audio.svg" alt=""><span class="lbl">Subtitle/Audio</span></div>
+        <div class="btn item" data-act="settings"><img src="icons/player/settings.svg" alt=""><span class="lbl">Settings</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="flash" id="flash"><img id="flashIc" src="icons/player/pause.svg" alt=""></div>
+  <div id="toast"></div>
+</div></div>
+
+<script>
+(function(){
+  var frame = document.getElementById('frame'), screen = document.getElementById('screen');
+  function fit(){
+    var K = Math.min(innerWidth / 1920, innerHeight / 1080);
+    frame.style.width = 1920 * K + 'px'; frame.style.height = 1080 * K + 'px';
+    frame.style.marginLeft = -960 * K + 'px'; frame.style.marginTop = -540 * K + 'px';
+    screen.style.transform = 'scale(' + K + ')';
+  }
+  addEventListener('resize', fit); fit();
+  var $ = function(q, el){ return Array.prototype.slice.call((el || document).querySelectorAll(q)); };
+  var byId = function(id){ return document.getElementById(id); };
+  function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  function pad(n){ return (n < 10 ? '0' : '') + n; }
+  function hm(d){ return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+
+  /* ---------- the channel and programme, from the query string ---------- */
+  var q = {}; location.search.slice(1).split('&').forEach(function(kv){ if(!kv) return; var i = kv.indexOf('='); q[decodeURIComponent(kv.slice(0, i))] = decodeURIComponent(kv.slice(i + 1).replace(/\+/g, ' ')); });
+  var C = { n:q.n || 'Channel', no:q.no || '', crown:q.crown || '', fav:q.fav === '1', logo:q.logo, fit:q.fit, box:q.box, bg:q.bg, txt:q.txt, fg:q.fg };
+  var P = { t:q.t || '', start:new Date(+q.s || Date.now() - 30 * 60000), end:new Date(+q.e || Date.now() + 30 * 60000) };
+  byId('video').src = byId('thumbV').src = q.v || 'tv-features-test/Video/hbo.mp4';   // the thumbnail is a second, paused copy
+  // with sound: the browser may refuse to start unmuted without a key press on this page, so it then starts muted and
+  // the sound comes on with the first key or click
+  (function(v){
+    v.play().catch(function(){
+      v.muted = true; v.play();
+      function unmute(){ v.muted = false; removeEventListener('keydown', unmute, true); removeEventListener('click', unmute, true); }
+      addEventListener('keydown', unmute, true); addEventListener('click', unmute, true);
+    });
+  })(byId('video'));
+  // Time Shift: set per programme in the TV Guide (its Time Shift icon). With it the viewer can pause, go back / forward
+  // 10s, hold to scrub faster (with a thumbnail) and Start Over; without it the player stays live
+  var TS = q.ts === '1';
+  if(!TS) byId('bottom').classList.add('no-ts');
+
+  var ava = byId('ava');
+  if(!C.logo){ ava.className = 'ava txt'; ava.style.background = C.bg || ''; ava.style.color = C.fg || '#fff'; ava.textContent = C.txt || C.n; }
+  else {
+    if(C.bg) ava.style.background = C.bg;
+    var b = C.box && C.box.split(',');
+    ava.innerHTML = b ? '<img src="' + esc(C.logo) + '" alt="" style="left:' + b[0] + '%;top:' + b[1] + '%;width:' + b[2] + '%;height:' + b[3] + '%;object-fit:contain;">'
+                      : '<img class="' + (C.fit || 'cover') + '" src="' + esc(C.logo) + '" alt="">';
+  }
+  byId('progT').textContent = P.t;
+  byId('chName').textContent = C.n;
+  if(!C.crown) byId('crown').style.display = 'none';
+  if(C.no) byId('chNo').textContent = C.no; else byId('chNo').style.display = 'none';   // Exclusive channels have no number
+  byId('progTm').textContent = hm(P.start) + ' - ' + hm(P.end);
+  // free preview + Explore Package: a premium channel not in the viewer's package (gold crown, not 'owned')
+  var preview = C.crown === 'gold', previewLeft = 180;
+  if(!preview) byId('bottom').classList.add('no-preview');
+  function setFav(){ byId('favIc').src = C.fav ? 'icons/tv-guide/heart-fill.svg' : 'icons/player/fav.svg'; byId('favLbl').textContent = C.fav ? 'Remove Favorite' : 'Add Favorite'; }
+  setFav();
+
+  /* ---------- seek bar: the programme from its start up to now, so it is full at live. `behind` is how far (ms) the
+     picture is behind live; `scrub` is where the viewer is moving to before it is applied ---------- */
+  var behind = 0, scrub = null, STEP = 10000, holdT = null, holdStart = 0, commitT = null;
+  function win(){ return Math.max(0, Math.min(P.end - P.start, Date.now() - P.start)); }   // how much can be gone back over
+  function vmod(t){ var d = byId('video').duration || 0; return d ? ((t % d) + d) % d : 0; }   // the demo clip loops for the channel
+  function hms(ms){ var s = Math.floor(ms / 1000); return Math.floor(s / 3600) + ':' + pad(Math.floor(s / 60) % 60) + ':' + pad(s % 60); }
+  function scrubBy(ms){
+    if(scrub === null) scrub = behind;
+    scrub = Math.max(0, Math.min(win(), scrub - ms));
+    clearTimeout(commitT);
+    var tv = byId('thumbV');
+    if(tv.readyState) tv.currentTime = vmod(byId('video').currentTime - (scrub - behind) / 1000);
+    byId('thumb').classList.add('on');
+    paintSeek();
+  }
+  // the picture jumps to where the viewer stopped
+  function commit(){
+    clearTimeout(commitT);
+    if(scrub === null) return;
+    var v = byId('video'); v.currentTime = vmod(v.currentTime - (scrub - behind) / 1000);
+    behind = scrub; scrub = null;
+    byId('thumb').classList.remove('on'); setSpeed(0); paintSeek();
+  }
+  // holding Left / Right scrubs on its own, faster the longer it is held: 2x, 4x, 8x, 16x
+  function setSpeed(s){ var el = byId('spd'); el.classList.toggle('on', !!s); el.textContent = s < 0 ? '◀◀ ' + -s + 'x' : s + 'x ▶▶'; }
+  function startHold(dir){
+    holdStart = Date.now();
+    holdT = setInterval(function(){
+      var t = (Date.now() - holdStart) / 1000, sp = t < 1 ? 2 : t < 2 ? 4 : t < 3 ? 8 : 16;
+      setSpeed(sp * dir); scrubBy(dir * sp * 3000);   // 30s of the programme per second at 1x
+    }, 100);
+  }
+  function stopHold(){ if(!holdT) return; clearInterval(holdT); holdT = null; setSpeed(0); commitT = setTimeout(commit, 800); }
+  function paintSeek(){
+    var W = win(), el = W - (scrub === null ? behind : scrub), f = W ? el / W : 1, tr = byId('track');
+    byId('elapsed').textContent = hms(el);
+    tr.style.setProperty('--f', f);
+    tr.style.setProperty('--b', Math.min(1, f + .02));
+    if(scrub !== null){
+      var w = tr.offsetWidth - 10;   // the bar, focused
+      byId('thumb').style.left = Math.max(160, Math.min(tr.offsetWidth - 160, f * w)) + 'px';
+      byId('thumbT').textContent = hms(el);
+    }
+  }
+  function tick(){
+    // paused with Time Shift: live moves on, so the picture falls further behind it
+    if(TS && byId('video').paused && scrub === null) behind = Math.min(win(), behind + 1000);
+    paintSeek();
+    if(preview && previewLeft > 0){
+      previewLeft--;
+      byId('previewLeft').textContent = Math.floor(previewLeft / 60) + ':' + pad(previewLeft % 60) + ' minutes left';
+      if(!previewLeft){ byId('video').pause(); setPlayIcon(); toast('Free preview has ended'); }
+    }
+  }
+  tick(); setInterval(tick, 1000);
+
+  /* ---------- focus: rows top to bottom, Left / Right along a row ---------- */
+  function rows(){
+    // the seek row is focused as one: the bar grows (Enter plays / pauses, Left / Right move through the programme);
+    // the play / pause icon beside it only shows the state
+    // hidden buttons (Start Over without Time Shift) are left out, so focus skips them
+    var btns = $('.btn').filter(function(b){ return getComputedStyle(b).display !== 'none'; });
+    return [$('.back'), preview ? $('.explore') : [], [byId('track')], btns].filter(function(r){ return r.length; });
+  }
+  var row = 2 - (preview ? 0 : 1), col = 0;   // starts on the seek bar
+  function paint(){
+    var r = rows(); row = Math.max(0, Math.min(r.length - 1, row)); col = Math.max(0, Math.min(r[row].length - 1, col));
+    $('.item').forEach(function(el){ el.classList.remove('focused', 'on'); });
+    // the seek bar shows focus itself (taller, with the handle), so it takes .on: focus-ring.js only rings .focused
+    var el = r[row][col]; el.classList.add(el.id === 'track' ? 'on' : 'focused');
+  }
+
+  var toastEl = byId('toast'), toastT;
+  function toast(msg){ toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove('on'); }, 1800); }
+  function setPlayIcon(){ var v = byId('video'), ic = byId('playIc'); ic.src = v.paused ? 'icons/detail-play.svg' : 'icons/player/pause.svg'; ic.alt = v.paused ? 'Play' : 'Pause'; }
+  function flash(paused){
+    var f = byId('flash');
+    byId('flashIc').src = paused ? 'icons/player/pause.svg' : 'icons/detail-play.svg';
+    f.classList.remove('go'); void f.offsetWidth; f.classList.add('go');   // restart the animation on every press
+  }
+  function back(){
+    try { if(document.referrer && /tv-guide\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    location.href = 'tv-guide.html';
+  }
+  function activate(el){
+    var v = byId('video');
+    switch(el.dataset.act){
+      case 'back': back(); break;
+      case 'play':
+        if(!TS){ toast('Time Shift is not available for this programme'); break; }
+        if(scrub !== null){ commit(); break; }   // Enter while scrubbing: play from there now
+        if(v.paused){ if(preview && !previewLeft) break; v.play(); } else v.pause();
+        setPlayIcon(); flash(v.paused); break;
+      case 'start-over':
+        scrub = null; byId('thumb').classList.remove('on'); behind = win();
+        v.currentTime = 0; v.play(); setPlayIcon(); paintSeek(); toast('Start Over: ' + P.t); break;
+      case 'fav':
+        C.fav = !C.fav; setFav();
+        toast(C.fav ? 'Added to Favorite: ' + C.n : 'Removed from Favorite: ' + C.n); break;
+      case 'guide': location.href = 'tv-guide.html?view=guide'; break;
+      case 'explore': toast('Explore Package'); break;
+      case 'mini-epg': toast('Browse Channels'); break;
+      case 'sub-audio': toast('Subtitle / Audio'); break;
+      case 'settings': toast('Settings'); break;
+    }
+  }
+
+  /* ---------- idle: the controls fade out after 5s without a key; the first key only brings them back ---------- */
+  var idleT;
+  function wake(){ var was = document.body.classList.contains('idle'); document.body.classList.remove('idle'); clearTimeout(idleT); idleT = setTimeout(function(){ document.body.classList.add('idle'); }, 5000); return was; }
+  wake();
+
+  document.addEventListener('keydown', function(e){
+    var k = e.key, back_ = k === 'Escape' || k === 'Backspace';
+    if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', ' '].indexOf(k) < 0 && !back_) return;
+    e.preventDefault();
+    // Back with the controls up only puts them away; with them away it leaves the player
+    if(back_){
+      if(document.body.classList.contains('idle')) back();
+      else { clearTimeout(idleT); document.body.classList.add('idle'); }
+      return;
+    }
+    // with the controls away, OK plays / pauses straight away (as on Netflix) and brings them back; other keys only bring them back
+    if(wake()){ if(k === 'Enter' || k === ' ') activate(byId('playBtn')); return; }
+    var r = rows();
+    if(k === 'ArrowUp' && row > 0){ row--; col = 0; }
+    else if(k === 'ArrowDown' && row < r.length - 1){ row++; col = 0; }
+    else if(r[row][col].id === 'track' && (k === 'ArrowLeft' || k === 'ArrowRight')){
+      // on the seek bar: a press goes 10s back / forward (not past live); held, it scrubs faster
+      var dir = k === 'ArrowRight' ? 1 : -1;
+      if(!TS) toast('Time Shift is not available for this programme');
+      else if(e.repeat){ if(!holdT) startHold(dir); }
+      else { scrubBy(dir * STEP); commitT = setTimeout(commit, 800); }
+    }
+    else if(k === 'ArrowLeft') col--;
+    else if(k === 'ArrowRight') col++;
+    else if(k === 'Enter' || k === ' ') activate(r[row][col]);
+    paint();
+  });
+  $('.item').concat(byId('playBtn')).forEach(function(el){ el.addEventListener('click', function(){ wake(); activate(el); }); });
+  document.addEventListener('keyup', function(e){ if(e.key === 'ArrowLeft' || e.key === 'ArrowRight') stopHold(); });
+  addEventListener('mousemove', wake);
+  byId('video').addEventListener('click', function(){ wake(); activate(byId('playBtn')); });   // a click on the picture plays / pauses
+  byId('video').addEventListener('play', setPlayIcon); byId('video').addEventListener('pause', setPlayIcon);
+  paint();
+})();
+</script>
+<script src="focus-ring.js"></script>
+</body>
+</html>
