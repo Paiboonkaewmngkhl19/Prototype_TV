@@ -790,7 +790,13 @@
   // → the selected main category → Home
   function stepBack(){
     // in a guide column below its live card: Back first returns to that column's live card (what's on now)
-    if(zone === 'guide' && mem.guide.r > 0){ mem.guide = {c:mem.guide.c, r:0}; return; }
+    // (and that column's list goes back to its start: only that column, the others stay as they are)
+    if(zone === 'guide' && mem.guide.r > 0){
+      var sc = guideCols()[mem.guide.c][1].closest('.col-scroll');
+      if(sc) sc.dataset.scrollTopTo = 0;   // paint() sees the change and scrolls it back
+      delete colRow[mem.guide.c];
+      mem.guide = {c:mem.guide.c, r:0}; return;
+    }
     if(zone === 'grid' || zone === 'avatars' || zone === 'guide'){
       if(zones().indexOf('subs') >= 0){
         zone = 'subs'; mem.subs = Math.max(0, zoneItems('subs').map(function(e){ return e.dataset.sub; }).indexOf(S.sub));
