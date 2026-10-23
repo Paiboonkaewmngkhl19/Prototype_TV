@@ -36,13 +36,23 @@
   #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:var(--bg-0); }
   #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left;
     background:radial-gradient(1400px 900px at 85% 110%, var(--th-glow), transparent 70%), var(--bg-0); }   /* Home's page */
-  /* the whole guide scrolls vertically as one page (the Figma frames are taller than the screen) */
-  #page{ position:absolute; inset:0; overflow:hidden; }
-  #content{ position:relative; padding:60px 0 80px; }
+  /* the header row stays put; everything below it scrolls vertically as one page (the Figma frames are taller than the
+     screen), fading out softly as it passes under the header */
+  #page{ position:absolute; left:0; right:0; top:140px; bottom:0; overflow:hidden;
+    -webkit-mask-image:linear-gradient(180deg, transparent 0, #000 28px); mask-image:linear-gradient(180deg, transparent 0, #000 28px); }
+  #content{ position:relative; padding:0 0 80px; }
+  /* scrolled down: the category rows collapse into this label, pinned under the header; the page fades out above it */
+  .cat-label{ position:absolute; left:110px; top:200px;   /* 60px below the header, like the category tabs */
+    z-index:9; pointer-events:none; white-space:nowrap;
+    font:500 24px/32px var(--noto); letter-spacing:-.24px; text-shadow:0 1px 4px rgba(0,0,0,.4);
+    opacity:0; transform:translateY(6px); transition:opacity .22s cubic-bezier(.2,0,0,1), transform .22s cubic-bezier(.2,0,0,1); }
+  body.collapsed .cat-label{ opacity:1; transform:none; }
+  /* label bottom = 92px into the page: fade from 24px below it (116px) to fully visible 48px below it (140px) */
+  body.collapsed #page{ -webkit-mask-image:linear-gradient(180deg, transparent 0, transparent 116px, #000 140px); mask-image:linear-gradient(180deg, transparent 0, transparent 116px, #000 140px); }
   .clip{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
   /* ---------- Head: title + Switcher, date / time on the right ---------- */
-  .head{ margin:0 110px; height:80px; display:flex; align-items:center; justify-content:space-between; }
+  .head{ position:absolute; left:110px; right:110px; top:60px; z-index:10; height:80px; display:flex; align-items:center; justify-content:space-between; }
   .head-left{ display:flex; align-items:center; gap:32px; }
   h1{ margin:0; font:700 64px/normal Helvetica, Arial, sans-serif; text-shadow:0 0 4px rgba(0,0,0,.5); white-space:nowrap; }
   /* header controls: Switcher and dropdowns are both 80px tall, with the Switcher's 22px text */
@@ -87,11 +97,15 @@
   .tab{ position:relative; height:64px; padding:0 32px; display:flex; align-items:center; justify-content:center; box-sizing:border-box; cursor:pointer;
     background:var(--glass-chip); box-shadow:var(--chip-inset); border-radius:999px;
     font:500 24px/32px Inter, sans-serif; color:rgba(255,255,255,.85); white-space:nowrap; }
-  .tab.on{ background:var(--pill-hi), var(--th-pill); box-shadow:none; padding:0 40px; color:#fff; font-weight:600; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+  /* the chosen category: dim like the Switcher's chosen view (Home's active nav tab fill) until focus is on it */
+  .tab.on{ background:rgba(255,255,255,.22); box-shadow:none; padding:0 40px; color:#fff; font-weight:500; transition:background .22s cubic-bezier(.2,0,0,1); }
+  .tab.on.focused{ background:var(--pill-hi), var(--th-pill); font-weight:600; text-shadow:0 1px 4px rgba(0,0,0,.35); }
   /* sub-tabs (Sports): plain text, the selected one underlined */
-  .subs{ margin-top:4px; }
-  .subs .rail-track{ gap:12px; margin-left:-40px; }   /* the first label's text (not its 40px padding) starts on the 110px margin */
-  .sub{ position:relative; height:60px; padding:0 40px; display:flex; align-items:center; cursor:pointer; opacity:.8; border-radius:12px;
+  .subs{ margin-top:16px; }
+  /* chips start on the 110px margin like every row (the safe area: nothing focusable crosses it); a slim 20px padding
+     keeps the first label close to that edge, and a 52px gap keeps the labels as far apart as Figma's 40px padding + 12px gap */
+  .subs .rail-track{ gap:52px; }
+  .sub{ position:relative; height:60px; padding:0 20px; display:flex; align-items:center; cursor:pointer; opacity:.8; border-radius:12px;
     font:500 24px/32px Inter, sans-serif; color:var(--on-surface-variant); white-space:nowrap; }
   .sub.on{ opacity:1; text-decoration:underline; text-decoration-thickness:10%; text-underline-offset:6px; }
   /* channel avatars above the guide */
@@ -104,13 +118,20 @@
   .logo img{ position:absolute; display:block; }
   .logo img.cover{ inset:0; width:100%; height:100%; object-fit:cover; }
   .logo img.contain{ left:15%; top:15%; width:70%; height:70%; object-fit:contain; }
+  /* no logo file: the channel's name as text on its colour, sized to the avatar (90px; 64px in a guide column head) */
+  .logo.txt{ display:flex; align-items:center; justify-content:center; text-align:center; padding:6px; box-sizing:border-box;
+    font:700 17px/1.1 var(--noto); letter-spacing:-.3px; }
+  .logo.txt.long{ font-size:14px; }   /* "Workpoint": shrunk to fit on one line rather than broken mid-word */
+  .col-head .logo.txt{ font-size:13px; padding:4px; }
+  .col-head .logo.txt.long{ font-size:10px; }
 
   /* focus ring: the shared one from focus-ring.js (Home's gliding glass ring), which follows the .focused item */
 
   /* ---------- View Channels: a 5-column grid of channel cards ---------- */
   .grid{ margin:26px 110px 0; display:grid; grid-template-columns:repeat(5, 332px); gap:10px; }   /* 32px below the tabs */
   .ch-card{ position:relative; height:170px; box-sizing:border-box; padding:16px; border:3.6px solid transparent; border-radius:16px; cursor:pointer;
-    background:var(--glass-card); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);   /* Home's channel card glass */
+    background:var(--glass-card);   /* Home's channel card glass; no backdrop blur: over the plain page it shows nothing, and inside the
+                                       faded scroller Chrome draws it in tiles, leaving seams */
     display:flex; flex-direction:column; justify-content:space-between; transition:background .22s cubic-bezier(.2,0,0,1); }
   .ch-card.focused{ background:var(--glass-card-on); }
   .ch-top{ display:flex; align-items:center; gap:16px; min-width:0; }
@@ -126,7 +147,7 @@
   /* ---------- View Program Guide: one column per channel ---------- */
   .guide{ margin-top:26px; }   /* 32px below the avatars */
   .guide .rail-track{ gap:10px; align-items:flex-start; }
-  .col{ width:390px; flex:0 0 auto; border-radius:16px; background:var(--glass-card); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
+  .col{ width:390px; flex:0 0 auto; border-radius:16px; background:var(--glass-card); }   /* no backdrop blur, as .ch-card */
   .col-head{ height:96px; box-sizing:border-box; padding:16px; border-radius:16px 16px 0 0; background:rgba(255,255,255,.1); display:flex; align-items:center; gap:8px; }
   .col-head .ava-sm{ position:relative; width:64px; height:64px; border-radius:80px; flex:0 0 auto; }
   .col-name{ flex:1; min-width:0; font:600 20px/1.2 var(--noto); letter-spacing:-.24px; }
@@ -143,6 +164,9 @@
   .prog-big{ height:196px; overflow:hidden; box-sizing:border-box; padding:16px; display:flex; flex-direction:column; justify-content:flex-end; gap:4px; }
   .prog-big .art{ position:absolute; inset:0; background-size:cover; background-position:center; }
   .prog-big .art.logo-art{ background:var(--avatar); }
+  .prog-big .art.logo-art .txt-art{ position:absolute; left:50%; top:38%; width:120px; height:120px; transform:translate(-50%,-50%); border-radius:16px;
+    display:flex; align-items:center; justify-content:center; text-align:center; font:700 24px/1.1 var(--noto); }
+  .prog-big .art.logo-art .txt-art.long{ font-size:19px; }
   .prog-big .art.logo-art img{ position:absolute; left:50%; top:38%; width:120px; height:120px; transform:translate(-50%,-50%); object-fit:contain; border-radius:16px; }
   .prog-big .shade{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(102,102,102,0) 15.257%, #000 87.392%); }
   .prog-big .t{ position:relative; font:400 24px/1.2 var(--noto); letter-spacing:-.24px; }
@@ -178,9 +202,8 @@
 </style>
 </head>
 <body class="v-channels">
-<div id="frame"><div id="screen">
-  <div id="page"><div id="content">
-    <div class="head">
+<div id="frame"><div id="screen" data-ring-plain>   <!-- plain focus ring: no artwork reflected in it -->
+    <div class="head" id="head">
       <div class="head-left">
         <h1>TV Guide</h1>
         <div class="switcher">
@@ -195,8 +218,10 @@
         <div class="dd only-guide" id="ddTime"><div class="dd-trigger item"><span class="v"></span><img class="a" src="icons/pkg/d-chev.svg" alt=""></div><div class="dd-menu"></div></div>
       </div>
     </div>
+  <div class="cat-label" id="catLabel"></div>
+  <div id="page"><div id="content">
     <div class="rail tabs"><div class="rail-track" id="tabs"></div></div>
-    <div class="rail subs only-guide" id="subsRail"><div class="rail-track" id="subs"></div></div>
+    <div class="rail subs" id="subsRail"><div class="rail-track" id="subs"></div></div>
     <div class="rail avatars only-guide"><div class="rail-track" id="avatars"></div></div>
     <div class="grid only-channels" id="grid"></div>
     <div class="rail guide only-guide" id="guideRail"><div class="rail-track" id="guide"></div></div>
@@ -218,17 +243,18 @@
   var $ = function(q, el){ return Array.prototype.slice.call((el || document).querySelectorAll(q)); };
   function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
 
-  /* ---------- channels: the ones Home shows (TV Guide rail + Hot Channels), sorted by number ----------
+  /* ---------- 40 channels: the ones Home shows (TV Guide rail + Hot Channels), Thailand's free-to-air digital channels
+     and a few pay channels; shown in channel-number order ----------
      logo: cover = fills the disc; contain = sits inside it; box = Home's crop [left, top, width, height] in %.
-     cats: category tabs; sport: Sports sub-tabs; crown: 'gold' premium or 'owned' (gold with the green mark). */
+     cats: category tabs; tags: sub-tabs (Sports, Others); crown: 'gold' premium or 'owned' (gold with the green mark). */
   var CHANNELS = [
-    {no:61,  n:'PLAY Sports',        logo:'icons/channels/playsports.png', fit:'cover', cats:['sports'], sport:['multi','motorsport','golf'], crown:'gold', recent:true,
+    {no:61,  n:'PLAY Sports',        logo:'icons/channels/playsports.png', fit:'cover', cats:['sports'], tags:['multi','motorsport','golf'], crown:'gold', recent:true,
       sched:[['Formula 1: Grand Prix Qualifying',120,'posters/f1.jpg',1],['Paddock Pass',30],['PGA Tour: Final Round Highlights',90],['Motorsport Weekly',60],['World Superbike: Race 2',90],['Golf Central',60]]},
-    {no:62,  n:'MUTV',               logo:'icons/epg/mutv.png', fit:'cover', cats:['sports'], sport:['football'], crown:'owned', fav:true, recent:true,
+    {no:62,  n:'MUTV',               logo:'icons/epg/mutv.png', fit:'cover', cats:['sports'], tags:['football'], crown:'owned', fav:true, recent:true,
       sched:[['PL Match: v Chelsea (A) 25/26',120,'posters/maxresdefault.jpg',1],['Inside United',60],['Sir Alex Ferguson: Never Give In',90,'posters/maxresdefault.jpg'],['Reserves Highlights',60],['Classic Match: 1999 Final',120],['United Review',30]]},
-    {no:63,  n:'Real Madrid TV',     logo:'icons/epg/realmadrid.png', fit:'contain', cats:['sports'], sport:['football'],
+    {no:63,  n:'Real Madrid TV',     logo:'icons/epg/realmadrid.png', fit:'contain', cats:['sports'], tags:['football'],
       sched:[['Champions League 15/16: Real Madrid vs Atlético de Madrid',120,'posters/upcoming/u2.jpg'],['Classic Highlights',60],['Training Ground Live',60,'posters/upcoming/u3.jpg'],['La Liga Review',60],['Bernabéu Stories',90]]},
-    {no:64,  n:'W-Sport',            logo:'icons/epg/wsport.png', fit:'contain', bg:'#fff', cats:['sports'], sport:['multi','basketball'],
+    {no:64,  n:'W-Sport',            logo:'icons/epg/wsport.png', fit:'contain', bg:'#fff', cats:['sports'], tags:['multi','basketball'],
       sched:[['Malaysia Regional Cup \'26: Wildcats v Sneakers',120,'posters/all.jpg',1],['Heroines (S2E02)',60],['All or Nothing: Brazil',60,'posters/all.jpg'],['Hoops Asia',60],['W-Sport Tonight',30]]},
     {no:230, n:'Warner TV',          logo:'icons/channels/wbtv.png', box:[10.88,12.81,80.09,74.91], bg:'#fff', cats:['movies','cartoons'], crown:'gold',
       sched:[['Superman',150,'posters/superman.jpg',1],['Looney Tunes Cartoons',30],['Gotham Knights',60],['The Big Bang Theory',30],['Young Sheldon',30],['Friends',30]]},
@@ -248,16 +274,70 @@
       sched:[['CNN News Central',60],['Anderson Cooper 360°',60,null,1],['The Lead with Jake Tapper',60],['Amanpour',30],['CNN Newsroom',90],['World Sport',30]]},
     {no:302, n:'BBC News',           logo:'icons/epg/bbc.jpg', fit:'cover', cats:['news'],
       sched:[['BBC News at Ten',60],['HARDtalk',30],['Newsnight',60,null,1],['World Business Report',30],['BBC World News',60],['Click',30]]},
-    {no:902, n:'Asian Games 902',    logo:'tv-features-test/live-stream-assets/channel-asian-games.png', fit:'cover', bg:'#fff', cats:['digital','sports'], sport:['multi','tennis','boxing'], fav:true,
+    {no:902, n:'Asian Games 902',    logo:'tv-features-test/live-stream-assets/channel-asian-games.png', fit:'cover', bg:'#fff', cats:['digital','sports'], tags:['multi','tennis','boxing'], fav:true,
       sched:[['Asian Games 2026: Tennis Finals',150,'posters/upcoming/u4.png',1],['Boxing: Semi-finals',120],['Medal Ceremony Live',30],['Asian Games Daily',60]]},
-    {no:907, n:'Asian Games 907',    logo:'tv-features-test/shorts-assets/channel-907.png', fit:'cover', bg:'#fff', cats:['digital','sports'], sport:['multi','basketball','rugby'],
-      sched:[['Asian Games 2026: Football Group Stage',120,'posters/SC.jpg',1],['Basketball 3x3: Quarter-finals',90],['Rugby Sevens: Pool A',90],['Asian Games Daily',60]]}
+    {no:907, n:'Asian Games 907',    logo:'tv-features-test/shorts-assets/channel-907.png', fit:'cover', bg:'#fff', cats:['digital','sports'], tags:['multi','basketball','rugby'],
+      sched:[['Asian Games 2026: Football Group Stage',120,'posters/SC.jpg',1],['Basketball 3x3: Quarter-finals',90],['Rugby Sevens: Pool A',90],['Asian Games Daily',60]]},
+    // Thailand's digital terrestrial (free-to-air) channels, at their own channel numbers. No logo files for these:
+    // the avatar shows the name as text on a colour (txt, plus fg for dark text on a light colour).
+    {no:1,  n:'TV5 HD1',      txt:'TV5', bg:'#1d4f9c', cats:['digital','variety'],
+      sched:[['TV5 Midday News',60],['Army Channel Documentary',60],['Muay Thai Super Fight',90,null,1],['TV5 Evening News',60],['Thai Drama Classics',90]]},
+    {no:2,  n:'NBT 2HD',      txt:'NBT', bg:'#0a6e3a', cats:['digital','news'],
+      sched:[['NBT National News',60],['Government Report',30],['Thailand Today',60],['Regional News Hour',60],['Talk of the Nation',60]]},
+    {no:3,  n:'Thai PBS',     txt:'Thai PBS', bg:'#f26f21', cats:['digital','news','others'], tags:['education','documentary'],
+      sched:[['Thai PBS News',60],['Wild Thailand',60,null,1],['Kitchen of the Provinces',30],['Public Forum',60],['Thai PBS Night News',60]]},
+    {no:4,  n:'ALTV',         txt:'ALTV', bg:'#26a69a', cats:['digital','cartoons','others'], tags:['education'],
+      sched:[['Little Scientists',30],['Learn English Together',30],['Kids Story Time',30],['Math Adventures',30],['Family Science Show',60]]},
+    {no:10, n:'TPTV',         txt:'TPTV', bg:'#5d4037', cats:['digital','news'],
+      sched:[['Parliament Live Session',120],['Lawmakers Talk',60],['Parliament News',30],['Committee Report',60]]},
+    {no:16, n:'TNN16',        txt:'TNN16', bg:'#c62828', cats:['digital','news'],
+      sched:[['TNN News Hour',60],['Business Watch',30],['Tech Talk Thailand',30],['TNN World',60],['Breaking News Live',60,null,1]]},
+    {no:18, n:'JKN18',        txt:'JKN18', bg:'#111', cats:['digital','news','others'], tags:['documentary'],
+      sched:[['JKN World News',60],['Global Business',30],['Asia Documentary',60],['JKN Night Talk',60]]},
+    {no:22, n:'Nation TV',    txt:'Nation', bg:'#1565c0', cats:['digital','news'],
+      sched:[['Nation Headline',60],['Nation Insight',60],['Weekend Debate',90,null,1],['Nation Night News',60]]},
+    {no:23, n:'Workpoint TV', txt:'Workpoint', bg:'#ffcc00', fg:'#111', cats:['digital','variety'],
+      sched:[['The Mask Singer',90,null,1],['I Can See Your Voice',90],['Workpoint Today',60],['Comedy Night',60],['Game Show Marathon',90]]},
+    {no:24, n:'True4U',       txt:'True4U', bg:'#e53935', cats:['digital','variety','others'], tags:['shopping'],
+      sched:[['True4U Drama',90],['Home Shopping Hour',60],['Celebrity Kitchen',60],['Music Countdown',60],['Late Night Movie',120]]},
+    {no:25, n:'GMM25',        txt:'GMM25', bg:'#7b1fa2', cats:['digital','variety','movies'],
+      sched:[['GMM25 Series',60,null,1],['Club Friday',60],['Music Live Stage',90],['Teen Series Marathon',120]]},
+    {no:27, n:'Channel 8',    txt:'Ch 8', bg:'#e65100', cats:['digital','variety'],
+      sched:[['Muay Thai Live',120,null,1],['Channel 8 Drama',90],['Thai Folk Music',60],['News at Eight',60]]},
+    {no:29, n:'MONO29',       txt:'MONO29', bg:'#000', cats:['digital','movies'],
+      sched:[['Mono Hit Movie',120,null,1],['Mono Series',60],['Cartoon Club',60],['Mono Late Movie',120]]},
+    {no:30, n:'MCOT HD',      txt:'MCOT', bg:'#0d47a1', cats:['digital','news'],
+      sched:[['MCOT News',60],['Thailand Morning',60],['MCOT Documentary',60],['MCOT Night News',60]]},
+    {no:31, n:'one31',        txt:'one31', bg:'#c2185b', cats:['digital','variety'],
+      sched:[['one31 Lakorn',90,null,1],['The Wall Song',90],['One Night Comedy',60],['Lakorn Rerun',90]]},
+    {no:32, n:'Thairath TV',  txt:'Thairath', bg:'#d32f2f', cats:['digital','news','variety'],
+      sched:[['Thairath News',60],['Talk of the Town',60],['Thairath Drama',90],['Thairath Night News',60]]},
+    {no:33, n:'Ch3 HD',       txt:'Ch3 HD', bg:'#1e88e5', cats:['digital','variety'], recent:true,
+      sched:[['Ch3 Lakorn',120,null,1],['Ch3 News',60],['Weekend Variety Show',90],['Ch3 Late Night',60]]},
+    {no:34, n:'Amarin TV',    txt:'Amarin', bg:'#00897b', cats:['digital','variety','others'], tags:['shopping'],
+      sched:[['Amarin Lifestyle',60],['Amarin Shopping',60],['Home and Garden',30],['Amarin Drama',90],['Amarin News',60]]},
+    {no:35, n:'Ch7 HD',       txt:'Ch7 HD', bg:'#2e7d32', cats:['digital','variety'], fav:true,
+      sched:[['Ch7 Lakorn',120,null,1],['Ch7 Evening News',60],['Morning Variety',90],['Muay Thai 7 Si',120]]},
+    {no:36, n:'PPTV HD36',    txt:'PPTV', bg:'#fbc02d', fg:'#111', cats:['digital','variety','sports'], tags:['football'],
+      sched:[['PPTV Football Live',120,null,1],['PPTV Lakorn',90],['PPTV News',60],['Football Highlights',60]]},
+    // pay channels
+    {no:65, n:'Eurosport',    logo:'icons/pkg/d-eurosport.png', fit:'contain', bg:'#fff', cats:['sports'], tags:['multi','tennis'], crown:'gold',
+      sched:[['Tennis: ATP Highlights',90],['Cycling Live',120,null,1],['Snooker Masters',120],['Eurosport News',30]]},
+    {no:66, n:'T Sports 7',   txt:'T Sports', bg:'#283593', cats:['sports'], tags:['multi','boxing'],
+      sched:[['Thai League Live',120,null,1],['Boxing Night',90],['T Sports News',30],['Volleyball Thailand',120]]},
+    {no:401, n:'Cartoon Network', logo:'icons/pkg/d-cn.png', fit:'contain', bg:'#000', cats:['cartoons'], crown:'gold',
+      sched:[['We Bare Bears',30],['The Amazing World of Gumball',30],['Teen Titans Go!',30],['Ben 10',30],['Adventure Time',30]]},
+    {no:411, n:'Discovery',   logo:'icons/pkg/d-discovery.png', fit:'contain', bg:'#fff', cats:['others'], tags:['documentary'], crown:'gold',
+      sched:[['How It\'s Made',30],['Shark Week',60,null,1],['Gold Rush',60],['MythBusters',60],['Deadliest Catch',60]]},
+    {no:501, n:'MONOMAX 1',   logo:'partners/monomax.png', fit:'contain', bg:'#fff', cats:['movies'], crown:'gold',
+      sched:[['District 9',115,'posters/district9.jpg',1],['Liverpool vs Brentford',120,'posters/liver-ben.jpg'],['Top Gun: Maverick',135,'posters/topgun-m.jpg'],['Monomax Original Series',60]]}
   ];
+  CHANNELS.sort(function(a, b){ return a.no - b.no; });   // lowest channel number first, everywhere
   var CATS = [
     {id:'all', n:'All Channels'}, {id:'recent', n:'Recently Watched'}, {id:'fav', n:'Favorite'}, {id:'digital', n:'Digital TV'},
     {id:'sports', n:'Sports', subs:[['all','All Sports'],['multi','Multi-Sports'],['football','Football'],['motorsport','Motorsport'],['golf','Golf'],
       ['basketball','Basketball'],['tennis','Tennis'],['rugby','Rugby'],['boxing','Boxing']]},
-    {id:'movies', n:'Movies & Series'}, {id:'news', n:'News'}, {id:'cartoons', n:'Cartoons'}, {id:'variety', n:'Variety'}, {id:'others', n:'Others'}
+    {id:'movies', n:'Movies & Series'}, {id:'news', n:'News'}, {id:'cartoons', n:'Cartoons'}, {id:'variety', n:'Variety'}, {id:'others', n:'Others', subs:[['all','All'],['education','Education'],['documentary','Documentary'],['shopping','Shopping']]}
   ];
   var SPORT_CH = ['sports'];   // channels in these categories show a red Live tag for what's on now, others On Air
 
@@ -295,13 +375,14 @@
       if(S.cat === 'recent') return c.recent;
       if(S.cat === 'fav') return c.fav;
       if(S.cat !== 'all' && c.cats.indexOf(S.cat) < 0) return false;
-      if(S.view === 'guide' && cat.subs && S.sub !== 'all') return (c.sport || []).indexOf(S.sub) >= 0;
+      if(cat.subs && S.sub !== 'all') return (c.tags || []).indexOf(S.sub) >= 0;   // same sub-tab in both views
       return true;
     });
   }
 
   /* ---------- rendering ---------- */
   function logoHtml(c){
+    if(!c.logo) return '<div class="logo txt' + ((c.txt || c.n).length > 8 ? ' long' : '') + '" style="background:' + c.bg + ';color:' + (c.fg || '#fff') + '"><span>' + esc(c.txt || c.n) + '</span></div>';
     var b = c.box, img = b ? '<img src="' + c.logo + '" alt="" style="left:' + b[0] + '%;top:' + b[1] + '%;width:' + b[2] + '%;height:' + b[3] + '%;object-fit:contain;">'
                           : '<img class="' + (c.fit || 'cover') + '" src="' + c.logo + '" alt="">';
     return '<div class="logo" style="' + (c.bg ? 'background:' + c.bg : '') + '">' + img + '</div>';
@@ -309,13 +390,20 @@
   function crownIcon(c){ return c.crown ? '<img class="ic20" src="icons/tv-guide/' + (c.crown === 'owned' ? 'crown.svg' : 'crown-s.svg') + '" alt="Premium">' : ''; }
   var tabsEl = document.getElementById('tabs'), subsEl = document.getElementById('subs'), subsRail = document.getElementById('subsRail');
   var gridEl = document.getElementById('grid'), avasEl = document.getElementById('avatars'), guideEl = document.getElementById('guide');
-  var emptyEl = document.getElementById('empty');
+  var emptyEl = document.getElementById('empty'), catLabel = document.getElementById('catLabel');
   tabsEl.innerHTML = CATS.map(function(c){ return '<div class="tab item" data-cat="' + c.id + '">' + esc(c.n) + '</div>'; }).join('');
 
   function renderTabs(){
     $('.tab', tabsEl).forEach(function(t){ t.classList.toggle('on', t.dataset.cat === S.cat); });
     var cat = CATS.filter(function(c){ return c.id === S.cat; })[0];
-    subsEl.innerHTML = cat.subs ? cat.subs.map(function(s){ return '<div class="sub item' + (s[0] === S.sub ? ' on' : '') + '" data-sub="' + s[0] + '">' + esc(s[1]) + '</div>'; }).join('') : '';
+    // rebuilt only when the category changes; otherwise the same chips just move the selected mark, so the focus ring
+    // can slide from one to the next (it can't slide away from an element that was replaced)
+    if(subsEl.dataset.cat !== S.cat){
+      subsEl.dataset.cat = S.cat;
+      subsEl.innerHTML = cat.subs ? cat.subs.map(function(s){ return '<div class="sub item" data-sub="' + s[0] + '">' + esc(s[1]) + '</div>'; }).join('') : '';
+      $('.sub', subsEl).forEach(function(el){ el.addEventListener('click', onClick); });
+    }
+    $('.sub', subsEl).forEach(function(el){ el.classList.toggle('on', el.dataset.sub === S.sub); });
     subsRail.style.display = cat.subs ? '' : 'none';
   }
   function renderChannels(list){
@@ -353,6 +441,7 @@
         var tm = fmtTime(p.start) + (j === 0 ? ' - ' : ' – ') + fmtTime(p.end);
         if(j === 0){
           var art = p.img ? '<div class="art" style="background-image:url(\'' + p.img + '\')"></div>'
+                          : !c.logo ? '<div class="art logo-art"><span class="txt-art' + ((c.txt || c.n).length > 8 ? ' long' : '') + '" style="background:' + c.bg + ';color:' + (c.fg || '#fff') + '">' + esc(c.txt || c.n) + '</span></div>'
                           : '<div class="art logo-art"><img src="' + c.logo + '" alt="" style="background:' + (c.bg || 'transparent') + '"></div>';
           body += '<div class="prog prog-big item" data-key="' + p.key + '">' + art + '<div class="shade"></div>' +
             '<div class="t clip">' + esc(p.t) + '</div><div class="row"><div class="tm clip">' + tm + '</div>' + tagsFor(p, true, when) + '</div></div>';
@@ -374,13 +463,13 @@
   CHANNELS.forEach(function(c){ c.progs.forEach(function(p){ PROG_BY_KEY[p.key] = p; }); });
 
   function render(){
-    document.body.className = 'v-' + S.view;
+    document.body.className = 'v-' + S.view + (document.body.classList.contains('collapsed') ? ' collapsed' : '');
     $('.sw').forEach(function(s){ s.classList.toggle('on', s.dataset.view === S.view); });
     renderTabs();
     var list = channelsFor();
     if(S.view === 'channels') renderChannels(list); else renderGuide(list);
     emptyEl.style.display = list.length ? 'none' : '';
-    $('.ch-card, .prog, .ava, .sub').forEach(function(el){ el.addEventListener('click', onClick); });
+    $('.ch-card, .prog, .ava').forEach(function(el){ el.addEventListener('click', onClick); });
   }
 
   /* ---------- head: clock chips and the two dropdowns ---------- */
@@ -433,11 +522,9 @@
   function guideCols(){ return $('.col', guideEl).map(function(col){ return $('.prog', col); }); }
   function zones(){
     var z = ['head', 'tabs'];
+    if(subsEl.children.length) z.push('subs');   // Sports / Others sub-tabs, in both views
     if(S.view === 'channels'){ if(zoneItems('grid').length) z.push('grid'); }
-    else {
-      if(subsEl.children.length) z.push('subs');
-      if(zoneItems('avatars').length) z.push('avatars', 'guide');
-    }
+    else if(zoneItems('avatars').length) z.push('avatars', 'guide');
     return z;
   }
   function resetZones(){ mem.avatars = 0; mem.grid = 0; mem.guide = {c:0, r:0}; if(zones().indexOf(zone) < 0) zone = 'tabs'; }
@@ -468,13 +555,18 @@
        (zone === 'grid' && mem.grid < 5) || (zone === 'guide' && mem.guide.r === 0)) top = 0;
     else {
       var y = (el.getBoundingClientRect().top - page.getBoundingClientRect().top) / K + page.scrollTop, h = el.offsetHeight;
-      if(y + h + 60 > top + 1080) top = y + h + 60 - 1080;
-      if(y - 60 < top) top = y - 60;
+      if(y + h + 60 > top + page.clientHeight) top = y + h + 60 - page.clientHeight;
+      if(y - 150 < top) top = y - 150;   // fully visible below the collapsed label, focus ring included
     }
-    page.dataset.scrollTopTo = Math.max(0, top);
-    page.scrollTo({top:Math.max(0, top), behavior:'smooth'});
+    top = Math.max(0, top);
+    page.dataset.scrollTopTo = top;
+    page.scrollTo({top:top, behavior:'smooth'});
+    // scrolled down: the category rows collapse into one label, 60px under the header ("All Channels", "Sports · Football")
+    var cat = CATS.filter(function(c){ return c.id === S.cat; })[0], sub = cat.subs && S.sub !== 'all' && cat.subs.filter(function(x){ return x[0] === S.sub; })[0];
+    catLabel.textContent = cat.n + (sub ? ' · ' + sub[1] : '');
+    document.body.classList.toggle('collapsed', top > 0);
   }
-  // moving onto a tab / sub-tab filters straight away
+  // moving onto a category tab filters straight away; a sub-tab needs Enter
   function selectCat(id){ if(S.cat === id) return; S.cat = id; S.sub = 'all'; mem.subs = 0; render(); resetZones(); }
   function selectSub(id){ if(S.sub === id) return; S.sub = id; render(); resetZones(); }
   function setView(v){ if(S.view === v) return; S.view = v; closeMenu(); render(); resetZones(); }
@@ -493,7 +585,6 @@
         var items = zoneItems(zone);
         mem[zone] = Math.max(0, Math.min(items.length - 1, mem[zone] + dx));
         if(zone === 'tabs') selectCat(items[mem.tabs].dataset.cat);
-        if(zone === 'subs') selectSub(items[mem.subs].dataset.sub);
       }
       return;
     }
@@ -508,9 +599,18 @@
       if(nr >= 0 && nr < col.length){ mem.guide.r = nr; return; }
     }
     var nz = zs[zi + dy];
+    // Down from the category tabs skips the sub-tabs and lands on the first channel card (Up from the cards still
+    // reaches the sub-tabs, then the categories)
+    if(zone === 'tabs' && dy > 0 && nz === 'subs'){
+      nz = zs[zi + 2];
+      if(nz === 'grid') mem.grid = 0;
+      if(nz === 'avatars') mem.avatars = 0;
+    }
     if(!nz) return;
     if(nz === 'guide' && zone === 'avatars') mem.guide = {c:mem.avatars, r:0};
     if(nz === 'avatars' && zone === 'guide') mem.avatars = mem.guide.c;
+    // coming onto the sub-tabs: start on the selected (underlined) one
+    if(nz === 'subs') mem.subs = Math.max(0, zoneItems('subs').map(function(e){ return e.dataset.sub; }).indexOf(S.sub));
     if(nz === 'tabs') mem.tabs = Math.max(0, CATS.map(function(c){ return c.id; }).indexOf(S.cat));
     if(nz === 'head' && zone !== 'head') mem.head = S.view === 'guide' ? 1 : 0;
     zone = nz;
@@ -522,8 +622,23 @@
     try { if(document.referrer && /home\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
     location.href = 'home.html';
   }
+  // Back steps out one level at a time: a channel card / programme → the selected sub-tab (when the category has them)
+  // → the selected main category → Home
+  function stepBack(){
+    if(zone === 'grid' || zone === 'avatars' || zone === 'guide'){
+      if(zones().indexOf('subs') >= 0){
+        zone = 'subs'; mem.subs = Math.max(0, zoneItems('subs').map(function(e){ return e.dataset.sub; }).indexOf(S.sub));
+        return;
+      }
+      zone = 'tabs';
+    } else if(zone === 'subs') zone = 'tabs';
+    else { back(); return; }
+    mem.tabs = Math.max(0, CATS.map(function(c){ return c.id; }).indexOf(S.cat));
+  }
   function chByNo(no){ return CHANNELS.filter(function(c){ return c.no === +no; })[0]; }
   function activate(el){
+    // sub-tabs: moving along them only moves focus; Enter picks one (underlined) and filters
+    if(el.classList.contains('sub')){ selectSub(el.dataset.sub); return; }
     if(el.classList.contains('sw')){ setView(el.dataset.view); mem.head = S.view === 'guide' ? 1 : 0; zone = 'head'; return; }
     if(el.classList.contains('dd-trigger')){ openMenu(el.parentElement === dds.date ? 'date' : 'time'); return; }
     if(el.classList.contains('ch-card')){ var c = chByNo(el.dataset.no); toast('Now watching ' + c.n + ' (' + c.no + '): ' + c.progs[onAt(c, new Date())].t); return; }
@@ -569,7 +684,7 @@
     else if(e.key === 'ArrowDown') move(0, 1);
     else if(e.key === 'ArrowUp') move(0, -1);
     else if(e.key === 'Enter' || e.key === ' '){ var el = focusedEl(); if(el) activate(el); }
-    else if(e.key === 'Escape' || e.key === 'Backspace') back();
+    else if(e.key === 'Escape' || e.key === 'Backspace') stepBack();
     else handled = false;
     if(handled){ e.preventDefault(); paint(); }
   });

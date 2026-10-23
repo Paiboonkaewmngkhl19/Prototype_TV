@@ -47,8 +47,11 @@
     var hit = document.elementFromPoint(cx, cy);
     return !hit || el.contains(hit) || hit.contains(el);
   }
+  // a page can ask for the plain ring everywhere (no artwork reflected in it): <div id="screen" data-ring-plain>
+  var PLAIN = screen.hasAttribute('data-ring-plain');
   // the item's artwork: its own or a descendant's background image, or a large enough <img>
   function artOf(el){
+    if(PLAIN) return '';
     if(el.dataset.ringArt !== undefined) return el.dataset.ringArt;
     var found = '', nodes = [el].concat(Array.prototype.slice.call(el.querySelectorAll('*'), 0, 25));
     for(var i = 0; i < nodes.length && !found; i++){
