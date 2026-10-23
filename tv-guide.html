@@ -47,6 +47,15 @@
     font:500 24px/32px var(--noto); letter-spacing:-.24px; text-shadow:0 1px 4px rgba(0,0,0,.4);
     opacity:0; transform:translateY(6px); transition:opacity .22s cubic-bezier(.2,0,0,1), transform .22s cubic-bezier(.2,0,0,1); }
   body.collapsed .cat-label{ opacity:1; transform:none; }
+  /* in the guide's columns, which sit 32px under the label: a shorter fade, 4px → 24px below it, so the columns and their
+     focus ring are fully visible */
+  body.collapsed.in-guide #page{ -webkit-mask-image:linear-gradient(180deg, transparent 0, transparent 96px, #000 116px); mask-image:linear-gradient(180deg, transparent 0, transparent 96px, #000 116px); }
+  .avatars{ transition:opacity .22s cubic-bezier(.2,0,0,1); }
+  body.in-guide .avatars{ opacity:0; }
+  /* breadcrumb: "Sports / Golf", the parent category regular and grey, a grey slash, the current sub-tab bold white */
+  .cat-label{ display:flex; align-items:baseline; gap:12px; }
+  .cat-label .crumb, .cat-label .sep{ font-weight:400; color:rgba(255,255,255,.55); }
+  .cat-label .cur{ font-weight:700; color:#fff; }
   /* label bottom = 92px into the page: fade from 24px below it (116px) to fully visible 48px below it (140px) */
   body.collapsed #page{ -webkit-mask-image:linear-gradient(180deg, transparent 0, transparent 116px, #000 140px); mask-image:linear-gradient(180deg, transparent 0, transparent 116px, #000 140px); }
   .clip{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -95,13 +104,15 @@
   .tabs{ margin-top:51px; }   /* 57px below the head (as before the head grew 3px), less the rail's 6px padding */
   .tabs .rail-track{ gap:32px; }
   .tab{ position:relative; height:64px; padding:0 32px; display:flex; align-items:center; justify-content:center; box-sizing:border-box; cursor:pointer;
-    background:var(--glass-chip); box-shadow:var(--chip-inset); border-radius:999px;
-    font:500 24px/32px Inter, sans-serif; color:rgba(255,255,255,.85); white-space:nowrap; }
+    /* not selected: no fill, a thin outline and grey text (Figma TabBar's resting tab), so it reads clearly apart from
+       the selected one's dim fill */
+    background:transparent; box-shadow:inset 0 0 0 2px rgba(255,255,255,.14); border-radius:999px;
+    font:500 24px/32px Inter, sans-serif; color:var(--on-surface-variant); white-space:nowrap; }
   /* the chosen category: dim like the Switcher's chosen view (Home's active nav tab fill) until focus is on it */
   .tab.on{ background:rgba(255,255,255,.22); box-shadow:none; padding:0 40px; color:#fff; font-weight:500; transition:background .22s cubic-bezier(.2,0,0,1); }
   .tab.on.focused{ background:var(--pill-hi), var(--th-pill); font-weight:600; text-shadow:0 1px 4px rgba(0,0,0,.35); }
   /* sub-tabs (Sports): plain text, the selected one underlined */
-  .subs{ margin-top:16px; }
+  .subs{ margin-top:20px; }   /* 32px from the category tabs: 6px + 20px + 6px (the rails' ring padding) */
   /* chips start on the 110px margin like every row (the safe area: nothing focusable crosses it); a slim 20px padding
      keeps the first label close to that edge, and a 52px gap keeps the labels as far apart as Figma's 40px padding + 12px gap */
   .subs .rail-track{ gap:52px; }
@@ -109,7 +120,7 @@
     font:500 24px/32px Inter, sans-serif; color:var(--on-surface-variant); white-space:nowrap; }
   .sub.on{ opacity:1; text-decoration:underline; text-decoration-thickness:10%; text-underline-offset:6px; }
   /* channel avatars above the guide */
-  .avatars{ margin-top:4px; }
+  .avatars{ margin-top:20px; }   /* 32px from the sub-tabs (or the category tabs): 6px + 20px + 6px */
   .avatars .rail-track{ gap:24px; }
   .ava{ position:relative; width:90px; height:90px; border-radius:100px; flex:0 0 auto; cursor:pointer; }
 
@@ -147,7 +158,8 @@
   /* ---------- View Program Guide: one column per channel ---------- */
   .guide{ margin-top:26px; }   /* 32px below the avatars */
   .guide .rail-track{ gap:10px; align-items:flex-start; }
-  .col{ width:390px; flex:0 0 auto; border-radius:16px; background:var(--glass-card); }   /* no backdrop blur, as .ch-card */
+  .col{ width:390px; flex:0 0 auto; border-radius:16px; background:var(--glass-card); transition:background .22s cubic-bezier(.2,0,0,1); }   /* no backdrop blur, as .ch-card */
+  .col.hl{ background:linear-gradient(180deg, rgba(190,190,205,.4), rgba(95,95,110,.4)); }   /* its channel logo is focused: 40%, a gentle step up from the resting column */
   .col-head{ height:96px; box-sizing:border-box; padding:16px; border-radius:16px 16px 0 0; background:rgba(255,255,255,.1); display:flex; align-items:center; gap:8px; }
   .col-head .ava-sm{ position:relative; width:64px; height:64px; border-radius:80px; flex:0 0 auto; }
   .col-name{ flex:1; min-width:0; font:600 20px/1.2 var(--noto); letter-spacing:-.24px; }
@@ -157,11 +169,27 @@
   .col-no{ height:40px; min-width:40px; box-sizing:border-box; padding:0 12px; border-radius:8px; display:flex; align-items:center; justify-content:center;
     background:rgba(0,0,0,.35); font:500 16px/20px var(--noto); }
   .col-body{ padding:8px; display:flex; flex-direction:column; gap:8px; }
+  /* below the pinned live card: the column's own scroller. It runs on past the bottom of the screen (5 grid rows,
+     5 x 106 - 8), scrolling in whole rows so the rows line up across columns; focus is kept in the 4 rows on screen.
+     Only a column whose last programme has focus ends there: 4 rows tall (4 x 106 - 8), its background hugging that
+     card (8px padding) */
+  /* no height transition: while it shrinks, the browser caps the scroll at the taller box's end, one row short, which
+     left the focused last card hidden under the ring's slot */
+  .col-scroll{ height:522px; overflow:hidden; }
+  .col-scroll.end{ height:416px; }
+  /* focus on a programme of the next day: the live card is put away and the date divider fills its grid slot at the
+     top (Figma's next-day column), so the column has exactly 2 more rows' room (204 + 8 = 212px): 6 rows on screen */
+  .col.next-day .prog-big{ display:none; }
+  .col.next-day .col-scroll{ height:734px; }   /* 6 x 106 - 8 = 628 on screen, plus a row running on */
+  .col.next-day .col-scroll.end{ height:628px; }
+  .col.next-day .day-sep{ margin-top:0; height:98px; }   /* the same 106px slot, the bar now filling it */
+  .col-list{ display:flex; flex-direction:column; gap:8px; }
   .col-empty{ padding:24px 16px; font:400 20px/1.2 var(--noto); color:var(--on-surface-variant); }
 
   /* programme cards: the first (on at the chosen time) is the tall picture card, the rest are text blocks */
   .prog{ position:relative; border-radius:8px; cursor:pointer; }
-  .prog-big{ height:196px; overflow:hidden; box-sizing:border-box; padding:16px; display:flex; flex-direction:column; justify-content:flex-end; gap:4px; }
+  .prog-big{ height:204px;   /* exactly two programme rows (98 + 8 + 98), so a next-day column lines up with its neighbours */
+    overflow:hidden; box-sizing:border-box; padding:16px; display:flex; flex-direction:column; justify-content:flex-end; gap:8px; }
   .prog-big .art{ position:absolute; inset:0; background-size:cover; background-position:center; }
   .prog-big .art.logo-art{ background:var(--avatar); }
   .prog-big .art.logo-art .txt-art{ position:absolute; left:50%; top:38%; width:120px; height:120px; transform:translate(-50%,-50%); border-radius:16px;
@@ -172,7 +200,7 @@
   .prog-big .t{ position:relative; font:400 24px/1.2 var(--noto); letter-spacing:-.24px; }
   .prog-big .row{ position:relative; height:26px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
   .prog-big .tm{ flex:1; min-width:0; font:500 20px/1 var(--noto); letter-spacing:-.24px; color:rgba(255,255,255,.8); }
-  .prog-blk{ width:374px; box-sizing:border-box; padding:16px; display:flex; flex-direction:column; gap:8px; background:var(--glass-chip);
+  .prog-blk{ width:374px; box-sizing:border-box; padding:16px; display:flex; flex-direction:column; gap:8px; background:rgba(255,255,255,.06);   /* resting: a faint fill, so the focused block stands out */
     transition:background .22s cubic-bezier(.2,0,0,1); }
   .prog-blk.focused{ background:var(--glass-card-on); }
   .prog-blk .title-row{ display:flex; align-items:center; gap:8px; }
@@ -189,13 +217,53 @@
   .tag.live i{ width:6px; height:6px; border-radius:100px; background:#fff; }
   .tag.watching{ background:#59d478; border-color:var(--on-surface); color:#fff; font-weight:500; }
   /* date separator between days */
-  .day-sep{ height:47px; box-sizing:border-box; border-radius:8px; margin-top:39px; display:flex; align-items:center; justify-content:center;
+  .day-sep{ height:47px; box-sizing:border-box; border-radius:8px; margin-top:51px;   /* 51 + 47 = 98, a programme card's height: one grid slot */
+    display:flex; align-items:center; justify-content:center;
     background:rgba(0,0,0,.35); font:500 20px/1.2 var(--noto); letter-spacing:-.24px;
     text-shadow:0 4px 4px rgba(0,0,0,.15), 0 1px 1.5px rgba(0,0,0,.3); }
 
   .empty{ margin:40px 110px 0; font:400 24px/1.4 var(--noto); color:var(--on-surface-variant); }
   body.v-channels .only-guide, body.v-guide .only-channels{ display:none !important; }
 
+  /* first-visit hint (Figma PLAY epg / mini epg "Alert", 23:10054): a full-width bar along the bottom, shown when the page
+     opens, fading away after 2.5s */
+  .alert{ position:absolute; left:0; bottom:0; width:1920px; height:120px; z-index:28; box-sizing:border-box; padding:40px 0;
+    display:flex; align-items:center; justify-content:center; gap:16px; border-radius:12px; overflow:hidden; pointer-events:none;
+    /* Home's default theme: navy-tinted frosted glass (like the dropdown menu) over a strong blur of the guide behind */
+    background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,0) 60%), rgba(18,24,36,.72);
+    backdrop-filter:blur(24px) saturate(1.3); -webkit-backdrop-filter:blur(24px) saturate(1.3);
+    box-shadow:0 2px 6px 2px rgba(0,0,0,.15), 0 1px 2px 0 rgba(0,0,0,.3);
+    transition:opacity .4s ease, transform .4s cubic-bezier(.2,0,0,1); }
+  .alert.gone{ opacity:0; transform:translateY(24px); }
+  .alert .bar{ width:6px; height:34.286px; flex:0 0 auto; border-radius:4px; background:var(--on-surface);
+    box-shadow:0 2px 6px 2px rgba(0,0,0,.15), 0 1px 2px 0 rgba(0,0,0,.3); }
+  .alert p{ margin:0; font:400 32px/40px Roboto, sans-serif; color:var(--on-surface); white-space:nowrap; }
+  /* favourite added, like a TikTok / Facebook like: a big heart pops over the card and floats away, and the small heart
+     bounces in with a ring and a burst of sparks; removing it just shrinks the small heart back */
+  .fav-wrap{ position:relative; display:block; width:20px; height:20px; }
+  .fav-wrap .fav-ic{ position:relative; z-index:1; }
+  .rem-wrap{ position:relative; display:none; width:24px; height:24px; flex:0 0 auto; }
+  .prog-blk.focused .rem-wrap, .rem-wrap.on{ display:block; }   /* the bell: on the focused card, or once set */
+  .rem-wrap .bell{ position:relative; z-index:1; }
+  .bell.pop{ animation:favPop .55s cubic-bezier(.2,1.6,.4,1); }
+  .bell.unpop{ animation:favUnpop .3s ease; }
+  .fav-ic.pop{ animation:favPop .55s cubic-bezier(.2,1.6,.4,1); }
+  .fav-ic.unpop{ animation:favUnpop .3s ease; }
+  @keyframes favPop{ 0%{ transform:scale(0); } 60%{ transform:scale(1.45); } 100%{ transform:scale(1); } }
+  @keyframes favUnpop{ 0%{ transform:scale(1); } 45%{ transform:scale(.6); } 100%{ transform:scale(1); } }
+  .fav-burst{ position:absolute; left:50%; top:50%; width:0; height:0; pointer-events:none; }
+  .fav-burst .ring{ position:absolute; left:-18px; top:-18px; width:36px; height:36px; border-radius:50%; box-sizing:border-box;
+    border:3px solid #fff; animation:favRing .5s ease-out forwards; }
+  .fav-burst i{ position:absolute; left:-3px; top:-3px; width:6px; height:6px; border-radius:50%; background:#fff;
+    animation:favSpark .6s cubic-bezier(.2,.8,.3,1) forwards; }
+  @keyframes favRing{ 0%{ transform:scale(.2); opacity:1; } 100%{ transform:scale(1.5); opacity:0; border-width:0; } }
+  @keyframes favSpark{ 0%{ transform:rotate(var(--a)) translateY(0) scale(1); opacity:1; } 100%{ transform:rotate(var(--a)) translateY(-30px) scale(.2); opacity:0; } }
+  .fav-big{ position:absolute; left:50%; top:50%; width:96px; height:96px; margin:-48px 0 0 -48px; z-index:4; pointer-events:none;
+    background:url('icons/tv-guide/heart-fill.svg') center / contain no-repeat; filter:drop-shadow(0 6px 18px rgba(0,0,0,.45));
+    animation:favBig 1s cubic-bezier(.2,.8,.3,1) forwards; }
+  @keyframes favBig{ 0%{ transform:scale(0) rotate(-15deg); opacity:0; } 25%{ transform:scale(1.25) rotate(8deg); opacity:1; }
+    45%{ transform:scale(.95) rotate(0); opacity:1; } 70%{ transform:translateY(-10px) scale(1); opacity:1; }
+    100%{ transform:translateY(-70px) scale(.7); opacity:0; } }
   #toast{ position:absolute; left:50%; bottom:60px; transform:translateX(-50%); padding:14px 26px; border-radius:999px; z-index:30;
     background:rgba(20,20,24,.9); font-size:24px; opacity:0; transition:opacity .2s ease; pointer-events:none; white-space:nowrap; }
   #toast.on{ opacity:1; }
@@ -227,6 +295,7 @@
     <div class="rail guide only-guide" id="guideRail"><div class="rail-track" id="guide"></div></div>
     <div class="empty" id="empty" style="display:none">No channels in this category yet.</div>
   </div></div>
+  <div class="alert gone" id="hint" role="status"><span class="bar"></span><p id="hintText">Press and hold OK to add/remove favorites</p></div>
   <div id="toast"></div>
 </div></div>
 
@@ -387,6 +456,12 @@
                           : '<img class="' + (c.fit || 'cover') + '" src="' + c.logo + '" alt="">';
     return '<div class="logo" style="' + (c.bg ? 'background:' + c.bg : '') + '">' + img + '</div>';
   }
+  // favourite: the heart filled white; hold Enter on a channel card to add or remove it
+  function heartIcon(c){ return '<span class="fav-wrap"><img class="ic20 fav-ic" src="icons/tv-guide/' + (c.fav ? 'heart-fill.svg' : 'heart.svg') + '" alt="' + (c.fav ? 'Favorite' : '') + '"></span>'; }
+  // reminder bell on an upcoming programme (Figma "Card Program", 230:108415): the outline bell shows on the focused card
+  // only; once set it is filled and always shows
+  function bellHtml(p){ var on = !!reminders[p.key];
+    return '<span class="rem-wrap' + (on ? ' on' : '') + '"><img class="ic24 bell" src="icons/tv-guide/' + (on ? 'notify.svg' : 'bell.svg') + '" alt="' + (on ? 'Reminder set' : 'Set reminder') + '"></span>'; }
   function crownIcon(c){ return c.crown ? '<img class="ic20" src="icons/tv-guide/' + (c.crown === 'owned' ? 'crown.svg' : 'crown-s.svg') + '" alt="Premium">' : ''; }
   var tabsEl = document.getElementById('tabs'), subsEl = document.getElementById('subs'), subsRail = document.getElementById('subsRail');
   var gridEl = document.getElementById('grid'), avasEl = document.getElementById('avatars'), guideEl = document.getElementById('guide');
@@ -413,7 +488,7 @@
       return '<div class="ch-card item" data-no="' + c.no + '">' +
         '<div class="ch-top"><div class="ava-sm">' + logoHtml(c) + '</div><div class="ch-name clip">' + esc(c.n) + '</div></div>' +
         '<div class="ch-bottom"><div class="ch-prog clip">' + esc(p.t) + '</div>' +
-          '<div class="ch-icons"><img class="ic20" src="icons/tv-guide/heart.svg" alt="">' + crownIcon(c) + '</div>' +
+          '<div class="ch-icons">' + heartIcon(c) + crownIcon(c) + '</div>' +
           '<div class="ch-no">' + c.no + '</div></div>' +
       '</div>';
     }).join('');
@@ -432,38 +507,44 @@
   }
   function renderGuide(list){
     var when = guideTime(), dayOf = function(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); };
-    avasEl.innerHTML = list.map(function(c){ return '<div class="ava item" data-no="' + c.no + '" title="' + esc(c.n) + '">' + logoHtml(c) + '</div>'; }).join('');
+    // the channel-logo row only helps with a longer list: under 6 channels it is left out and the columns move up
+    var showAvas = list.length >= 6;
+    avasEl.parentElement.style.display = showAvas ? '' : 'none';
+    avasEl.innerHTML = !showAvas ? '' : list.map(function(c){ return '<div class="ava item" data-no="' + c.no + '" title="' + esc(c.n) + '">' + logoHtml(c) + '</div>'; }).join('');
     guideEl.innerHTML = list.map(function(c){
-      var i0 = onAt(c, when), shown = c.progs.slice(i0, i0 + 8), lastDay = dayOf(when), body = '';
+      var i0 = onAt(c, when), shown = c.progs.slice(i0).filter(function(p, j){ return j === 0 || dayOf(p.start) <= dayOf(when) + 864e5; })   /* the day shown and the next day: the last card is the real end */, lastDay = dayOf(when), body = '', bigHtml = '';
       shown.forEach(function(p, j){
-        if(j > 0 && dayOf(p.start) !== lastDay){ body += '<div class="day-sep">' + fmtDate(p.start) + '</div>'; }
+        // a date divider only where a later day starts: none for the day being shown (today), even when the live
+        // card began the evening before
+        if(j > 0 && dayOf(p.start) !== lastDay && dayOf(p.start) > dayOf(when)){ body += '<div class="day-sep">' + fmtDate(p.start) + '</div>'; }
         lastDay = dayOf(p.start);
         var tm = fmtTime(p.start) + (j === 0 ? ' - ' : ' – ') + fmtTime(p.end);
         if(j === 0){
           var art = p.img ? '<div class="art" style="background-image:url(\'' + p.img + '\')"></div>'
                           : !c.logo ? '<div class="art logo-art"><span class="txt-art' + ((c.txt || c.n).length > 8 ? ' long' : '') + '" style="background:' + c.bg + ';color:' + (c.fg || '#fff') + '">' + esc(c.txt || c.n) + '</span></div>'
                           : '<div class="art logo-art"><img src="' + c.logo + '" alt="" style="background:' + (c.bg || 'transparent') + '"></div>';
-          body += '<div class="prog prog-big item" data-key="' + p.key + '">' + art + '<div class="shade"></div>' +
+          bigHtml = '<div class="prog prog-big item" data-key="' + p.key + '">' + art + '<div class="shade"></div>' +
             '<div class="t clip">' + esc(p.t) + '</div><div class="row"><div class="tm clip">' + tm + '</div>' + tagsFor(p, true, when) + '</div></div>';
         } else {
           body += '<div class="prog prog-blk item" data-key="' + p.key + '">' +
             '<div class="title-row"><div class="t clip">' + esc(p.t) + '</div>' +
-              (reminders[p.key] ? '<img class="ic24" src="icons/tv-guide/notify.svg" alt="Reminder set">' : '') + '</div>' +
+              (p.start > new Date() ? bellHtml(p) : '') + '</div>' +
             '<div class="row"><div class="tm">' + tm + '</div>' + tagsFor(p, false, when) + '</div></div>';
         }
       });
       return '<div class="col" data-no="' + c.no + '">' +
         '<div class="col-head"><div class="ava-sm">' + logoHtml(c) + '</div><div class="col-name clip">' + esc(c.n) + '</div>' +
-          '<div class="col-icons"><span class="heart"><img class="ic20" src="icons/tv-guide/heart.svg" alt=""></span>' +
+          '<div class="col-icons"><span class="heart">' + heartIcon(c) + '</span>' +
             (c.crown ? '<span class="crown">' + crownIcon(c) + '</span>' : '') + '<div class="col-no">' + c.no + '</div></div></div>' +
-        '<div class="col-body">' + body + '</div></div>';
+        // the live card stays pinned under the channel header; what comes after scrolls inside the column on its own
+        '<div class="col-body">' + bigHtml + '<div class="col-scroll"><div class="col-list">' + body + '</div></div></div></div>';
     }).join('');
   }
   var PROG_BY_KEY = {};
   CHANNELS.forEach(function(c){ c.progs.forEach(function(p){ PROG_BY_KEY[p.key] = p; }); });
 
   function render(){
-    document.body.className = 'v-' + S.view + (document.body.classList.contains('collapsed') ? ' collapsed' : '');
+    document.body.className = 'v-' + S.view + (document.body.classList.contains('collapsed') ? ' collapsed' : '') + (document.body.classList.contains('in-guide') ? ' in-guide' : '');
     $('.sw').forEach(function(s){ s.classList.toggle('on', s.dataset.view === S.view); });
     renderTabs();
     var list = channelsFor();
@@ -524,10 +605,14 @@
     var z = ['head', 'tabs'];
     if(subsEl.children.length) z.push('subs');   // Sports / Others sub-tabs, in both views
     if(S.view === 'channels'){ if(zoneItems('grid').length) z.push('grid'); }
-    else if(zoneItems('avatars').length) z.push('avatars', 'guide');
+    else {
+      if(zoneItems('avatars').length) z.push('avatars');   // the logo row (only with 6+ channels)
+      if(guideCols().length) z.push('guide');
+    }
     return z;
   }
-  function resetZones(){ mem.avatars = 0; mem.grid = 0; mem.guide = {c:0, r:0}; if(zones().indexOf(zone) < 0) zone = 'tabs'; }
+  var colRow = {};   // the card last focused in each guide column (by column), for coming back with Left / Right
+  function resetZones(){ colRow = {}; mem.avatars = 0; mem.grid = 0; mem.guide = {c:0, r:0}; if(zones().indexOf(zone) < 0) zone = 'tabs'; }
   function focusedEl(){
     if(zone === 'guide'){ var cols = guideCols(), g = mem.guide; return cols[g.c] && cols[g.c][g.r]; }
     return zoneItems(zone)[mem[zone]];
@@ -536,6 +621,23 @@
     $('.focused').forEach(function(e){ e.classList.remove('focused'); });
     var el = focusedEl(); if(!el) return;
     el.classList.add('focused');   // focus-ring.js puts the ring on it
+    // first time focus reaches a programme in the guide (once per visit, not per column): the favourites hint again
+    if(zone === 'guide' && !guideHinted){ guideHinted = true; showHint(HINT_FAV); }
+    // ... and the first time it reaches an upcoming programme's card: the reminder hint (once per visit)
+    else if(zone === 'guide' && !remHinted && el.querySelector('.rem-wrap')){ remHinted = true; showHint(HINT_REM); }
+    // a focused channel logo lights up its programme column too (no ring there: the column itself isn't focused)
+    $('.col.hl', guideEl).forEach(function(c){ c.classList.remove('hl'); });
+    // ... and stays lit while focus is on one of its programmes
+    if(zone === 'guide'){ var own = el.closest('.col'); if(own) own.classList.add('hl'); }
+    if(zone === 'avatars'){
+      var col = $('.col[data-no="' + el.dataset.no + '"]', guideEl)[0];
+      if(col){
+        col.classList.add('hl');
+        // and the guide slides along with the logos (same rule as the rails), so the lit column is in view
+        var gr = col.closest('.rail'), gl = Math.max(0, Math.min(col.offsetLeft - col.parentElement.firstElementChild.offsetLeft, gr.scrollWidth - gr.clientWidth));
+        gr.dataset.scrollLeftTo = gl; gr.scrollTo({left:gl, behavior:'smooth'});
+      }
+    }
     // keep it in view. Sideways, exactly like Home's rails ("fixed focus", updateTrackTransform in home.html): the
     // focused item sits at the first item's slot (the 110px margin) and the rail slides under it, until the rail's end
     // is in: it stops where the last item ends as far from the right edge as the first starts from the left; past that,
@@ -551,20 +653,68 @@
       rail.scrollTo({left:left, behavior:'smooth'});
     }
     var page = document.getElementById('page'), top = page.scrollTop;
-    if(zone === 'head' || zone === 'tabs' || zone === 'subs' || zone === 'avatars' ||
-       (zone === 'grid' && mem.grid < 5) || (zone === 'guide' && mem.guide.r === 0)) top = 0;
+    // in the Program Guide's columns the rows above (categories, sub-tabs, logos) always collapse into the breadcrumb:
+    // the columns move up to sit 32px below it (label bottom = 92px into the page, so the columns' top = 124px).
+    // Measured on screen, not with offsetTop: the first row's top margin collapses through #content, which offsetTop misses.
+    var guideMin = 0;
+    if(zone === 'guide'){
+      var rail = document.getElementById('guideRail');
+      guideMin = (rail.getBoundingClientRect().top - page.getBoundingClientRect().top) / K + page.scrollTop + 6 - 124;
+    }
+    if(zone === 'head' || zone === 'tabs' || zone === 'subs' || zone === 'avatars' || (zone === 'grid' && mem.grid < 5)) top = 0;
+    else if(zone === 'guide'){
+      // the page stays put (collapsed); the focused column scrolls inside itself to keep the programme in view, and
+      // every other column stays scrolled as it was left
+      top = guideMin;
+      var sc = el.closest('.col-scroll');
+      $('.col-scroll', guideEl).forEach(function(o){
+        var st = 0, col = o.closest('.col');
+        if(o === sc){
+          // a programme of the next day: the column puts its live card away and opens with that day's date divider at
+          // the top (Figma's next-day column), the day's programmes below it
+          var sep = $('.day-sep', o)[0], nextDay = !!(sep && (sep.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING));
+          var wasNext = col.classList.contains('next-day');
+          col.classList.toggle('next-day', nextDay);
+          var VIS = nextDay ? 628 : 416, FULL = nextDay ? 734 : 522;   // rows fully on screen; the scroller's height
+          // the divider's place in the scroller (measured on screen: offsetTop would count from the column instead)
+          var sepTop = sep ? (sep.getBoundingClientRect().top - o.getBoundingClientRect().top) / K + o.scrollTop : 0;
+          var y = (el.getBoundingClientRect().top - o.getBoundingClientRect().top) / K + o.scrollTop, h = el.offsetHeight;
+          st = o.scrollTop; if(o.dataset.scrollTopTo !== undefined) st = +o.dataset.scrollTopTo;
+          if(nextDay && !wasNext) st = sepTop;   // stepping into the next day: its divider goes to the top
+          if(y + h + 8 > st + VIS) st = y + h + 8 - VIS;   // keep it in the rows on screen, ring included
+          if(y < st) st = y;   // ... and above (the ring may overlap the card above the list)
+          // whole steps of the 106px grid (a card or a date divider + the 8px gap), so the rows line up across columns
+          var prev = +(o.dataset.scrollTopTo || 0);
+          st = st > prev ? Math.ceil(st / 106) * 106 : st < prev ? Math.floor(st / 106) * 106 : prev;
+          if(nextDay) st = Math.max(st, sepTop);   // the day before stays out of sight
+          var isLast = el === $('.prog', o).pop();
+          o.classList.toggle('end', isLast);   // this column hugs its last card; the others keep running on
+          st = Math.max(0, Math.min(st, o.scrollHeight - (isLast ? VIS : FULL)));
+        } else {
+          // other columns keep their own scroll (and view) as they were left; only a column whose live card now has
+          // focus shows that card again, its list staying where it was
+          if(!col.contains(el)) return;
+          o.classList.remove('end'); col.classList.remove('next-day');
+          st = +(o.dataset.scrollTopTo || 0);
+          st = Math.max(0, Math.min(st, o.scrollHeight - 522));
+        }
+        if(+(o.dataset.scrollTopTo || 0) !== st || o.scrollTop !== st){ o.dataset.scrollTopTo = st; o.scrollTo({top:st, behavior:'smooth'}); }
+      });
+    }
     else {
       var y = (el.getBoundingClientRect().top - page.getBoundingClientRect().top) / K + page.scrollTop, h = el.offsetHeight;
       if(y + h + 60 > top + page.clientHeight) top = y + h + 60 - page.clientHeight;
       if(y - 150 < top) top = y - 150;   // fully visible below the collapsed label, focus ring included
     }
-    top = Math.max(0, top);
+    top = Math.max(0, guideMin, top);
     page.dataset.scrollTopTo = top;
     page.scrollTo({top:top, behavior:'smooth'});
     // scrolled down: the category rows collapse into one label, 60px under the header ("All Channels", "Sports · Football")
-    var cat = CATS.filter(function(c){ return c.id === S.cat; })[0], sub = cat.subs && S.sub !== 'all' && cat.subs.filter(function(x){ return x[0] === S.sub; })[0];
-    catLabel.textContent = cat.n + (sub ? ' · ' + sub[1] : '');
+    // a category with sub-tabs shows as a breadcrumb: Sports › Football (the chosen sub-tab, "All Sports" included)
+    var cat = CATS.filter(function(c){ return c.id === S.cat; })[0], sub = cat.subs && cat.subs.filter(function(x){ return x[0] === S.sub; })[0];
+    catLabel.innerHTML = sub ? '<span class="crumb">' + esc(cat.n) + '</span><span class="sep">/</span><span class="cur">' + esc(sub[1]) + '</span>' : esc(cat.n);
     document.body.classList.toggle('collapsed', top > 0);
+    document.body.classList.toggle('in-guide', zone === 'guide');   // the logo row is put away while focus is in the columns
   }
   // moving onto a category tab filters straight away; a sub-tab needs Enter
   function selectCat(id){ if(S.cat === id) return; S.cat = id; S.sub = 'all'; mem.subs = 0; render(); resetZones(); }
@@ -578,8 +728,12 @@
         var n = zoneItems('grid').length, c = mem.grid % 5;
         if((dx < 0 && c > 0) || (dx > 0 && c < 4 && mem.grid + 1 < n)) mem.grid += dx;
       } else if(zone === 'guide'){
+        // Left / Right goes back to the card last focused in that column; a column not visited yet starts on its first
+        // card (what's on now)
         var cols = guideCols(), g = mem.guide, nc = Math.max(0, Math.min(cols.length - 1, g.c + dx));
-        mem.guide = {c:nc, r:Math.min(g.r, cols[nc].length - 1)};
+        if(nc === g.c) return;
+        colRow[g.c] = g.r;
+        mem.guide = {c:nc, r:Math.min(colRow[nc] || 0, cols[nc].length - 1)};
         mem.avatars = nc;
       } else {
         var items = zoneItems(zone);
@@ -596,7 +750,16 @@
     }
     if(zone === 'guide'){
       var col = guideCols()[mem.guide.c], nr = mem.guide.r + dy;
-      if(nr >= 0 && nr < col.length){ mem.guide.r = nr; return; }
+      // Down from the live card goes to the first programme showing in the column's list, so a list left scrolled
+      // stays where it was
+      if(mem.guide.r === 0 && dy > 0 && col.length > 1){
+        var sc = col[1].closest('.col-scroll'), top = +(sc.dataset.scrollTopTo || sc.scrollTop);
+        for(var i = 1; i < col.length; i++){
+          var y = (col[i].getBoundingClientRect().top - sc.getBoundingClientRect().top) / K + sc.scrollTop;
+          if(y >= top - 1){ nr = i; break; }
+        }
+      }
+      if(nr >= 0 && nr < col.length){ mem.guide = {c:mem.guide.c, r:nr}; return; }
     }
     var nz = zs[zi + dy];
     // Down from the category tabs skips the sub-tabs and lands on the first channel card (Up from the cards still
@@ -605,6 +768,7 @@
       nz = zs[zi + 2];
       if(nz === 'grid') mem.grid = 0;
       if(nz === 'avatars') mem.avatars = 0;
+      if(nz === 'guide') mem.guide = {c:0, r:0};
     }
     if(!nz) return;
     if(nz === 'guide' && zone === 'avatars') mem.guide = {c:mem.avatars, r:0};
@@ -622,9 +786,11 @@
     try { if(document.referrer && /home\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
     location.href = 'home.html';
   }
-  // Back steps out one level at a time: a channel card / programme → the selected sub-tab (when the category has them)
+  // Back steps out one level at a time: a programme below the live card → that column's live card → the selected sub-tab (when the category has them)
   // → the selected main category → Home
   function stepBack(){
+    // in a guide column below its live card: Back first returns to that column's live card (what's on now)
+    if(zone === 'guide' && mem.guide.r > 0){ mem.guide = {c:mem.guide.c, r:0}; return; }
     if(zone === 'grid' || zone === 'avatars' || zone === 'guide'){
       if(zones().indexOf('subs') >= 0){
         zone = 'subs'; mem.subs = Math.max(0, zoneItems('subs').map(function(e){ return e.dataset.sub; }).indexOf(S.sub));
@@ -650,7 +816,15 @@
       // a programme still to come: Enter sets (or clears) a reminder, shown as a bell on its card
       if(reminders[p.key]){ delete reminders[p.key]; toast('Reminder removed: ' + p.t); }
       else { reminders[p.key] = true; toast('Reminder set: ' + p.t + ' at ' + fmtTime(p.start)); }
-      var g = mem.guide; render(); mem.guide = g; return;
+      hideHint();
+      var wrap = el.querySelector('.rem-wrap');   // updated in place (no re-render), so the focus ring stays put
+      if(wrap){
+        var on = !!reminders[p.key], img = wrap.querySelector('img');
+        wrap.classList.toggle('on', on);
+        img.src = 'icons/tv-guide/' + (on ? 'notify.svg' : 'bell.svg'); img.alt = on ? 'Reminder set' : 'Set reminder';
+        iconAnim(img, on);
+      }
+      return;
     }
   }
   function onClick(e){
@@ -668,6 +842,40 @@
   }
   $('.sw, .tab, .dd-trigger').forEach(function(el){ el.addEventListener('click', onClick); });
 
+  var guideHinted = false, remHinted = false;
+  var HOLD_MS = 600, hold = { el:null, done:true, t:0 };
+  addEventListener('keyup', function(e){
+    if((e.key !== 'Enter' && e.key !== ' ') || !hold.el) return;
+    clearTimeout(hold.t);
+    var el = hold.el, done = hold.done; hold = { el:null, done:true, t:0 };
+    if(!done && el.isConnected && el.classList.contains('focused')) activate(el);   // a short press
+  });
+  function toggleFav(c, from){
+    hideHint();
+    c.fav = !c.fav;
+    toast(c.fav ? 'Added to Favorite: ' + c.n : 'Removed from Favorite: ' + c.n);
+    if(S.cat === 'fav'){ render(); resetZones(); paint(); return; }   // the Favorite list itself changed
+    $('[data-no="' + c.no + '"] .fav-ic').forEach(function(img){ img.src = 'icons/tv-guide/' + (c.fav ? 'heart-fill.svg' : 'heart.svg'); img.alt = c.fav ? 'Favorite' : ''; });
+    favAnim(c, from);
+  }
+  // a small icon turning on (heart, bell): bounces in with a ring and a burst of sparks; turning off: a quick squeeze
+  function iconAnim(img, on){
+    img.classList.remove('pop', 'unpop'); void img.offsetWidth;   // restart the animation
+    img.classList.add(on ? 'pop' : 'unpop');
+    if(!on) return;
+    var b = document.createElement('span'); b.className = 'fav-burst';
+    b.innerHTML = '<span class="ring"></span>' + [0,45,90,135,180,225,270,315].map(function(a){ return '<i style="--a:' + a + 'deg"></i>'; }).join('');
+    img.parentElement.appendChild(b); setTimeout(function(){ b.remove(); }, 700);
+  }
+  // the like animation on the focused card (and its small heart wherever it shows)
+  function favAnim(c, from){
+    var card = from && from.isConnected ? from : $('.ch-card[data-no="' + c.no + '"]')[0];   // the big heart pops over the card held
+    $('[data-no="' + c.no + '"] .fav-ic').forEach(function(img){ iconAnim(img, c.fav); });
+    if(c.fav && card){
+      var big = document.createElement('div'); big.className = 'fav-big';
+      card.appendChild(big); setTimeout(function(){ big.remove(); }, 1000);
+    }
+  }
   addEventListener('keydown', function(e){
     var handled = true;
     if(menu){
@@ -683,7 +891,19 @@
     else if(e.key === 'ArrowLeft') move(-1, 0);
     else if(e.key === 'ArrowDown') move(0, 1);
     else if(e.key === 'ArrowUp') move(0, -1);
-    else if(e.key === 'Enter' || e.key === ' '){ var el = focusedEl(); if(el) activate(el); }
+    else if(e.key === 'Enter' || e.key === ' '){
+      var el = focusedEl();
+      if(e.repeat){ e.preventDefault(); return; }   // held down: the timer below decides
+      // a channel card or a programme: a short press opens / watches it (on release); held for HOLD_MS it toggles the
+      // channel's Favorite instead
+      if(el && (el.classList.contains('ch-card') || el.classList.contains('prog'))){
+        clearTimeout(hold.t);
+        var ch = el.classList.contains('prog') ? PROG_BY_KEY[el.dataset.key].ch : chByNo(el.dataset.no);
+        hold = { el:el, done:false, t:setTimeout(function(){ hold.done = true; toggleFav(ch, el); }, HOLD_MS) };
+        e.preventDefault(); return;
+      }
+      if(el) activate(el);
+    }
     else if(e.key === 'Escape' || e.key === 'Backspace') stepBack();
     else handled = false;
     if(handled){ e.preventDefault(); paint(); }
@@ -694,6 +914,12 @@
   // ?view=guide opens the Program Guide straight away
   if(/view=guide/.test(location.search)) S.view = 'guide';
   paintHead(); render(); paint();
+  // first impression: the hint slides in as the page opens and leaves after a few seconds (or once a favourite is set)
+  var hintEl = document.getElementById('hint'), hintT;
+  function hideHint(){ clearTimeout(hintT); hintEl.classList.add('gone'); }
+  var HINT_FAV = 'Press and hold OK to add/remove favorites', HINT_REM = 'Press OK to set/unset reminder';
+  function showHint(msg){ clearTimeout(hintT); document.getElementById('hintText').textContent = msg || HINT_FAV; hintEl.classList.remove('gone'); hintT = setTimeout(hideHint, 2500); }   // on screen for 2.5s
+  setTimeout(function(){ showHint(HINT_FAV); }, 400);
 })();
 </script>
 <script src="focus-ring.js"></script>
