@@ -93,7 +93,14 @@
     justify-content:space-between;
     padding:24px 110px 56px;
     background:linear-gradient(180deg, rgba(8,6,20,.56) 0%, rgba(8,6,20,.38) 55%, rgba(8,6,20,0) 100%);   /* lightened 20%, twice */
+    transition:opacity .22s cubic-bezier(.2,0,0,1), background .22s ease;   /* coming back: a fade in place, so the focus ring lands on it straight away */
   }
+  /* Past the first rail the bar gets out of the way: it slides up and fades. (`translate`, not `transform`: the transform
+     holds the screen scale.) Left on a rail's first card wakes it as an overlay, on a darker backdrop so it reads over
+     whatever rail is under it; Down puts it away again. */
+  .topnav.nav-away{ opacity:0; translate:0 -40px; pointer-events:none;
+    transition:opacity .25s cubic-bezier(.2,0,0,1), translate .25s cubic-bezier(.2,0,0,1); }
+  .topnav.nav-overlay{ background:linear-gradient(180deg, rgba(8,6,20,.94) 0%, rgba(8,6,20,.82) 55%, rgba(8,6,20,0) 100%); }
   /* Figma "top_navigation" (628:69619): 60px profile photo, then search and the tabs right after it */
   .topnav .profile{
     width:60px;height:60px;border-radius:999px;overflow:hidden;
@@ -1049,7 +1056,7 @@
         }
       });
     }, 3000);
-    var countdown = '<div class="epg-countdown item" data-title="TV Guide – View All"><b>TV Guide</b><span>View All</span></div>';
+    var countdown = '<div class="epg-countdown item" data-title="TV Guide – View All" data-href="tv-guide.html"><b>TV Guide</b><span>View All</span></div>';
     addRow('<div class="row-block epg-row"><div class="rail-viewport"><div class="rail-track">'+countdown+epgCards+'</div></div></div>');
     MOBILE_ROWS.push({title:'TV Guide', type:'epg', items: items.map(function(it){
       return {t:it.title, sub:it.now, next:it.next, nextTime:it.nextTime};
@@ -1698,6 +1705,11 @@
     // there's no more dynamic background driving the screen, so it fades
     // out instead of scrolling off.
     var cr = ctxRow();
+    // the top bar: hidden once focus is past the first rail, back as an overlay while it has focus (woken with Left)
+    if(topnavFixed){
+      topnavFixed.classList.toggle('nav-away', curRow !== 0 && cr > HERO_ROW_INDEX);
+      topnavFixed.classList.toggle('nav-overlay', curRow === 0 && cr > HERO_ROW_INDEX);
+    }
     if(heroFixed) heroFixed.classList.toggle('hero-hidden', cr > HERO_ZONE_LAST_ROW);
     if(heroBackdrop) heroBackdrop.classList.toggle('hero-hidden', cr > HERO_ZONE_LAST_ROW);
     applyRowsMask(getScale());

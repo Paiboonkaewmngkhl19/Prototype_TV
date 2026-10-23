@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TV Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&family=Noto+Sans:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+<!--
+  TV Guide (EPG) page, opened from the "TV Guide / View All" tile on Home. Two views behind the Switcher, from Figma
+  PLAY-player: "View Channels" (epg_viewChannels, 1784:31259) and "View Program Guide" (epg_viewProgramGuide, 1784:27421).
+  The Figma frames are wireframes (ChannelName / ProgramName, grey avatars); this page fills them with the channels Home
+  already shows and a generated schedule around the real clock.
+  A 1920x1080 TV screen scaled to the window, like home.html.
+  Remote / keyboard: arrows move focus, Enter selects, Esc / Back closes a dropdown or returns to Home.
+  Category tabs (and the Sports sub-tabs) filter as focus moves onto them, like a TV tab bar.
+-->
+<style>
+  :root{
+    color-scheme:dark;
+    --on-surface:#e8e8e8; --on-surface-variant:#a8a8a8; --live:#ea5454;
+    --avatar:#404045;
+    /* Home's Default theme (home.html): navy page with a faint glow, frosted grey glass for cards and chips, and the
+       white glass pill for whatever is selected */
+    --bg-0:#070e16; --th-glow:rgba(214,222,240,.12);
+    --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%);
+    --pill-hi:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%);
+    --glass-card:linear-gradient(180deg, rgba(161,161,161,.25), rgba(65,65,65,.25));         /* Home's Hot Channels card */
+    --glass-card-on:linear-gradient(180deg, rgba(230,230,240,.42), rgba(150,150,165,.34));   /* ... when focused */
+    --glass-chip:rgba(255,255,255,.13);                                                      /* Home's category chip */
+    --chip-inset:inset 0 3px 3px rgba(0,0,0,.23);
+    --noto:'Noto Sans', 'Noto Sans Thai', system-ui, sans-serif;
+  }
+  html,body{ margin:0; height:100%; background:#000; overflow:hidden; color:#fff; font-family:var(--noto); }
+  #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:var(--bg-0); }
+  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left;
+    background:radial-gradient(1400px 900px at 85% 110%, var(--th-glow), transparent 70%), var(--bg-0); }   /* Home's page */
+  /* the whole guide scrolls vertically as one page (the Figma frames are taller than the screen) */
+  #page{ position:absolute; inset:0; overflow:hidden; }
+  #content{ position:relative; padding:60px 0 80px; }
+  .clip{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  /* ---------- Head: title + Switcher, date / time on the right ---------- */
+  .head{ margin:0 110px; height:80px; display:flex; align-items:center; justify-content:space-between; }
+  .head-left{ display:flex; align-items:center; gap:32px; }
+  h1{ margin:0; font:700 64px/normal Helvetica, Arial, sans-serif; text-shadow:0 0 4px rgba(0,0,0,.5); white-space:nowrap; }
+  /* header controls: Switcher and dropdowns are both 80px tall, with the Switcher's 22px text */
+  .switcher{ height:80px; box-sizing:border-box; padding:8px; display:flex; gap:8px; align-items:center; border-radius:12px; background:var(--glass-chip); box-shadow:var(--chip-inset); backdrop-filter:blur(50px); -webkit-backdrop-filter:blur(50px); }
+  .sw{ position:relative; width:250px; height:100%; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer;
+    font:400 22px/1.2 var(--noto); letter-spacing:-.24px; color:var(--on-surface); }
+  /* the chosen view: dim (Figma "Dim View Channels"; the same fill as Home's active nav tab) until focus is on it */
+  .sw.on{ background:rgba(255,255,255,.22); font-weight:500; color:#fff; transition:background .22s cubic-bezier(.2,0,0,1); }
+  .sw.on.focused{ background:var(--pill-hi), var(--th-pill); font-weight:600; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+  .head-right{ display:flex; align-items:center; gap:12px; }
+  /* View Channels: the date and clock as plain text chips */
+  .time-chip{ height:80px; padding:0 50px; border-radius:50px; display:flex; align-items:center; box-sizing:border-box;
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    font:400 22px/1.2 var(--noto); letter-spacing:-.24px; text-shadow:0 0 20px #000; white-space:nowrap; }   /* header size: 80px, the Switcher's text */
+  /* View Program Guide: date and time dropdowns */
+  .dd{ position:relative; }
+  .dd-trigger{ height:80px; box-sizing:border-box; padding:0 24px; display:flex; align-items:center; gap:32px; cursor:pointer; white-space:nowrap;
+    background:var(--glass-chip); box-shadow:var(--chip-inset); backdrop-filter:blur(50px); -webkit-backdrop-filter:blur(50px);
+    border-radius:16px; color:var(--on-surface); }
+  .dd-trigger.focused{ background:var(--pill-hi), var(--th-pill); color:#fff; }
+  .dd-trigger.focused .v, .dd-trigger.focused .a{ opacity:1; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+  .dd-trigger .v{ font:400 22px/1.2 var(--noto); letter-spacing:-.24px; opacity:.8; }
+  /* chevron: the design system's (package page) right-pointing one, turned down; up while the menu is open */
+  .dd-trigger .a{ width:32px; height:32px; display:block; opacity:.8; transform:rotate(90deg); transition:transform .22s cubic-bezier(.2,0,0,1); }
+  .dd.open .dd-trigger .a{ transform:rotate(-90deg); }
+  .dd-menu{ position:absolute; right:0; top:92px; z-index:20; min-width:100%; box-sizing:border-box; padding:8px; display:none; flex-direction:column; gap:4px;
+    max-height:560px; overflow:hidden; background:rgba(30,36,48,.92); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); border-radius:16px;
+    box-shadow:0 1px 3px rgba(0,0,0,.3), 0 4px 8px 3px rgba(0,0,0,.15); }
+  .dd.open .dd-menu{ display:flex; }
+  .dd-opt{ flex:0 0 auto; padding:10px 20px; border-radius:10px; font:400 22px/34px var(--noto); letter-spacing:-.24px; color:var(--on-surface); white-space:nowrap; cursor:pointer; }
+  .dd-opt.sel{ font-weight:500; }
+  .dd-opt.sel::after{ content:' ✓'; }
+  .dd-opt.hl{ background:var(--pill-hi), var(--th-pill); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+
+  /* ---------- horizontal rails: full screen width, content starts at the 110px margin ---------- */
+  .rail{ overflow:hidden; padding:6px 110px; }
+  .rail-track{ position:relative; display:flex; width:max-content; }   /* items' offsetLeft is measured from the track */
+
+  /* category tabs (TabBar): Home's glass chips; the selected one takes the white glass pill */
+  .tabs{ margin-top:51px; }   /* 57px below the head (as before the head grew 3px), less the rail's 6px padding */
+  .tabs .rail-track{ gap:32px; }
+  .tab{ position:relative; height:64px; padding:0 32px; display:flex; align-items:center; justify-content:center; box-sizing:border-box; cursor:pointer;
+    background:var(--glass-chip); box-shadow:var(--chip-inset); border-radius:999px;
+    font:500 24px/32px Inter, sans-serif; color:rgba(255,255,255,.85); white-space:nowrap; }
+  .tab.on{ background:var(--pill-hi), var(--th-pill); box-shadow:none; padding:0 40px; color:#fff; font-weight:600; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+  /* sub-tabs (Sports): plain text, the selected one underlined */
+  .subs{ margin-top:4px; }
+  .subs .rail-track{ gap:12px; margin-left:-40px; }   /* the first label's text (not its 40px padding) starts on the 110px margin */
+  .sub{ position:relative; height:60px; padding:0 40px; display:flex; align-items:center; cursor:pointer; opacity:.8; border-radius:12px;
+    font:500 24px/32px Inter, sans-serif; color:var(--on-surface-variant); white-space:nowrap; }
+  .sub.on{ opacity:1; text-decoration:underline; text-decoration-thickness:10%; text-underline-offset:6px; }
+  /* channel avatars above the guide */
+  .avatars{ margin-top:4px; }
+  .avatars .rail-track{ gap:24px; }
+  .ava{ position:relative; width:90px; height:90px; border-radius:100px; flex:0 0 auto; cursor:pointer; }
+
+  /* a channel logo in its round avatar (Figma "Avatar": #404045 disc) */
+  .logo{ position:absolute; inset:0; border-radius:inherit; overflow:hidden; background:var(--avatar); }
+  .logo img{ position:absolute; display:block; }
+  .logo img.cover{ inset:0; width:100%; height:100%; object-fit:cover; }
+  .logo img.contain{ left:15%; top:15%; width:70%; height:70%; object-fit:contain; }
+
+  /* focus ring: the shared one from focus-ring.js (Home's gliding glass ring), which follows the .focused item */
+
+  /* ---------- View Channels: a 5-column grid of channel cards ---------- */
+  .grid{ margin:26px 110px 0; display:grid; grid-template-columns:repeat(5, 332px); gap:10px; }   /* 32px below the tabs */
+  .ch-card{ position:relative; height:170px; box-sizing:border-box; padding:16px; border:3.6px solid transparent; border-radius:16px; cursor:pointer;
+    background:var(--glass-card); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);   /* Home's channel card glass */
+    display:flex; flex-direction:column; justify-content:space-between; transition:background .22s cubic-bezier(.2,0,0,1); }
+  .ch-card.focused{ background:var(--glass-card-on); }
+  .ch-top{ display:flex; align-items:center; gap:16px; min-width:0; }
+  .ch-top .ava-sm{ position:relative; width:90px; height:90px; border-radius:100px; flex:0 0 auto; }
+  .ch-name{ flex:1; min-width:0; font:500 24px/1.2 var(--noto); letter-spacing:-.24px; }
+  .ch-bottom{ display:flex; align-items:center; gap:10px; }
+  .ch-prog{ flex:1; min-width:0; font:400 20px/1.2 var(--noto); letter-spacing:-.24px; color:rgba(255,255,255,.7); }
+  .ch-icons{ display:flex; align-items:center; gap:16px; }
+  .ic20{ width:20px; height:20px; display:block; }
+  .ch-no{ height:32px; min-width:40px; box-sizing:border-box; padding:0 12px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+    background:rgba(0,0,0,.35); font:600 20px/20px var(--noto); }
+
+  /* ---------- View Program Guide: one column per channel ---------- */
+  .guide{ margin-top:26px; }   /* 32px below the avatars */
+  .guide .rail-track{ gap:10px; align-items:flex-start; }
+  .col{ width:390px; flex:0 0 auto; border-radius:16px; background:var(--glass-card); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); }
+  .col-head{ height:96px; box-sizing:border-box; padding:16px; border-radius:16px 16px 0 0; background:rgba(255,255,255,.1); display:flex; align-items:center; gap:8px; }
+  .col-head .ava-sm{ position:relative; width:64px; height:64px; border-radius:80px; flex:0 0 auto; }
+  .col-name{ flex:1; min-width:0; font:600 20px/1.2 var(--noto); letter-spacing:-.24px; }
+  .col-icons{ display:flex; align-items:center; gap:8px; }
+  .col-icons .heart{ padding:10px; }
+  .col-icons .crown{ width:40px; height:40px; display:flex; align-items:center; justify-content:center; }
+  .col-no{ height:40px; min-width:40px; box-sizing:border-box; padding:0 12px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+    background:rgba(0,0,0,.35); font:500 16px/20px var(--noto); }
+  .col-body{ padding:8px; display:flex; flex-direction:column; gap:8px; }
+  .col-empty{ padding:24px 16px; font:400 20px/1.2 var(--noto); color:var(--on-surface-variant); }
+
+  /* programme cards: the first (on at the chosen time) is the tall picture card, the rest are text blocks */
+  .prog{ position:relative; border-radius:8px; cursor:pointer; }
+  .prog-big{ height:196px; overflow:hidden; box-sizing:border-box; padding:16px; display:flex; flex-direction:column; justify-content:flex-end; gap:4px; }
+  .prog-big .art{ position:absolute; inset:0; background-size:cover; background-position:center; }
+  .prog-big .art.logo-art{ background:var(--avatar); }
+  .prog-big .art.logo-art img{ position:absolute; left:50%; top:38%; width:120px; height:120px; transform:translate(-50%,-50%); object-fit:contain; border-radius:16px; }
+  .prog-big .shade{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(102,102,102,0) 15.257%, #000 87.392%); }
+  .prog-big .t{ position:relative; font:400 24px/1.2 var(--noto); letter-spacing:-.24px; }
+  .prog-big .row{ position:relative; height:26px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .prog-big .tm{ flex:1; min-width:0; font:500 20px/1 var(--noto); letter-spacing:-.24px; color:rgba(255,255,255,.8); }
+  .prog-blk{ width:374px; box-sizing:border-box; padding:16px; display:flex; flex-direction:column; gap:8px; background:var(--glass-chip);
+    transition:background .22s cubic-bezier(.2,0,0,1); }
+  .prog-blk.focused{ background:var(--glass-card-on); }
+  .prog-blk .title-row{ display:flex; align-items:center; gap:8px; }
+  .prog-blk .t{ flex:1; min-width:0; height:32px; font:400 24px/32px Roboto, sans-serif; color:var(--on-surface); }
+  .prog-blk .row{ height:26px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .prog-blk .tm{ font:400 20px/1 Roboto, sans-serif; color:var(--on-surface-variant); white-space:nowrap; }
+  .ic24{ width:24px; height:24px; display:block; }
+  /* tags: Don't Miss / Upcoming / On Air / Live / Watching */
+  .tags{ display:flex; gap:8px; align-items:center; flex:0 0 auto; }
+  .tag{ height:26px; box-sizing:border-box; padding:4px; display:flex; align-items:center; gap:4px; border-radius:4px; border:1px solid #5d5d5d;
+    background:rgba(255,255,255,.16); font:400 16px/1.2 var(--noto); letter-spacing:-.24px; color:rgba(255,255,255,.8); white-space:nowrap; }
+  .tag img{ width:16px; height:16px; display:block; }
+  .tag.live{ background:var(--live); border-color:var(--on-surface); color:#fff; }
+  .tag.live i{ width:6px; height:6px; border-radius:100px; background:#fff; }
+  .tag.watching{ background:#59d478; border-color:var(--on-surface); color:#fff; font-weight:500; }
+  /* date separator between days */
+  .day-sep{ height:47px; box-sizing:border-box; border-radius:8px; margin-top:39px; display:flex; align-items:center; justify-content:center;
+    background:rgba(0,0,0,.35); font:500 20px/1.2 var(--noto); letter-spacing:-.24px;
+    text-shadow:0 4px 4px rgba(0,0,0,.15), 0 1px 1.5px rgba(0,0,0,.3); }
+
+  .empty{ margin:40px 110px 0; font:400 24px/1.4 var(--noto); color:var(--on-surface-variant); }
+  body.v-channels .only-guide, body.v-guide .only-channels{ display:none !important; }
+
+  #toast{ position:absolute; left:50%; bottom:60px; transform:translateX(-50%); padding:14px 26px; border-radius:999px; z-index:30;
+    background:rgba(20,20,24,.9); font-size:24px; opacity:0; transition:opacity .2s ease; pointer-events:none; white-space:nowrap; }
+  #toast.on{ opacity:1; }
+</style>
+</head>
+<body class="v-channels">
+<div id="frame"><div id="screen">
+  <div id="page"><div id="content">
+    <div class="head">
+      <div class="head-left">
+        <h1>TV Guide</h1>
+        <div class="switcher">
+          <div class="sw item on" data-view="channels">View Channels</div>
+          <div class="sw item" data-view="guide">View Program Guide</div>
+        </div>
+      </div>
+      <div class="head-right">
+        <div class="time-chip only-channels" id="chipDate"></div>
+        <div class="time-chip only-channels" id="chipTime"></div>
+        <div class="dd only-guide" id="ddDate"><div class="dd-trigger item"><span class="v"></span><img class="a" src="icons/pkg/d-chev.svg" alt=""></div><div class="dd-menu"></div></div>
+        <div class="dd only-guide" id="ddTime"><div class="dd-trigger item"><span class="v"></span><img class="a" src="icons/pkg/d-chev.svg" alt=""></div><div class="dd-menu"></div></div>
+      </div>
+    </div>
+    <div class="rail tabs"><div class="rail-track" id="tabs"></div></div>
+    <div class="rail subs only-guide" id="subsRail"><div class="rail-track" id="subs"></div></div>
+    <div class="rail avatars only-guide"><div class="rail-track" id="avatars"></div></div>
+    <div class="grid only-channels" id="grid"></div>
+    <div class="rail guide only-guide" id="guideRail"><div class="rail-track" id="guide"></div></div>
+    <div class="empty" id="empty" style="display:none">No channels in this category yet.</div>
+  </div></div>
+  <div id="toast"></div>
+</div></div>
+
+<script>
+(function(){
+  var frame = document.getElementById('frame'), screen = document.getElementById('screen'), K = 1;
+  function fit(){
+    K = Math.min(innerWidth / 1920, innerHeight / 1080);
+    frame.style.width = 1920 * K + 'px'; frame.style.height = 1080 * K + 'px';
+    frame.style.marginLeft = -960 * K + 'px'; frame.style.marginTop = -540 * K + 'px';
+    screen.style.transform = 'scale(' + K + ')';
+  }
+  addEventListener('resize', fit); fit();
+  var $ = function(q, el){ return Array.prototype.slice.call((el || document).querySelectorAll(q)); };
+  function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+
+  /* ---------- channels: the ones Home shows (TV Guide rail + Hot Channels), sorted by number ----------
+     logo: cover = fills the disc; contain = sits inside it; box = Home's crop [left, top, width, height] in %.
+     cats: category tabs; sport: Sports sub-tabs; crown: 'gold' premium or 'owned' (gold with the green mark). */
+  var CHANNELS = [
+    {no:61,  n:'PLAY Sports',        logo:'icons/channels/playsports.png', fit:'cover', cats:['sports'], sport:['multi','motorsport','golf'], crown:'gold', recent:true,
+      sched:[['Formula 1: Grand Prix Qualifying',120,'posters/f1.jpg',1],['Paddock Pass',30],['PGA Tour: Final Round Highlights',90],['Motorsport Weekly',60],['World Superbike: Race 2',90],['Golf Central',60]]},
+    {no:62,  n:'MUTV',               logo:'icons/epg/mutv.png', fit:'cover', cats:['sports'], sport:['football'], crown:'owned', fav:true, recent:true,
+      sched:[['PL Match: v Chelsea (A) 25/26',120,'posters/maxresdefault.jpg',1],['Inside United',60],['Sir Alex Ferguson: Never Give In',90,'posters/maxresdefault.jpg'],['Reserves Highlights',60],['Classic Match: 1999 Final',120],['United Review',30]]},
+    {no:63,  n:'Real Madrid TV',     logo:'icons/epg/realmadrid.png', fit:'contain', cats:['sports'], sport:['football'],
+      sched:[['Champions League 15/16: Real Madrid vs Atlético de Madrid',120,'posters/upcoming/u2.jpg'],['Classic Highlights',60],['Training Ground Live',60,'posters/upcoming/u3.jpg'],['La Liga Review',60],['Bernabéu Stories',90]]},
+    {no:64,  n:'W-Sport',            logo:'icons/epg/wsport.png', fit:'contain', bg:'#fff', cats:['sports'], sport:['multi','basketball'],
+      sched:[['Malaysia Regional Cup \'26: Wildcats v Sneakers',120,'posters/all.jpg',1],['Heroines (S2E02)',60],['All or Nothing: Brazil',60,'posters/all.jpg'],['Hoops Asia',60],['W-Sport Tonight',30]]},
+    {no:230, n:'Warner TV',          logo:'icons/channels/wbtv.png', box:[10.88,12.81,80.09,74.91], bg:'#fff', cats:['movies','cartoons'], crown:'gold',
+      sched:[['Superman',150,'posters/superman.jpg',1],['Looney Tunes Cartoons',30],['Gotham Knights',60],['The Big Bang Theory',30],['Young Sheldon',30],['Friends',30]]},
+    {no:251, n:'HBO',                logo:'icons/channels/hbo.png', fit:'cover', bg:'#fff', cats:['movies'], crown:'gold', recent:true,
+      sched:[['House of the Dragon',60,'posters/house-of-the-dragon.jpg',1],['The Last of Us',60,'posters/last-of-us.jpg',1],['Dune: Part Two',165],['Real Time with Bill Maher',60],['The Penguin',60]]},
+    {no:252, n:'HBO Hits',           logo:'icons/channels/hbohits.png', box:[0,17.28,95.67,65.54], bg:'#fff', cats:['movies'], crown:'gold',
+      sched:[['Top Gun: Maverick',135,'posters/topgun-m.jpg'],['Wicked',160,'posters/wicked.jpg',1],['The Batman',175],['Barbie',115]]},
+    {no:253, n:'HBO Family',         logo:'icons/channels/hbofamily.png', box:[-0.11,22.3,108.43,66.07], bg:'#fff', cats:['movies','cartoons'], crown:'gold',
+      sched:[['How to Train Your Dragon',100,'posters/how-to-train.jpg'],['Paddington 2',105],['The Lego Movie',100],['Sesame Street',30],['Kung Fu Panda 4',95]]},
+    {no:254, n:'HBO Signature',      logo:'icons/channels/hbosignature.png', box:[-17.36,23.71,114.25,52.53], bg:'#fff', cats:['movies'], crown:'gold',
+      sched:[['The Last of Us',60,'posters/last-of-us.jpg'],['Succession',60],['The White Lotus',60,null,1],['True Detective',60],['Chernobyl',60]]},
+    {no:255, n:'Cinemax',            logo:'icons/channels/cinemax.png', box:[5.54,25.24,88.79,50], bg:'#fff', cats:['movies'], crown:'gold',
+      sched:[['District 9',115,'posters/district9.jpg',1],['Spider-Man: No Way Home',150,'posters/P10-spiderman.jpg'],['The Devil Wears Prada',110,'posters/P10-Devil.jpg'],['The Odyssey',140,'posters/P10_Odyssey.jpg']]},
+    {no:260, n:'Rock Entertainment', logo:'icons/channels/rock.png', box:[-11.46,24.55,120.21,51.94], bg:'#fff', cats:['variety','others'],
+      sched:[['Miss Universe Thailand 2026',120,'posters/miss-universe.jpg',1],['Masterchef Thailand',60,'posters/upcoming/u1.jpg'],['Rock Comedy Hour',60],['Talent Showdown',90],['Late Night Variety',60]]},
+    {no:301, n:'CNN',                logo:'icons/epg/cnn.jpg', fit:'cover', cats:['news'], fav:true, recent:true,
+      sched:[['CNN News Central',60],['Anderson Cooper 360°',60,null,1],['The Lead with Jake Tapper',60],['Amanpour',30],['CNN Newsroom',90],['World Sport',30]]},
+    {no:302, n:'BBC News',           logo:'icons/epg/bbc.jpg', fit:'cover', cats:['news'],
+      sched:[['BBC News at Ten',60],['HARDtalk',30],['Newsnight',60,null,1],['World Business Report',30],['BBC World News',60],['Click',30]]},
+    {no:902, n:'Asian Games 902',    logo:'tv-features-test/live-stream-assets/channel-asian-games.png', fit:'cover', bg:'#fff', cats:['digital','sports'], sport:['multi','tennis','boxing'], fav:true,
+      sched:[['Asian Games 2026: Tennis Finals',150,'posters/upcoming/u4.png',1],['Boxing: Semi-finals',120],['Medal Ceremony Live',30],['Asian Games Daily',60]]},
+    {no:907, n:'Asian Games 907',    logo:'tv-features-test/shorts-assets/channel-907.png', fit:'cover', bg:'#fff', cats:['digital','sports'], sport:['multi','basketball','rugby'],
+      sched:[['Asian Games 2026: Football Group Stage',120,'posters/SC.jpg',1],['Basketball 3x3: Quarter-finals',90],['Rugby Sevens: Pool A',90],['Asian Games Daily',60]]}
+  ];
+  var CATS = [
+    {id:'all', n:'All Channels'}, {id:'recent', n:'Recently Watched'}, {id:'fav', n:'Favorite'}, {id:'digital', n:'Digital TV'},
+    {id:'sports', n:'Sports', subs:[['all','All Sports'],['multi','Multi-Sports'],['football','Football'],['motorsport','Motorsport'],['golf','Golf'],
+      ['basketball','Basketball'],['tennis','Tennis'],['rugby','Rugby'],['boxing','Boxing']]},
+    {id:'movies', n:'Movies & Series'}, {id:'news', n:'News'}, {id:'cartoons', n:'Cartoons'}, {id:'variety', n:'Variety'}, {id:'others', n:'Others'}
+  ];
+  var SPORT_CH = ['sports'];   // channels in these categories show a red Live tag for what's on now, others On Air
+
+  /* ---------- schedule: each channel repeats its line-up from a per-channel offset, around the real clock ---------- */
+  var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function fmtDate(d){ return d.getDate() + ' ' + MON[d.getMonth()] + ' ' + d.getFullYear(); }
+  function pad(n){ return (n < 10 ? '0' : '') + n; }
+  function fmtTime(d){ return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+  var today = new Date(); today.setHours(0, 0, 0, 0);
+  CHANNELS.forEach(function(c, i){
+    var t = new Date(today.getTime() - (90 + Math.round(i * 37 % 120 / 15) * 15) * 60000), k = 0, list = [];   // starts on a quarter hour
+    var end = today.getTime() + 4 * 864e5;
+    while(t.getTime() < end){
+      var s = c.sched[k % c.sched.length], start = new Date(t);
+      t = new Date(t.getTime() + s[1] * 60000);
+      list.push({ch:c, t:s[0], start:start, end:new Date(t), img:s[2] || null, hot:!!s[3], key:c.no + '@' + start.getTime()});
+      k++;
+    }
+    c.progs = list;
+  });
+  function onAt(c, when){ for(var i = 0; i < c.progs.length; i++) if(c.progs[i].end > when) return i; return c.progs.length - 1; }
+
+  /* ---------- state ---------- */
+  var S = { view:'channels', cat:'all', sub:'all', day:0, hour:-1 };   // hour -1 = now
+  var reminders = {};
+  function guideTime(){
+    if(S.day === 0 && S.hour < 0) return new Date();
+    var d = new Date(today.getTime() + S.day * 864e5);
+    if(S.hour >= 0) d.setHours(S.hour); else d.setHours(new Date().getHours(), new Date().getMinutes());
+    return d;
+  }
+  function channelsFor(){
+    var cat = CATS.filter(function(c){ return c.id === S.cat; })[0];
+    return CHANNELS.filter(function(c){
+      if(S.cat === 'recent') return c.recent;
+      if(S.cat === 'fav') return c.fav;
+      if(S.cat !== 'all' && c.cats.indexOf(S.cat) < 0) return false;
+      if(S.view === 'guide' && cat.subs && S.sub !== 'all') return (c.sport || []).indexOf(S.sub) >= 0;
+      return true;
+    });
+  }
+
+  /* ---------- rendering ---------- */
+  function logoHtml(c){
+    var b = c.box, img = b ? '<img src="' + c.logo + '" alt="" style="left:' + b[0] + '%;top:' + b[1] + '%;width:' + b[2] + '%;height:' + b[3] + '%;object-fit:contain;">'
+                          : '<img class="' + (c.fit || 'cover') + '" src="' + c.logo + '" alt="">';
+    return '<div class="logo" style="' + (c.bg ? 'background:' + c.bg : '') + '">' + img + '</div>';
+  }
+  function crownIcon(c){ return c.crown ? '<img class="ic20" src="icons/tv-guide/' + (c.crown === 'owned' ? 'crown.svg' : 'crown-s.svg') + '" alt="Premium">' : ''; }
+  var tabsEl = document.getElementById('tabs'), subsEl = document.getElementById('subs'), subsRail = document.getElementById('subsRail');
+  var gridEl = document.getElementById('grid'), avasEl = document.getElementById('avatars'), guideEl = document.getElementById('guide');
+  var emptyEl = document.getElementById('empty');
+  tabsEl.innerHTML = CATS.map(function(c){ return '<div class="tab item" data-cat="' + c.id + '">' + esc(c.n) + '</div>'; }).join('');
+
+  function renderTabs(){
+    $('.tab', tabsEl).forEach(function(t){ t.classList.toggle('on', t.dataset.cat === S.cat); });
+    var cat = CATS.filter(function(c){ return c.id === S.cat; })[0];
+    subsEl.innerHTML = cat.subs ? cat.subs.map(function(s){ return '<div class="sub item' + (s[0] === S.sub ? ' on' : '') + '" data-sub="' + s[0] + '">' + esc(s[1]) + '</div>'; }).join('') : '';
+    subsRail.style.display = cat.subs ? '' : 'none';
+  }
+  function renderChannels(list){
+    var now = new Date();
+    gridEl.innerHTML = list.map(function(c){
+      var p = c.progs[onAt(c, now)];
+      return '<div class="ch-card item" data-no="' + c.no + '">' +
+        '<div class="ch-top"><div class="ava-sm">' + logoHtml(c) + '</div><div class="ch-name clip">' + esc(c.n) + '</div></div>' +
+        '<div class="ch-bottom"><div class="ch-prog clip">' + esc(p.t) + '</div>' +
+          '<div class="ch-icons"><img class="ic20" src="icons/tv-guide/heart.svg" alt="">' + crownIcon(c) + '</div>' +
+          '<div class="ch-no">' + c.no + '</div></div>' +
+      '</div>';
+    }).join('');
+  }
+  function tagsFor(p, big, when){
+    var now = new Date(), airing = p.start <= now && p.end > now, out = '';
+    if(big && airing){
+      out += SPORT_CH.some(function(k){ return p.ch.cats.indexOf(k) >= 0; })
+        ? '<span class="tag live"><i></i>Live</span>'
+        : '<span class="tag"><img src="icons/tv-guide/live.svg" alt="">On Air</span>';
+    } else if(big && p.start > now){
+      out += '<span class="tag">Upcoming</span>';
+    }
+    if(p.hot) out += '<span class="tag"><img src="icons/tv-guide/fire.svg" alt="">Don\'t Miss</span>';
+    return out ? '<div class="tags">' + out + '</div>' : '';
+  }
+  function renderGuide(list){
+    var when = guideTime(), dayOf = function(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); };
+    avasEl.innerHTML = list.map(function(c){ return '<div class="ava item" data-no="' + c.no + '" title="' + esc(c.n) + '">' + logoHtml(c) + '</div>'; }).join('');
+    guideEl.innerHTML = list.map(function(c){
+      var i0 = onAt(c, when), shown = c.progs.slice(i0, i0 + 8), lastDay = dayOf(when), body = '';
+      shown.forEach(function(p, j){
+        if(j > 0 && dayOf(p.start) !== lastDay){ body += '<div class="day-sep">' + fmtDate(p.start) + '</div>'; }
+        lastDay = dayOf(p.start);
+        var tm = fmtTime(p.start) + (j === 0 ? ' - ' : ' – ') + fmtTime(p.end);
+        if(j === 0){
+          var art = p.img ? '<div class="art" style="background-image:url(\'' + p.img + '\')"></div>'
+                          : '<div class="art logo-art"><img src="' + c.logo + '" alt="" style="background:' + (c.bg || 'transparent') + '"></div>';
+          body += '<div class="prog prog-big item" data-key="' + p.key + '">' + art + '<div class="shade"></div>' +
+            '<div class="t clip">' + esc(p.t) + '</div><div class="row"><div class="tm clip">' + tm + '</div>' + tagsFor(p, true, when) + '</div></div>';
+        } else {
+          body += '<div class="prog prog-blk item" data-key="' + p.key + '">' +
+            '<div class="title-row"><div class="t clip">' + esc(p.t) + '</div>' +
+              (reminders[p.key] ? '<img class="ic24" src="icons/tv-guide/notify.svg" alt="Reminder set">' : '') + '</div>' +
+            '<div class="row"><div class="tm">' + tm + '</div>' + tagsFor(p, false, when) + '</div></div>';
+        }
+      });
+      return '<div class="col" data-no="' + c.no + '">' +
+        '<div class="col-head"><div class="ava-sm">' + logoHtml(c) + '</div><div class="col-name clip">' + esc(c.n) + '</div>' +
+          '<div class="col-icons"><span class="heart"><img class="ic20" src="icons/tv-guide/heart.svg" alt=""></span>' +
+            (c.crown ? '<span class="crown">' + crownIcon(c) + '</span>' : '') + '<div class="col-no">' + c.no + '</div></div></div>' +
+        '<div class="col-body">' + body + '</div></div>';
+    }).join('');
+  }
+  var PROG_BY_KEY = {};
+  CHANNELS.forEach(function(c){ c.progs.forEach(function(p){ PROG_BY_KEY[p.key] = p; }); });
+
+  function render(){
+    document.body.className = 'v-' + S.view;
+    $('.sw').forEach(function(s){ s.classList.toggle('on', s.dataset.view === S.view); });
+    renderTabs();
+    var list = channelsFor();
+    if(S.view === 'channels') renderChannels(list); else renderGuide(list);
+    emptyEl.style.display = list.length ? 'none' : '';
+    $('.ch-card, .prog, .ava, .sub').forEach(function(el){ el.addEventListener('click', onClick); });
+  }
+
+  /* ---------- head: clock chips and the two dropdowns ---------- */
+  var chipDate = document.getElementById('chipDate'), chipTime = document.getElementById('chipTime');
+  var dds = { date: document.getElementById('ddDate'), time: document.getElementById('ddTime') };
+  function dateOpts(){ return [0, 1, 2, 3].map(function(i){ return {v:i, n:fmtDate(new Date(today.getTime() + i * 864e5))}; }); }
+  function timeOpts(){ var o = [{v:-1, n:'Now'}]; for(var h = 0; h < 24; h++) o.push({v:h, n:pad(h) + ':00'}); return o; }
+  function paintHead(){
+    var now = new Date();
+    chipDate.textContent = fmtDate(now); chipTime.textContent = fmtTime(now);
+    dds.date.querySelector('.v').textContent = fmtDate(new Date(today.getTime() + S.day * 864e5));
+    dds.time.querySelector('.v').textContent = S.hour < 0 ? fmtTime(now) : pad(S.hour) + ':00';
+  }
+  setInterval(paintHead, 20000);
+
+  var menu = null;   // the open dropdown: {kind, opts, hl}
+  function openMenu(kind){
+    var opts = kind === 'date' ? dateOpts() : timeOpts(), cur = kind === 'date' ? S.day : S.hour;
+    var hl = 0; opts.forEach(function(o, i){ if(o.v === cur) hl = i; });
+    menu = {kind:kind, opts:opts, hl:hl};
+    var m = dds[kind].querySelector('.dd-menu');
+    m.innerHTML = opts.map(function(o, i){ return '<div class="dd-opt' + (o.v === cur ? ' sel' : '') + '" data-i="' + i + '">' + o.n + '</div>'; }).join('');
+    $('.dd-opt', m).forEach(function(el){ el.addEventListener('click', function(e){ e.stopPropagation(); menu.hl = +el.dataset.i; pickMenu(); }); });
+    dds[kind].classList.add('open'); paintMenu();
+  }
+  function paintMenu(){
+    var m = dds[menu.kind].querySelector('.dd-menu'), opts = $('.dd-opt', m);
+    opts.forEach(function(el, i){ el.classList.toggle('hl', i === menu.hl); });
+    var el = opts[menu.hl], top = el.offsetTop - 8;
+    if(top < m.scrollTop) m.scrollTop = top; else if(el.offsetTop + el.offsetHeight + 8 > m.scrollTop + m.clientHeight) m.scrollTop = el.offsetTop + el.offsetHeight + 8 - m.clientHeight;
+  }
+  function closeMenu(){ if(!menu) return; dds[menu.kind].classList.remove('open'); menu = null; }
+  function pickMenu(){
+    var o = menu.opts[menu.hl];
+    if(menu.kind === 'date') S.day = o.v; else S.hour = o.v;
+    closeMenu(); paintHead(); render(); resetZones(); paint();
+    toast('Guide from ' + fmtDate(guideTime()) + ', ' + fmtTime(guideTime()));
+  }
+
+  /* ---------- focus: zones top to bottom, each remembers its position ---------- */
+  var mem = { head:0, tabs:0, subs:0, avatars:0, grid:0, guide:{c:0, r:0} }, zone = 'tabs';
+  function zoneItems(z){
+    if(z === 'head') return $('.sw').concat(S.view === 'guide' ? [dds.date.querySelector('.dd-trigger'), dds.time.querySelector('.dd-trigger')] : []);
+    if(z === 'tabs') return $('.tab', tabsEl);
+    if(z === 'subs') return $('.sub', subsEl);
+    if(z === 'avatars') return $('.ava', avasEl);
+    if(z === 'grid') return $('.ch-card', gridEl);
+    return [];
+  }
+  function guideCols(){ return $('.col', guideEl).map(function(col){ return $('.prog', col); }); }
+  function zones(){
+    var z = ['head', 'tabs'];
+    if(S.view === 'channels'){ if(zoneItems('grid').length) z.push('grid'); }
+    else {
+      if(subsEl.children.length) z.push('subs');
+      if(zoneItems('avatars').length) z.push('avatars', 'guide');
+    }
+    return z;
+  }
+  function resetZones(){ mem.avatars = 0; mem.grid = 0; mem.guide = {c:0, r:0}; if(zones().indexOf(zone) < 0) zone = 'tabs'; }
+  function focusedEl(){
+    if(zone === 'guide'){ var cols = guideCols(), g = mem.guide; return cols[g.c] && cols[g.c][g.r]; }
+    return zoneItems(zone)[mem[zone]];
+  }
+  function paint(){
+    $('.focused').forEach(function(e){ e.classList.remove('focused'); });
+    var el = focusedEl(); if(!el) return;
+    el.classList.add('focused');   // focus-ring.js puts the ring on it
+    // keep it in view. Sideways, exactly like Home's rails ("fixed focus", updateTrackTransform in home.html): the
+    // focused item sits at the first item's slot (the 110px margin) and the rail slides under it, until the rail's end
+    // is in: it stops where the last item ends as far from the right edge as the first starts from the left; past that,
+    // focus moves on alone to the last items. Short rows never scroll.
+    // Down the page: the page scrolls to it.
+    var rail = el.closest('.rail');
+    if(rail){
+      var item = zone === 'guide' ? el.closest('.col') : el, track = rail.firstElementChild;
+      var desired = item.offsetLeft - track.firstElementChild.offsetLeft;
+      var maxScroll = Math.max(0, rail.scrollWidth - rail.clientWidth);   // the 110px margins already leave room for the ring
+      var left = Math.max(0, Math.min(desired, maxScroll));
+      rail.dataset.scrollLeftTo = left;   // focus-ring.js aims the ring at where the item will be once this scroll ends
+      rail.scrollTo({left:left, behavior:'smooth'});
+    }
+    var page = document.getElementById('page'), top = page.scrollTop;
+    if(zone === 'head' || zone === 'tabs' || zone === 'subs' || zone === 'avatars' ||
+       (zone === 'grid' && mem.grid < 5) || (zone === 'guide' && mem.guide.r === 0)) top = 0;
+    else {
+      var y = (el.getBoundingClientRect().top - page.getBoundingClientRect().top) / K + page.scrollTop, h = el.offsetHeight;
+      if(y + h + 60 > top + 1080) top = y + h + 60 - 1080;
+      if(y - 60 < top) top = y - 60;
+    }
+    page.dataset.scrollTopTo = Math.max(0, top);
+    page.scrollTo({top:Math.max(0, top), behavior:'smooth'});
+  }
+  // moving onto a tab / sub-tab filters straight away
+  function selectCat(id){ if(S.cat === id) return; S.cat = id; S.sub = 'all'; mem.subs = 0; render(); resetZones(); }
+  function selectSub(id){ if(S.sub === id) return; S.sub = id; render(); resetZones(); }
+  function setView(v){ if(S.view === v) return; S.view = v; closeMenu(); render(); resetZones(); }
+
+  function move(dx, dy){
+    var zs = zones(), zi = zs.indexOf(zone);
+    if(dx){
+      if(zone === 'grid'){
+        var n = zoneItems('grid').length, c = mem.grid % 5;
+        if((dx < 0 && c > 0) || (dx > 0 && c < 4 && mem.grid + 1 < n)) mem.grid += dx;
+      } else if(zone === 'guide'){
+        var cols = guideCols(), g = mem.guide, nc = Math.max(0, Math.min(cols.length - 1, g.c + dx));
+        mem.guide = {c:nc, r:Math.min(g.r, cols[nc].length - 1)};
+        mem.avatars = nc;
+      } else {
+        var items = zoneItems(zone);
+        mem[zone] = Math.max(0, Math.min(items.length - 1, mem[zone] + dx));
+        if(zone === 'tabs') selectCat(items[mem.tabs].dataset.cat);
+        if(zone === 'subs') selectSub(items[mem.subs].dataset.sub);
+      }
+      return;
+    }
+    if(zone === 'grid'){
+      var ng = mem.grid + dy * 5;
+      if(dy > 0 && ng < zoneItems('grid').length){ mem.grid = ng; return; }
+      if(dy > 0 && Math.floor(mem.grid / 5) < Math.floor((zoneItems('grid').length - 1) / 5)){ mem.grid = zoneItems('grid').length - 1; return; }
+      if(dy < 0 && ng >= 0){ mem.grid = ng; return; }
+    }
+    if(zone === 'guide'){
+      var col = guideCols()[mem.guide.c], nr = mem.guide.r + dy;
+      if(nr >= 0 && nr < col.length){ mem.guide.r = nr; return; }
+    }
+    var nz = zs[zi + dy];
+    if(!nz) return;
+    if(nz === 'guide' && zone === 'avatars') mem.guide = {c:mem.avatars, r:0};
+    if(nz === 'avatars' && zone === 'guide') mem.avatars = mem.guide.c;
+    if(nz === 'tabs') mem.tabs = Math.max(0, CATS.map(function(c){ return c.id; }).indexOf(S.cat));
+    if(nz === 'head' && zone !== 'head') mem.head = S.view === 'guide' ? 1 : 0;
+    zone = nz;
+  }
+
+  var toastEl = document.getElementById('toast'), toastT;
+  function toast(msg){ toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove('on'); }, 1800); }
+  function back(){
+    try { if(document.referrer && /home\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    location.href = 'home.html';
+  }
+  function chByNo(no){ return CHANNELS.filter(function(c){ return c.no === +no; })[0]; }
+  function activate(el){
+    if(el.classList.contains('sw')){ setView(el.dataset.view); mem.head = S.view === 'guide' ? 1 : 0; zone = 'head'; return; }
+    if(el.classList.contains('dd-trigger')){ openMenu(el.parentElement === dds.date ? 'date' : 'time'); return; }
+    if(el.classList.contains('ch-card')){ var c = chByNo(el.dataset.no); toast('Now watching ' + c.n + ' (' + c.no + '): ' + c.progs[onAt(c, new Date())].t); return; }
+    if(el.classList.contains('ava')){ mem.guide = {c:zoneItems('avatars').indexOf(el), r:0}; zone = 'guide'; return; }
+    if(el.classList.contains('prog')){
+      var p = PROG_BY_KEY[el.dataset.key], now = new Date();
+      if(p.start <= now && p.end > now){ toast('Now watching ' + p.ch.n + ': ' + p.t); return; }
+      if(p.end <= now){ toast(p.t + ' has ended'); return; }
+      // a programme still to come: Enter sets (or clears) a reminder, shown as a bell on its card
+      if(reminders[p.key]){ delete reminders[p.key]; toast('Reminder removed: ' + p.t); }
+      else { reminders[p.key] = true; toast('Reminder set: ' + p.t + ' at ' + fmtTime(p.start)); }
+      var g = mem.guide; render(); mem.guide = g; return;
+    }
+  }
+  function onClick(e){
+    e.stopPropagation(); closeMenu();
+    var el = e.currentTarget, found = false;
+    zones().forEach(function(z){
+      if(found) return;
+      if(z === 'guide'){ guideCols().forEach(function(col, c){ var r = col.indexOf(el); if(r >= 0){ mem.guide = {c:c, r:r}; zone = 'guide'; found = true; } }); return; }
+      var i = zoneItems(z).indexOf(el); if(i >= 0){ mem[z] = i; zone = z; found = true; }
+    });
+    if(el.classList.contains('tab')) selectCat(el.dataset.cat);
+    else if(el.classList.contains('sub')) selectSub(el.dataset.sub);
+    else activate(el);
+    paint();
+  }
+  $('.sw, .tab, .dd-trigger').forEach(function(el){ el.addEventListener('click', onClick); });
+
+  addEventListener('keydown', function(e){
+    var handled = true;
+    if(menu){
+      if(e.key === 'ArrowDown') menu.hl = Math.min(menu.opts.length - 1, menu.hl + 1);
+      else if(e.key === 'ArrowUp') menu.hl = Math.max(0, menu.hl - 1);
+      else if(e.key === 'Enter' || e.key === ' ') { pickMenu(); e.preventDefault(); return; }
+      else if(e.key === 'Escape' || e.key === 'Backspace') closeMenu();
+      else handled = false;
+      if(handled){ e.preventDefault(); if(menu) paintMenu(); }
+      return;
+    }
+    if(e.key === 'ArrowRight') move(1, 0);
+    else if(e.key === 'ArrowLeft') move(-1, 0);
+    else if(e.key === 'ArrowDown') move(0, 1);
+    else if(e.key === 'ArrowUp') move(0, -1);
+    else if(e.key === 'Enter' || e.key === ' '){ var el = focusedEl(); if(el) activate(el); }
+    else if(e.key === 'Escape' || e.key === 'Backspace') back();
+    else handled = false;
+    if(handled){ e.preventDefault(); paint(); }
+  });
+  // mouse wheel / trackpad scrolls the page
+  document.getElementById('page').addEventListener('wheel', function(e){ this.scrollTop += e.deltaY; e.preventDefault(); }, {passive:false});
+
+  // ?view=guide opens the Program Guide straight away
+  if(/view=guide/.test(location.search)) S.view = 'guide';
+  paintHead(); render(); paint();
+})();
+</script>
+<script src="focus-ring.js"></script>
+</body>
+</html>
