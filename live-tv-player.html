@@ -405,6 +405,7 @@
   var chBuf = '', chT;
   function chPaint(){ var el = byId('chIn'); el.innerHTML = esc(chBuf) + '<i>' + '–––'.slice(chBuf.length) + '</i>'; el.classList.toggle('on', !!chBuf); }
   function chKey(d){
+    clearTimeout(chShowT);
     if(chBuf.length >= 3) chBuf = '';
     chBuf += d; chPaint();
     clearTimeout(chT); chT = setTimeout(tune, chBuf.length === 3 ? 500 : 2000);
@@ -425,6 +426,13 @@
   if(q.nochan) toast('Channel ' + q.nochan + ' is not available');
   // a channel change (number or Up / Down) opens the new channel with the controls away: the viewer brings them up
   var quiet = q.quiet === '1' || !!q.nochan;
+  // after a channel change (number or Up / Down) the new channel's number shows in the same box for 2s (its name, for
+  // an Exclusive channel with no number)
+  var chShowT;
+  if(q.quiet === '1'){
+    var chEl = byId('chIn'); chEl.textContent = C.no || C.n; chEl.classList.add('on');
+    chShowT = setTimeout(function(){ if(!chBuf) chEl.classList.remove('on'); }, 2000);
+  }
   try { history.replaceState(null, '', location.pathname + location.search.replace(/[?&](nochan|quiet)=\d+/g, '').replace(/^&/, '?')); } catch(e){}
 
   // idle: focus is put away too (Explore Package stays on screen, but without the ring) and comes back on wake
