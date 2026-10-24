@@ -6,14 +6,15 @@
 <title>Store</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Roboto:wght@400;500&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
 <!--
   Store page (Figma "PLAY:store_mainPage", node 5205:222060), opened from the Store tab in the top bar.
   A 1920x1080 TV screen scaled to the window, like sport.html; the shared gliding focus ring is focus-ring.js.
 
   Flow (Figma "Direction and Role", 5205:240827):
   - Dynamic background, For You to Great Value: the hero speaks for the focused package (tags, title, price, VAT,
-    description) over its artwork; the focused rail sits at y=600 and the rails above it fade away. Sports, Movies,
+    description) over its artwork, laid out as Home's hero (text pinned at the top, a dark wash on the left, a fade
+    into the page at the bottom); the focused rail sits at y=600 and the rails above it fade away. Sports, Movies,
     Short Series and Great Value have a tab bar: Up from the cards reaches it, Left / Right picks a tab.
   - Static background, from PPV Event down: the hero and the top bar go, the page scrolls with the focused rail near
     the top. The chosen card of PPV Event opens up to 16:9 with its details (VOD, upcoming live or live); the
@@ -25,34 +26,41 @@
   :root{
     color-scheme:dark;
     /* Figma variables (default mode) */
-    --surface:#101010; --on-surface:#e8e8e8; --on-surface-variant:#a8a8a8; --surface-container-low:#1c1c1c; --surface-container:#2a2a2a;
+    /* Home's page: dark navy, Open Sans */
+    --bg-0:#070e16; --wash:10,8,24;
+    --surface:#070e16; --on-surface:#e8e8e8; --on-surface-variant:#a8a8a8; --surface-container-low:#070e16; --surface-container:#2a2a2a;
     --surface-container-high:#3a3a3a; --surface-container-highest:#4a4a4a; --outline:#5a5a5a; --outline-variant:#4a4a4a;
     --inverse-surface:#e8e8e8; --on-inverse-surface:#101010; --live:#ea5454;
     --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%);
+    /* Home's focus fill: the frosted grey-blue glass of a focused top-bar tab, white text */
+    --focus-fill:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%), var(--th-pill);
+    /* resting buttons: Home's chip rail, white frosted glass over a strong blur; a picked tab a little brighter */
+    --idle-fill:rgba(255,255,255,.16); --idle-fill-on:rgba(255,255,255,.26);
     --ease:cubic-bezier(.2,0,0,1);
-    --inter:'Inter', system-ui, sans-serif; --roboto:'Roboto', system-ui, sans-serif;
+    --inter:'Open Sans', system-ui, sans-serif; --roboto:'Open Sans', system-ui, sans-serif;
     --ph:url('store-assets/placeholder.png');
   }
   html,body{ margin:0; height:100%; background:#000; overflow:hidden; color:var(--on-surface); font-family:var(--inter); -webkit-font-smoothing:antialiased; }
   *{ box-sizing:border-box; }
-  #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:var(--surface); }
-  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; overflow:hidden; background:var(--surface); }
+  #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:var(--bg-0); }
+  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; overflow:hidden;
+    background:radial-gradient(1400px 900px at 85% 110%, rgba(214,222,240,.12), transparent 70%), var(--bg-0); }   /* Home's page colour and glow */
 
-  /* ---------- hero background: Figma's placeholder at 20%, the package's artwork on the right, darkening down and to the left ---------- */
-  .hero-bg{ position:absolute; left:0; top:0; width:1920px; height:1080px; z-index:0; overflow:hidden; background:var(--surface-container-low); transition:opacity .4s ease; }
+  /* ---------- hero background: Figma's placeholder at 20%, the package's artwork on the right (key art is square, so it
+     keeps Figma's spot instead of filling the screen), under Home's overlay: a dark wash behind the text on the left and
+     a fade into the page at the bottom ---------- */
+  .hero-bg{ position:absolute; left:0; top:0; width:1920px; height:1080px; z-index:0; overflow:hidden; transition:opacity .4s ease; }
   .hero-bg .ph{ position:absolute; inset:0; background:url('store-assets/hero-placeholder.png') center / cover no-repeat; opacity:.2; }
   .hero-bg .art{ position:absolute; left:43.91%; top:-2.54%; width:56.09%; height:99.72%; background:center / cover no-repeat; opacity:0; transition:opacity .45s ease; }
   .hero-bg .art.on{ opacity:1; }
-  .hero-bg .down{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(17,0,17,0) 27.822%, #000 90.581%); }
-  .hero-bg .side{ position:absolute; inset:0; opacity:0; transition:opacity .45s ease;
-    background:linear-gradient(99.75deg, #000 7.8725%, rgba(3,3,3,.974) 40.55%, rgba(102,102,102,0) 64.199%); }
-  .hero-bg.has-art .side{ opacity:1; }
-  .hero-bg .icon{ position:absolute; left:1434px; top:280px; width:150px; height:150px; opacity:.6; transition:opacity .3s ease; }
-  .hero-bg.has-art .icon{ opacity:0; }
+  .hero-bg .art{ -webkit-mask-image:linear-gradient(90deg, transparent 0%, #000 30%); mask-image:linear-gradient(90deg, transparent 0%, #000 30%); }   /* no hard edge where the art starts */
+  .hero-bg .down{ position:absolute; inset:0; background:linear-gradient(180deg, transparent 52%, rgba(var(--wash),.55) 74%, var(--bg-0) 96%); }
+  .hero-bg .side{ position:absolute; inset:0;
+    background:linear-gradient(90deg, rgba(var(--wash),.88) 0%, rgba(var(--wash),.62) 30%, rgba(var(--wash),.12) 58%, transparent 75%); }
   body.static .hero-bg{ opacity:0; }
 
-  /* ---------- hero text (localComponent_heroContent): 203px down, above the focused rail at y=600 ---------- */
-  .hero{ position:absolute; left:110px; top:203px; width:841px; z-index:3; display:flex; flex-direction:column; gap:24px;
+  /* ---------- hero text, as Home's: pinned at the top (tags, title, price, description), above the focused rail at y=600 ---------- */
+  .hero{ position:absolute; left:110px; top:160px; width:1100px; z-index:3; display:flex; flex-direction:column; gap:14px;
     transition:opacity .3s ease, transform .3s var(--ease); }
   body.static .hero{ opacity:0; transform:translateY(-40px); pointer-events:none; }
   .hero.swap{ animation:heroIn .3s var(--ease); }
@@ -60,11 +68,12 @@
   .hero .tags{ display:flex; gap:8px; height:36px; overflow:hidden; }
   .tag{ height:36px; padding:0 12px; border-radius:9999px; display:inline-flex; align-items:center; background:var(--surface-container);
     font-weight:500; font-size:20px; color:var(--on-surface); white-space:nowrap; }
-  .hero h1{ margin:0; font-size:57px; font-weight:700; line-height:normal; color:var(--on-surface); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .hero .price{ display:flex; gap:16px; align-items:baseline; white-space:nowrap; }
+  .hero h1{ margin:0; font-size:72px; font-weight:700; line-height:1.08; letter-spacing:-.01em; color:#fff; text-shadow:0 2px 12px rgba(0,0,0,.35);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .hero .price{ display:flex; gap:16px; align-items:baseline; white-space:nowrap; text-shadow:0 0 6px rgba(0,0,0,.6); }
   .hero .price b{ font-weight:400; font-size:45px; line-height:52px; }
   .hero .price span{ font-weight:500; font-size:28px; }
-  .hero .desc{ margin:0; height:95px; font-family:var(--roboto); font-size:24px; line-height:32px; color:var(--on-surface-variant);
+  .hero .desc{ margin:0; max-width:760px; font-size:26px; line-height:1.4; color:#fff; opacity:.82; text-shadow:0 0 6px rgba(0,0,0,.6);
     display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
 
   /* ---------- the page: Figma's rails, 60px apart; it moves as a whole (translateY) ---------- */
@@ -72,7 +81,7 @@
     transition:transform .45s var(--ease); }
   .sec{ position:relative; transition:opacity .3s ease; }
   body:not(.static) .sec.above{ opacity:0; }
-  .sec-title{ margin:0 110px; font-family:var(--roboto); font-weight:500; font-size:32px; line-height:40px; color:var(--on-surface); white-space:nowrap; }
+  .sec-title{ margin:0 110px; font-weight:500; font-size:29px; line-height:40px; color:#fff; white-space:nowrap; }   /* Home's row title */
   .item{ cursor:pointer; }
   .rail{ position:relative; margin-top:24px; }
   .track{ display:flex; gap:32px; padding:0 110px; width:max-content; transition:transform .35s var(--ease); }
@@ -103,7 +112,7 @@
   /* View All (TV / Button), the rail's height */
   .viewall{ width:220px; flex:0 0 auto; align-self:stretch; border-radius:38px; display:flex; align-items:center; justify-content:center; padding:24px;
     background:var(--surface-container-high); color:var(--on-surface); font-weight:500; font-size:24px; line-height:32px; transition:background .15s ease, color .15s ease; }
-  .viewall.focused{ background:var(--inverse-surface); color:var(--surface-container); }
+  .viewall.focused{ background:var(--focus-fill); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
 
   /* tab bar (TV / Chip): the picked tab is filled; the focused one turns light */
   .tabs{ display:flex; gap:24px; padding:0 110px; margin-top:24px; width:max-content; transition:transform .35s var(--ease); }
@@ -111,9 +120,11 @@
     font-weight:500; font-size:24px; line-height:32px; color:var(--on-surface-variant); white-space:nowrap; transition:background .15s ease, color .15s ease; }
   .chip::before{ content:''; position:absolute; inset:0; border-radius:inherit; border:2px solid var(--outline-variant); opacity:.5; transition:opacity .15s ease; }
   .chip img{ width:48px; height:48px; border-radius:48px; display:block; }
+  .chip img.ott{ width:60px; height:40px; border-radius:10px; object-fit:cover; background:#000; }   /* Home's platform tag logo */
+  .chip img.ott[src*="tag-disney"]{ background:#042437; }
   .chip.on{ background:var(--outline); color:var(--on-surface); }
   .chip.on::before, .chip.focused::before{ opacity:0; }
-  .chip.focused{ background:var(--inverse-surface); color:var(--on-inverse-surface); }
+  .chip.focused{ background:var(--focus-fill); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
   .cat .rail{ margin-top:40px; }
 
   /* Highlight you shouldn't miss (Gene rail): its own 500px band with Figma's picture at 40% */
@@ -179,7 +190,7 @@
   .sub:not(.main) .kind{ top:16px; }
   .btn{ display:flex; align-items:center; justify-content:center; gap:16px; border-radius:9999px; background:var(--surface-container); color:var(--on-surface);
     font-weight:500; white-space:nowrap; transition:background .15s ease, color .15s ease; }
-  .btn.focused{ background:var(--inverse-surface); color:var(--surface-container); }
+  .btn.focused{ background:var(--focus-fill); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
   .mysub .btn{ width:503px; height:91px; font-size:32px; font-family:var(--roboto); }
 
   /* shortcuts */
@@ -188,7 +199,7 @@
     align-items:center; font-family:var(--roboto); color:var(--on-surface); transition:background .15s ease, color .15s ease; }
   .short span{ font-size:20px; line-height:23px; }
   .short b{ font-weight:500; font-size:32px; line-height:42px; }
-  .short.focused{ background:var(--inverse-surface); color:var(--on-inverse-surface); }
+  .short.focused{ background:var(--focus-fill); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
 
   /* FAQs: the phone QR panel and the questions */
   .faq{ display:flex; gap:24px; padding:0 110px; align-items:flex-start; }
@@ -220,16 +231,16 @@
   .cols li b{ font-weight:500; }
 
   /* Back to Top */
-  .totop{ height:150px; display:flex; align-items:center; justify-content:center; }
+  .totop{ padding-bottom:60px; display:flex; align-items:center; justify-content:center; }   /* the button ends 60px above the screen's bottom */
   .totop .btn{ width:384px; height:80px; font-size:24px; line-height:32px; background:var(--surface-container-high); }
   .totop .btn img{ width:32px; height:32px; filter:invert(1); }
-  .totop .btn.focused{ background:var(--inverse-surface); }
-  .totop .btn.focused img{ filter:none; }
+  .totop .btn.focused{ background:var(--focus-fill); }
 
-  /* ---------- top bar (Home's), Store is the current page; it goes with the hero ---------- */
-  .scrim{ position:absolute; left:0; top:0; width:1920px; height:200px; z-index:4; pointer-events:none; opacity:0; transition:opacity .3s ease;
-    background:linear-gradient(180deg, rgba(16,16,16,.92) 0%, rgba(16,16,16,.7) 55%, rgba(16,16,16,0) 100%); }
-  body.static.on-nav .scrim{ opacity:1; }
+  /* ---------- top bar (Home's), Store is the current page; past the hero the rails get the full screen: the top bar steps
+     away until it gets focus, with the page colour fading in behind it ---------- */
+  .scrim{ position:absolute; left:0; top:0; width:1920px; height:170px; z-index:4; pointer-events:none; opacity:0; transition:opacity .3s ease;
+    background:linear-gradient(180deg, var(--bg-0) 0%, var(--bg-0) 45%, rgba(7,14,22,0) 100%); }
+  body.static.on-nav .scrim{ opacity:1; }   /* full screen past the hero: no fade over the rails, only behind the top bar when it comes back */
   .topnav{ position:absolute; left:0; top:0; z-index:5; width:1920px; padding:24px 110px 0; display:flex; align-items:center; transition:opacity .3s ease, translate .3s var(--ease); }
   body.static:not(.on-nav) .topnav{ opacity:0; translate:0 -40px; pointer-events:none; }
   .profile{ width:60px; height:60px; border-radius:999px; overflow:hidden; flex:0 0 auto; }
@@ -246,12 +257,16 @@
   #toast{ position:absolute; left:50%; bottom:80px; z-index:60; transform:translateX(-50%); padding:14px 26px; border-radius:999px;
     background:rgba(20,20,24,.85); font-size:24px; opacity:0; transition:opacity .2s ease; pointer-events:none; }
   #toast.on{ opacity:1; }
+  /* resting buttons, chips and shortcuts: Home's chip glass (the picked tab a little brighter); focus turns them to the glass pill */
+  .chip::before{ display:none; }
+  .chip:not(.focused), .viewall:not(.focused), .btn:not(.focused), .short:not(.focused){
+    background:var(--idle-fill); -webkit-backdrop-filter:blur(80px) saturate(1.5); backdrop-filter:blur(80px) saturate(1.5); color:var(--on-surface); }
+  .chip.on:not(.focused){ background:var(--idle-fill-on); color:#fff; }
 </style>
 </head>
 <body>
 <div id="frame"><div id="screen">
-  <div class="hero-bg"><div class="ph"></div><div class="art"></div><div class="art"></div><div class="down"></div><div class="side"></div>
-    <img class="icon" src="store-assets/image-icon-60.svg" alt=""></div>
+  <div class="hero-bg"><div class="ph"></div><div class="art"></div><div class="art"></div><div class="down"></div><div class="side"></div></div>
 
   <div id="page"></div>
 
@@ -343,6 +358,9 @@
     short:['Recommend', 'ReelShort', 'DramaBox'],
     value:['< 100 baht Enjoy Asia Movies & Shorts', '< 100 baht Sports Lover', '300 - 500 baht Enjoy Movies & Sports', 'Asian Games']
   };
+  // the OTT tabs carry the project's own platform tag logos (Home's cards use the same ones)
+  var TAB_LOGO = { 'Netflix':'badges/tag-netflix.png', 'HBO Max':'badges/tag-hbo.png', 'Disney+':'badges/tag-disney.png',
+    'iQIYI':'partners/iqiyi.png', 'MONOMAX':'badges/tag-monomax.png' };
   var EVENTS = [
     { kind:'vod', t:'Content Title', price:199 },
     { kind:'upcoming', t:'Content Title', price:199, when:'Today 20:30 PM' },
@@ -396,7 +414,8 @@
   function cardsHtml(key, list, more){ return list.map(function(it, i){ return sqCard(it, key, i); }).join('') + (more ? viewAll(key) : ''); }
   function chipHtml(t, i){
     return '<div class="chip item' + (i ? '' : ' on') + '"' + attrs({ kind:'tab', i:i }) + ' data-ring-art="">' +
-      '<img src="' + (i ? 'sport-assets/chip-icon.png' : SA + 'chip-recommend.svg') + '" alt="">' + esc(t) + '</div>';
+      (TAB_LOGO[t] ? '<img class="ott" src="' + TAB_LOGO[t] + '" alt="">' :
+        '<img src="' + (i ? 'sport-assets/chip-icon.png' : SA + 'chip-recommend.svg') + '" alt="">') + esc(t) + '</div>';
   }
   function eventCard(e, i){
     var tall = '<div class="tall ph-bg" style="position:absolute;inset:0"><div class="ratio big huge"><img src="' + SA + 'image-icon-60.svg" alt=""><span>2:3</span></div></div>';

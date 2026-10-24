@@ -329,7 +329,7 @@
   .chip{
     position:relative;
     height:76px;padding:0 44px;border-radius:999px;display:flex;align-items:center;gap:10px;   /* border-box: the size already included the old border */
-    background:rgba(255,255,255,0.13);backdrop-filter:blur(50px);   /* white 8% + 5% */
+    background:rgba(255,255,255,0.16);-webkit-backdrop-filter:blur(80px) saturate(1.5);backdrop-filter:blur(80px) saturate(1.5);   /* frosted glass, a strong blur */
     font-weight:700;font-size:26px;white-space:nowrap;
     box-shadow:inset 0 3px 3px rgba(0,0,0,.23);
     border:0;   /* no stroke */
@@ -1870,16 +1870,10 @@
   var heroBackdrop = document.querySelector('.hero-backdrop');
   var topScrim = document.querySelector('.top-scrim');
   function heroHiddenNow(){ return heroFixed && heroFixed.classList.contains('hero-hidden'); }
-  // While the hero shows, the rail above the focused one is hidden: rows fade out over an 80px band just above
-  // where the focused rail locks (HERO_HEIGHT + 18), so nothing of the previous rail peeks out under the hero text
-  // (it ends 56px higher). A soft edge, not a hard clip. In the full-screen state the top scrim does this job.
+  // While the hero shows, the rails above the focused one are hidden by .row-above (opacity 0), so nothing of the
+  // previous rail peeks out under the hero text. No mask on the rows: a mask would cut the chips' backdrop blur off from
+  // the hero picture behind them. In the full-screen state the top scrim does this job.
   function applyRowsMask(scale){
-    var m = '';
-    if(!heroHiddenNow()){
-      var end = (HERO_HEIGHT + 12) * scale, start = (HERO_HEIGHT + 12 - 80) * scale;   // 80px band
-      m = 'linear-gradient(to bottom, transparent ' + start + 'px, #000 ' + end + 'px)';
-    }
-    viewport.style.webkitMaskImage = m; viewport.style.maskImage = m;
     if(topScrim) topScrim.classList.toggle('on', heroHiddenNow());
   }
   var TV_RATIO = 16 / 9;
