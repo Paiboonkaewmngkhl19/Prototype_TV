@@ -838,6 +838,8 @@
   function openPlayer(c, replace){
     var p = c.progs[onAt(c, new Date())];
     try { sessionStorage.setItem('tvGuideBack', JSON.stringify({view:S.view, cat:S.cat, sub:S.sub, no:c.no})); } catch(e){}
+    // the channel numbers there are, so the player can say "not available" for a typed number without leaving
+    try { sessionStorage.setItem('tvChannelNos', JSON.stringify(CHANNELS.filter(function(x){ return !x.excl; }).map(function(x){ return x.no; }))); } catch(e){}
     var q = {n:c.n, no:c.excl ? '' : c.no, crown:c.crown || '', fav:c.fav ? 1 : '', logo:c.logo || '', fit:c.fit || '', box:c.box ? c.box.join(',') : '',
              bg:c.bg || '', txt:c.txt || '', fg:c.fg || '', t:p.t, s:p.start.getTime(), e:p.end.getTime(), v:videoFor(c),
              ts:p.ts ? 1 : '', quiet:replace ? 1 : ''};   // Time Shift: what's on now has the Time Shift icon; quiet: a channel change (see the player)

@@ -415,6 +415,9 @@
     var n = parseInt(chBuf, 10); chBuf = '';
     if(!n){ chPaint(); return; }
     if(String(n) === C.no){ chPaint(); toast('You are watching channel ' + n); return; }
+    // no such channel (the TV Guide's list, when it opened this player): say so and keep playing, without reloading
+    var nos = null; try { nos = JSON.parse(sessionStorage.getItem('tvChannelNos')); } catch(e){}
+    if(nos && nos.indexOf(n) < 0){ chPaint(); toast('Channel ' + n + ' is not available'); return; }
     var here = location.pathname.split('/').pop() + location.search.replace(/[?&]nochan=\d+/, '');
     location.replace('tv-guide.html?tune=' + n + '&from=' + encodeURIComponent(here));
   }
