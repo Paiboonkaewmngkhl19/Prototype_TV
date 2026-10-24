@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sport</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Roboto:wght@400;500&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
+<!--
+  Sport page (Figma "PLAY:sport_mainPage", node 2464:30827), opened from the Sport tab in Home's top bar.
+  A 1920x1080 TV screen scaled to the window, like home.html; the shared gliding focus ring is focus-ring.js.
+
+  Flow (Figma "PLAY: firstScreenContent", 2385:14824):
+  - Dynamic background, rows 1-6 (Live and Upcoming, sport chips, League & Tournament, Latest Highlight, TV Guide,
+    the suggested league): the hero stays on screen and speaks for the focused rail (the match, "All Sport", the
+    league, the highlight, "TV Guide"), over the focused item's picture. The focused rail sits at y=580 and the rails
+    above it fade away. On the suggested league (UCL) its key art takes over the whole top of the screen.
+  - Static background, from Football For You down: the hero goes, the page scrolls rail by rail with the focused
+    rail's title at y=300 under the top bar, to Back to Top at the end.
+  Remote / keyboard: arrows move focus, Enter selects, Esc / Back returns to the top (then to Home).
+-->
+<style>
+  :root{
+    color-scheme:dark;
+    /* Figma variables (default mode) */
+    --surface:#101010; --on-surface:#e8e8e8; --on-surface-variant:#a8a8a8; --surface-container:#2a2a2a;
+    --surface-container-high:#3a3a3a; --outline:#5a5a5a; --outline-variant:#4a4a4a; --inverse-surface:#e8e8e8;
+    --on-inverse-surface:#101010; --live:#ea5454;
+    --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%);
+    --ease:cubic-bezier(.2,0,0,1);
+    --inter:'Inter', system-ui, sans-serif; --roboto:'Roboto', system-ui, sans-serif;
+  }
+  html,body{ margin:0; height:100%; background:#000; overflow:hidden; color:var(--on-surface); font-family:var(--inter); -webkit-font-smoothing:antialiased; }
+  *{ box-sizing:border-box; }
+  #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:var(--surface); }
+  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; overflow:hidden; background:var(--surface); }
+
+  /* ---------- hero background (dynamic): the focused item's picture at 20% over the surface, darkening downwards ---------- */
+  .hero-bg{ position:absolute; left:0; top:0; width:1920px; height:1022px; z-index:0; transition:opacity .4s ease; }
+  .hero-bg .pic{ position:absolute; inset:0; background:center / cover no-repeat; opacity:0; transition:opacity .45s ease; }
+  .hero-bg .pic.on{ opacity:.2; }
+  .hero-bg::after{ content:''; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(16,16,16,0) 0%, #000 100%); opacity:.55; }
+  .hero-bg .fade{ position:absolute; left:0; top:622px; width:1920px; height:400px; z-index:1; background:linear-gradient(180deg, rgba(0,0,0,0), var(--surface)); }
+  .hero-play{ position:absolute; left:1433px; top:280px; width:167px; height:167px; z-index:1; opacity:.35; transition:opacity .4s ease; }
+  body.static .hero-bg, body.ucl .hero-bg{ opacity:0; }
+  body.static .hero-play, body.ucl .hero-play{ opacity:0; }
+
+  /* ---------- hero text: bottom edge 80px above the focused rail (y=580) ---------- */
+  .hero{ position:absolute; left:110px; bottom:580px; width:800px; z-index:3; display:flex; flex-direction:column; gap:24px;
+    transition:opacity .3s ease, transform .3s var(--ease); }
+  body.static .hero{ opacity:0; transform:translateY(-40px); pointer-events:none; }
+  .hero.swap{ animation:heroIn .3s var(--ease); }
+  @keyframes heroIn{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
+  .hero h1{ margin:0; font-size:57px; font-weight:700; line-height:normal; color:var(--on-surface); }
+  body.ucl .hero h1{ color:#fff; }
+  .hero .desc{ margin:0; width:700px; font-family:var(--roboto); font-size:24px; line-height:32px; color:var(--on-surface-variant);
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .meta{ display:flex; flex-wrap:wrap; align-items:center; gap:16px; height:40px; overflow:hidden; font-size:20px; }
+  .meta:empty{ display:none; }
+  .badge{ height:36px; padding:0 12px; border-radius:9999px; display:inline-flex; align-items:center; justify-content:center; gap:4px;
+    font-weight:500; font-size:20px; color:#fff; background:var(--surface-container-high); white-space:nowrap; }
+  .badge.live{ background:var(--live); }
+  .badge.live::before{ content:''; width:12px; height:12px; background:url('sport-assets/dot.svg') center / contain no-repeat; }
+  .badge img{ width:20px; height:20px; }
+  .meta .ch{ display:inline-flex; align-items:center; gap:8px; color:var(--on-surface); white-space:nowrap; }
+  .meta .ch img{ width:36px; height:36px; border-radius:40px; object-fit:cover; }
+  .pill{ height:36px; padding:0 12px; border:1px solid var(--outline); border-radius:18px; display:inline-flex; align-items:center; font-weight:500; white-space:nowrap; }
+  .meta b{ font-weight:700; color:#fff; }
+
+  /* ---------- the page: Figma's rows, 60px apart, starting at y=580; it moves as a whole (translateY) ---------- */
+  #page{ position:absolute; left:0; top:0; width:1920px; z-index:1; padding:580px 0 44px; display:flex; flex-direction:column; gap:60px;
+    transition:transform .45s var(--ease); }
+  .sec{ position:relative; transition:opacity .3s ease; }
+  body:not(.static) .sec.above{ opacity:0; }
+  .sec-title{ margin:0 110px; font-family:var(--roboto); font-weight:500; font-size:32px; line-height:40px; color:#fff; }
+  .item{ cursor:pointer; }
+  /* a rail: the track slides sideways under a fixed focus slot (Home's rule) */
+  .rail{ position:relative; }
+  .track{ display:flex; gap:32px; padding:8px 110px; transition:transform .35s var(--ease); width:max-content; }
+
+  /* 16:9 card (TV / Card): 320x180 picture, radius 12, title under it; the ring wraps picture + title */
+  .card{ width:320px; flex:0 0 auto; display:flex; flex-direction:column; gap:8px; border-radius:12px; }
+  .thumb{ position:relative; width:320px; height:180px; border-radius:12px; overflow:hidden; background:var(--surface-container-high) center / cover no-repeat; }
+  .thumb.ph::after{ content:attr(data-ratio); position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); padding-left:20px;
+    font-size:11px; line-height:32px; font-weight:500; color:rgba(232,232,232,.5); background:url('sport-assets/ratio-icon.svg') left center / 16px no-repeat; }
+  .thumb .top{ position:absolute; left:12px; top:12px; }
+  .thumb .top .badge, .thumb .dur{ height:auto; line-height:normal; }
+  .thumb .dur{ position:absolute; right:12px; bottom:12px; min-width:80px; height:24px; padding:0 12px; border-radius:9999px; background:var(--surface-container-high);
+    display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:500; color:var(--on-surface); }
+  .card .t{ font-size:20px; font-weight:500; line-height:normal; color:var(--on-surface); overflow:hidden; }
+  .card .t.one{ white-space:nowrap; text-overflow:ellipsis; }
+  .card .t.two{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; min-height:48px; }
+
+  /* sport chips (TV / Chip) */
+  .chips{ display:flex; gap:24px; padding:0 110px; width:max-content; transition:transform .35s var(--ease); }
+  .chip{ position:relative; height:130px; min-width:180px; padding:0 40px; border-radius:26px; display:flex; align-items:center; justify-content:center; gap:20px;
+    font-size:32px; line-height:32px; font-weight:500; color:var(--on-surface-variant); white-space:nowrap;
+    transition:background .15s ease, color .15s ease, border-color .15s ease; }
+  .chip::before{ content:''; position:absolute; inset:0; border-radius:inherit; border:2px solid var(--outline-variant); opacity:.5; transition:opacity .15s ease; }
+  .chip img{ width:48px; height:48px; border-radius:48px; }
+  .chip.focused{ background:var(--on-surface); color:var(--on-inverse-surface); border-radius:24px; }
+  .chip.focused::before{ opacity:0; }
+
+  /* League & Tournament: 134px discs (160 focused), 187px apart; the followed ones carry a heart */
+  .leagues{ display:flex; padding:0 85px; width:max-content; margin-top:34px; transition:transform .35s var(--ease); }
+  .league{ width:210px; margin-right:-23px; display:flex; flex-direction:column; align-items:center; gap:24px; }
+  .disc{ position:relative; width:134px; height:134px; margin:9px 0; border-radius:50%; background:#fff;
+    transition:transform .3s var(--ease), box-shadow .2s ease; }
+  .disc .img{ position:absolute; inset:0; border-radius:50%; overflow:hidden; background:center / cover no-repeat; }
+  .disc .img.zoom{ background-size:288% auto; }
+  .disc .img.inset{ background-size:67% auto; }
+  .disc .mono{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; border-radius:50%;
+    font-family:var(--roboto); font-weight:500; font-size:26px; color:#1c1c1c; }
+  .disc .fav{ position:absolute; right:-16px; bottom:-16px; width:84px; height:84px; transition:opacity .2s ease, transform .25s var(--ease); }
+  .disc:not(.followed) .fav{ opacity:0; transform:scale(.6); }
+  .disc.focused{ transform:scale(1.194); box-shadow:0 0 0 2.5px #f00; }
+  .league .name{ width:100%; height:56px; font-family:var(--roboto); font-size:22px; line-height:28px; text-align:center; color:var(--on-surface); overflow:hidden; }
+
+  /* TV Guide rail: View All + what's on now on the sports channels */
+  .guide-all{ width:220px; height:180px; flex:0 0 auto; padding:24px; border-radius:16px; background:var(--surface-container-high); color:var(--on-surface);
+    font-weight:500; line-height:41.877px; transition:background .15s ease, color .15s ease; }
+  .guide-all b{ display:block; font-weight:500; font-size:31px; }
+  .guide-all span{ font-size:24px; }
+  .guide-all.focused{ background:var(--inverse-surface); color:var(--surface-container); }
+  .epg{ position:relative; width:320px; height:180px; flex:0 0 auto; border-radius:12px; background:var(--surface-container-high); padding:0 18px;
+    display:flex; flex-direction:column; justify-content:center; gap:16px; font-family:var(--roboto); font-weight:500; }
+  .epg .now{ display:flex; gap:4px; align-items:flex-start; }
+  .epg .ava{ width:67px; height:67px; border-radius:50%; flex:0 0 auto; background:#fff center / cover no-repeat; }
+  .epg .ava.contain{ background-size:78% auto; }
+  .epg .txt{ flex:1; min-width:0; align-self:stretch; display:flex; flex-direction:column; justify-content:center; gap:4px; }
+  .epg .txt b, .epg .next b{ font-weight:500; font-size:20px; line-height:normal; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .epg .txt span, .epg .next span{ font-size:14px; line-height:20px; letter-spacing:.1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .epg .ic{ display:flex; gap:12px; flex:0 0 auto; }
+  .epg .ic img{ width:24px; height:24px; }
+  .epg .bar{ position:relative; height:8px; border-radius:24px; background:rgba(255,255,255,.4); overflow:hidden; }
+  .epg .bar i{ position:absolute; left:0; top:0; bottom:0; border-radius:24px; background:var(--outline); }
+  .epg .next{ display:flex; flex-direction:column; }
+
+  /* the suggested league (UCL): key art + glows, clipped to the section; on focus the art also fills the screen above it */
+  .ucl{ height:600px; padding:80px 110px 40px; display:flex; flex-direction:column; gap:60px; }
+  .ucl .back{ position:absolute; left:0; right:0; top:0; bottom:0; overflow:hidden; transition:top .45s var(--ease); }
+  body.ucl .ucl .back{ top:-600px; }
+  .ucl .inner{ position:absolute; left:0; bottom:0; width:1920px; height:600px; }
+  .ucl .art{ position:absolute; left:-1177px; top:-160px; width:3110px; height:1432px; max-width:none; }
+  /* Figma's art starts 160px above the band; when it fills the screen above, a mirrored copy carries it on seamlessly */
+  .ucl .art.top{ top:-1592px; transform:scaleY(-1); }
+  .ucl .glow{ position:absolute; display:flex; align-items:center; justify-content:center; }
+  .ucl .glow > div{ flex:none; }
+  .ucl .glow img{ position:absolute; max-width:none; display:block; }
+  .ucl .text{ position:relative; width:700px; display:flex; flex-direction:column; gap:24px; transition:opacity .3s ease; }
+  body.ucl .ucl .text{ opacity:0; }
+  .ucl .text h2{ margin:0; font-size:57px; font-weight:700; color:#fff; line-height:normal; }
+  .ucl .text p{ margin:0; height:87px; font-size:24px; color:var(--on-surface-variant); overflow:hidden; }
+  .ucl .row{ position:relative; display:flex; align-items:center; gap:60px; margin:0 -110px; }
+  .ucl .row .track{ padding-right:0; }
+  .ucl .uclava{ width:160px; height:160px; border-radius:50%; flex:0 0 auto; background:url('sport-assets/ucl-avatar.jpg') 46% 40% / 208% auto no-repeat; }
+
+  /* Short Highlight + Short */
+  .shorts{ display:flex; gap:32px; padding:0 110px; }
+  .short{ position:relative; height:570px; border-radius:32px; overflow:hidden; flex:0 0 auto; background:var(--surface-container-high); }
+  .short.wide{ width:1254px; } .short.tall{ width:414px; }
+  .short::before{ content:''; position:absolute; inset:0; background:var(--img) center / cover no-repeat; opacity:.6; }
+  .short span{ position:absolute; left:32px; top:482px; font-family:var(--roboto); font-weight:500; font-size:48px; line-height:56px; color:var(--on-surface); }
+
+  /* Documentary: 2:3 posters */
+  .poster{ width:220px; height:330px; flex:0 0 auto; border-radius:12px; background:var(--surface-container-high) center / cover no-repeat; }
+  .docs .track{ margin-top:16px; }
+
+  /* Sport Channel: 142px discs with a red rim (160 focused, no shade) */
+  .chans{ display:flex; align-items:center; gap:32px; padding:9px 110px; width:max-content; margin-top:34px; transition:transform .35s var(--ease); }
+  .chan{ position:relative; width:142px; height:142px; border-radius:50%; flex:0 0 auto; border:4px solid #f00; background:#000 center / cover no-repeat;
+    transition:transform .3s var(--ease); }
+  .chan::after{ content:''; position:absolute; inset:0; border-radius:50%; background:rgba(0,0,0,.3); transition:opacity .2s ease; }
+  .chan.contain{ background-color:#fff; background-size:78% auto; }
+  .chan.focused{ transform:scale(1.127); border-width:2px; }
+  .chan.focused::after{ opacity:0; }
+
+  /* Back to Top */
+  .totop{ height:150px; display:flex; align-items:center; justify-content:center; }
+  .totop .btn{ display:flex; align-items:center; gap:16px; padding:24px 100px; border-radius:9999px; background:var(--surface-container-high); color:var(--on-surface);
+    font-weight:500; font-size:31px; line-height:41.877px; white-space:nowrap; transition:background .15s ease, color .15s ease; }
+  .totop .btn img{ width:40px; height:40px; filter:invert(1); }
+  .totop .btn.focused{ background:var(--inverse-surface); color:var(--surface-container); }
+  .totop .btn.focused img{ filter:none; }
+
+  /* ---------- top bar (Home's), Sport is the current page ---------- */
+  .scrim{ position:absolute; left:0; top:0; width:1920px; height:200px; z-index:4; pointer-events:none; opacity:0; transition:opacity .3s ease;
+    background:linear-gradient(180deg, rgba(16,16,16,.92) 0%, rgba(16,16,16,.7) 55%, rgba(16,16,16,0) 100%); }
+  body.static .scrim{ opacity:1; }
+  .topnav{ position:absolute; left:0; top:0; z-index:5; width:1920px; padding:24px 110px 0; display:flex; align-items:center; }
+  .profile{ width:60px; height:60px; border-radius:999px; overflow:hidden; flex:0 0 auto; }
+  .profile img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .center{ display:flex; align-items:center; gap:12px; margin-left:20px; }
+  .navsearch{ width:60px; height:60px; margin:0 8px; border-radius:999px; display:flex; align-items:center; justify-content:center; }
+  .navsearch img{ width:32px; height:32px; display:block; }
+  .navtab{ height:60px; padding:0 20px; border-radius:999px; display:flex; align-items:center; font-family:'Plus Jakarta Sans', var(--inter); font-size:24px; line-height:1.2;
+    color:#fff; text-shadow:0 0 6px rgba(0,0,0,.4); white-space:nowrap; }
+  .navtab.active{ background:rgba(255,255,255,.22); backdrop-filter:blur(10px); }
+  .topnav .item{ transition:background .15s ease; }
+  .topnav .item.focused{ background:var(--th-pill); backdrop-filter:blur(12px) saturate(1.4); }
+
+  #toast{ position:absolute; left:50%; bottom:80px; z-index:60; transform:translateX(-50%); padding:14px 26px; border-radius:999px;
+    background:rgba(20,20,24,.85); font-size:24px; opacity:0; transition:opacity .2s ease; pointer-events:none; }
+  #toast.on{ opacity:1; }
+</style>
+</head>
+<body>
+<div id="frame"><div id="screen">
+  <div class="hero-bg"><div class="pic"></div><div class="pic"></div><div class="fade"></div></div>
+  <img class="hero-play" src="sport-assets/hero-play.svg" alt="">
+
+  <div id="page"></div>
+
+  <section class="hero" aria-live="polite"><h1></h1><div class="meta"></div><p class="desc"></p></section>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <nav class="topnav">
+    <div class="profile item" data-label="Profile"><img src="icons/profile-tv.png" alt="Profile"></div>
+    <div class="center">
+      <div class="navsearch item" data-label="Search"><img src="icons/nav-search.svg" alt="Search"></div>
+      <div class="navtab item" data-label="Home" data-href="home.html">Home</div>
+      <div class="navtab item" data-label="Live TV">Live TV</div>
+      <div class="navtab item" data-label="Movie">Movie</div>
+      <div class="navtab item active" data-label="Sport">Sport</div>
+      <div class="navtab item" data-label="My List">My List</div>
+      <div class="navtab item" data-label="Store">Store</div>
+    </div>
+  </nav>
+  <div id="toast"></div>
+</div></div>
+
+<script>
+(function(){
+  // ---- fit the 1920x1080 screen into the window ----
+  var frame = document.getElementById('frame'), screen = document.getElementById('screen');
+  function fit(){
+    var k = Math.min(innerWidth / 1920, innerHeight / 1080);
+    frame.style.width = 1920 * k + 'px'; frame.style.height = 1080 * k + 'px';
+    frame.style.marginLeft = -960 * k + 'px'; frame.style.marginTop = -540 * k + 'px';
+    screen.style.transform = 'scale(' + k + ')';
+  }
+  addEventListener('resize', fit); fit();
+
+  function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  function attrs(o){ return Object.keys(o).filter(function(k){ return o[k] != null; }).map(function(k){ return ' data-' + k + '="' + esc(o[k]) + '"'; }).join(''); }
+
+  /* ---------- content ----------
+     Pictures are the project's own sport stills; items with no matching picture keep Figma's placeholder (ph). */
+  var LS = 'tv-features-test/live-stream-assets/';
+  var CH = {
+    play:  {n:'PLAY Sports', no:'61', logo:'icons/channels/playsports.png', fit:'cover', crown:'gold', v:'video/football.mp4'},
+    mutv:  {n:'MUTV', no:'62', logo:'icons/epg/mutv.png', fit:'cover', v:'video/football.mp4'},
+    rm:    {n:'Real Madrid TV', no:'63', logo:'icons/epg/realmadrid.png', fit:'contain', bg:'#404045', v:'video/football.mp4'},
+    ws:    {n:'W-Sport', no:'64', logo:'icons/epg/wsport.png', fit:'contain', bg:'#fff', v:'video/bad.mp4'},
+    ag902: {n:'Asian Games', no:'902', logo:LS + 'channel-asian-games.png', fit:'contain', bg:'#fff', v:'video/vall.mp4'},
+    ag907: {n:'Asian Games', no:'907', logo:'tv-features-test/shorts-assets/channel-907.png', fit:'contain', bg:'#fff', v:'video/bad.mp4'}
+  };
+  var MATCH_DESC = 'Live from the UEFA Champions League. Every touch in full HD with Thai and English commentary, plus the build-up and post-match analysis.';
+  var LIVE = [
+    {t:'Bayern München vs Arsenal', live:true, img:'posters/arsenal.jpg', ch:CH.play, time:'02:00 – 04:00'},
+    {t:'Real Madrid vs RB Leipzig', live:true, img:'posters/upcoming/u2.jpg', ch:CH.rm, time:'02:00 – 04:00'},
+    {t:'Liverpool vs Brentford', when:'Start in 16:12', img:'posters/upcoming/live.jpg', ch:CH.mutv, time:'16:12 – 18:15'},
+    {t:'Dortmund vs Hamburg', when:'Today 20:30 PM', img:'posters/upcoming/u3.jpg', ch:CH.play, time:'20:30 – 22:30'},
+    {t:'Formula 1: Grand Prix', when:'Today 21:00 PM', img:'posters/f1.jpg', ch:CH.play, time:'21:00 – 23:00'},
+    {t:'Mainz vs Paderborn', when:'Today 21:00 PM', img:'posters/SC.jpg', ch:CH.play, time:'21:00 – 23:00'}
+  ];
+  var UCL = [
+    LIVE[0], LIVE[1],
+    {t:'Liverpool vs Brentford', when:'Start in 16:12', img:'posters/upcoming/live.jpg', ch:CH.play, time:'16:12 – 18:15'},
+    {t:'Dortmund vs Hamburg', when:'Tomorrow 02:30 AM', img:'posters/upcoming/u3.jpg', ch:CH.play, time:'02:30 – 04:30'},
+    {t:'Arsenal vs Crystal Palace', when:'Tomorrow 03:00 PM', img:'posters/arsenal.jpg', ch:CH.play, time:'15:00 – 17:00'},
+    {t:'Mainz vs Paderborn', when:'Tomorrow 03:00 PM', img:'posters/SC.jpg', ch:CH.play, time:'15:00 – 17:00'}
+  ];
+  var CHIPS = [
+    {t:'All Sport', img:'posters/all.jpg', d:'Every sport in one place. Live matches, upcoming fixtures, highlights and documentaries from the leagues you follow.'},
+    {t:'Football', img:LS + 'football-024.jpg', d:'Champions League, Premier League, Bundesliga and more: live football, full matches and the best goals of the week.'},
+    {t:'Motorsports', img:'posters/f1.jpg', d:'Formula 1, MotoGP and World Superbike: every race live, with qualifying, onboard cameras and race replays.'},
+    {t:'Golf', d:'PGA Tour and the majors, live from the first tee to the final putt, with round highlights.'},
+    {t:'Basketball', d:'NBA and regional leagues: live games, full replays and the plays everyone is talking about.'},
+    {t:'Tennis', img:'posters/upcoming/u4.png', d:'Grand Slams and tour events: live matches on every court, with daily highlights.'},
+    {t:'Rugby', d:'International rugby and the top club competitions, live and on replay.'},
+    {t:'Boxing', d:'Title fights, undercards and classic bouts from the biggest nights in boxing.'}
+  ];
+  var LEAGUES = [
+    {t:'UEFA Champions League', name:'UEFA<br>Champions League', logo:'sport-assets/league-ucl.jpg', fitc:'zoom', fav:1, img:'sport-assets/ucl-bg.jpg'},
+    {t:'Premier League', name:'Premiere<br>League', logo:'sport-assets/league-epl.jpg', fitc:'zoom', fav:1, img:'posters/liver-ben.jpg'},
+    {t:'Bundesliga', name:'Bundesliga', logo:'sport-assets/league-bundesliga.png', fitc:'inset', fav:1, img:'posters/upcoming/u3.jpg'},
+    {t:'FA Cup', name:'FA Cup', logo:'sport-assets/league-facup.jpg', fav:1, img:'posters/arsenal.jpg'},
+    {t:'French Open', name:'French<br>Open', logo:'sport-assets/league-rg.png', img:'posters/upcoming/u4.png'},
+    {t:'RWS', name:'RWS', logo:'sport-assets/league-rws.png'},
+    {t:'NBA', name:'NBA', mono:'NBA'},
+    {t:'PGA Tour', name:'PGA<br>Tour', mono:'PGA'},
+    {t:'MotoGP', name:'MotoGP', mono:'MotoGP'},
+    {t:'Wimbledon', name:'Wimbledon', mono:'W'}
+  ];
+  var LATEST = [
+    {t:'Como vs Man United Highlights', dur:'6m', img:LS + 'football-024.jpg', g:'Football · Highlights'},
+    {t:'Timberwolves vs Heat Full Game Highlights', dur:'8m', g:'Basketball · Highlights'},
+    {t:'Best Moto GP Moments 2026 Japanese GP', dur:'6m', g:'Motorsport · Highlights'},
+    {t:'F.Cobolli vs A.Zverev Men’s Final Highlights', dur:'12m', img:'posters/upcoming/u4.png', g:'Tennis · Highlights'},
+    {t:'Asian Games: Badminton Highlights', dur:'12m', img:'tv-features-test/shorts-assets/badminton.jpg', g:'Badminton · Highlights'},
+    {t:'Asian Games: Volleyball Highlights', dur:'9m', img:'tv-features-test/shorts-assets/volleyball.jpg', g:'Volleyball · Highlights'}
+  ];
+  var EPG = [
+    {c:CH.play, now:'Formula 1: Grand Prix Qualifying', next:'Paddock Pass', p:.6, remind:1, heart:1},
+    {c:CH.mutv, now:'PL Match: v Chelsea (A) 25/26', next:'Inside United', p:.4, heart:1},
+    {c:CH.rm, now:'Champions League Classics', next:'Classic Highlights', p:.7},
+    {c:CH.ws, now:'Malaysia Regional Cup ’26: Wildcats v Sneakers', next:'Heroines (S2E02)', p:.3},
+    {c:CH.ag902, now:'Asian Games 2026: Football', next:'Asian Games 2026: Athletics', p:.5}
+  ];
+  var FOR_YOU = [
+    {title:'Football For You', items:[
+      {t:'Como vs Man United Highlights', dur:'6m', img:LS + 'football-109.jpg'},
+      {t:'Paris Saint-Germain vs Barcelona Full Match', dur:'97m', img:LS + 'football-180.jpg'},
+      {t:'Tottenham Hotspur vs Coventry Highlights', dur:'8m', img:LS + 'football-190.jpg'},
+      {t:'Liverpool vs Brentford Full Match', dur:'11m', img:'posters/liver-ben.jpg'},
+      {t:'Man United: Matchday Live', dur:'102m', img:LS + 'mutv-148.jpg'},
+      {t:'Sir Alex Ferguson: Never Give In', dur:'98m', img:'posters/maxresdefault.jpg'}]},
+    {title:'Basketball For You', items:[
+      {t:'Timberwolves vs Heat Full Game Highlights', dur:'18m'},
+      {t:'Warriors vs Lakers Full Game', dur:'82m'},
+      {t:'76ers vs Knicks Full Game', dur:'95m'},
+      {t:'Basketball Team Name vs Basketball Team Name', dur:'14m'},
+      {t:'Basketball Team Name vs Basketball Team Name', dur:'88m'},
+      {t:'Basketball Team Name vs Basketball Team Name', dur:'40m'}]},
+    {title:'Motorsport For You', items:[
+      {t:'2026 Australian GP Full Race', dur:'78m', img:'posters/f1.jpg'},
+      {t:'2026 German GP Full Race', dur:'71m'},
+      {t:'Best Moto GP Moments 2026 Japanese GP', dur:'16m'},
+      {t:'Race Title', dur:'14m'},
+      {t:'Race Title', dur:'64m'},
+      {t:'Race Title', dur:'52m'}]}
+  ];
+  var DOCS = [
+    {t:'F1: The Movie', img:'posters_portrait/F1.jpg'}, {t:'Man City vs Arsenal: The Story', img:'posters_portrait/ex3.jpg'},
+    {t:'Match Day: FA Cup', img:'posters_portrait/ex4.jpg'}, {t:'Match Day', img:'posters_portrait/ex5.jpg'},
+    {t:'F1: The Movie', img:'posters_portrait/F1.jpg'}, {t:'Man City vs Arsenal: The Story', img:'posters_portrait/ex3.jpg'},
+    {t:'Match Day: FA Cup', img:'posters_portrait/ex4.jpg'}, {t:'Match Day', img:'posters_portrait/ex5.jpg'}
+  ];
+  var CHANNELS = [
+    {t:'AIS PLAY Sports', img:'sport-assets/channel-aisplay.jpg', c:CH.play},
+    {t:'MUTV', img:CH.mutv.logo, c:CH.mutv}, {t:'Real Madrid TV', img:CH.rm.logo, contain:1, bg:CH.rm.bg, c:CH.rm},
+    {t:'W-Sport', img:CH.ws.logo, contain:1, c:CH.ws}, {t:'Asian Games 902', img:CH.ag902.logo, contain:1, c:CH.ag902},
+    {t:'Asian Games 907', img:CH.ag907.logo, contain:1, c:CH.ag907}
+  ];
+
+  /* ---------- markup ---------- */
+  function thumbStyle(img){ return img ? ' style="background-image:url(\'' + img + '\')"' : ''; }
+  function topBadge(it){ return it.live ? '<span class="badge live">LIVE</span>' : '<span class="badge">' + esc(it.when) + '</span>'; }
+  function matchCard(it, i, set){
+    return '<div class="card item"' + attrs({kind:'match', set:set, i:i}) + '><div class="thumb' + (it.img ? '' : ' ph') + '" data-ratio="16:9"' + thumbStyle(it.img) + '>' +
+      '<div class="top">' + topBadge(it) + '</div></div><div class="t one">' + esc(it.t) + '</div></div>';
+  }
+  function vodCard(it, kind, i, set){
+    return '<div class="card item"' + attrs({kind:kind, set:set, i:i}) + '><div class="thumb' + (it.img ? '' : ' ph') + '" data-ratio="16:9"' + thumbStyle(it.img) + '>' +
+      '<span class="dur">' + esc(it.dur) + '</span></div><div class="t two">' + esc(it.t) + '</div></div>';
+  }
+  function epgCard(e, i){
+    var c = e.c, ic = (e.remind ? '<img src="sport-assets/epg-reminder.svg" alt="">' : '') + (e.heart ? '<img src="sport-assets/epg-heart.svg" alt="">' : '');
+    return '<div class="epg item"' + attrs({kind:'epg', i:i}) + ' data-ring-art=""><div class="now">' +
+      '<span class="ava' + (c.fit === 'contain' ? ' contain' : '') + '" style="background-image:url(\'' + c.logo + '\')' + (c.bg ? ';background-color:' + c.bg : '') + '"></span>' +
+      '<div class="txt"><b>' + esc(e.now) + '</b><span>Started at 6:30 PM</span></div><div class="ic">' + ic + '</div></div>' +
+      '<div class="bar"><i style="width:' + Math.round(e.p * 100) + '%"></i></div>' +
+      '<div class="next"><b>' + esc(e.next) + '</b><span>Start in 7:30 PM</span></div></div>';
+  }
+  var html = '';
+  html += '<section class="sec" data-row="live"><div class="rail"><div class="track">' + LIVE.map(function(it, i){ return matchCard(it, i, 'live'); }).join('') + '</div></div></section>';
+  html += '<section class="sec" data-row="chips"><div class="rail"><div class="chips">' + CHIPS.map(function(c, i){
+    return '<div class="chip item"' + attrs({kind:'chip', i:i}) + ' data-ring-art="">' + (i ? '<img src="sport-assets/chip-icon.png" alt="">' : '') + esc(c.t) + '</div>';
+  }).join('') + '</div></div></section>';
+  html += '<section class="sec" data-row="leagues"><h2 class="sec-title">League &amp; Tournament</h2><div class="rail"><div class="leagues">' + LEAGUES.map(function(l, i){
+    var pic = l.mono ? '<span class="mono">' + esc(l.mono) + '</span>' : '<span class="img ' + (l.fitc || '') + '" style="background-image:url(\'' + l.logo + '\')"></span>';
+    return '<div class="league"><div class="disc item' + (l.fav ? ' followed' : '') + '"' + attrs({kind:'league', i:i}) + '>' + pic +
+      '<img class="fav" src="sport-assets/fav-btn.svg" alt=""></div><div class="name">' + l.name + '</div></div>';
+  }).join('') + '</div></div></section>';
+  html += '<section class="sec" data-row="latest"><h2 class="sec-title">Latest Highlight</h2><div class="rail" style="margin-top:16px"><div class="track">' +
+    LATEST.map(function(it, i){ return vodCard(it, 'latest', i); }).join('') + '</div></div></section>';
+  html += '<section class="sec" data-row="guide"><div class="rail"><div class="track" style="padding-top:0;padding-bottom:0">' +
+    '<div class="guide-all item" data-kind="guideall" data-ring-art=""><b>TV Guide</b><span>View All &nbsp;→</span></div>' +
+    EPG.map(epgCard).join('') + '</div></div></section>';
+  html += '<section class="sec ucl" data-row="ucl"><div class="back"><div class="inner">' +
+    '<img class="art" src="sport-assets/ucl-bg.jpg" alt=""><img class="art top" src="sport-assets/ucl-bg.jpg" alt="">' +
+    '<div class="glow" style="left:-417.44px;top:-697.17px;width:2056.26px;height:1424.171px"><div style="transform:rotate(-14.2deg)"><div style="position:relative;width:1869px;height:996px">' +
+      '<img src="sport-assets/ucl-ring-1.svg" alt="" style="left:-1240px;top:-1240px;width:4349px;height:3476px"></div></div></div>' +
+    '<div class="glow" style="left:-195.49px;top:-421.98px;width:2674.459px;height:1698.144px"><div style="transform:rotate(15.99deg)"><div style="position:relative;width:2479.497px;height:1056.018px">' +
+      '<img src="sport-assets/ucl-ring-2.svg" alt="" style="left:-1183.96px;top:-1184.03px;width:4847.4px;height:3424.1px"></div></div></div>' +
+    '</div></div>' +
+    '<div class="text"><h2>UEFA Champion League</h2><p>The road to the final runs through here. Every match of the league phase live, with the knockout draw, highlights and the best goals of each matchday.</p></div>' +
+    '<div class="row"><div class="track">' + UCL.map(function(it, i){ return matchCard(it, i, 'ucl'); }).join('') +
+    '<div class="uclava item" data-kind="uclava" data-ring-art="url(\'sport-assets/ucl-avatar.jpg\')"></div></div></div></section>';
+  FOR_YOU.forEach(function(r, ri){
+    html += '<section class="sec" data-row="foryou' + ri + '"><h2 class="sec-title">' + esc(r.title) + '</h2><div class="rail" style="margin-top:16px"><div class="track">' +
+      r.items.map(function(it, i){ return vodCard(it, 'foryou', i, ri); }).join('') + '</div></div></section>';
+  });
+  html += '<section class="sec" data-row="shorts"><div class="shorts">' +
+    '<div class="short wide item" data-kind="short" data-label="Short Highlight" style="--img:url(\'' + LS + 'football-255.jpg\')"><span>Short Highlight</span></div>' +
+    '<div class="short tall item" data-kind="short" data-label="Short" style="--img:url(\'tv-features-test/shorts-assets/volleyball.jpg\')"><span>Short</span></div></div></section>';
+  html += '<section class="sec docs" data-row="docs"><h2 class="sec-title">Documentary</h2><div class="rail"><div class="track">' + DOCS.map(function(d, i){
+    return '<div class="poster item"' + attrs({kind:'doc', i:i}) + ' style="background-image:url(\'' + d.img + '\')"></div>';
+  }).join('') + '</div></div></section>';
+  html += '<section class="sec" data-row="channels"><h2 class="sec-title">Sport Channel</h2><div class="rail"><div class="chans">' + CHANNELS.map(function(c, i){
+    return '<div class="chan item' + (c.contain ? ' contain' : '') + '"' + attrs({kind:'chan', i:i}) + ' style="background-image:url(\'' + c.img + '\')' + (c.bg ? ';background-color:' + c.bg : '') + '"></div>';
+  }).join('') + '</div></div></section>';
+  html += '<section class="sec totop" data-row="totop"><div class="btn item" data-kind="totop" data-ring-art=""><img src="sport-assets/arrow-up.svg" alt="">Back to Top</div></section>';
+  var page = document.getElementById('page');
+  page.innerHTML = html;
+
+  /* ---------- focus rows: the top bar, then one row per section ---------- */
+  var $ = function(q, root){ return Array.prototype.slice.call((root || document).querySelectorAll(q)); };
+  var secs = $('.sec', page);
+  var rows = [{ items:$('.topnav .item') }].concat(secs.map(function(s){ return { sec:s, key:s.dataset.row, items:$('.item', s) }; }));
+  var R = {}; rows.forEach(function(r, i){ if(r.key) R[r.key] = i; });
+  var NAV_SPORT = rows[0].items.indexOf(document.querySelector('.navtab.active'));
+  var cur = { row:R.live, col:rows.map(function(){ return 0; }), from:0 };   // from: the row the top bar was entered from
+  cur.col[0] = NAV_SPORT;
+  var DYNAMIC_END = R.ucl;   // rows up to the suggested league keep the hero (dynamic background)
+
+  // ---- the hero speaks for the focused rail ----
+  var heroEl = document.querySelector('.hero'), heroKey = '';
+  var pics = $('.hero-bg .pic'), picFront = 0, picCur = null;
+  function setBg(img){
+    if((img || null) === picCur) return;
+    picCur = img || null;
+    pics[picFront].classList.remove('on');
+    picFront = 1 - picFront;
+    if(img){ pics[picFront].style.backgroundImage = 'url(\'' + img + '\')'; pics[picFront].classList.add('on'); }
+  }
+  function chMeta(c){ return '<span class="ch"><img src="' + c.logo + '" alt=""' + (c.bg ? ' style="background:' + c.bg + ';object-fit:contain"' : '') + '>Channel ' + c.no + ': ' + esc(c.n.toUpperCase()) + ' ' + c.no + '</span>'; }
+  function heroFor(el, rowKey){
+    var k = el && el.dataset.kind, i = el ? +el.dataset.i : 0;
+    if(rowKey === 'live' || rowKey === 'ucl'){
+      var m = (rowKey === 'ucl' ? UCL : LIVE)[k === 'match' ? i : 0];
+      if(k === 'uclava') return { t:'UEFA Champion League', d:document.querySelector('.ucl .text p').textContent, bg:null };
+      return { t:m.t, meta:topBadge(m) + '<span class="badge"><img src="sport-assets/crown.svg" alt="">Premium</span>' + chMeta(m.ch) + '<span class="pill">' + m.time + '</span>', d:MATCH_DESC, bg:m.img };
+    }
+    if(rowKey === 'chips'){ var c = CHIPS[i]; return { t:c.t, d:c.d, bg:c.img }; }
+    if(rowKey === 'leagues'){ var l = LEAGUES[i]; return { t:l.t, d:'Follow ' + l.t + ' for live matches, fixtures, results and highlights, all in one place.', bg:l.img }; }
+    if(rowKey === 'latest'){
+      var h = LATEST[i];
+      return { t:h.t, meta:'<span class="ch"><img src="sport-assets/channel-aisplay.jpg" alt="">AIS PLAY</span><b>' + h.g + '</b><span>2026</span><span>' + h.dur + '</span><span class="pill">G</span><span class="pill">HD</span>',
+               d:'The best moments, the goals and the talking points, cut down so you can catch up in minutes.', bg:h.img };
+    }
+    if(rowKey === 'guide') return { t:'TV Guide', d:'See what’s on now and next across every sports channel, set reminders, and jump straight into a live match.', bg:'posters/tvguide-bg.jpg' };
+    return null;
+  }
+  function paintHero(rowKey, el){
+    var h = heroFor(el, rowKey);
+    if(!h) return;
+    var key = h.t + '|' + (h.meta || '');
+    if(key !== heroKey){
+      heroKey = key;
+      heroEl.querySelector('h1').textContent = h.t;
+      heroEl.querySelector('.meta').innerHTML = h.meta || '';
+      heroEl.querySelector('.desc').textContent = h.d;
+      heroEl.classList.remove('swap'); void heroEl.offsetWidth; heroEl.classList.add('swap');
+    }
+    setBg(h.bg);
+  }
+
+  // ---- keep the focused item in view ----
+  // Sideways (Home's "fixed focus"): the focused item sits in the first item's slot and the rail slides under it,
+  // until the rail's end is in; past that, focus moves on alone. Down the page: the focused rail sits at y=580 while
+  // the hero shows (on the suggested league: its cards do), its title at y=300 after that.
+  var pageY = 0;
+  function slide(r, el){
+    if(r.key === 'totop' || r.key === 'shorts') return;
+    // (offsets are all from the rail, the nearest positioned box, so a league's disc measures like a card)
+    var track = el.closest('.track, .chips, .leagues, .chans');
+    var want = el.offsetLeft - r.items[0].offsetLeft;
+    var max = Math.max(0, track.scrollWidth - 1920 + (r.key === 'ucl' ? 110 : 0));   // the suggested league's rail has no right padding
+    track.style.transform = 'translateX(' + -Math.max(0, Math.min(want, max)) + 'px)';
+  }
+  function layout(ri){
+    var r = rows[ri], top = r.sec.offsetTop, y;
+    if(ri <= DYNAMIC_END){
+      y = top - 580;
+      if(r.key === 'ucl') y = top + r.sec.querySelector('.row').offsetTop + 8 - 580;   // the cards' pictures at y=588, as Figma
+    } else {
+      y = Math.min(top - 300, page.offsetHeight - 1080);
+    }
+    pageY = Math.max(0, y);
+    page.style.transform = 'translateY(' + -pageY + 'px)';
+    secs.forEach(function(s, si){ s.classList.toggle('above', si + 1 < ri); });
+    document.body.classList.toggle('static', ri > DYNAMIC_END);
+    document.body.classList.toggle('ucl', ri === R.ucl);
+  }
+
+  function paint(){
+    rows.forEach(function(r, ri){ r.items.forEach(function(el, ci){ el.classList.toggle('focused', ri === cur.row && ci === cur.col[ri]); }); });
+    var ri = cur.row === 0 ? cur.from : cur.row;   // on the top bar the page stays as it was
+    layout(ri);
+    var r = rows[ri], el = r.items[cur.col[ri]];
+    if(cur.row) slide(r, el);
+    if(ri <= DYNAMIC_END) paintHero(r.key, el);
+    try { sessionStorage.setItem('sportFocus', JSON.stringify(cur)); } catch(e){}
+  }
+
+  /* ---------- actions ---------- */
+  var toastEl = document.getElementById('toast'), toastT;
+  function toast(msg){ toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove('on'); }, 1600); }
+  // leaving for the player or the TV Guide: their Back lands on the same item here
+  function leave(url){ try { sessionStorage.setItem('sportReturn', '1'); } catch(e){} location.href = url; }
+  // the Live TV player, on a sports channel
+  function play(c, title){
+    var q = {n:c.n, no:c.no, crown:c.crown || '', logo:c.logo, fit:c.fit || '', bg:c.bg || '', t:title, v:c.v};
+    leave('live-tv-player.html?' + Object.keys(q).filter(function(k){ return q[k] !== ''; })
+      .map(function(k){ return k + '=' + encodeURIComponent(q[k]); }).join('&'));
+  }
+  function select(el){
+    var k = el.dataset.kind, i = +el.dataset.i;
+    el.animate([{ transform:getComputedStyle(el).transform }, { transform:(getComputedStyle(el).transform === 'none' ? '' : getComputedStyle(el).transform + ' ') + 'scale(0.97)' }], { duration:140, easing:'ease-out' });
+    if(el.dataset.href){ location.href = el.dataset.href; return; }
+    if(k === 'match'){
+      var m = (el.dataset.set === 'ucl' ? UCL : LIVE)[i];
+      if(m.live) play(m.ch, m.t); else toast('We’ll remind you when ' + m.t + ' starts');
+      return;
+    }
+    if(k === 'chip'){ toast('Showing ' + CHIPS[i].t); return; }
+    if(k === 'league'){
+      var on = el.classList.toggle('followed');
+      toast((on ? 'Following ' : 'Unfollowed ') + LEAGUES[i].t);
+      return;
+    }
+    if(k === 'guideall'){ leave('tv-guide.html'); return; }
+    if(k === 'epg'){ play(EPG[i].c, EPG[i].now); return; }
+    if(k === 'chan'){ play(CHANNELS[i].c, ''); return; }
+    if(k === 'totop'){ cur.row = R.live; cur.col[R.live] = 0; paint(); return; }
+    if(k === 'latest' || k === 'foryou'){ var list = k === 'latest' ? LATEST : FOR_YOU[+el.dataset.set].items; toast('Now playing: ' + list[i].t); return; }
+    if(k === 'doc'){ toast('Now playing: ' + DOCS[i].t); return; }
+    if(k === 'uclava'){ toast('UEFA Champions League'); return; }
+    if(k === 'short'){ toast(el.dataset.label + ' (demo)'); return; }
+    toast(el.dataset.label + ' (demo)');
+  }
+  function back(){
+    if(cur.row > R.live){ cur.row = R.live; paint(); return; }
+    try { if(document.referrer && /home\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    location.href = 'home.html';
+  }
+
+  addEventListener('keydown', function(e){
+    var r = rows[cur.row], n = r.items.length, handled = true;
+    if(e.key === 'ArrowRight') cur.col[cur.row] = Math.min(n - 1, cur.col[cur.row] + 1);
+    else if(e.key === 'ArrowLeft'){
+      // Left on a rail's first item goes up to the top bar (its Sport tab), as on Home
+      if(cur.row > 0 && cur.col[cur.row] === 0){ cur.from = cur.row; cur.row = 0; cur.col[0] = NAV_SPORT; }
+      else cur.col[cur.row] = Math.max(0, cur.col[cur.row] - 1);
+    }
+    else if(e.key === 'ArrowUp'){
+      if(cur.row === R.live){ cur.from = cur.row; cur.row = 0; cur.col[0] = NAV_SPORT; }
+      else if(cur.row > 0) cur.row--;
+    }
+    else if(e.key === 'ArrowDown'){
+      if(cur.row === 0) cur.row = cur.from || R.live;
+      else cur.row = Math.min(rows.length - 1, cur.row + 1);
+    }
+    else if(e.key === 'Enter') select(r.items[cur.col[cur.row]]);
+    else if(e.key === 'Escape' || e.key === 'Backspace') back();
+    else handled = false;
+    if(handled){ e.preventDefault(); paint(); }
+  });
+  rows.forEach(function(r, ri){ r.items.forEach(function(el, ci){
+    el.addEventListener('click', function(){ if(ri === 0) cur.from = cur.row || cur.from; cur.row = ri; cur.col[ri] = ci; paint(); select(el); });
+  }); });
+
+  // coming back (Back from the player or the TV Guide): the same item again
+  try {
+    var saved = sessionStorage.getItem('sportReturn') && JSON.parse(sessionStorage.getItem('sportFocus') || 'null');
+    sessionStorage.removeItem('sportReturn');
+    if(saved && saved.col && saved.col.length === rows.length){ cur = saved; if(cur.row === 0) cur.row = cur.from || R.live; }
+  } catch(e){}
+  if(!cur.from) cur.from = R.live;
+  page.style.transition = 'none';
+  paint();
+  // fonts change the rows' heights: lay out again once they are in, then let the page glide
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(function(){ paint(); requestAnimationFrame(function(){ page.style.transition = ''; }); });
+})();
+</script>
+<script src="focus-ring.js"></script>
+</body>
+</html>

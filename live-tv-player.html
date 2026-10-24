@@ -484,7 +484,7 @@
     screen.appendChild(big); setTimeout(function(){ big.remove(); }, 1000);
   }
   function back(){
-    try { if(document.referrer && /tv-guide\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    try { if(document.referrer && /(tv-guide|sport)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
     location.href = 'tv-guide.html';
   }
   function activate(el){

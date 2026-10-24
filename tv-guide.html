@@ -806,7 +806,7 @@
   var toastEl = document.getElementById('toast'), toastT;
   function toast(msg){ toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove('on'); }, 1800); }
   function back(){
-    try { if(document.referrer && /home\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    try { if(document.referrer && /(home|sport)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
     location.href = 'home.html';
   }
   // Back steps out one level at a time: a programme below the live card → that column's live card → the selected sub-tab (when the category has them)

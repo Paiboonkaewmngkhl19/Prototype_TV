@@ -1,0 +1,16 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="4847.5" height="3424.02" viewBox="0 0 4847.5 3424.02" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Ellipse 5800" filter="url(#filter0_f_0_264)">
+<mask id="stroke0_0_264" maskUnits="userSpaceOnUse" x="400" y="400" width="4048" height="2625" fill="black">
+<rect fill="white" x="400" y="400" width="4048" height="2625"/>
+<path d="M3663.5 1712.01C3663.5 2003.62 3108.44 2240.02 2423.75 2240.02C1739.05 2240.02 1184 2003.62 1184 1712.01C1184 1420.4 1739.05 1184 2423.75 1184C3108.44 1184 3663.5 1420.4 3663.5 1712.01Z"/>
+</mask>
+<path d="M3663.5 1712.01C3663.5 2003.62 3108.44 2240.02 2423.75 2240.02C1739.05 2240.02 1184 2003.62 1184 1712.01C1184 1420.4 1739.05 1184 2423.75 1184C3108.44 1184 3663.5 1420.4 3663.5 1712.01Z" stroke-width="1568" stroke="#1C0325" mask="url(#stroke0_0_264)"/>
+</g>
+<defs>
+<filter id="filter0_f_0_264" x="0" y="0" width="4847.5" height="3424.02" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="200" result="effect1_foregroundBlur_0_264"/>
+</filter>
+</defs>
+</svg>
