@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Roboto:wght@400;500&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
+<!--
+  Store page (Figma "PLAY:store_mainPage", node 5205:222060), opened from the Store tab in the top bar.
+  A 1920x1080 TV screen scaled to the window, like sport.html; the shared gliding focus ring is focus-ring.js.
+
+  Flow (Figma "Direction and Role", 5205:240827):
+  - Dynamic background, For You to Great Value: the hero speaks for the focused package (tags, title, price, VAT,
+    description) over its artwork; the focused rail sits at y=600 and the rails above it fade away. Sports, Movies,
+    Short Series and Great Value have a tab bar: Up from the cards reaches it, Left / Right picks a tab.
+  - Static background, from PPV Event down: the hero and the top bar go, the page scrolls with the focused rail near
+    the top. The chosen card of PPV Event opens up to 16:9 with its details (VOD, upcoming live or live); the
+    chosen card of Rentals and Buy grows and shows its price. Then the banner, My Subscription, the shortcuts, the
+    FAQs (Enter opens / closes an answer), Customer Support, and Back to Top.
+  Remote / keyboard: arrows move focus, Enter selects, Esc / Back returns to the top (then to Home).
+-->
+<style>
+  :root{
+    color-scheme:dark;
+    /* Figma variables (default mode) */
+    --surface:#101010; --on-surface:#e8e8e8; --on-surface-variant:#a8a8a8; --surface-container-low:#1c1c1c; --surface-container:#2a2a2a;
+    --surface-container-high:#3a3a3a; --surface-container-highest:#4a4a4a; --outline:#5a5a5a; --outline-variant:#4a4a4a;
+    --inverse-surface:#e8e8e8; --on-inverse-surface:#101010; --live:#ea5454;
+    --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%);
+    --ease:cubic-bezier(.2,0,0,1);
+    --inter:'Inter', system-ui, sans-serif; --roboto:'Roboto', system-ui, sans-serif;
+    --ph:url('store-assets/placeholder.png');
+  }
+  html,body{ margin:0; height:100%; background:#000; overflow:hidden; color:var(--on-surface); font-family:var(--inter); -webkit-font-smoothing:antialiased; }
+  *{ box-sizing:border-box; }
+  #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:var(--surface); }
+  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; overflow:hidden; background:var(--surface); }
+
+  /* ---------- hero background: Figma's placeholder at 20%, the package's artwork on the right, darkening down and to the left ---------- */
+  .hero-bg{ position:absolute; left:0; top:0; width:1920px; height:1080px; z-index:0; overflow:hidden; background:var(--surface-container-low); transition:opacity .4s ease; }
+  .hero-bg .ph{ position:absolute; inset:0; background:url('store-assets/hero-placeholder.png') center / cover no-repeat; opacity:.2; }
+  .hero-bg .art{ position:absolute; left:43.91%; top:-2.54%; width:56.09%; height:99.72%; background:center / cover no-repeat; opacity:0; transition:opacity .45s ease; }
+  .hero-bg .art.on{ opacity:1; }
+  .hero-bg .down{ position:absolute; inset:0; background:linear-gradient(180deg, rgba(17,0,17,0) 27.822%, #000 90.581%); }
+  .hero-bg .side{ position:absolute; inset:0; opacity:0; transition:opacity .45s ease;
+    background:linear-gradient(99.75deg, #000 7.8725%, rgba(3,3,3,.974) 40.55%, rgba(102,102,102,0) 64.199%); }
+  .hero-bg.has-art .side{ opacity:1; }
+  .hero-bg .icon{ position:absolute; left:1434px; top:280px; width:150px; height:150px; opacity:.6; transition:opacity .3s ease; }
+  .hero-bg.has-art .icon{ opacity:0; }
+  body.static .hero-bg{ opacity:0; }
+
+  /* ---------- hero text (localComponent_heroContent): 203px down, above the focused rail at y=600 ---------- */
+  .hero{ position:absolute; left:110px; top:203px; width:841px; z-index:3; display:flex; flex-direction:column; gap:24px;
+    transition:opacity .3s ease, transform .3s var(--ease); }
+  body.static .hero{ opacity:0; transform:translateY(-40px); pointer-events:none; }
+  .hero.swap{ animation:heroIn .3s var(--ease); }
+  @keyframes heroIn{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
+  .hero .tags{ display:flex; gap:8px; height:36px; overflow:hidden; }
+  .tag{ height:36px; padding:0 12px; border-radius:9999px; display:inline-flex; align-items:center; background:var(--surface-container);
+    font-weight:500; font-size:20px; color:var(--on-surface); white-space:nowrap; }
+  .hero h1{ margin:0; font-size:57px; font-weight:700; line-height:normal; color:var(--on-surface); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .hero .price{ display:flex; gap:16px; align-items:baseline; white-space:nowrap; }
+  .hero .price b{ font-weight:400; font-size:45px; line-height:52px; }
+  .hero .price span{ font-weight:500; font-size:28px; }
+  .hero .desc{ margin:0; height:95px; font-family:var(--roboto); font-size:24px; line-height:32px; color:var(--on-surface-variant);
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+
+  /* ---------- the page: Figma's rails, 60px apart; it moves as a whole (translateY) ---------- */
+  #page{ position:absolute; left:0; top:0; width:1920px; z-index:1; padding:600px 0 0; display:flex; flex-direction:column; gap:60px;
+    transition:transform .45s var(--ease); }
+  .sec{ position:relative; transition:opacity .3s ease; }
+  body:not(.static) .sec.above{ opacity:0; }
+  .sec-title{ margin:0 110px; font-family:var(--roboto); font-weight:500; font-size:32px; line-height:40px; color:var(--on-surface); white-space:nowrap; }
+  .item{ cursor:pointer; }
+  .rail{ position:relative; margin-top:24px; }
+  .track{ display:flex; gap:32px; padding:0 110px; width:max-content; transition:transform .35s var(--ease); }
+
+  /* placeholder artwork (Figma's checkerboard at 50% over the card colour) and its ratio label */
+  .ph-bg{ background:var(--surface-container-high); }
+  .ph-bg::before{ content:''; position:absolute; inset:0; background:var(--ph) center / cover no-repeat; opacity:.5; }
+  .ratio{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); display:flex; flex-direction:column; align-items:center;
+    font-weight:500; font-size:11px; line-height:32px; color:var(--on-surface); }
+  .ratio span{ opacity:.5; }
+  .ratio img{ display:block; }
+  .ratio.row{ flex-direction:row; gap:4px; }
+  .ratio.big{ font-family:var(--roboto); font-size:24px; }
+  .ratio.huge{ font-size:36px; line-height:44px; }
+
+  /* card badges (Badge top) */
+  .badges{ position:absolute; left:12px; top:12px; display:flex; z-index:1; }
+  .bdg{ height:auto; padding:0 12px; border-radius:9999px; background:var(--surface-container-high); font-weight:500; font-size:20px; line-height:normal; color:var(--on-surface); white-space:nowrap; }
+  .bdg.dark{ background:var(--surface); }
+
+  /* 1:1 package card (TV / Card), 250x250 */
+  .sq{ position:relative; width:250px; height:250px; flex:0 0 auto; border-radius:12px; overflow:hidden; }
+  .sq .pic{ position:absolute; inset:0; background:center / cover no-repeat; }
+  .sq .pic img{ position:absolute; max-width:none; display:block; }
+  .sq .pic.black{ background-color:#000; }
+  .sq .pic.contain{ background-size:contain; }
+
+  /* View All (TV / Button), the rail's height */
+  .viewall{ width:220px; flex:0 0 auto; align-self:stretch; border-radius:38px; display:flex; align-items:center; justify-content:center; padding:24px;
+    background:var(--surface-container-high); color:var(--on-surface); font-weight:500; font-size:24px; line-height:32px; transition:background .15s ease, color .15s ease; }
+  .viewall.focused{ background:var(--inverse-surface); color:var(--surface-container); }
+
+  /* tab bar (TV / Chip): the picked tab is filled; the focused one turns light */
+  .tabs{ display:flex; gap:24px; padding:0 110px; margin-top:24px; width:max-content; transition:transform .35s var(--ease); }
+  .chip{ position:relative; display:flex; align-items:center; gap:16px; padding:12px 32px 12px 24px; border-radius:12px; flex:0 0 auto;
+    font-weight:500; font-size:24px; line-height:32px; color:var(--on-surface-variant); white-space:nowrap; transition:background .15s ease, color .15s ease; }
+  .chip::before{ content:''; position:absolute; inset:0; border-radius:inherit; border:2px solid var(--outline-variant); opacity:.5; transition:opacity .15s ease; }
+  .chip img{ width:48px; height:48px; border-radius:48px; display:block; }
+  .chip.on{ background:var(--outline); color:var(--on-surface); }
+  .chip.on::before, .chip.focused::before{ opacity:0; }
+  .chip.focused{ background:var(--inverse-surface); color:var(--on-inverse-surface); }
+  .cat .rail{ margin-top:40px; }
+
+  /* Highlight you shouldn't miss (Gene rail): its own 500px band with Figma's picture at 40% */
+  .gene{ height:500px; padding:0 0 20px; display:flex; flex-direction:column; justify-content:center; gap:40px; }
+  .gene::before{ content:''; position:absolute; inset:0; background:var(--ph) center / cover no-repeat; opacity:.4; }
+  .gene .sec-title, .gene .rail{ position:relative; margin-top:0; }
+
+  /* PPV Event: 2:3 posters; the chosen one opens up to 16:9 with the event's details */
+  .ev{ position:relative; width:368.67px; height:553px; flex:0 0 auto; border-radius:12px; overflow:hidden; }
+  .ev .wide{ display:none; }
+  .ev.sel{ width:960px; }
+  .ev.sel .tall{ display:none; }
+  .ev.sel .wide{ display:block; }
+  .ev .scrim{ position:absolute; left:0; right:0; bottom:0; height:340px; background:linear-gradient(180deg, rgba(16,16,16,0), rgba(16,16,16,.88)); }
+  .ev .top{ position:absolute; left:24px; top:24px; }
+  .bdg.live{ background:var(--live); display:inline-flex; align-items:center; gap:4px; }
+  .bdg.live::before{ content:''; width:12px; height:12px; background:url('sport-assets/dot.svg') center / contain no-repeat; }
+  .ev .info{ position:absolute; left:40px; right:40px; bottom:24px; display:flex; flex-direction:column; gap:12px; }
+  .ev h3{ margin:0; font-size:48px; font-weight:700; line-height:57px; color:var(--on-surface); }
+  .ev .cost{ display:flex; align-items:baseline; gap:8px; white-space:nowrap; }
+  .ev .cost b{ font-size:36px; font-weight:500; }
+  .ev .cost span{ font-size:24px; color:var(--on-surface); }
+  .ev .meta{ display:flex; align-items:center; gap:16px; height:36px; font-size:20px; color:var(--on-surface-variant); white-space:nowrap; }
+  .ev .meta .b{ height:36px; padding:0 12px; border-radius:9999px; display:inline-flex; align-items:center; gap:4px; background:var(--surface-container); color:var(--on-surface); font-weight:500; }
+  .ev .meta .b img{ width:20px; height:20px; }
+  .ev .meta .plat{ width:133px; justify-content:center; background:#fff; color:var(--on-inverse-surface); }
+  .ev .meta .logo{ width:60px; height:36px; border-radius:9999px; background:#fff var(--ph) center / cover no-repeat; opacity:.9; }
+  .ev .meta .pill{ height:36px; padding:0 12px; border:1px solid var(--outline); border-radius:18px; display:inline-flex; align-items:center; color:var(--on-surface); }
+  .ev .meta .pill.sm{ height:28px; min-width:80px; justify-content:center; }
+  .ev .meta strong{ color:var(--on-surface); font-weight:700; }
+  .ev .syn{ margin:0; font-size:20px; line-height:24px; color:var(--on-surface-variant); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+
+  /* Rentals / Buy: 2:3 posters; the chosen one grows to 264x396 and shows its price */
+  .rent .track{ align-items:flex-start; height:396px; }
+  .pst{ position:relative; width:220px; height:330px; margin-top:33px; flex:0 0 auto; border-radius:12px; }
+  .pst .pic{ position:absolute; inset:0; border-radius:12px; overflow:hidden; }
+  .pst .cost{ display:none; }
+  .pst.sel{ width:264px; height:396px; margin-top:0; padding:8px; border-radius:24px; }
+  .pst.sel .pic{ position:relative; inset:auto; height:340px; }
+  .pst.sel .cost{ display:block; margin-top:8px; font-family:var(--roboto); font-weight:500; font-size:20px; line-height:24px; color:var(--on-surface); }
+  .pst .badges{ left:12px; top:12px; }
+  .pst.sel .badges{ left:20px; top:20px; }
+  .rent .viewall{ height:330px; margin-top:33px; align-self:auto; }
+
+  /* banner carousel */
+  .banner{ position:relative; width:1700px; height:500px; margin:0 110px; border-radius:12px; overflow:hidden; background:url('store-assets/banner-soundbar.png') center / cover no-repeat; }
+  .dots{ position:absolute; left:50%; top:464px; transform:translateX(-50%); display:flex; align-items:center; gap:8px; }
+  .dots i{ width:12px; height:12px; border-radius:6px; background:rgba(255,255,255,.5); transition:width .3s var(--ease), background .3s ease; }
+  .dots i.on{ width:34px; background:#fff; }
+
+  /* My Subscription */
+  .mysub{ margin:0 110px; padding:24px 32px; border-radius:16px; background:var(--surface-container-high); display:flex; flex-direction:column; align-items:center; gap:24px; }
+  .mysub .head{ align-self:stretch; display:flex; flex-direction:column; gap:16px; }
+  .mysub .sec-title{ margin:0; }
+  .subs{ display:flex; gap:16px; }
+  .sub{ width:534.67px; height:147px; padding:11.5px 12px; border-radius:12px; background:var(--surface-container-highest); display:flex; gap:12px; }
+  .sub .pic{ position:relative; width:124px; height:124px; border-radius:8px; overflow:hidden; flex:0 0 auto; }
+  .sub .txt{ position:relative; flex:1; min-width:0; display:flex; flex-direction:column; justify-content:space-between; font-family:var(--roboto); }
+  .sub .txt b{ display:block; padding-right:120px; font-weight:500; font-size:32px; line-height:40px; color:var(--on-surface); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .sub .txt span{ font-size:24px; line-height:28px; color:var(--on-surface-variant); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .sub .kind{ font-style:normal; position:absolute; right:0; top:0; height:40px; padding:0 12px; border-radius:9999px; background:var(--inverse-surface); color:var(--on-inverse-surface);
+    font-size:24px; line-height:40px; font-weight:500; }
+  .sub:not(.main) .kind{ top:16px; }
+  .btn{ display:flex; align-items:center; justify-content:center; gap:16px; border-radius:9999px; background:var(--surface-container); color:var(--on-surface);
+    font-weight:500; white-space:nowrap; transition:background .15s ease, color .15s ease; }
+  .btn.focused{ background:var(--inverse-surface); color:var(--surface-container); }
+  .mysub .btn{ width:503px; height:91px; font-size:32px; font-family:var(--roboto); }
+
+  /* shortcuts */
+  .shorts{ display:flex; gap:24px; padding:0 110px; }
+  .short{ width:550.67px; height:180px; border-radius:12px; background:var(--surface-container-highest); padding:24px 10px 30px; display:flex; flex-direction:column; justify-content:space-between;
+    align-items:center; font-family:var(--roboto); color:var(--on-surface); transition:background .15s ease, color .15s ease; }
+  .short span{ font-size:20px; line-height:23px; }
+  .short b{ font-weight:500; font-size:32px; line-height:42px; }
+  .short.focused{ background:var(--inverse-surface); color:var(--on-inverse-surface); }
+
+  /* FAQs: the phone QR panel and the questions */
+  .faq{ display:flex; gap:24px; padding:0 110px; align-items:flex-start; }
+  .qrpanel{ width:521px; height:530px; padding:40px; border-radius:16px; background:var(--surface-container); display:flex; flex-direction:column; align-items:center; gap:32px; flex:0 0 auto;
+    font-family:var(--roboto); text-align:center; }
+  .hd{ display:flex; align-items:center; justify-content:center; gap:8px; font-family:var(--roboto); font-weight:500; font-size:36px; line-height:44px; color:var(--on-surface); }
+  .hd img{ display:block; }
+  .qr{ position:relative; width:250px; height:250px; border-radius:16px; background:#fff; flex:0 0 auto; }
+  .qr .code{ position:absolute; left:16px; top:16px; width:218px; height:218px; }
+  .qr .lg{ position:absolute; left:93px; top:93px; width:67px; height:67px; border-radius:12px; }
+  .qrpanel .t{ font-size:32px; line-height:48px; color:var(--on-surface); }
+  .qrpanel .s{ margin-top:16px; font-size:24px; line-height:36px; color:var(--on-surface-variant); }
+  .acc{ flex:1; display:flex; flex-direction:column; gap:24px; padding-right:24px; }
+  .q{ border-radius:8px; }
+  .q .qh{ display:flex; align-items:center; justify-content:space-between; gap:24px; padding:8px 8px 12px; border-bottom:1px solid var(--outline-variant);
+    font-weight:700; font-size:20px; line-height:28px; color:var(--on-surface); }
+  .q .qh i{ font-style:normal; font-weight:400; font-size:24px; width:24px; text-align:center; }
+  .q .qa{ display:none; gap:24px; padding:16px 8px 0; }
+  .q.open .qa{ display:flex; }
+  .q .thumb{ position:relative; width:160px; height:90px; border-radius:4px; overflow:hidden; flex:0 0 auto; }
+  .q p{ margin:0; font-size:16px; line-height:24px; color:var(--on-surface-variant); }
+
+  /* Customer Support */
+  .support{ padding:0 110px; display:flex; flex-direction:column; gap:32px; }
+  .cols{ display:flex; gap:40px; font-family:var(--roboto); font-size:32px; line-height:40px; color:var(--on-surface); }
+  .cols > div{ width:830px; display:flex; flex-direction:column; gap:16px; }
+  .cols .h{ display:flex; align-items:center; gap:16px; }
+  .cols ul{ margin:0; padding-left:44px; display:flex; flex-direction:column; gap:16px; }
+  .cols li b{ font-weight:500; }
+
+  /* Back to Top */
+  .totop{ height:150px; display:flex; align-items:center; justify-content:center; }
+  .totop .btn{ width:384px; height:80px; font-size:24px; line-height:32px; background:var(--surface-container-high); }
+  .totop .btn img{ width:32px; height:32px; filter:invert(1); }
+  .totop .btn.focused{ background:var(--inverse-surface); }
+  .totop .btn.focused img{ filter:none; }
+
+  /* ---------- top bar (Home's), Store is the current page; it goes with the hero ---------- */
+  .scrim{ position:absolute; left:0; top:0; width:1920px; height:200px; z-index:4; pointer-events:none; opacity:0; transition:opacity .3s ease;
+    background:linear-gradient(180deg, rgba(16,16,16,.92) 0%, rgba(16,16,16,.7) 55%, rgba(16,16,16,0) 100%); }
+  body.static.on-nav .scrim{ opacity:1; }
+  .topnav{ position:absolute; left:0; top:0; z-index:5; width:1920px; padding:24px 110px 0; display:flex; align-items:center; transition:opacity .3s ease, translate .3s var(--ease); }
+  body.static:not(.on-nav) .topnav{ opacity:0; translate:0 -40px; pointer-events:none; }
+  .profile{ width:60px; height:60px; border-radius:999px; overflow:hidden; flex:0 0 auto; }
+  .profile img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .center{ display:flex; align-items:center; gap:12px; margin-left:20px; }
+  .navsearch{ width:60px; height:60px; margin:0 8px; border-radius:999px; display:flex; align-items:center; justify-content:center; }
+  .navsearch img{ width:32px; height:32px; display:block; }
+  .navtab{ height:60px; padding:0 20px; border-radius:999px; display:flex; align-items:center; font-family:'Plus Jakarta Sans', var(--inter); font-size:24px; line-height:1.2;
+    color:#fff; text-shadow:0 0 6px rgba(0,0,0,.4); white-space:nowrap; }
+  .navtab.active{ background:rgba(255,255,255,.22); backdrop-filter:blur(10px); }
+  .topnav .item{ transition:background .15s ease; }
+  .topnav .item.focused{ background:var(--th-pill); backdrop-filter:blur(12px) saturate(1.4); }
+
+  #toast{ position:absolute; left:50%; bottom:80px; z-index:60; transform:translateX(-50%); padding:14px 26px; border-radius:999px;
+    background:rgba(20,20,24,.85); font-size:24px; opacity:0; transition:opacity .2s ease; pointer-events:none; }
+  #toast.on{ opacity:1; }
+</style>
+</head>
+<body>
+<div id="frame"><div id="screen">
+  <div class="hero-bg"><div class="ph"></div><div class="art"></div><div class="art"></div><div class="down"></div><div class="side"></div>
+    <img class="icon" src="store-assets/image-icon-60.svg" alt=""></div>
+
+  <div id="page"></div>
+
+  <section class="hero" aria-live="polite"><div class="tags"></div><h1></h1><div class="price"><b></b><span></span></div><p class="desc"></p></section>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <nav class="topnav">
+    <div class="profile item" data-label="Profile"><img src="icons/profile-tv.png" alt="Profile"></div>
+    <div class="center">
+      <div class="navsearch item" data-label="Search"><img src="icons/nav-search.svg" alt="Search"></div>
+      <div class="navtab item" data-label="Home" data-href="home.html">Home</div>
+      <div class="navtab item" data-label="Live TV">Live TV</div>
+      <div class="navtab item" data-label="Movie">Movie</div>
+      <div class="navtab item" data-label="Sport" data-href="sport.html">Sport</div>
+      <div class="navtab item" data-label="My List">My List</div>
+      <div class="navtab item active" data-label="Store">Store</div>
+    </div>
+  </nav>
+  <div id="toast"></div>
+</div></div>
+
+<script>
+(function(){
+  // ---- fit the 1920x1080 screen into the window ----
+  var frame = document.getElementById('frame'), screen = document.getElementById('screen');
+  function fit(){
+    var k = Math.min(innerWidth / 1920, innerHeight / 1080);
+    frame.style.width = 1920 * k + 'px'; frame.style.height = 1080 * k + 'px';
+    frame.style.marginLeft = -960 * k + 'px'; frame.style.marginTop = -540 * k + 'px';
+    screen.style.transform = 'scale(' + k + ')';
+  }
+  addEventListener('resize', fit); fit();
+
+  function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  function attrs(o){ return Object.keys(o).filter(function(k){ return o[k] != null; }).map(function(k){ return ' data-' + k + '="' + esc(o[k]) + '"'; }).join(''); }
+
+  /* ---------- content ----------
+     Artwork is Figma's own; every other card keeps Figma's placeholder (ph) and speaks with Figma's placeholder text. */
+  var SA = 'store-assets/';
+  var LOREM = 'Lorem Ipsum is simply dummy text of the printing and setting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since 1966, when Lorem Ipsum hassasdfasdf Lorem Ipsum is simply dummy text of the printing and setting industry. Lorem Ipsum has been';
+  // a placeholder package, as Figma's hero shows it
+  function ph(badge){ return { badge:badge, t:'Package Title', price:199, per:'Month', tags:['Monthly', 'Recurring'], d:LOREM }; }
+  // art: how the card shows its picture; hero: the picture behind the hero (a logo on black keeps Figma's placeholder hero)
+  var ULTIMATE = { badge:'Recommend', dark:1, t:'PLAY ULTIMATE', price:999, per:'Month', tags:['Monthly', 'Recurring', 'Recommend'],
+    d:'Netflix, HBO Max, Disney+ Hotstar, iQIYI, oneD and WeTV in one package, with AIS PLAY Premium channels and live sport. Watch on your TV, phone and tablet.',
+    art:{ img:SA + 'foryou-play-ultimate.png', crop:'height:123.75%;left:-60%;top:-17.17%;width:220%' }, hero:SA + 'hero-play-ultimate.png', pkg:1 };
+  var NETFLIX_7D = { badge:'Recommend', t:'Netflix Mobile 7 Days', price:99, per:'7 days', tags:['7 Days', 'One-time'],
+    d:'Netflix on your phone and tablet for 7 days, charged once to your AIS bill. Series, films and anime, with no recurring charge.',
+    art:{ logo:SA + 'netflix-playbox.png', price:{ img:SA + 'netflix-price-99-7days.png', at:'height:17.12%;left:12.97%;top:76.18%;width:74.08%' } }, pkg:1 };
+  var ROWS = {
+    foryou:[ ULTIMATE,
+      { badge:'Best Seller', dark:1, t:'PLAY ALL Asian Games', price:199, per:'Month', tags:['Monthly', 'Recurring', 'Best Seller'],
+        d:'Every sport of the Asian Games live on AIS PLAY, with Thai commentary, replays and daily highlights, plus the PLAY ALL sports channels.',
+        art:{ img:SA + 'foryou-asian-games.png' }, pkg:1 },
+      { badge:'New Release', dark:1, t:'PLAY PREMIUM PLUS', price:99, per:'Month', tags:['Monthly', 'Recurring', 'New Release'],
+        d:'Supergirl and the newest HBO Max originals, with five more apps in one package: HBO Max, Disney+ Hotstar, iQIYI, oneD and AIS PLAY.',
+        art:{ img:SA + 'foryou-supergirl.png' }, pkg:1 },
+      { badge:'Flash Sale', timer:12 * 3600 + 23 * 60 + 2, dark:1, t:'Prime Video 3 Months', price:149, per:'3 Months', tags:['3 Months', 'Flash Sale'],
+        d:'Three months of Prime Video for 149 baht, then 149 baht a month. Amazon Originals, blockbuster films and live sport.',
+        art:{ img:SA + 'foryou-prime.png', crop:'height:100%;left:-71.97%;top:0;width:177.78%' }, hero:SA + 'foryou-prime.png', pkg:1 },
+      Object.assign(ph('Flash Sale'), { timer:43 * 3600 + 14 * 60 + 38 }), ph(), ph()],
+    highlight:[
+      { t:'AIS PLAY Asian Games Pass', price:199, per:'Month', tags:['Monthly', 'Recurring'],
+        d:'The Asian Games in full on AIS PLAY: every venue live, the medal moments, and replays on demand, on every screen.',
+        art:{ img:SA + 'highlight-asian-games.png' }, pkg:1 },
+      ph(), ph(), ph(), ph()],
+    sports:[
+      { badge:'Recommend', t:'PLAY ALL', price:299, per:'Month', tags:['Monthly', 'Recurring', 'Recommend'],
+        d:'All the sport on AIS PLAY in one package: Premier League, Bundesliga, Formula 1, NBA and the AIS PLAY Sports channels.',
+        art:{ logo:SA + 'sports-playall.png' }, pkg:1 },
+      { t:'MONOMAX Sports', price:199, per:'Month', tags:['Monthly', 'Recurring'],
+        d:'Premier League and more sport on the MONOMAX app, for AIS customers. Every match live, with replays and highlights.',
+        art:{ img:SA + 'sports-monomax.png' }, pkg:1 },
+      ph(), ph(), ph(), ph(), ph()],
+    movies:[ NETFLIX_7D,
+      { t:'Netflix Mobile Monthly', price:199, per:'Month', tags:['Monthly', 'Recurring'],
+        d:'Netflix on your phone and tablet every month, billed to your AIS account. Cancel at any time.',
+        art:{ logo:SA + 'netflix-playbox.png', price:{ img:SA + 'netflix-price-199-month.png', at:'height:17.46%;left:7.3%;top:74.06%;width:85.2%' } }, pkg:1 },
+      { t:'Netflix Standard', price:349, per:'Month', tags:['Monthly', 'Recurring'],
+        d:'Netflix in Full HD on two screens at a time, on your TV and every other device, billed to your AIS account.',
+        art:{ logo:SA + 'netflix-playbox.png' }, pkg:1 },
+      ph(), ph(), ph(), ph()],
+    short:[ph('Recommend'), ph(), ph(), ph(), ph(), ph(), ph()],
+    value:[ph('Best Saver'), ph(), ph(), ph(), ph(), ph(), ph()]
+  };
+  var TABS = {
+    sports:['Recommend', 'Football', 'NBA', 'Premier League', 'RWS'],
+    movies:['Recommend', 'Netflix', 'HBO Max', 'Disney+', 'iQIYI', 'MONOMAX'],
+    short:['Recommend', 'ReelShort', 'DramaBox'],
+    value:['< 100 baht Enjoy Asia Movies & Shorts', '< 100 baht Sports Lover', '300 - 500 baht Enjoy Movies & Sports', 'Asian Games']
+  };
+  var EVENTS = [
+    { kind:'vod', t:'Content Title', price:199 },
+    { kind:'upcoming', t:'Content Title', price:199, when:'Today 20:30 PM' },
+    { kind:'live', t:'Content Title', price:199, time:'20:00 – 22:15' },
+    {}, {}
+  ];
+  var EVENT_SYN = 'Package Description Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed bibendum, ex id condimentum egestas, libero velit consectetur purus, ut tristique turpis elit eu diam. Curabitur lobortis ligula purus, sed molestie eros sagittis quis. Suspendisse potenti. Aenean';
+  var RENTALS = [{ badge:'Recommend', price:199 }, { badge:'Best Seller', price:149 }, { price:99 }, { price:99 }, { price:129 }, { price:149 }, { price:99 }, { price:79 }, { price:99 }, { price:149 }, { price:199 }];
+  var BUYS = [{ badge:'Recommend', price:399 }, { badge:'Best Seller', price:349 }, { price:299 }, { price:299 }, { price:349 }, { price:399 }, { price:249 }, { price:299 }, { price:349 }, { price:299 }, { price:399 }];
+  var ONETIME = [NETFLIX_7D, ph(), ph(), ph(), ph(), ph(), ph(), ph()];
+  var OTHERS = [
+    { t:'Smart Soundbar', price:250, per:'Month', tags:['24 Months', 'Add-on'], art:{ img:SA + 'banner-soundbar.png', pos:'left center' },
+      d:'An Android TV soundbar with Dolby Vision and Atmos, with HBO Max, karaoke and PLAY ALL included. 250 baht a month for 24 months.' },
+    { t:'AIS Cloud PC', price:199, per:'Month', tags:['Monthly', 'Add-on'], art:{ img:SA + 'others-cloud-pc.png' },
+      d:'A Windows PC in the cloud that you can open on your TV, laptop or phone.' },
+    ph(), ph(), ph(), ph(), ph(), ph(), ph(), ph(), ph(), ph()];
+  var SUBS = [
+    { t:'PLAY PREMIUM PLUS Monthly', kind:'Main', s:'Valid until 15 Jan 2027' },
+    { t:'Netflix UHD Monthly', kind:'Entertain', s:'Recurring on 20th every month' },
+    { t:'Netflix UHD Monthly', kind:'Entertain', s:'Recurring on 20th every month' }
+  ];
+  var SHORTCUTS = [{ s:'3 Subscriptions', t:'Manage Subscription' }, { s:'12 Questions', t:'FAQS' }, { s:'Call or scan', t:'Customer Support' }];
+  var FAQS = [
+    { q:'How do I activate my package?', a:'Pick a package in the Store and choose Subscribe. Pay with your AIS bill or a card; the package works on this TV straight away and on your other devices once you sign in.', open:1 },
+    { q:'How do I cancel a subscription?', a:'Open My Subscription, choose the package and select Cancel. You can keep watching until the end of the period you have paid for.' },
+    { q:'How long can I watch a rental?', a:'You have 30 days to start a rental, and 48 hours to finish it once you press Play.' }
+  ];
+
+  /* ---------- markup ---------- */
+  var RATIO_SM = '<div class="ratio"><img src="sport-assets/ratio-icon.svg" alt=""><span>1:1</span></div>';
+  function vat(p){ return (Math.round(p * 107) / 100).toLocaleString('en-US', { minimumFractionDigits:2 }); }
+  function hms(s){ return [Math.floor(s / 3600), Math.floor(s / 60) % 60, s % 60].map(function(n){ return (n < 10 ? '0' : '') + n; }).join(':'); }
+  function badgeHtml(it){
+    if(!it.badge) return '';
+    return '<div class="badges"><span class="bdg' + (it.dark ? ' dark' : '') + '"' + (it.timer ? ' data-timer="' + it.timer + '"' : '') + '>' +
+      esc(it.badge + (it.timer ? ' ' + hms(it.timer) : '')) + '</span></div>';
+  }
+  function sqPic(it){
+    var a = it.art;
+    if(!a) return '<div class="pic ph-bg">' + RATIO_SM + '</div>';
+    if(a.logo) return '<div class="pic black contain" style="background-image:url(\'' + a.logo + '\')">' +
+      (a.price ? '<img src="' + a.price.img + '" alt="" style="' + a.price.at + '">' : '') + '</div>';
+    if(a.crop) return '<div class="pic ph-bg"><img src="' + a.img + '" alt="" style="' + a.crop + '"></div>';
+    return '<div class="pic" style="background-image:url(\'' + a.img + '\')' + (a.pos ? ';background-position:' + a.pos : '') + '"></div>';
+  }
+  function sqCard(it, set, i){
+    var ring = it.art ? (it.art.logo ? 'url(\'' + it.art.logo + '\')' : null) : '';
+    return '<div class="sq item"' + attrs({ kind:'pkg', set:set, i:i, 'ring-art':ring }) + '>' + sqPic(it) + badgeHtml(it) + '</div>';
+  }
+  function viewAll(set){ return '<div class="viewall item"' + attrs({ kind:'viewall', set:set }) + ' data-ring-art="">View All</div>'; }
+  function cardsHtml(key, list, more){ return list.map(function(it, i){ return sqCard(it, key, i); }).join('') + (more ? viewAll(key) : ''); }
+  function chipHtml(t, i){
+    return '<div class="chip item' + (i ? '' : ' on') + '"' + attrs({ kind:'tab', i:i }) + ' data-ring-art="">' +
+      '<img src="' + (i ? 'sport-assets/chip-icon.png' : SA + 'chip-recommend.svg') + '" alt="">' + esc(t) + '</div>';
+  }
+  function eventCard(e, i){
+    var tall = '<div class="tall ph-bg" style="position:absolute;inset:0"><div class="ratio big huge"><img src="' + SA + 'image-icon-60.svg" alt=""><span>2:3</span></div></div>';
+    if(!e.kind) return '<div class="ev item"' + attrs({ kind:'event', i:i }) + '>' + tall + '</div>';
+    var top = e.kind === 'live' ? '<span class="bdg live">LIVE</span>' : e.kind === 'upcoming' ? '<span class="bdg dark">' + esc(e.when) + '</span>' : '';
+    var meta = e.kind === 'vod'
+      ? '<span class="b plat">Platform</span><strong>Genres · Genres</strong><span>2026</span><span>2h 15m</span><span class="pill sm">16+</span><span class="pill sm">HD</span>'
+      : '<span class="b"><img src="sport-assets/crown.svg" alt="">Premium</span><span class="logo"></span><span>Channel 111: AISPLAY 111</span>' +
+        (e.time ? '<span class="pill">' + e.time + '</span>' : '') + '<span class="pill sm">HD</span>';
+    return '<div class="ev item"' + attrs({ kind:'event', i:i }) + '>' + tall +
+      '<div class="wide ph-bg" style="position:absolute;inset:0"><div class="ratio row huge" style="top:46%"><img src="' + SA + 'image-icon-46.svg" alt=""><span>16:9</span></div>' +
+      '<div class="scrim"></div><div class="top">' + top + '</div>' +
+      '<div class="info"><h3>' + esc(e.t) + '</h3><div class="cost"><b>' + e.price + ' baht</b><span>(VAT Included: ' + vat(e.price) + ' baht)</span></div>' +
+      '<div class="meta">' + meta + '</div><p class="syn">' + EVENT_SYN + '</p></div></div></div>';
+  }
+  function posterCard(p, set, i){
+    return '<div class="pst item"' + attrs({ kind:set, i:i }) + '><div class="pic ph-bg"><div class="ratio big"><img src="' + SA + 'ratio-icon-36.svg" alt=""><span>2:3</span></div></div>' +
+      badgeHtml(p) + '<div class="cost">' + p.price + ' ฿</div></div>';
+  }
+  function railSec(key, title, inner, cls){
+    return '<section class="sec' + (cls ? ' ' + cls : '') + '" data-sec="' + key + '"><h2 class="sec-title">' + title + '</h2><div class="rail"><div class="track">' + inner + '</div></div></section>';
+  }
+  function catSec(key, title, more){
+    return '<section class="sec cat" data-sec="' + key + '"><h2 class="sec-title">' + title + '</h2>' +
+      '<div class="tabs" data-row="' + key + '-tabs">' + TABS[key].map(chipHtml).join('') + '</div>' +
+      '<div class="rail"><div class="track" data-row="' + key + '">' + cardsHtml(key, ROWS[key], more) + '</div></div></section>';
+  }
+  var html = '';
+  html += railSec('foryou', 'For You', cardsHtml('foryou', ROWS.foryou, true));
+  html += '<section class="sec gene" data-sec="highlight"><h2 class="sec-title">Highlight you shouldn’t misss</h2><div class="rail"><div class="track">' + cardsHtml('highlight', ROWS.highlight) + '</div></div></section>';
+  html += catSec('sports', 'Sports', true);
+  html += catSec('movies', 'Movies', true);
+  html += catSec('short', 'Short Series');
+  html += catSec('value', 'Great Value');
+  html += railSec('event', 'PPV Event', EVENTS.map(eventCard).join(''));
+  html += railSec('rent', 'Rentals', RENTALS.map(function(p, i){ return posterCard(p, 'rent', i); }).join('') + viewAll('rent'), 'rent');
+  html += railSec('buy', 'Buy', BUYS.map(function(p, i){ return posterCard(p, 'buy', i); }).join('') + viewAll('buy'), 'rent');
+  html += railSec('onetime', 'One Time Package', cardsHtml('onetime', ONETIME));
+  html += railSec('others', 'Others', cardsHtml('others', OTHERS));
+  html += '<section class="sec" data-sec="banner"><div class="banner item" data-kind="banner" data-label="Smart Soundbar"><div class="dots">' +
+    [0, 1, 2, 3, 4, 5, 6, 7].map(function(i){ return '<i' + (i === 2 ? ' class="on"' : '') + '></i>'; }).join('') + '</div></div></section>';
+  html += '<section class="sec" data-sec="mysub"><div class="mysub"><div class="head"><h2 class="sec-title">My Subscription</h2><div class="subs">' + SUBS.map(function(s){
+    return '<div class="sub' + (s.kind === 'Main' ? ' main' : '') + '"><div class="pic ph-bg">' + RATIO_SM + '</div><div class="txt"><b>' + esc(s.t) + '</b><span>' + esc(s.s) + '</span><em class="kind">' + s.kind + '</em></div></div>';
+  }).join('') + '</div></div><div class="btn item" data-kind="manage" data-label="Manage Subscription" data-ring-art="">Manage Subscription</div></div></section>';
+  html += '<section class="sec" data-sec="shortcuts"><div class="shorts">' + SHORTCUTS.map(function(s, i){
+    return '<div class="short item"' + attrs({ kind:'shortcut', i:i, label:s.t }) + ' data-ring-art=""><span>' + esc(s.s) + '</span><b>' + esc(s.t) + '</b></div>';
+  }).join('') + '</div></section>';
+  html += '<section class="sec" data-sec="faq"><div class="faq"><div class="qrpanel"><div class="hd"><img src="' + SA + 'help.svg" alt="">FAQs</div>' +
+    '<div class="qr"><img class="code" src="' + SA + 'qr-myais.png" alt=""><img class="lg" src="' + SA + 'myais-logo.png" alt=""></div>' +
+    '<div><div class="t">View all FAQs on your phone</div><div class="s">Scan with your phone camera</div></div></div>' +
+    '<div class="acc">' + FAQS.map(function(f, i){
+      return '<div class="q item' + (f.open ? ' open' : '') + '"' + attrs({ kind:'faq', i:i, row:'faq' + i }) + ' data-ring-art=""><div class="qh">' + esc(f.q) + '<i></i></div>' +
+        '<div class="qa"><div class="thumb ph-bg"><div class="ratio row"><img src="sport-assets/ratio-icon.svg" alt=""><span>16:9</span></div></div><p>' + esc(f.a) + '</p></div></div>';
+    }).join('') + '</div></div></section>';
+  html += '<section class="sec support" data-sec="support"><div class="hd"><img src="' + SA + 'headset.svg" alt="">Customer Support</div><div class="cols">' +
+    '<div><div class="h"><img src="' + SA + 'phone.svg" alt="">Customer service team</div><ul>' +
+      '<li>Dial <b>1175</b> to speak directly with AIS customer support team.</li><li>Dial <b>1530</b> to speak directly with 3BB customer support team.</li></ul></div>' +
+    '<div><div class="h"><img src="' + SA + 'globe.svg" alt="">myAIS Website</div><div>Scan the QR code to access support through the website</div>' +
+      '<div class="qr"><img class="code" src="' + SA + 'qr-myais.png" alt=""><img class="lg" src="' + SA + 'myais-logo.png" alt=""></div></div></div></section>';
+  html += '<section class="sec totop" data-sec="totop"><div class="btn item" data-kind="totop" data-ring-art=""><img src="' + SA + 'arrow-up.svg" alt="">Back to Top</div></section>';
+  var page = document.getElementById('page');
+  page.innerHTML = html;
+  function paintFaqSigns(){ page.querySelectorAll('.q').forEach(function(q){ q.querySelector('.qh i').textContent = q.classList.contains('open') ? '−' : '+'; }); }
+  paintFaqSigns();
+
+  /* ---------- focus rows: the top bar, then each rail (a tab bar is a row of its own; each question is one) ---------- */
+  var $ = function(q, root){ return Array.prototype.slice.call((root || document).querySelectorAll(q)); };
+  var secs = $('.sec', page);
+  var rows = [{ items:$('.topnav .item') }];
+  secs.forEach(function(s){
+    var key = s.dataset.sec;
+    if(key === 'support') return;
+    if(s.classList.contains('cat')){
+      rows.push({ sec:s, key:key + '-tabs', set:key, tabs:1, items:$('.chip', s) });
+      rows.push({ sec:s, key:key, set:key, items:$('.track .item', s) });
+    } else if(key === 'faq'){
+      $('.q', s).forEach(function(q){ rows.push({ sec:s, key:q.dataset.row, items:[q] }); });
+    } else rows.push({ sec:s, key:key, set:key, items:$('.item', s) });
+  });
+  var R = {}; rows.forEach(function(r, i){ if(r.key) R[r.key] = i; });
+  var NAV_STORE = rows[0].items.indexOf(document.querySelector('.navtab.active'));
+  var cur = { row:R.foryou, col:rows.map(function(){ return 0; }), tab:{ sports:0, movies:0, short:0, value:0 }, from:0 };
+  cur.col[0] = NAV_STORE;
+  var DYNAMIC_END = R.value;   // For You to Great Value keep the hero (dynamic background)
+  var HERO_Y = 600, STATIC_Y = 200;
+
+  // ---- the hero speaks for the focused package ----
+  var heroEl = document.querySelector('.hero'), heroBg = document.querySelector('.hero-bg'), heroKey = '';
+  var arts = $('.hero-bg .art'), artFront = 0, artCur = null;
+  function setArt(src){
+    heroBg.classList.toggle('has-art', !!src);
+    if((src || null) === artCur) return;
+    artCur = src || null;
+    arts[artFront].classList.remove('on');
+    artFront = 1 - artFront;
+    if(src){ arts[artFront].style.backgroundImage = 'url(\'' + src + '\')'; arts[artFront].classList.add('on'); }
+  }
+  // the list a tab bar is showing: the picked tab's packages (Recommend), Figma's placeholders on the others
+  function listOf(set){
+    if(cur.tab[set] === undefined || !cur.tab[set]) return ROWS[set];
+    return ROWS[set].map(function(_, i){ return ph(i ? null : 'Recommend'); });
+  }
+  function paintHero(r){
+    var set = r.set, cards = rows[R[set]];
+    var it = listOf(set)[cur.col[R[set]]];   // a tab bar shows the package its rail is on
+    if(!it || cards.items[cur.col[R[set]]].dataset.kind === 'viewall') it = listOf(set)[0];
+    var key = it.t + it.price + it.per + (it.d || '');
+    if(key !== heroKey){
+      heroKey = key;
+      heroEl.querySelector('.tags').innerHTML = it.tags.map(function(t){ return '<span class="tag">' + esc(t) + '</span>'; }).join('');
+      heroEl.querySelector('h1').textContent = it.t;
+      heroEl.querySelector('.price b').textContent = it.price + ' baht / ' + it.per;
+      heroEl.querySelector('.price span').textContent = '(VAT Included: ' + vat(it.price) + ' baht)';
+      heroEl.querySelector('.desc').textContent = it.d;
+      heroEl.classList.remove('swap'); void heroEl.offsetWidth; heroEl.classList.add('swap');
+    }
+    setArt(it.hero || (it.art && it.art.img) || null);
+  }
+
+  // ---- keep the focused item in view ----
+  // Sideways (Home's "fixed focus"): the focused item sits in the first item's slot and the rail slides under it,
+  // until the rail's end is in. Every item before the chosen one is at its resting size, so the slot is a sum.
+  function slide(r, el){
+    if(!r.set || r.key === 'banner' || r.key === 'mysub' || r.key === 'shortcuts' || r.key === 'totop') return;
+    var track = el.parentElement, i = r.items.indexOf(el), want = 0;
+    for(var k = 0; k < i; k++) want += r.items[k].offsetWidth + (r.tabs ? 24 : 32);
+    var max = Math.max(0, track.scrollWidth - 1920);
+    track.style.transform = 'translateX(' + -Math.max(0, Math.min(want, max)) + 'px)';
+  }
+  function layout(ri){
+    var r = rows[ri], top = r.sec.offsetTop, y;
+    if(ri <= DYNAMIC_END) y = top - HERO_Y;
+    else {
+      if(r.key.indexOf('faq') === 0) top += Math.max(0, r.items[0].offsetTop - 40);
+      y = Math.min(top - STATIC_Y, page.offsetHeight - 1080);
+    }
+    page.style.transform = 'translateY(' + -Math.max(0, y) + 'px)';
+    secs.forEach(function(s){ s.classList.toggle('above', s.offsetTop < r.sec.offsetTop); });
+    document.body.classList.toggle('static', ri > DYNAMIC_END);
+  }
+  // the chosen card of PPV Event, Rentals and Buy stays open when focus leaves the rail
+  function markChosen(){
+    ['event', 'rent', 'buy'].forEach(function(k){ var r = rows[R[k]]; r.items.forEach(function(el, ci){ el.classList.toggle('sel', ci === cur.col[R[k]] && el.dataset.kind !== 'viewall'); }); });
+  }
+
+  function paint(){
+    rows.forEach(function(r, ri){ r.items.forEach(function(el, ci){ el.classList.toggle('focused', ri === cur.row && ci === cur.col[ri]); }); });
+    markChosen();
+    var ri = cur.row === 0 ? cur.from : cur.row;   // on the top bar the page stays as it was
+    document.body.classList.toggle('on-nav', cur.row === 0);
+    layout(ri);
+    var r = rows[ri];
+    if(cur.row) slide(r, r.items[cur.col[ri]]);
+    if(ri <= DYNAMIC_END) paintHero(r);
+    try { sessionStorage.setItem('storeFocus', JSON.stringify(cur)); } catch(e){}
+  }
+
+  // a tab picked: its packages in the rail, focus back on the rail's first slot
+  function pickTab(set, i){
+    if(cur.tab[set] === i) return;
+    cur.tab[set] = i;
+    var tr = rows[R[set + '-tabs']];
+    tr.items.forEach(function(c, ci){ c.classList.toggle('on', ci === i); });
+    var track = rows[R[set]].sec.querySelector('.track');
+    track.innerHTML = cardsHtml(set, listOf(set), set !== 'short' && set !== 'value');
+    track.style.transform = '';
+    rows[R[set]].items = $('.item', track);
+    rows[R[set]].items.forEach(bindClick(R[set]));
+    cur.col[R[set]] = 0;
+  }
+
+  /* ---------- actions ---------- */
+  var toastEl = document.getElementById('toast'), toastT;
+  function toast(msg){ toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove('on'); }, 1600); }
+  // leaving for the package page: its Back lands on the same card here
+  function leave(url){ try { sessionStorage.setItem('storeReturn', '1'); } catch(e){} location.href = url; }
+  function select(el){
+    var k = el.dataset.kind, i = +el.dataset.i;
+    el.animate([{ transform:'none' }, { transform:'scale(0.97)' }], { duration:140, easing:'ease-out' });
+    if(el.dataset.href){ location.href = el.dataset.href; return; }
+    if(k === 'pkg'){
+      var set = el.dataset.set, it = (set === 'onetime' ? ONETIME : set === 'others' ? OTHERS : listOf(set))[i];
+      if(it.pkg) leave('package-detail.html'); else toast(it.t + ' (demo)');
+      return;
+    }
+    if(k === 'tab') return;
+    if(k === 'viewall'){ toast('View All (demo)'); return; }
+    if(k === 'event'){ var e = EVENTS[i]; toast(e.kind === 'live' ? 'Buy this event to watch it live (demo)' : e.kind === 'upcoming' ? 'Buy now and watch at ' + e.when.replace('Today ', '') + ' (demo)' : e.kind ? 'Buy this event (demo)' : 'Event (demo)'); return; }
+    if(k === 'rent' || k === 'buy'){ toast((k === 'rent' ? 'Rent for ' : 'Buy for ') + (k === 'rent' ? RENTALS : BUYS)[i].price + ' ฿ (demo)'); return; }
+    if(k === 'banner'){ leave('package-detail.html'); return; }
+    if(k === 'faq'){ el.classList.toggle('open'); paintFaqSigns(); return; }
+    if(k === 'shortcut' && i === 1){ cur.row = R.faq0; return; }
+    if(k === 'shortcut' && i === 2){ cur.row = R.totop; return; }
+    if(k === 'totop'){ cur.row = R.foryou; cur.col[R.foryou] = 0; return; }
+    toast((el.dataset.label || 'Selected') + ' (demo)');
+  }
+  function back(){
+    if(cur.row > R.foryou){ cur.row = R.foryou; paint(); return; }
+    try { if(document.referrer && /(home|sport)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    location.href = 'home.html';
+  }
+
+  addEventListener('keydown', function(e){
+    var r = rows[cur.row], n = r.items.length, c = cur.col[cur.row], handled = true;
+    if(e.key === 'ArrowRight') cur.col[cur.row] = Math.min(n - 1, c + 1);
+    else if(e.key === 'ArrowLeft'){
+      // Left on a rail's first item goes up to the top bar (its Store tab), as on Home
+      if(cur.row > 0 && c === 0){ cur.from = cur.row; cur.row = 0; cur.col[0] = NAV_STORE; }
+      else cur.col[cur.row] = Math.max(0, c - 1);
+    }
+    else if(e.key === 'ArrowUp'){
+      if(cur.row === R.foryou){ cur.from = cur.row; cur.row = 0; cur.col[0] = NAV_STORE; }
+      else if(cur.row > 0) cur.row--;
+    }
+    else if(e.key === 'ArrowDown'){
+      if(cur.row === 0) cur.row = cur.from || R.foryou;
+      else cur.row = Math.min(rows.length - 1, cur.row + 1);
+    }
+    else if(e.key === 'Enter') select(r.items[c]);
+    else if(e.key === 'Escape' || e.key === 'Backspace'){ back(); e.preventDefault(); return; }
+    else handled = false;
+    if(!handled) return;
+    e.preventDefault();
+    // a tab bar picks the tab it lands on
+    if(rows[cur.row].tabs) pickTab(rows[cur.row].set, cur.col[cur.row]);
+    paint();
+  });
+  function bindClick(ri){
+    return function(el, ci){
+      el.addEventListener('click', function(){
+        ci = rows[ri].items.indexOf(el);
+        if(ri === 0) cur.from = cur.row || cur.from;
+        cur.row = ri; cur.col[ri] = ci;
+        if(rows[ri].tabs) pickTab(rows[ri].set, ci);
+        paint(); select(el); paint();
+      });
+    };
+  }
+  rows.forEach(function(r, ri){ r.items.forEach(bindClick(ri)); });
+
+  // Flash Sale countdowns
+  setInterval(function(){
+    $('[data-timer]', page).forEach(function(b){
+      var s = Math.max(0, +b.dataset.timer - 1);
+      b.dataset.timer = s;
+      b.textContent = 'Flash Sale ' + hms(s);
+    });
+    ROWS.foryou.forEach(function(it){ if(it.timer) it.timer = Math.max(0, it.timer - 1); });
+  }, 1000);
+
+  // coming back (Back from the package page): the same card again
+  try {
+    var saved = sessionStorage.getItem('storeReturn') && JSON.parse(sessionStorage.getItem('storeFocus') || 'null');
+    sessionStorage.removeItem('storeReturn');
+    if(saved && saved.col && saved.col.length === rows.length && saved.tab){
+      Object.keys(saved.tab).forEach(function(set){ pickTab(set, saved.tab[set]); });
+      cur.col = saved.col; cur.row = saved.row; cur.from = saved.from;
+      if(cur.row === 0) cur.row = cur.from || R.foryou;
+    }
+  } catch(e){}
+  if(!cur.from) cur.from = R.foryou;
+  page.style.transition = 'none';
+  paint();
+  // fonts change the rows' heights: lay out again once they are in, then let the page glide
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(function(){ paint(); requestAnimationFrame(function(){ page.style.transition = ''; }); });
+})();
+</script>
+<script src="focus-ring.js"></script>
+</body>
+</html>

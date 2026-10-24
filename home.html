@@ -751,7 +751,7 @@
       <div class="navtab item" data-label="Movie">Movie</div>
       <div class="navtab item" data-label="Sport" data-href="sport.html">Sport</div>
       <div class="navtab item" data-label="My List">My List</div>
-      <div class="navtab item" data-label="Store">Store</div>
+      <div class="navtab item" data-label="Store" data-href="store.html">Store</div>
     </div>
   </nav>
 
@@ -1500,7 +1500,7 @@
   (function(){
     var chips = ['Manage Subscription', 'Store', 'My Rental', 'FAQs', 'Setting'];
     addRow('<div class="row-block quick-row"><div class="row-title">Quick Access</div><div class="rail-viewport"><div class="rail-track">'+
-      chips.map(function(c){ return '<div class="quick-chip item" data-title="'+c+'" data-ring-art=""><span>'+c+'</span></div>'; }).join('')+
+      chips.map(function(c){ return '<div class="quick-chip item" data-title="'+c+'"'+(c === 'Store' ? ' data-href="store.html"' : '')+' data-ring-art=""><span>'+c+'</span></div>'; }).join('')+
     '</div></div></div>');
     MOBILE_ROWS.push({title:'Quick Access', type:'chip', items: chips.map(function(c){ return {t:c}; })});
   })();

@@ -326,9 +326,13 @@
     var plan = document.querySelector('.price.selected .amt').textContent;
     toast(el.dataset.label + ' · ' + plan + ' (demo)');
   }
+  // opened from the Store (store.html, which leaves its storeReturn flag; file:// pages get no referrer), Back and a
+  // finished purchase return there; otherwise to District 9's packages
+  var FROM_STORE = /store\.html/.test(document.referrer || '');
+  try { FROM_STORE = FROM_STORE || !!sessionStorage.getItem('storeReturn'); } catch(e){}
   function back(){
-    try { if(document.referrer && /movie-detail\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
-    location.href = 'movie-detail.html#packages';
+    try { if(document.referrer && /(movie-detail|store)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    location.href = FROM_STORE ? 'store.html' : 'movie-detail.html#packages';
   }
   // ---- Confirm Subscribe popup ----
   // Opens on Charge to AIS Bill. "I Agree and Confirm" stays disabled until the terms are read to the bottom
@@ -444,6 +448,7 @@
   oBtns.forEach(function(bt, i){ bt.addEventListener('click', function(){ oF = { area: 'btns', k: 0, b: i }; otpPaint(); otpAct(bt.dataset.o); }); });
   // success popup closed: back to the District 9 page, now subscribed (its main button becomes Play)
   function finishPurchase(){
+    if(FROM_STORE){ location.href = 'store.html'; return; }
     location.href = 'movie-detail.html?subscribed=1';
   }
   document.querySelector('.okd').addEventListener('click', finishPurchase);
