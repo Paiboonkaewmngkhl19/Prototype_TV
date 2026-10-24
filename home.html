@@ -364,7 +364,7 @@
   .epg-heart{position:absolute;right:16px;top:16px;}
   /* the heart takes the accent colour: the svg is only the shape (a mask), filled with --th-b */
   .epg-heart img{width:24px;height:24px;display:block;object-position:-9999px 0;
-    background:var(--th-b);-webkit-mask:url('icons/epg/heart.svg') center / contain no-repeat;mask:url('icons/epg/heart.svg') center / contain no-repeat;}
+    background:var(--th-b);-webkit-mask:url('icons/tv-guide/heart-fill.svg') center / contain no-repeat;mask:url('icons/tv-guide/heart-fill.svg') center / contain no-repeat;}   /* filled, as a favourite shows in the TV Guide and the player */
   .epg-next{background:#525252;padding:20px 18px;display:flex;flex-direction:column;gap:6px;flex:1;}   /* fills the card to its bottom edge (the rail stretches cards to 280px) */
 
   /* hot channels (Figma PLAY-player "Hot channel", 1312:50479): a 190 x 262 frosted card per channel with a 112px round
@@ -378,7 +378,7 @@
   .chan-card .chan-name{width:100%;font-size:24px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .chan-card .chan-meta{display:flex;align-items:center;gap:16px;margin-top:12px;}
   .chan-card .chan-meta img{width:20px;height:20px;display:block;}
-  .chan-card .chan-no{height:32px;min-width:40px;box-sizing:border-box;padding:0 12px;border-radius:8px;background:#0a0a0a;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:500;}
+  .chan-card .chan-no{height:32px;min-width:40px;box-sizing:border-box;padding:0 12px;border-radius:8px;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600;}   /* the TV Guide's number chip */
   .chan-avatar{position:relative;width:112px;height:112px;border-radius:56px;flex:0 0 auto;}
   .chan-disc{position:absolute;inset:0;border-radius:50%;overflow:hidden;}
   .chan-disc img{position:absolute;display:block;max-width:none;}
@@ -1026,12 +1026,14 @@
   (function(){
     // Figma "TV guide": channel logo, programme now (with progress) and next
     var items = [
-      {logo:'mutv.png', round:true, title:'PL Match: v Chelsea (A) 25/26', now:'Started at 6:30 PM', next:'Inside United', nextTime:'Start in 7:30 PM', heart:true},
-      {logo:'cnn.jpg', round:true, title:'CNN News Central', now:'Started at 6:30 PM', next:'Anderson Cooper 360°', nextTime:'Start in 7:30 PM', heart:true},
-      {logo:'realmadrid.png', title:'Champions League 15/16: Real Madrid vs Atlético de Madrid (11th) La Undécima', now:'Started at 6:30 PM', next:'Classic Highlights', nextTime:'Start in 7:30 PM'},
-      {logo:'bbc.jpg', round:true, title:'BBC News at Ten', now:'Started at 6:30 PM', next:'HARDtalk', nextTime:'Start in 7:30 PM'},
-      {logo:'wsport.png', contain:true, title:'Malaysia Regional Cup \'26: Wildcats v Sneakers', now:'Started at 6:30 PM', next:'Heroines (S2): Heroines (S2E02)', nextTime:'Start in 7:30 PM'}
+      {ch:'MUTV', logo:'mutv.png', round:true, title:'PL Match: v Chelsea (A) 25/26', now:'Started at 6:30 PM', next:'Inside United', nextTime:'Start in 7:30 PM', heart:true},
+      {ch:'CNN', logo:'cnn.jpg', round:true, title:'CNN News Central', now:'Started at 6:30 PM', next:'Anderson Cooper 360°', nextTime:'Start in 7:30 PM', heart:true},
+      {ch:'Real Madrid TV', logo:'realmadrid.png', title:'Champions League 15/16: Real Madrid vs Atlético de Madrid (11th) La Undécima', now:'Started at 6:30 PM', next:'Classic Highlights', nextTime:'Start in 7:30 PM'},
+      {ch:'BBC News', logo:'bbc.jpg', round:true, title:'BBC News at Ten', now:'Started at 6:30 PM', next:'HARDtalk', nextTime:'Start in 7:30 PM'},
+      {ch:'W-Sport', logo:'wsport.png', contain:true, title:'Malaysia Regional Cup \'26: Wildcats v Sneakers', now:'Started at 6:30 PM', next:'Heroines (S2): Heroines (S2E02)', nextTime:'Start in 7:30 PM'}
     ];
+    // favourites changed this session in the TV Guide or the player (tvFavs, by channel name) win over the built-in hearts
+    try { var FAVS = JSON.parse(sessionStorage.getItem('tvFavs') || 'null'); if(FAVS) items.forEach(function(it){ if(it.ch in FAVS) it.heart = FAVS[it.ch]; }); } catch(e){}
     var epgCards = items.map(function(it,i){
       return '<div class="epg-card item" data-title="'+it.title+'">'+
         '<div class="epg-now">'+
@@ -1089,7 +1091,7 @@
           (c.tag ? '<span class="chan-live chan-tag-'+c.tag+'">'+(c.tag === 'hot' ? 'HOT' : 'NEW')+'</span>' : '')+
         '</div></div>'+
         '<div class="chan-name">'+c.n+'</div>'+
-        '<div class="chan-meta">'+(c.pr ? '<img src="icons/crown-gold.svg" alt="Premium">' : '')+'<span class="chan-no">'+c.no+'</span></div>'+
+        '<div class="chan-meta">'+(c.pr ? '<img src="icons/tv-guide/crown-s.svg" alt="Premium">' : '')+'<span class="chan-no">'+c.no+'</span></div>'+
       '</div>';
     }).join('');
     addRow('<div class="row-block channel-row"><div class="row-title">Hot Channels</div><div class="rail-viewport"><div class="rail-track">'+html+'</div></div></div>');

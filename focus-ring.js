@@ -66,6 +66,12 @@
   // concentric with it. A scroller that is still on its way (pages mark the target with data-scroll-left-to /
   // data-scroll-top-to) counts as already there, so the ring heads straight for the item's final place, as on Home.
   function rectOf(el){
+    // a page can also say outright where the item will end up (data-ring-rect="x,y,w,h" in #screen px), when the item
+    // is still growing / sliding into a fixed place (the player's mini EPG): the ring goes there and stays put
+    if(el.dataset.ringRect){
+      var q = el.dataset.ringRect.split(',').map(Number), qr = parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0;
+      return { x:q[0] - W, y:q[1] - W, w:q[2] + 2 * W, h:q[3] + 2 * W, r:qr + W };
+    }
     var k = scale(), sr = screen.getBoundingClientRect(), b = el.getBoundingClientRect(), dx = 0, dy = 0;
     for(var n = el.parentElement; n && n !== screen; n = n.parentElement){
       // (a target past the scroller's real end is where the browser will actually stop)

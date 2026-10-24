@@ -217,6 +217,7 @@
     background:rgba(255,255,255,.16); font:400 16px/1.2 var(--noto); letter-spacing:-.24px; color:rgba(255,255,255,.8); white-space:nowrap; }
   .tag img{ width:16px; height:16px; display:block; }
   .tag.live{ background:var(--live); border-color:var(--on-surface); color:#fff; }
+  .tag.watch{ background:#59d478; border-color:var(--on-surface); }   /* the channel the player was showing (View Program Guide from it) */
   .tag.live i{ width:6px; height:6px; border-radius:100px; background:#fff; }
   .tag.watching{ background:#59d478; border-color:var(--on-surface); color:#fff; font-weight:500; }
   /* date separator between days */
@@ -415,12 +416,17 @@
       sched:[['F1 Grand Prix: Qualifying',90,'posters/f1.jpg',1],['F1 Paddock Live',60],['Onboard Classics',60],['F1 Race Replay',120]]}
   ];
   CHANNELS.sort(function(a, b){ return a.no - b.no; });   // lowest channel number first, everywhere
+  // favourites set anywhere this session (here, in the player, shown on Home) override the built-in ones
+  try { var FAVS = JSON.parse(sessionStorage.getItem('tvFavs') || 'null'); if(FAVS) CHANNELS.forEach(function(c){ if(c.n in FAVS) c.fav = FAVS[c.n]; }); } catch(e){}
+  function saveFav(c){ try { var f = JSON.parse(sessionStorage.getItem('tvFavs') || '{}'); f[c.n] = c.fav; sessionStorage.setItem('tvFavs', JSON.stringify(f)); } catch(e){} }
   var CATS = [
     {id:'all', n:'All Channels'}, {id:'recent', n:'Recently Watched'}, {id:'fav', n:'Favorite'}, {id:'exclusive', n:'Exclusive'}, {id:'digital', n:'Digital TV'},
     {id:'sports', n:'Sports', subs:[['all','All Sports'],['multi','Multi-Sports'],['football','Football'],['motorsport','Motorsport'],['golf','Golf'],
       ['basketball','Basketball'],['tennis','Tennis'],['rugby','Rugby'],['boxing','Boxing']]},
     {id:'movies', n:'Movies & Series'}, {id:'news', n:'News'}, {id:'cartoons', n:'Cartoons'}, {id:'variety', n:'Variety'}, {id:'others', n:'Others', subs:[['all','All'],['education','Education'],['documentary','Documentary'],['shopping','Shopping']]}
   ];
+  // opened with View Program Guide from the player: that channel's live card is tagged Watching (this visit only)
+  var WATCHING = ''; try { WATCHING = sessionStorage.getItem('tvWatching') || ''; sessionStorage.removeItem('tvWatching'); } catch(e){}
   var SPORT_CH = ['sports'];   // channels in these categories show a red Live tag for what's on now, others On Air
 
   /* ---------- schedule: each channel repeats its line-up from a per-channel offset, around the real clock ---------- */
@@ -518,6 +524,7 @@
       out += '<span class="tag">Upcoming</span>';
     }
     if(p.hot) out += '<span class="tag"><img src="icons/tv-guide/fire.svg" alt="">Don\'t Miss</span>';
+    if(big && airing && p.ch.n === WATCHING) out += '<span class="tag watch">Watching</span>';
     return out ? '<div class="tags">' + out + '</div>' : '';
   }
   function renderGuide(list){
@@ -850,7 +857,7 @@
         chans: CHANNELS.map(function(x){
           return {n:x.n, no:x.no, excl:!!x.excl, logo:x.logo || '', fit:x.fit || '', box:x.box || null, bg:x.bg || '', txt:x.txt || '', fg:x.fg || '',
             crown:x.crown || '', fav:!!x.fav, recent:!!x.recent, cats:x.cats, live:SPORT_CH.some(function(k){ return x.cats.indexOf(k) >= 0; }),
-            progs:x.progs.filter(function(pr){ return pr.end > t0 && pr.start < t1; }).map(function(pr){ return [pr.t, pr.start.getTime(), pr.end.getTime(), pr.ts ? 1 : 0]; })};
+            progs:x.progs.filter(function(pr){ return pr.end > t0 && pr.start < t1; }).map(function(pr){ return [pr.t, pr.start.getTime(), pr.end.getTime(), pr.ts ? 1 : 0, pr.hot ? 1 : 0]; })};
         })
       }));
     } catch(e){}
@@ -912,7 +919,7 @@
   });
   function toggleFav(c, from){
     hideHint();
-    c.fav = !c.fav;
+    c.fav = !c.fav; saveFav(c);
     toast(c.fav ? 'Added to Favorite: ' + c.n : 'Removed from Favorite: ' + c.n);
     if(S.cat === 'fav'){ render(); resetZones(); paint(); return; }   // the Favorite list itself changed
     $('[data-no="' + c.no + '"] .fav-ic').forEach(function(img){ img.src = 'icons/tv-guide/' + (c.fav ? 'heart-fill.svg' : 'heart.svg'); img.alt = c.fav ? 'Favorite' : ''; });
@@ -971,6 +978,12 @@
   // mouse wheel / trackpad scrolls the page
   document.getElementById('page').addEventListener('wheel', function(e){ this.scrollTop += e.deltaY; e.preventDefault(); }, {passive:false});
 
+  // the hint is set up before the first paint: coming back from the player into the Program Guide paints focus on a
+  // programme straight away, which shows it
+  var hintEl = document.getElementById('hint'), hintT;
+  function hideHint(){ clearTimeout(hintT); hintEl.classList.add('gone'); }
+  var HINT_FAV = 'Press and hold OK to add/remove favorites', HINT_REM = 'Press OK to set/unset reminder';
+  function showHint(msg){ clearTimeout(hintT); document.getElementById('hintText').textContent = msg || HINT_FAV; hintEl.classList.remove('gone'); hintT = setTimeout(hideHint, 2500); }   // on screen for 2.5s
   // ?view=guide opens the Program Guide straight away
   if(/view=guide/.test(location.search)) S.view = 'guide';
   // back from the player: the same view, tab and channel as when it was opened
@@ -1007,15 +1020,11 @@
   }
   paintHead(); render();
   if(ret && !/view=/.test(location.search)){
-    var at = channelsFor().map(function(c){ return c.no; }).indexOf(ret.no);
+    var at = channelsFor().map(function(c){ return ret.n ? c.n : c.no; }).indexOf(ret.n || ret.no);   // by name from the player (Exclusive channels have no number)
     if(at >= 0){ if(S.view === 'channels'){ zone = 'grid'; mem.grid = at; } else { zone = 'guide'; mem.guide = {c:at, r:0}; mem.avatars = at; } }
   }
   paint();
   // first impression: the hint slides in as the page opens and leaves after a few seconds (or once a favourite is set)
-  var hintEl = document.getElementById('hint'), hintT;
-  function hideHint(){ clearTimeout(hintT); hintEl.classList.add('gone'); }
-  var HINT_FAV = 'Press and hold OK to add/remove favorites', HINT_REM = 'Press OK to set/unset reminder';
-  function showHint(msg){ clearTimeout(hintT); document.getElementById('hintText').textContent = msg || HINT_FAV; hintEl.classList.remove('gone'); hintT = setTimeout(hideHint, 2500); }   // on screen for 2.5s
   setTimeout(function(){ showHint(HINT_FAV); }, 400);
 })();
 </script>
