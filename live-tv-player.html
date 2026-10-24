@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Live TV</title>
+<!-- a channel change opens the player with its controls already away (see html.quiet-start) -->
+<script>if(/[?&](quiet|nochan)=/.test(location.search)) document.documentElement.classList.add('quiet-start');</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans:wght@400;500&family=Noto+Sans+Thai:wght@400;500&family=Roboto:wght@700&display=swap" rel="stylesheet">
@@ -21,6 +23,11 @@
     color-scheme:dark;
     --on-surface-variant:#a8a8a8; --inverse-surface:#e8e8e8; --on-inverse-surface:#101010; --outline:#5a5a5a;
     --surface-container-highest:#4a4a4a; --avatar:#404045;
+    /* Home's Default theme (home.html, tv-guide.html): frosted grey glass cards and the white glass pill for the selection */
+    --glass-card:linear-gradient(180deg, rgba(161,161,161,.25), rgba(65,65,65,.25));
+    --glass-card-on:linear-gradient(180deg, rgba(230,230,240,.42), rgba(150,150,165,.34));
+    --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%);
+    --pill-hi:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%);
     --inter:'Inter', system-ui, sans-serif;
     --noto:'Noto Sans', 'Noto Sans Thai', system-ui, sans-serif;
   }
@@ -37,6 +44,11 @@
   body.idle .scrim, body.idle .top, body.idle .seek, body.idle .btns, body.idle .no-preview .cta-row{ opacity:0; }
   .cta-row{ transition:transform .35s cubic-bezier(.2,0,0,1), opacity .35s ease; }
   body.idle .cta-row{ transform:translateY(176px); }
+  /* opened by a channel change: hidden from the very first frame, with no fade (the script below the page makes it idle
+     and then drops this) */
+  html.quiet-start .scrim, html.quiet-start .top, html.quiet-start .seek, html.quiet-start .btns, html.quiet-start .no-preview .cta-row{ opacity:0; }
+  html.quiet-start .cta-row{ transform:translateY(176px); }
+  html.quiet-start *{ transition:none !important; }
   .ui{ pointer-events:none; }   /* clicks go through to the picture (play / pause), except on the controls */
   .ui .item, .ui .play{ pointer-events:auto; }
   .scrim{ position:absolute; inset:0; pointer-events:none;
@@ -157,6 +169,73 @@
   @keyframes flash{ 0%{ opacity:0; transform:scale(.6); } 20%{ opacity:1; transform:scale(1); } 60%{ opacity:1; transform:scale(1.05); } 100%{ opacity:0; transform:scale(1.3); } }
   @media (prefers-reduced-motion: reduce){ .flash.go{ animation:flashFade .7s linear; } @keyframes flashFade{ 0%, 60%{ opacity:1; } 100%{ opacity:0; } } }
 
+  /* ---------- mini EPG (Figma PLAY-epg "Wake mini epg", 3168:169155): Browse Channels, or Left with the controls away.
+     A black-to-clear panel on the left: the category bar (the TV Guide's tabs as icons), the category's name and its
+     channels, the focused one opened up (bigger, white edge, Up Next) ---------- */
+  body.mini-on .ui{ opacity:0 !important; pointer-events:none; }
+  .mini{ position:absolute; left:0; top:0; width:958px; height:1080px; z-index:15; pointer-events:none;
+    background:linear-gradient(270deg, rgba(0,0,0,0), #000); opacity:0; transform:translateX(-60px);
+    transition:opacity .3s ease, transform .3s cubic-bezier(.2,0,0,1); }
+  body.mini-on .mini{ opacity:1; transform:none; pointer-events:auto; }
+  .mini-in{ display:flex; gap:32px; height:100%; box-sizing:border-box; padding:60px 0 60px 90px; }
+  .mini-cats{ display:flex; flex-direction:column; gap:16px; flex:0 0 auto; }
+  /* category chips in the site's theme, as the TV Guide's tabs: a thin outline and a grey icon at rest, the chosen one
+     dim-filled with a white icon, the white glass pill when focus is on it; the shared glass ring follows focus */
+  .mcat{ width:64px; height:64px; box-sizing:border-box; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    box-shadow:inset 0 0 0 2px rgba(255,255,255,.14); transition:background .22s cubic-bezier(.2,0,0,1); }
+  .mcat img{ width:32px; height:32px; display:block; filter:brightness(0) invert(.66); }   /* --on-surface-variant grey */
+  .mcat.sel{ background:rgba(255,255,255,.22); box-shadow:none; }
+  .mcat.sel.focused{ background:var(--pill-hi), var(--th-pill); }
+  .mcat.sel img, .mcat.focused img{ filter:brightness(0) invert(1); }
+  .mcat[data-cat="guide"]{ box-shadow:none; }
+  .mini-div{ width:64px; height:4px; display:block; }
+  .mini-main{ display:flex; flex-direction:column; gap:16px; width:600px; min-width:0; }
+  .mini-title{ height:68px; display:flex; align-items:center; font:500 32px/normal var(--inter); flex:0 0 auto; }
+  .mini-scroll{ position:relative; height:936px; overflow:hidden;
+    -webkit-mask-image:linear-gradient(180deg, transparent 0, #000 110px); mask-image:linear-gradient(180deg, transparent 0, #000 110px); }
+  .mini-list{ display:flex; flex-direction:column; gap:12px; transition:transform .25s cubic-bezier(.2,0,0,1); }
+  .mini-empty{ font:400 24px/1.3 var(--noto); color:var(--on-surface-variant); padding-top:8px; }
+  .mcard{ width:530px; box-sizing:border-box; border-radius:12px; background:var(--glass-card); flex:0 0 auto;   /* Home's channel card glass */
+    transition:background .22s cubic-bezier(.2,0,0,1); }
+  .mcard .m1{ display:flex; align-items:flex-start; gap:16px; padding:16px; }
+  .mava{ position:relative; width:64px; height:64px; border-radius:100px; overflow:hidden; flex:0 0 auto; background:var(--avatar); }
+  .mava img{ position:absolute; }
+  .mava img.cover{ inset:0; width:100%; height:100%; object-fit:cover; }
+  .mava img.contain{ left:12%; top:12%; width:76%; height:76%; object-fit:contain; }
+  .mava.txt{ display:flex; align-items:center; justify-content:center; text-align:center; font:700 15px/1.1 var(--noto); }
+  .minfo{ flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; justify-content:center; }
+  .mname-row{ display:flex; align-items:center; gap:16px; }
+  .mname{ flex:1; min-width:0; font:500 24px/1.2 var(--noto); letter-spacing:-.24px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mchips{ display:flex; align-items:center; gap:8px; flex:0 0 auto; }
+  .mico{ width:40px; height:40px; display:flex; align-items:center; justify-content:center; }
+  .mico img{ width:20px; height:20px; display:block; }
+  .mno{ height:40px; min-width:40px; box-sizing:border-box; padding:8px 12px; border-radius:8px; background:rgba(0,0,0,.35);   /* the TV Guide's number chip */
+    display:flex; align-items:center; justify-content:center; font:600 20px/normal var(--noto); }
+  .mprog{ font:500 20px/1.2 var(--noto); letter-spacing:-.24px; color:#d6d6d6; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .mtime{ display:flex; align-items:center; gap:16px; height:28px; margin-top:4px; font:500 20px/1.2 var(--noto); letter-spacing:-.24px; color:#d6d6d6; white-space:nowrap; }
+  .mtags{ display:flex; align-items:center; gap:8px; }
+  .mtags > img{ width:24px; height:24px; display:block; }
+  .mtag{ height:26px; box-sizing:border-box; padding:4px; border-radius:4px; display:flex; align-items:center; gap:4px; border:1px solid var(--inverse-surface);
+    font:500 16px/1.2 var(--noto); letter-spacing:-.24px; color:rgba(255,255,255,.8); }
+  .mtag.watch{ background:#59d478; }
+  .mtag.live{ background:#ea5454; color:#fff; font-weight:400; }
+  .mtag.live i{ width:6px; height:6px; border-radius:100px; background:#fff; }
+  .mnext{ display:none; gap:4px; padding:16px 16px 16px 122px; border-top:1px solid rgba(255,255,255,.18); font:500 24px/1.2 var(--noto); letter-spacing:-.24px;
+    color:rgba(255,255,255,.7); white-space:nowrap; overflow:hidden; }
+  .mnext b{ font-weight:700; flex:0 0 auto; }
+  .mnext span{ overflow:hidden; text-overflow:ellipsis; }
+  /* the focused channel (Figma "Mini_Card_B" focus: wider, a bigger logo and type, and Up Next) in the site's theme:
+     the lighter focused glass with the shared glass ring around it */
+  .mcard.focused, .mcard.open{ width:600px; background:var(--glass-card-on); }
+  .mcard.focused .mava, .mcard.open .mava{ width:90px; height:90px; }
+  .mcard.focused .mava.txt, .mcard.open .mava.txt{ font-size:20px; }
+  .mcard.focused .minfo, .mcard.open .minfo{ gap:6px; }
+  .mcard.focused .mname, .mcard.open .mname{ font-size:28px; }
+  .mcard.focused .mno, .mcard.open .mno{ font-size:24px; }
+  .mcard.focused .mico.owned img, .mcard.open .mico.owned img{ width:24px; height:24px; }
+  .mcard.focused .mprog, .mcard.open .mprog{ font-size:22px; }
+  .mcard.focused .mnext, .mcard.open .mnext{ display:flex; }
+
   /* channel number typed on the remote, top right (over the controls or the bare picture); it tunes after a pause */
   .ch-in{ position:absolute; top:60px; right:90px; z-index:25; min-width:96px; height:96px; box-sizing:border-box; padding:0 28px; border-radius:16px;
     display:flex; align-items:center; justify-content:center; gap:6px; font:600 56px/1 var(--inter); letter-spacing:2px; font-variant-numeric:tabular-nums;
@@ -206,6 +285,10 @@
     </div>
   </div>
   <div class="flash" id="flash"><img id="flashIc" src="icons/player/pause.svg" alt=""></div>
+  <div class="mini" id="mini"><div class="mini-in">
+    <div class="mini-cats" id="miniCats"></div>
+    <div class="mini-main"><div class="mini-title" id="miniTitle"></div><div class="mini-scroll"><div class="mini-list" id="miniList"></div></div></div>
+  </div></div>
   <div class="ch-in" id="chIn" aria-live="polite"></div>
   <div id="toast"></div>
 </div></div>
@@ -388,10 +471,12 @@
         v.currentTime = 0; v.play(); setPlayIcon(); paintSeek(); toast('Start Over: ' + P.t); break;
       case 'fav':
         C.fav = !C.fav; setFav(); favAnim(C.fav);
+        // the mini EPG's Favorite category follows
+        try { var md = JSON.parse(sessionStorage.getItem('tvMini')); md.chans.forEach(function(x){ if(x.n === C.n) x.fav = C.fav; }); sessionStorage.setItem('tvMini', JSON.stringify(md)); } catch(e){}
         toast(C.fav ? 'Added to Favorite: ' + C.n : 'Removed from Favorite: ' + C.n); break;
       case 'guide': location.href = 'tv-guide.html?view=guide'; break;
       case 'explore': toast('Explore Package'); break;
-      case 'mini-epg': toast('Browse Channels'); break;
+      case 'mini-epg': openMini(true); break;
       case 'sub-audio': toast('Subtitle / Audio'); break;
       case 'settings': toast('Settings'); break;
     }
@@ -423,6 +508,108 @@
     location.replace('tv-guide.html?tune=' + n + '&from=' + encodeURIComponent(here));
   }
   function zap(dir){ location.replace('tv-guide.html?zap=' + dir + '&cur=' + encodeURIComponent(C.n)); }
+
+  /* ---------- mini EPG: the channels come from the TV Guide (tvMini in sessionStorage, written when it opened this
+     player). Up / Down move along the channels, Left / Right between them and the category bar (moving along the bar
+     picks that category, like the TV Guide's tabs), Enter plays the channel, Back closes ---------- */
+  var MINI_ICONS = {all:'all-on', recent:'recent', fav:'fav', exclusive:'exclusive', digital:'digital', sports:'sports', movies:'movies',
+                    news:'news', cartoons:'cartoons', variety:'variety', others:'others'};
+  var mini = null;   // open: {data, cat, list, i (focused channel), zone 'list' | 'cats', ci (focused chip)}
+  function miniChans(cat){
+    return mini.data.chans.filter(function(c){
+      if(cat === 'all') return true;
+      if(cat === 'recent') return c.recent;
+      if(cat === 'fav') return c.fav;
+      return c.cats.indexOf(cat) >= 0;
+    });
+  }
+  function miniAva(c){
+    if(!c.logo) return '<div class="mava txt" style="background:' + esc(c.bg) + ';color:' + esc(c.fg || '#fff') + '">' + esc(c.txt || c.n) + '</div>';
+    var b = c.box, img = b ? '<img src="' + esc(c.logo) + '" alt="" style="left:' + b[0] + '%;top:' + b[1] + '%;width:' + b[2] + '%;height:' + b[3] + '%;object-fit:contain;">'
+                          : '<img class="' + (c.fit || 'cover') + '" src="' + esc(c.logo) + '" alt="">';
+    return '<div class="mava"' + (c.bg ? ' style="background:' + esc(c.bg) + '"' : '') + '>' + img + '</div>';
+  }
+  function miniCard(c){
+    var now = Date.now(), ps = c.progs, k = 0;
+    while(k < ps.length - 1 && ps[k][2] <= now) k++;
+    var p = ps[k] || ['', now, now, 0], nx = ps[k + 1], watching = c.n === C.n;
+    var hm2 = function(t){ return hm(new Date(t)); };
+    return '<div class="mcard">' +
+      '<div class="m1">' + miniAva(c) + '<div class="minfo">' +
+        '<div class="mname-row"><div class="mname">' + esc(c.n) + '</div><div class="mchips">' +
+          (c.fav ? '<span class="mico"><img src="icons/tv-guide/heart-fill.svg" alt="Favorite"></span>' : '') +
+          (c.crown ? '<span class="mico' + (c.crown === 'owned' ? ' owned' : '') + '"><img src="icons/tv-guide/' + (c.crown === 'owned' ? 'crown.svg' : 'crown-s.svg') + '" alt="Premium"></span>' : '') +
+          (c.excl ? '' : '<span class="mno">' + c.no + '</span>') + '</div></div>' +
+        '<div class="mprog">' + esc(p[0]) + '</div>' +
+        '<div class="mtime">' + hm2(p[1]) + ' - ' + hm2(p[2]) + '<span class="mtags">' +
+          (p[3] ? '<img src="icons/tv-guide/timeshift.svg" alt="Time Shift">' : '') +
+          (watching ? '<span class="mtag watch">Watching</span>' : c.live ? '<span class="mtag live"><i></i>Live</span>' : '') + '</span></div>' +
+      '</div></div>' +
+      (nx ? '<div class="mnext"><b>Up Next :</b><span>' + esc(nx[0]) + '</span></div>' : '') +
+    '</div>';
+  }
+  function miniRenderCats(){
+    var html = '<div class="mcat" data-cat="guide"><img src="icons/mini-epg/guide.svg" alt="TV Guide"></div><img class="mini-div" src="icons/mini-epg/divider.svg" alt="">';
+    html += mini.data.cats.map(function(k){ return '<div class="mcat' + (k.id === mini.cat ? ' sel' : '') + '" data-cat="' + k.id + '"><img src="icons/mini-epg/' + (MINI_ICONS[k.id] || 'all-on') + '.svg" alt="' + esc(k.n) + '"></div>'; }).join('');
+    byId('miniCats').innerHTML = html;
+  }
+  function miniSetCat(cat, keepNo){
+    mini.cat = cat; mini.list = miniChans(cat);
+    var at = mini.list.map(function(c){ return c.n; }).indexOf(keepNo || C.n);
+    mini.i = Math.max(0, at);
+    byId('miniTitle').textContent = mini.data.cats.filter(function(k){ return k.id === cat; })[0].n;
+    byId('miniList').innerHTML = mini.list.length ? mini.list.map(miniCard).join('') : '<div class="mini-empty">No channels in this category yet.</div>';
+    byId('miniList').style.transform = '';
+    $('.mcat', byId('miniCats')).forEach(function(el){ el.classList.toggle('sel', el.dataset.cat === cat); });
+  }
+  function miniPaint(){
+    // the focused card stays opened up while focus is on the category bar, without the ring
+    $('.mcard', byId('miniList')).forEach(function(el, i){ el.classList.toggle('focused', mini.zone === 'list' && i === mini.i); el.classList.toggle('open', mini.zone !== 'list' && i === mini.i); });
+    $('.mcat', byId('miniCats')).forEach(function(el, i){ el.classList.toggle('focused', mini.zone === 'cats' && i === mini.ci); });
+    // keep the focused channel second from the top, the one before it cut off under the fade (as in the design)
+    var cards = $('.mcard', byId('miniList')), el = cards[mini.i];
+    if(el){ var y = el.offsetTop - (mini.i > 0 ? 90 : 0); byId('miniList').style.transform = 'translateY(' + -Math.max(0, y) + 'px)'; }
+  }
+  function openMini(fromButton){
+    var data = null; try { data = JSON.parse(sessionStorage.getItem('tvMini')); } catch(e){}
+    if(!data){ toast('Open the player from the TV Guide to browse channels'); return; }
+    mini = {data:data, zone:'list', ci:0, fromButton:fromButton};
+    miniRenderCats(); miniSetCat('all');
+    clearTimeout(idleT); document.body.classList.add('mini-on');
+    $('.item').forEach(function(el){ el.classList.remove('focused', 'on'); });
+    miniPaint();
+  }
+  function closeMini(){
+    var fromButton = mini.fromButton; mini = null;
+    document.body.classList.remove('mini-on');
+    $('.mcat, .mcard', byId('mini')).forEach(function(el){ el.classList.remove('focused', 'open'); });
+    if(fromButton){ document.body.classList.add('idle'); wake(); } else goIdle();   // back where it was opened from
+  }
+  function miniKey(k){
+    var chips = $('.mcat', byId('miniCats'));
+    if(k === 'Escape' || k === 'Backspace'){ closeMini(); return; }
+    if(mini.zone === 'list'){
+      if(k === 'ArrowUp' && mini.i > 0) mini.i--;
+      else if(k === 'ArrowDown' && mini.i < mini.list.length - 1) mini.i++;
+      else if(k === 'ArrowLeft'){ mini.zone = 'cats'; mini.ci = Math.max(0, chips.map(function(c){ return c.dataset.cat; }).indexOf(mini.cat)); }
+      else if((k === 'Enter' || k === ' ') && mini.list[mini.i]){
+        var c = mini.list[mini.i];
+        if(c.n === C.n){ closeMini(); return; }
+        location.replace('tv-guide.html?play=' + encodeURIComponent(c.n));   // plays it here, with the controls away
+        return;
+      }
+    } else {
+      if(k === 'ArrowUp' && mini.ci > 0) mini.ci--;
+      else if(k === 'ArrowDown' && mini.ci < chips.length - 1) mini.ci++;
+      else if(k === 'ArrowRight' && mini.list.length){ mini.zone = 'list'; }
+      else if((k === 'Enter' || k === ' ') && chips[mini.ci].dataset.cat === 'guide'){ location.href = 'tv-guide.html?view=guide'; return; }
+      else if(k === 'Enter' || k === ' '){ if(mini.list.length) mini.zone = 'list'; }
+      // moving onto a category shows its channels straight away (the TV Guide chip only opens the guide)
+      var cat = chips[mini.ci].dataset.cat;
+      if(cat !== 'guide' && cat !== mini.cat) miniSetCat(cat);
+    }
+    miniPaint();
+  }
   if(q.nochan) toast('Channel ' + q.nochan + ' is not available');
   // a channel change (number or Up / Down) opens the new channel with the controls away: the viewer brings them up
   var quiet = q.quiet === '1' || !!q.nochan;
@@ -446,7 +633,11 @@
     if(was) paint();
     return was;
   }
-  if(quiet) goIdle(); else wake();
+  if(quiet){
+    goIdle();
+    // the idle state now holds the controls away; transitions come back once it has been drawn
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ document.documentElement.classList.remove('quiet-start'); }); });
+  } else wake();
 
   document.addEventListener('keydown', function(e){
     var k = e.key, back_ = k === 'Escape' || k === 'Backspace';
@@ -456,6 +647,9 @@
     if(chBuf && back_){ e.preventDefault(); chCancel(); return; }
     if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', ' '].indexOf(k) < 0 && !back_) return;
     e.preventDefault();
+    if(mini){ miniKey(k); return; }
+    // with the controls away, Left opens the mini EPG
+    if(document.body.classList.contains('idle') && k === 'ArrowLeft'){ openMini(false); return; }
     // Back with the controls up only puts them away; with them away it leaves the player
     if(back_){
       if(document.body.classList.contains('idle')) back();
@@ -485,7 +679,7 @@
   document.addEventListener('keyup', function(e){ if(e.key === 'ArrowLeft' || e.key === 'ArrowRight') stopHold(); });
   // only a real move of the mouse: Chrome also sends a mousemove (with no movement) when a page loads under a resting
   // pointer, which would bring the controls up on a channel change
-  addEventListener('mousemove', function(e){ if(e.movementX || e.movementY) wake(); });
+  addEventListener('mousemove', function(e){ if((e.movementX || e.movementY) && !mini) wake(); });
   byId('video').addEventListener('click', function(){ wake(); activate(byId('playBtn')); });   // a click on the picture plays / pauses
   byId('video').addEventListener('play', setPlayIcon); byId('video').addEventListener('pause', setPlayIcon);
   if(!quiet) paint();   // otherwise focus comes with the controls (wake)

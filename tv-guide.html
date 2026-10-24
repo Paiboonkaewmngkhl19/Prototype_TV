@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TV Guide</title>
+<!-- ?tune= / ?zap=: only passing through to the player (a channel change), so nothing is drawn -->
+<script>if(/[?&](tune|zap|play)=/.test(location.search)) document.documentElement.style.visibility = 'hidden';</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&family=Noto+Sans:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
@@ -840,6 +842,18 @@
     try { sessionStorage.setItem('tvGuideBack', JSON.stringify({view:S.view, cat:S.cat, sub:S.sub, no:c.no})); } catch(e){}
     // the channel numbers there are, so the player can say "not available" for a typed number without leaving
     try { sessionStorage.setItem('tvChannelNos', JSON.stringify(CHANNELS.filter(function(x){ return !x.excl; }).map(function(x){ return x.no; }))); } catch(e){}
+    // and the channels with their programmes around now, for the player's mini EPG (Browse Channels)
+    try {
+      var t0 = Date.now() - 36e5, t1 = Date.now() + 12 * 36e5;
+      sessionStorage.setItem('tvMini', JSON.stringify({
+        cats: CATS.map(function(k){ return {id:k.id, n:k.n}; }),
+        chans: CHANNELS.map(function(x){
+          return {n:x.n, no:x.no, excl:!!x.excl, logo:x.logo || '', fit:x.fit || '', box:x.box || null, bg:x.bg || '', txt:x.txt || '', fg:x.fg || '',
+            crown:x.crown || '', fav:!!x.fav, recent:!!x.recent, cats:x.cats, live:SPORT_CH.some(function(k){ return x.cats.indexOf(k) >= 0; }),
+            progs:x.progs.filter(function(pr){ return pr.end > t0 && pr.start < t1; }).map(function(pr){ return [pr.t, pr.start.getTime(), pr.end.getTime(), pr.ts ? 1 : 0]; })};
+        })
+      }));
+    } catch(e){}
     var q = {n:c.n, no:c.excl ? '' : c.no, crown:c.crown || '', fav:c.fav ? 1 : '', logo:c.logo || '', fit:c.fit || '', box:c.box ? c.box.join(',') : '',
              bg:c.bg || '', txt:c.txt || '', fg:c.fg || '', t:p.t, s:p.start.getTime(), e:p.end.getTime(), v:videoFor(c),
              ts:p.ts ? 1 : '', quiet:replace ? 1 : ''};   // Time Shift: what's on now has the Time Shift icon; quiet: a channel change (see the player)
@@ -967,6 +981,12 @@
   // from (?from=) when there is no such channel
   // ?zap=1 / -1 & cur=<name>: Up / Down in the player, the next / previous channel by number (wrapping round; the
   // Exclusive channels have no number, so they are left out)
+  // ?play=<name>: a channel picked in the player's mini EPG (by name: Exclusive channels have no number)
+  var pick = /[?&]play=([^&]*)/.exec(location.search);
+  if(pick){
+    var pc = CHANNELS.filter(function(c){ return c.n === decodeURIComponent(pick[1]); })[0];
+    if(pc){ document.body.style.visibility = 'hidden'; openPlayer(pc, true); return; }
+  }
   var zap = /[?&]zap=(-?1)/.exec(location.search);
   if(zap){
     var nums = CHANNELS.filter(function(c){ return !c.excl; }), cur = decodeURIComponent((/[?&]cur=([^&]*)/.exec(location.search) || [])[1] || '');
@@ -983,7 +1003,7 @@
     if(from){
       try { if(ret) sessionStorage.setItem('tvGuideBack', JSON.stringify(ret)); } catch(e){}   // still there for Back from that player
       from = decodeURIComponent(from); location.replace(from + (from.indexOf('?') < 0 ? '?' : '&') + 'nochan=' + tune[1]); return; }
-    document.body.style.visibility = '';
+    document.body.style.visibility = ''; document.documentElement.style.visibility = '';   // no such channel and nowhere to go back to: show the guide
   }
   paintHead(); render();
   if(ret && !/view=/.test(location.search)){
