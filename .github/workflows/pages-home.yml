@@ -23,8 +23,8 @@ jobs:
       # with home.html as the site root
       - run: |
           mkdir -p site/tv-features-test
-          cp -r home.html movie-detail.html package-detail.html tv-guide.html focus-ring.js badges icons partners posters posters_portrait site/
-          cp -r tv-features-test/live-stream-assets tv-features-test/shorts-assets site/tv-features-test/
+          cp -r home.html movie-detail.html package-detail.html tv-guide.html live-tv-player.html focus-ring.js badges icons partners posters posters_portrait video site/
+          cp -r tv-features-test/live-stream-assets tv-features-test/shorts-assets tv-features-test/concert-assets site/tv-features-test/
           cp home.html site/index.html
           # Home's back button opens the Content Picker, which isn't published; send it back to Home
           echo '<!doctype html><meta charset="utf-8"><script>location.replace("../home.html")</script>' > site/tv-features-test/content-picker.html

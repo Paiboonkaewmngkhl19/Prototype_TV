@@ -184,7 +184,7 @@
   var q = {}; location.search.slice(1).split('&').forEach(function(kv){ if(!kv) return; var i = kv.indexOf('='); q[decodeURIComponent(kv.slice(0, i))] = decodeURIComponent(kv.slice(i + 1).replace(/\+/g, ' ')); });
   var C = { n:q.n || 'Channel', no:q.no || '', crown:q.crown || '', fav:q.fav === '1', logo:q.logo, fit:q.fit, box:q.box, bg:q.bg, txt:q.txt, fg:q.fg };
   var P = { t:q.t || '', start:new Date(+q.s || Date.now() - 30 * 60000), end:new Date(+q.e || Date.now() + 30 * 60000) };
-  byId('video').src = byId('thumbV').src = q.v || 'tv-features-test/Video/hbo.mp4';   // the thumbnail is a second, paused copy
+  byId('video').src = byId('thumbV').src = q.v || 'video/hbo.mp4';   // the thumbnail is a second, paused copy
   // with sound: the browser may refuse to start unmuted without a key press on this page, so it then starts muted and
   // the sound comes on with the first key or click
   (function(v){
