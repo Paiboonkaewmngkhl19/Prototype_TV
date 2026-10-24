@@ -835,14 +835,15 @@
     if(has('movies')) return V + 'spiderman.mp4';
     return V + 'vall.mp4';
   }
-  function openPlayer(c){
+  function openPlayer(c, replace){
     var p = c.progs[onAt(c, new Date())];
     try { sessionStorage.setItem('tvGuideBack', JSON.stringify({view:S.view, cat:S.cat, sub:S.sub, no:c.no})); } catch(e){}
     var q = {n:c.n, no:c.excl ? '' : c.no, crown:c.crown || '', fav:c.fav ? 1 : '', logo:c.logo || '', fit:c.fit || '', box:c.box ? c.box.join(',') : '',
              bg:c.bg || '', txt:c.txt || '', fg:c.fg || '', t:p.t, s:p.start.getTime(), e:p.end.getTime(), v:videoFor(c),
-             ts:p.ts ? 1 : ''};   // Time Shift: what's on now has the Time Shift icon
-    location.href = 'live-tv-player.html?' + Object.keys(q).filter(function(k){ return q[k] !== ''; })
+             ts:p.ts ? 1 : '', quiet:replace ? 1 : ''};   // Time Shift: what's on now has the Time Shift icon; quiet: a channel change (see the player)
+    var url = 'live-tv-player.html?' + Object.keys(q).filter(function(k){ return q[k] !== ''; })
       .map(function(k){ return k + '=' + encodeURIComponent(q[k]); }).join('&');
+    if(replace) location.replace(url); else location.href = url;
   }
   function chByNo(no){ return CHANNELS.filter(function(c){ return c.no === +no; })[0]; }
   function activate(el){
@@ -959,6 +960,29 @@
   // back from the player: the same view, tab and channel as when it was opened
   var ret = null; try { ret = JSON.parse(sessionStorage.getItem('tvGuideBack')); sessionStorage.removeItem('tvGuideBack'); } catch(e){}
   if(ret && !/view=/.test(location.search)){ S.view = ret.view; S.cat = ret.cat; S.sub = ret.sub; }
+  // ?tune=N: the player asked for channel N (typed on the remote). This page only passes through: it opens that channel
+  // in the player in its place (so Back from there still comes here), or sends the viewer back to the player they came
+  // from (?from=) when there is no such channel
+  // ?zap=1 / -1 & cur=<name>: Up / Down in the player, the next / previous channel by number (wrapping round; the
+  // Exclusive channels have no number, so they are left out)
+  var zap = /[?&]zap=(-?1)/.exec(location.search);
+  if(zap){
+    var nums = CHANNELS.filter(function(c){ return !c.excl; }), cur = decodeURIComponent((/[?&]cur=([^&]*)/.exec(location.search) || [])[1] || '');
+    var at = nums.map(function(c){ return c.n; }).indexOf(cur), dir = +zap[1];
+    if(at < 0) at = dir > 0 ? -1 : 0;
+    document.body.style.visibility = 'hidden';
+    openPlayer(nums[(at + dir + nums.length) % nums.length], true); return;
+  }
+  var tune = /[?&]tune=(\d+)/.exec(location.search);
+  if(tune){
+    var tc = chByNo(tune[1]), from = (/[?&]from=([^&]*)/.exec(location.search) || [])[1];
+    document.body.style.visibility = 'hidden';
+    if(tc && !tc.excl){ openPlayer(tc, true); return; }
+    if(from){
+      try { if(ret) sessionStorage.setItem('tvGuideBack', JSON.stringify(ret)); } catch(e){}   // still there for Back from that player
+      from = decodeURIComponent(from); location.replace(from + (from.indexOf('?') < 0 ? '?' : '&') + 'nochan=' + tune[1]); return; }
+    document.body.style.visibility = '';
+  }
   paintHead(); render();
   if(ret && !/view=/.test(location.search)){
     var at = channelsFor().map(function(c){ return c.no; }).indexOf(ret.no);

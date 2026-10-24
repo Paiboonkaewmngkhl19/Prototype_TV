@@ -29,9 +29,14 @@
   #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; background:#000; }
   video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
 
-  /* the controls: scrims top and bottom, then the two bars; all fade out together when idle */
-  .ui{ position:absolute; inset:0; transition:opacity .35s ease; }
-  body.idle .ui{ opacity:0; }
+  /* the controls: scrims top and bottom, then the two bars; they fade out together when idle, except on a free preview,
+     where the free-preview chip and Explore Package stay and slide down to the bottom edge (seek bar + buttons + gaps:
+     32 + 32 + 32 + 80 = 176px) */
+  .ui{ position:absolute; inset:0; }
+  .scrim, .top, .seek, .btns{ transition:opacity .35s ease; }
+  body.idle .scrim, body.idle .top, body.idle .seek, body.idle .btns, body.idle .no-preview .cta-row{ opacity:0; }
+  .cta-row{ transition:transform .35s cubic-bezier(.2,0,0,1), opacity .35s ease; }
+  body.idle .cta-row{ transform:translateY(176px); }
   .ui{ pointer-events:none; }   /* clicks go through to the picture (play / pause), except on the controls */
   .ui .item, .ui .play{ pointer-events:auto; }
   .scrim{ position:absolute; inset:0; pointer-events:none;
@@ -63,10 +68,18 @@
   .preview b{ font-weight:600; color:var(--on-surface-variant); }
   .preview span{ position:relative; margin-left:36px; font-weight:500; color:var(--inverse-surface); }
   .preview span::before{ content:'•'; position:absolute; left:-21px; }
-  .explore{ height:84px; box-sizing:border-box; padding:16px 32px; border-radius:12px; border:2px solid var(--outline); background:var(--inverse-surface);
+  .explore{ height:84px; box-sizing:border-box; padding:16px 32px; border-radius:12px; background:var(--inverse-surface);
+    box-shadow:0 6px 20px rgba(0,0,0,.35), 0 2px 6px rgba(0,0,0,.25);   /* lifts it off the picture */
     display:flex; align-items:center; gap:16px; font:500 24px/32px var(--inter); color:var(--on-inverse-surface); white-space:nowrap; }
   .explore img{ width:32px; height:32px; display:block; }
   .no-preview .preview, .no-preview .explore{ visibility:hidden; }
+  /* the chip's faint edge in Figma (1895:174884); filled like the site's other glass chips (Home / TV Guide --glass-chip),
+     with the picture blurred behind it */
+  .preview{ background:linear-gradient(rgba(0,0,0,.2), rgba(0,0,0,.2)), rgba(255,255,255,.13);   /* the glass chip, 20% darker */
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);
+    backdrop-filter:blur(24px) saturate(1.4); -webkit-backdrop-filter:blur(24px) saturate(1.4); }
+  /* free preview used up: the picture stops and dims behind the controls, which stay up */
+  body.preview-over video{ filter:brightness(.4); transition:filter .4s ease; }
 
   .seek{ height:32px; display:flex; align-items:center; gap:12px; }
   .play{ width:40px; height:40px; border-radius:8px; flex:0 0 auto; }
@@ -111,6 +124,29 @@
   .btn.focused, .back.focused{ background:rgba(255,255,255,.3);
     backdrop-filter:blur(24px) saturate(1.4); -webkit-backdrop-filter:blur(24px) saturate(1.4); }   /* frosted: lighter fill, the picture blurred behind it */
 
+  /* Add Favorite, as in the TV Guide (tv-guide.html): the button's heart bounces in with a ring and a burst of sparks
+     while a big heart pops in the middle of the picture and floats away; removing it just shrinks the heart back */
+  .fav-ic-wrap{ position:relative; display:block; width:32px; height:32px; flex:0 0 auto; }
+  .fav-ic-wrap img{ position:relative; z-index:1; }
+  .fav-ic-wrap img.pop{ animation:favPop .55s cubic-bezier(.2,1.6,.4,1); }
+  .fav-ic-wrap img.unpop{ animation:favUnpop .3s ease; }
+  @keyframes favPop{ 0%{ transform:scale(0); } 60%{ transform:scale(1.45); } 100%{ transform:scale(1); } }
+  @keyframes favUnpop{ 0%{ transform:scale(1); } 45%{ transform:scale(.6); } 100%{ transform:scale(1); } }
+  .fav-burst{ position:absolute; left:50%; top:50%; width:0; height:0; pointer-events:none; }
+  .fav-burst .ring{ position:absolute; left:-26px; top:-26px; width:52px; height:52px; border-radius:50%; box-sizing:border-box;
+    border:3px solid #fff; animation:favRing .5s ease-out forwards; }
+  .fav-burst i{ position:absolute; left:-4px; top:-4px; width:8px; height:8px; border-radius:50%; background:#fff;
+    animation:favSpark .6s cubic-bezier(.2,.8,.3,1) forwards; }
+  @keyframes favRing{ 0%{ transform:scale(.2); opacity:1; } 100%{ transform:scale(1.5); opacity:0; border-width:0; } }
+  @keyframes favSpark{ 0%{ transform:rotate(var(--a)) translateY(0) scale(1); opacity:1; } 100%{ transform:rotate(var(--a)) translateY(-42px) scale(.2); opacity:0; } }
+  .fav-big{ position:absolute; left:50%; top:50%; width:200px; height:200px; margin:-100px 0 0 -100px; z-index:20; pointer-events:none;
+    background:url('icons/tv-guide/heart-fill.svg') center / contain no-repeat; filter:drop-shadow(0 8px 24px rgba(0,0,0,.5));
+    animation:favBig 1s cubic-bezier(.2,.8,.3,1) forwards; }
+  @keyframes favBig{ 0%{ transform:scale(0) rotate(-15deg); opacity:0; } 25%{ transform:scale(1.25) rotate(8deg); opacity:1; }
+    45%{ transform:scale(.95) rotate(0); opacity:1; } 70%{ transform:translateY(-14px) scale(1); opacity:1; }
+    100%{ transform:translateY(-110px) scale(.7); opacity:0; } }
+  @media (prefers-reduced-motion: reduce){ .fav-ic-wrap img.pop, .fav-ic-wrap img.unpop{ animation:none; } .fav-burst, .fav-big{ display:none; } }
+
   /* play / pause flash in the middle of the picture, as on Netflix: the new state's icon pops in a dark disc and fades
      out, whether or not the controls are up */
   .flash{ position:absolute; left:50%; top:50%; width:160px; height:160px; margin:-80px 0 0 -80px; border-radius:50%; z-index:20; pointer-events:none;
@@ -120,6 +156,15 @@
   .flash.go{ animation:flash .7s cubic-bezier(.2,0,0,1); }
   @keyframes flash{ 0%{ opacity:0; transform:scale(.6); } 20%{ opacity:1; transform:scale(1); } 60%{ opacity:1; transform:scale(1.05); } 100%{ opacity:0; transform:scale(1.3); } }
   @media (prefers-reduced-motion: reduce){ .flash.go{ animation:flashFade .7s linear; } @keyframes flashFade{ 0%, 60%{ opacity:1; } 100%{ opacity:0; } } }
+
+  /* channel number typed on the remote, top right (over the controls or the bare picture); it tunes after a pause */
+  .ch-in{ position:absolute; top:60px; right:90px; z-index:25; min-width:96px; height:96px; box-sizing:border-box; padding:0 28px; border-radius:16px;
+    display:flex; align-items:center; justify-content:center; gap:6px; font:600 56px/1 var(--inter); letter-spacing:2px; font-variant-numeric:tabular-nums;
+    background:linear-gradient(rgba(0,0,0,.35), rgba(0,0,0,.35)), rgba(255,255,255,.13); box-shadow:inset 0 0 0 1px rgba(255,255,255,.12), 0 6px 20px rgba(0,0,0,.35);
+    backdrop-filter:blur(24px) saturate(1.4); -webkit-backdrop-filter:blur(24px) saturate(1.4);
+    opacity:0; transform:translateY(-8px); transition:opacity .2s ease, transform .2s ease; pointer-events:none; }
+  .ch-in.on{ opacity:1; transform:none; }
+  .ch-in i{ font-style:normal; color:rgba(255,255,255,.35); }   /* the digits still to come */
 
   #toast{ position:absolute; left:50%; top:60px; transform:translateX(-50%); padding:14px 26px; border-radius:999px; z-index:30;
     background:rgba(20,20,24,.9); font-size:24px; opacity:0; transition:opacity .2s ease; pointer-events:none; white-space:nowrap; }
@@ -154,13 +199,14 @@
         <div class="btn item" data-act="mini-epg"><img src="icons/player/mini-epg.svg" alt=""><span class="lbl">Browse Channels</span></div>
         <div class="btn item" data-act="guide"><img src="icons/player/guide.svg" alt=""><span class="lbl">View Program Guide</span></div>
         <div class="btn item" data-act="start-over"><img src="icons/player/start-over.svg" alt=""><span class="lbl">Start Over</span></div>
-        <div class="btn item" data-act="fav"><img id="favIc" src="icons/player/fav.svg" alt=""><span class="lbl" id="favLbl">Add Favorite</span></div>
+        <div class="btn item" data-act="fav"><span class="fav-ic-wrap"><img id="favIc" src="icons/player/fav.svg" alt=""></span><span class="lbl" id="favLbl">Add Favorite</span></div>
         <div class="btn item" data-act="sub-audio"><img src="icons/player/sub-audio.svg" alt=""><span class="lbl">Subtitle/Audio</span></div>
         <div class="btn item" data-act="settings"><img src="icons/player/settings.svg" alt=""><span class="lbl">Settings</span></div>
       </div>
     </div>
   </div>
   <div class="flash" id="flash"><img id="flashIc" src="icons/player/pause.svg" alt=""></div>
+  <div class="ch-in" id="chIn" aria-live="polite"></div>
   <div id="toast"></div>
 </div></div>
 
@@ -213,8 +259,21 @@
   if(C.no) byId('chNo').textContent = C.no; else byId('chNo').style.display = 'none';   // Exclusive channels have no number
   byId('progTm').textContent = hm(P.start) + ' - ' + hm(P.end);
   // free preview + Explore Package: a premium channel not in the viewer's package (gold crown, not 'owned')
-  var preview = C.crown === 'gold', previewLeft = 180;
+  // (an owned premium channel, crown 'owned', plays in full). The 3 minutes count only while playing and are kept per
+  // channel for this browser session, so leaving and coming back doesn't start them over
+  var preview = C.crown === 'gold', PKEY = 'freePreview:' + C.n, previewLeft = 180;
+  try { var kept = sessionStorage.getItem(PKEY); if(kept !== null) previewLeft = +kept; } catch(e){}
   if(!preview) byId('bottom').classList.add('no-preview');
+  function previewText(){ byId('previewLeft').textContent = previewLeft ? Math.floor(previewLeft / 60) + ':' + pad(previewLeft % 60) + ' minutes left' : 'Ended'; }
+  // out of preview: the picture stops for good (nothing can play it again), the controls stay up and focus goes to
+  // Explore Package
+  function endPreview(){
+    var v = byId('video'); v.pause();
+    document.body.classList.add('preview-over'); previewText();
+    row = 1; col = 0; if(typeof paint === 'function') paint();
+    toast('Free preview has ended. Get a package to keep watching');
+  }
+  byId('video').addEventListener('play', function(){ if(preview && !previewLeft) this.pause(); });
   function setFav(){ byId('favIc').src = C.fav ? 'icons/tv-guide/heart-fill.svg' : 'icons/player/fav.svg'; byId('favLbl').textContent = C.fav ? 'Remove Favorite' : 'Add Favorite'; }
   setFav();
 
@@ -266,11 +325,12 @@
     // paused with Time Shift: live moves on, so the picture falls further behind it
     if(TS && byId('video').paused && scrub === null) behind = Math.min(win(), behind + 1000);
     paintSeek();
-    if(preview && previewLeft > 0){
+    if(preview && previewLeft > 0 && !byId('video').paused){
       previewLeft--;
-      byId('previewLeft').textContent = Math.floor(previewLeft / 60) + ':' + pad(previewLeft % 60) + ' minutes left';
-      if(!previewLeft){ byId('video').pause(); setPlayIcon(); toast('Free preview has ended'); }
+      try { sessionStorage.setItem(PKEY, previewLeft); } catch(e){}
+      if(!previewLeft) endPreview();
     }
+    if(preview) previewText();
   }
   tick(); setInterval(tick, 1000);
 
@@ -298,6 +358,17 @@
     byId('flashIc').src = paused ? 'icons/player/pause.svg' : 'icons/detail-play.svg';
     f.classList.remove('go'); void f.offsetWidth; f.classList.add('go');   // restart the animation on every press
   }
+  function favAnim(on){
+    var img = byId('favIc');
+    img.classList.remove('pop', 'unpop'); void img.offsetWidth;   // restart the animation
+    img.classList.add(on ? 'pop' : 'unpop');
+    if(!on) return;
+    var b = document.createElement('span'); b.className = 'fav-burst';
+    b.innerHTML = '<span class="ring"></span>' + [0,45,90,135,180,225,270,315].map(function(a){ return '<i style="--a:' + a + 'deg"></i>'; }).join('');
+    img.parentElement.appendChild(b); setTimeout(function(){ b.remove(); }, 700);
+    var big = document.createElement('div'); big.className = 'fav-big';
+    screen.appendChild(big); setTimeout(function(){ big.remove(); }, 1000);
+  }
   function back(){
     try { if(document.referrer && /tv-guide\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
     location.href = 'tv-guide.html';
@@ -309,13 +380,14 @@
       case 'play':
         if(!TS){ toast('Time Shift is not available for this programme'); break; }
         if(scrub !== null){ commit(); break; }   // Enter while scrubbing: play from there now
-        if(v.paused){ if(preview && !previewLeft) break; v.play(); } else v.pause();
+        if(preview && !previewLeft){ toast('Free preview has ended. Get a package to keep watching'); break; }
+        if(v.paused) v.play(); else v.pause();
         setPlayIcon(); flash(v.paused); break;
       case 'start-over':
         scrub = null; byId('thumb').classList.remove('on'); behind = win();
         v.currentTime = 0; v.play(); setPlayIcon(); paintSeek(); toast('Start Over: ' + P.t); break;
       case 'fav':
-        C.fav = !C.fav; setFav();
+        C.fav = !C.fav; setFav(); favAnim(C.fav);
         toast(C.fav ? 'Added to Favorite: ' + C.n : 'Removed from Favorite: ' + C.n); break;
       case 'guide': location.href = 'tv-guide.html?view=guide'; break;
       case 'explore': toast('Explore Package'); break;
@@ -327,20 +399,61 @@
 
   /* ---------- idle: the controls fade out after 5s without a key; the first key only brings them back ---------- */
   var idleT;
-  function wake(){ var was = document.body.classList.contains('idle'); document.body.classList.remove('idle'); clearTimeout(idleT); idleT = setTimeout(function(){ document.body.classList.add('idle'); }, 5000); return was; }
-  wake();
+  /* ---------- change channel by number: up to 3 digits, shown top right; it tunes 2s after the last digit (at once
+     after the 3rd). The channel list lives in the TV Guide, so tuning goes through it: tv-guide.html?tune=N opens that
+     channel here in this player's place, or comes back with ?nochan=N when there is no such channel ---------- */
+  var chBuf = '', chT;
+  function chPaint(){ var el = byId('chIn'); el.innerHTML = esc(chBuf) + '<i>' + '–––'.slice(chBuf.length) + '</i>'; el.classList.toggle('on', !!chBuf); }
+  function chKey(d){
+    if(chBuf.length >= 3) chBuf = '';
+    chBuf += d; chPaint();
+    clearTimeout(chT); chT = setTimeout(tune, chBuf.length === 3 ? 500 : 2000);
+  }
+  function chCancel(){ clearTimeout(chT); chBuf = ''; chPaint(); }
+  function tune(){
+    clearTimeout(chT);
+    var n = parseInt(chBuf, 10); chBuf = '';
+    if(!n){ chPaint(); return; }
+    if(String(n) === C.no){ chPaint(); toast('You are watching channel ' + n); return; }
+    var here = location.pathname.split('/').pop() + location.search.replace(/[?&]nochan=\d+/, '');
+    location.replace('tv-guide.html?tune=' + n + '&from=' + encodeURIComponent(here));
+  }
+  function zap(dir){ location.replace('tv-guide.html?zap=' + dir + '&cur=' + encodeURIComponent(C.n)); }
+  if(q.nochan) toast('Channel ' + q.nochan + ' is not available');
+  // a channel change (number or Up / Down) opens the new channel with the controls away: the viewer brings them up
+  var quiet = q.quiet === '1' || !!q.nochan;
+  try { history.replaceState(null, '', location.pathname + location.search.replace(/[?&](nochan|quiet)=\d+/g, '').replace(/^&/, '?')); } catch(e){}
+
+  // idle: focus is put away too (Explore Package stays on screen, but without the ring) and comes back on wake
+  function goIdle(){
+    clearTimeout(idleT); document.body.classList.add('idle');
+    $('.item').forEach(function(el){ el.classList.remove('focused', 'on'); });
+  }
+  function wake(){
+    var was = document.body.classList.contains('idle'); document.body.classList.remove('idle'); clearTimeout(idleT);
+    idleT = setTimeout(function(){ if(!document.body.classList.contains('preview-over')) goIdle(); }, 5000);   // after the preview they stay up
+    if(was) paint();
+    return was;
+  }
+  if(quiet) goIdle(); else wake();
 
   document.addEventListener('keydown', function(e){
     var k = e.key, back_ = k === 'Escape' || k === 'Backspace';
+    // number keys: change channel, whether or not the controls are up; Enter tunes at once, Back cancels
+    if(/^[0-9]$/.test(k)){ e.preventDefault(); chKey(k); return; }
+    if(chBuf && (k === 'Enter' || k === ' ')){ e.preventDefault(); tune(); return; }
+    if(chBuf && back_){ e.preventDefault(); chCancel(); return; }
     if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', ' '].indexOf(k) < 0 && !back_) return;
     e.preventDefault();
     // Back with the controls up only puts them away; with them away it leaves the player
     if(back_){
       if(document.body.classList.contains('idle')) back();
-      else { clearTimeout(idleT); document.body.classList.add('idle'); }
+      else goIdle();
       return;
     }
     // with the controls away, OK plays / pauses straight away (as on Netflix) and brings them back; other keys only bring them back
+    // with the controls away, Up / Down change channel (the next / previous number), like a TV remote's CH+ / CH−
+    if(document.body.classList.contains('idle') && (k === 'ArrowUp' || k === 'ArrowDown')){ zap(k === 'ArrowUp' ? 1 : -1); return; }
     if(wake()){ if(k === 'Enter' || k === ' ') activate(byId('playBtn')); return; }
     var r = rows();
     if(k === 'ArrowUp' && row > 0){ row--; col = 0; }
@@ -359,10 +472,13 @@
   });
   $('.item').concat(byId('playBtn')).forEach(function(el){ el.addEventListener('click', function(){ wake(); activate(el); }); });
   document.addEventListener('keyup', function(e){ if(e.key === 'ArrowLeft' || e.key === 'ArrowRight') stopHold(); });
-  addEventListener('mousemove', wake);
+  // only a real move of the mouse: Chrome also sends a mousemove (with no movement) when a page loads under a resting
+  // pointer, which would bring the controls up on a channel change
+  addEventListener('mousemove', function(e){ if(e.movementX || e.movementY) wake(); });
   byId('video').addEventListener('click', function(){ wake(); activate(byId('playBtn')); });   // a click on the picture plays / pauses
   byId('video').addEventListener('play', setPlayIcon); byId('video').addEventListener('pause', setPlayIcon);
-  paint();
+  if(!quiet) paint();   // otherwise focus comes with the controls (wake)
+  if(preview && !previewLeft) endPreview();   // came back to a channel whose preview was already used up
 })();
 </script>
 <script src="focus-ring.js"></script>
