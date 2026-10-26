@@ -52,8 +52,6 @@
   /* in the guide's columns, which sit 32px under the label: a shorter fade, 4px → 24px below it, so the columns and their
      focus ring are fully visible */
   body.collapsed.in-guide #page{ -webkit-mask-image:linear-gradient(180deg, transparent 0, transparent 96px, #000 116px); mask-image:linear-gradient(180deg, transparent 0, transparent 96px, #000 116px); }
-  .avatars{ transition:opacity .22s cubic-bezier(.2,0,0,1); }
-  body.in-guide .avatars{ opacity:0; }
   /* breadcrumb: "Sports / Golf", the parent category regular and grey, a grey slash, the current sub-tab bold white */
   .cat-label{ display:flex; align-items:baseline; gap:12px; }
   .cat-label .crumb, .cat-label .sep{ font-weight:400; color:rgba(255,255,255,.55); }
@@ -121,10 +119,6 @@
   .sub{ position:relative; height:60px; padding:0 20px; display:flex; align-items:center; cursor:pointer; opacity:.8; border-radius:12px;
     font:500 24px/32px Inter, sans-serif; color:var(--on-surface-variant); white-space:nowrap; }
   .sub.on{ opacity:1; text-decoration:underline; text-decoration-thickness:10%; text-underline-offset:6px; }
-  /* channel avatars above the guide */
-  .avatars{ margin-top:20px; }   /* 32px from the sub-tabs (or the category tabs): 6px + 20px + 6px */
-  .avatars .rail-track{ gap:24px; }
-  .ava{ position:relative; width:90px; height:90px; border-radius:100px; flex:0 0 auto; cursor:pointer; }
 
   /* a channel logo in its round avatar (Figma "Avatar": #404045 disc) */
   .logo{ position:absolute; inset:0; border-radius:inherit; overflow:hidden; background:var(--avatar); }
@@ -158,10 +152,10 @@
     background:rgba(0,0,0,.35); font:600 20px/20px var(--noto); }
 
   /* ---------- View Program Guide: one column per channel ---------- */
-  .guide{ margin-top:26px; }   /* 32px below the avatars */
+  .guide{ margin-top:26px; }
   .guide .rail-track{ gap:10px; align-items:flex-start; }
   .col{ width:390px; flex:0 0 auto; border-radius:16px; background:var(--glass-card); transition:background .22s cubic-bezier(.2,0,0,1); }   /* no backdrop blur, as .ch-card */
-  .col.hl{ background:linear-gradient(180deg, rgba(190,190,205,.4), rgba(95,95,110,.4)); }   /* its channel logo is focused: 40%, a gentle step up from the resting column */
+  .col.hl{ background:linear-gradient(180deg, rgba(190,190,205,.4), rgba(95,95,110,.4)); }   /* one of its programmes is focused: 40%, a gentle step up from the resting column */
   .col-head{ height:96px; box-sizing:border-box; padding:16px; border-radius:16px 16px 0 0; background:rgba(255,255,255,.1); display:flex; align-items:center; gap:8px; }
   .col-head .ava-sm{ position:relative; width:64px; height:64px; border-radius:80px; flex:0 0 auto; }
   .col-name{ flex:1; min-width:0; font:600 20px/1.2 var(--noto); letter-spacing:-.24px; }
@@ -180,10 +174,14 @@
   .col-scroll{ height:522px; overflow:hidden; }
   .col-scroll.end{ height:416px; }
   /* focus on a programme of the next day: the live card is put away and the date divider fills its grid slot at the
-     top (Figma's next-day column), so the column has exactly 2 more rows' room (204 + 8 = 212px): 6 rows on screen */
+     top (Figma's next-day column), so the column has exactly 2 more rows' room (204 + 8 = 212px): 6 rows on screen.
+     The divider stays put there (sticky) while the day's programmes scroll under it: a copy of it (.day-pin) sits above
+     the scroller, which keeps the list's own divider just out of sight, so 5 rows scroll below it */
   .col.next-day .prog-big{ display:none; }
-  .col.next-day .col-scroll{ height:734px; }   /* 6 x 106 - 8 = 628 on screen, plus a row running on */
-  .col.next-day .col-scroll.end{ height:628px; }
+  .col .day-pin{ display:none; }   /* outranks .day-sep's display, further down */
+  .col.next-day .day-pin{ display:flex; }
+  .col.next-day .col-scroll{ height:628px; }   /* 5 x 106 - 8 = 522 on screen, plus a row running on */
+  .col.next-day .col-scroll.end{ height:522px; }
   .col.next-day .day-sep{ margin-top:0; height:98px; }   /* the same 106px slot, the bar now filling it */
   .col-list{ display:flex; flex-direction:column; gap:8px; }
   .col-empty{ padding:24px 16px; font:400 20px/1.2 var(--noto); color:var(--on-surface-variant); }
@@ -294,7 +292,6 @@
   <div id="page"><div id="content">
     <div class="rail tabs"><div class="rail-track" id="tabs"></div></div>
     <div class="rail subs" id="subsRail"><div class="rail-track" id="subs"></div></div>
-    <div class="rail avatars only-guide"><div class="rail-track" id="avatars"></div></div>
     <div class="grid only-channels" id="grid"></div>
     <div class="rail guide only-guide" id="guideRail"><div class="rail-track" id="guide"></div></div>
     <div class="empty" id="empty" style="display:none">No channels in this category yet.</div>
@@ -327,7 +324,7 @@
       sched:[['PL Match: v Chelsea (A) 25/26',120,'posters/maxresdefault.jpg',1],['Inside United',60],['Sir Alex Ferguson: Never Give In',90,'posters/maxresdefault.jpg'],['Reserves Highlights',60],['Classic Match: 1999 Final',120],['United Review',30]]},
     {no:63,  n:'Real Madrid TV',     logo:'icons/epg/realmadrid.png', fit:'contain', cats:['sports'], tags:['football'],
       sched:[['Champions League 15/16: Real Madrid vs Atlético de Madrid',120,'posters/upcoming/u2.jpg'],['Classic Highlights',60],['Training Ground Live',60,'posters/upcoming/u3.jpg'],['La Liga Review',60],['Bernabéu Stories',90]]},
-    {no:64,  n:'W-Sport',            logo:'icons/epg/wsport.png', fit:'contain', bg:'#fff', cats:['sports'], tags:['multi','basketball'],
+    {no:64,  n:'W-Sport',            logo:'icons/epg/wsport.png', fit:'contain', cats:['sports'], tags:['multi','basketball'],
       sched:[['Malaysia Regional Cup \'26: Wildcats v Sneakers',120,'posters/all.jpg',1],['Heroines (S2E02)',60],['All or Nothing: Brazil',60,'posters/all.jpg'],['Hoops Asia',60],['W-Sport Tonight',30]]},
     {no:230, n:'Warner TV',          logo:'icons/channels/wbtv.png', box:[10.88,12.81,80.09,74.91], bg:'#fff', cats:['movies','cartoons'], crown:'gold',
       sched:[['Superman',150,'posters/superman.jpg',1],['Looney Tunes Cartoons',30],['Gotham Knights',60],['The Big Bang Theory',30],['Young Sheldon',30],['Friends',30]]},
@@ -485,7 +482,7 @@
   function tsHtml(p){ return p.ts ? '<img class="ic24 ts" src="icons/tv-guide/timeshift.svg" alt="Timeshift">' : ''; }
   function crownIcon(c){ return c.crown ? '<img class="ic20" src="icons/tv-guide/' + (c.crown === 'owned' ? 'crown.svg' : 'crown-s.svg') + '" alt="Premium">' : ''; }
   var tabsEl = document.getElementById('tabs'), subsEl = document.getElementById('subs'), subsRail = document.getElementById('subsRail');
-  var gridEl = document.getElementById('grid'), avasEl = document.getElementById('avatars'), guideEl = document.getElementById('guide');
+  var gridEl = document.getElementById('grid'), guideEl = document.getElementById('guide');
   var emptyEl = document.getElementById('empty'), catLabel = document.getElementById('catLabel');
   tabsEl.innerHTML = CATS.map(function(c){ return '<div class="tab item" data-cat="' + c.id + '">' + esc(c.n) + '</div>'; }).join('');
 
@@ -529,17 +526,16 @@
   }
   function renderGuide(list){
     var when = guideTime(), dayOf = function(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); };
-    // the channel-logo row only helps with a longer list: under 6 channels it is left out and the columns move up
-    var showAvas = list.length >= 6;
-    avasEl.parentElement.style.display = showAvas ? '' : 'none';
-    avasEl.innerHTML = !showAvas ? '' : list.map(function(c){ return '<div class="ava item" data-no="' + c.no + '" title="' + esc(c.n) + '">' + logoHtml(c) + '</div>'; }).join('');
     guideEl.innerHTML = list.map(function(c){
-      var i0 = onAt(c, when), shown = c.progs.slice(i0).filter(function(p, j){ return j === 0 || dayOf(p.start) <= dayOf(when) + 864e5; })   /* the day shown and the next day: the last card is the real end */, lastDay = dayOf(when), body = '', bigHtml = '';
+      var pin = '', i0 = onAt(c, when), shown = c.progs.slice(i0).filter(function(p, j){ return j === 0 || dayOf(p.start) <= dayOf(when) + 864e5; })   /* the day shown and the next day: the last card is the real end */, lastDay = dayOf(when), body = '', bigHtml = '';
       if(c.excl) shown = shown.slice(0, 1 + c.up);   // Exclusive: the live programme and at most 2 after it
       shown.forEach(function(p, j){
         // a date divider only where a later day starts: none for the day being shown (today), even when the live
         // card began the evening before
-        if(j > 0 && dayOf(p.start) !== lastDay && dayOf(p.start) > dayOf(when)){ body += '<div class="day-sep">' + fmtDate(p.start) + '</div>'; }
+        if(j > 0 && dayOf(p.start) !== lastDay && dayOf(p.start) > dayOf(when)){
+          body += '<div class="day-sep">' + fmtDate(p.start) + '</div>';
+          if(!pin) pin = '<div class="day-sep day-pin">' + fmtDate(p.start) + '</div>';
+        }
         lastDay = dayOf(p.start);
         var tm = fmtTime(p.start) + (j === 0 ? ' - ' : ' – ') + fmtTime(p.end);
         if(j === 0){
@@ -560,7 +556,7 @@
           '<div class="col-icons"><span class="heart">' + heartIcon(c) + '</span>' +
             (c.crown ? '<span class="crown">' + crownIcon(c) + '</span>' : '') + (c.excl ? '' : '<div class="col-no">' + c.no + '</div>') + '</div></div>' +
         // the live card stays pinned under the channel header; what comes after scrolls inside the column on its own
-        '<div class="col-body">' + bigHtml + '<div class="col-scroll"><div class="col-list">' + body + '</div></div></div></div>';
+        '<div class="col-body">' + bigHtml + pin + '<div class="col-scroll"><div class="col-list">' + body + '</div></div></div></div>';
     }).join('');
   }
   var PROG_BY_KEY = {};
@@ -573,7 +569,7 @@
     var list = channelsFor();
     if(S.view === 'channels') renderChannels(list); else renderGuide(list);
     emptyEl.style.display = list.length ? 'none' : '';
-    $('.ch-card, .prog, .ava').forEach(function(el){ el.addEventListener('click', onClick); });
+    $('.ch-card, .prog').forEach(function(el){ el.addEventListener('click', onClick); });
   }
 
   /* ---------- head: clock chips and the two dropdowns ---------- */
@@ -614,12 +610,11 @@
   }
 
   /* ---------- focus: zones top to bottom, each remembers its position ---------- */
-  var mem = { head:0, tabs:0, subs:0, avatars:0, grid:0, guide:{c:0, r:0} }, zone = 'tabs';
+  var mem = { head:0, tabs:0, subs:0, grid:0, guide:{c:0, r:0} }, zone = 'tabs';
   function zoneItems(z){
     if(z === 'head') return $('.sw').concat(S.view === 'guide' ? [dds.date.querySelector('.dd-trigger'), dds.time.querySelector('.dd-trigger')] : []);
     if(z === 'tabs') return $('.tab', tabsEl);
     if(z === 'subs') return $('.sub', subsEl);
-    if(z === 'avatars') return $('.ava', avasEl);
     if(z === 'grid') return $('.ch-card', gridEl);
     return [];
   }
@@ -628,14 +623,16 @@
     var z = ['head', 'tabs'];
     if(subsEl.children.length) z.push('subs');   // Sports / Others sub-tabs, in both views
     if(S.view === 'channels'){ if(zoneItems('grid').length) z.push('grid'); }
-    else {
-      if(zoneItems('avatars').length) z.push('avatars');   // the logo row (only with 6+ channels)
-      if(guideCols().length) z.push('guide');
-    }
+    else if(guideCols().length) z.push('guide');
     return z;
   }
-  var colRow = {};   // the card last focused in each guide column (by column), for coming back with Left / Right
-  function resetZones(){ colRow = {}; mem.avatars = 0; mem.grid = 0; mem.guide = {c:0, r:0}; if(zones().indexOf(zone) < 0) zone = 'tabs'; }
+  // a guide card's middle on screen once its column has finished scrolling (paint() scrolls smoothly, to scrollTopTo)
+  function settledMid(el){
+    var b = el.getBoundingClientRect(); if(!b.height) return null;
+    var sc = el.closest('.col-scroll'), to = sc ? sc.dataset.scrollTopTo : '';   // the live card sits above the scroller
+    return b.top + b.height / 2 + (to !== undefined && to !== '' ? (sc.scrollTop - +to) * K : 0);
+  }
+  function resetZones(){ mem.grid = 0; mem.guide = {c:0, r:0}; if(zones().indexOf(zone) < 0) zone = 'tabs'; }
   function focusedEl(){
     if(zone === 'guide'){ var cols = guideCols(), g = mem.guide; return cols[g.c] && cols[g.c][g.r]; }
     return zoneItems(zone)[mem[zone]];
@@ -648,19 +645,9 @@
     if(zone === 'guide' && !guideHinted){ guideHinted = true; showHint(HINT_FAV); }
     // ... and the first time it reaches an upcoming programme's card: the reminder hint (once per visit)
     else if(zone === 'guide' && !remHinted && el.querySelector('.rem-wrap')){ remHinted = true; showHint(HINT_REM); }
-    // a focused channel logo lights up its programme column too (no ring there: the column itself isn't focused)
+    // a programme column stays lit while focus is on one of its programmes
     $('.col.hl', guideEl).forEach(function(c){ c.classList.remove('hl'); });
-    // ... and stays lit while focus is on one of its programmes
     if(zone === 'guide'){ var own = el.closest('.col'); if(own) own.classList.add('hl'); }
-    if(zone === 'avatars'){
-      var col = $('.col[data-no="' + el.dataset.no + '"]', guideEl)[0];
-      if(col){
-        col.classList.add('hl');
-        // and the guide slides along with the logos (same rule as the rails), so the lit column is in view
-        var gr = col.closest('.rail'), gl = Math.max(0, Math.min(col.offsetLeft - col.parentElement.firstElementChild.offsetLeft, gr.scrollWidth - gr.clientWidth));
-        gr.dataset.scrollLeftTo = gl; gr.scrollTo({left:gl, behavior:'smooth'});
-      }
-    }
     // keep it in view. Sideways, exactly like Home's rails ("fixed focus", updateTrackTransform in home.html): the
     // focused item sits at the first item's slot (the 110px margin) and the rail slides under it, until the rail's end
     // is in: it stops where the last item ends as far from the right edge as the first starts from the left; past that,
@@ -684,7 +671,7 @@
       var rail = document.getElementById('guideRail');
       guideMin = (rail.getBoundingClientRect().top - page.getBoundingClientRect().top) / K + page.scrollTop + 6 - 124;
     }
-    if(zone === 'head' || zone === 'tabs' || zone === 'subs' || zone === 'avatars' || (zone === 'grid' && mem.grid < 5)) top = 0;
+    if(zone === 'head' || zone === 'tabs' || zone === 'subs' || (zone === 'grid' && mem.grid < 5)) top = 0;
     else if(zone === 'guide'){
       // the page stays put (collapsed); the focused column scrolls inside itself to keep the programme in view, and
       // every other column stays scrolled as it was left
@@ -698,18 +685,18 @@
           var sep = $('.day-sep', o)[0], nextDay = !!(sep && (sep.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING));
           var wasNext = col.classList.contains('next-day');
           col.classList.toggle('next-day', nextDay);
-          var VIS = nextDay ? 628 : 416, FULL = nextDay ? 734 : 522;   // rows fully on screen; the scroller's height
+          var VIS = nextDay ? 522 : 416, FULL = nextDay ? 628 : 522;   // rows fully on screen; the scroller's height
           // the divider's place in the scroller (measured on screen: offsetTop would count from the column instead)
           var sepTop = sep ? (sep.getBoundingClientRect().top - o.getBoundingClientRect().top) / K + o.scrollTop : 0;
           var y = (el.getBoundingClientRect().top - o.getBoundingClientRect().top) / K + o.scrollTop, h = el.offsetHeight;
           st = o.scrollTop; if(o.dataset.scrollTopTo !== undefined) st = +o.dataset.scrollTopTo;
-          if(nextDay && !wasNext) st = sepTop;   // stepping into the next day: its divider goes to the top
+          if(nextDay && !wasNext) st = sepTop + 106;   // stepping into the next day: its first programme under the pinned date
           if(y + h + 8 > st + VIS) st = y + h + 8 - VIS;   // keep it in the rows on screen, ring included
           if(y < st) st = y;   // ... and above (the ring may overlap the card above the list)
           // whole steps of the 106px grid (a card or a date divider + the 8px gap), so the rows line up across columns
           var prev = +(o.dataset.scrollTopTo || 0);
           st = st > prev ? Math.ceil(st / 106) * 106 : st < prev ? Math.floor(st / 106) * 106 : prev;
-          if(nextDay) st = Math.max(st, sepTop);   // the day before stays out of sight
+          if(nextDay) st = Math.max(st, sepTop + 106);   // the day before (and the list's own divider) stays out of sight
           var isLast = S.cat !== 'exclusive' && el === $('.prog', o).pop();   // Exclusive's short lists never hug
           o.classList.toggle('end', isLast);   // this column hugs its last card; the others keep running on
           st = Math.max(0, Math.min(st, o.scrollHeight - (isLast ? VIS : FULL)));
@@ -751,13 +738,16 @@
         var n = zoneItems('grid').length, c = mem.grid % 5;
         if((dx < 0 && c > 0) || (dx > 0 && c < 4 && mem.grid + 1 < n)) mem.grid += dx;
       } else if(zone === 'guide'){
-        // Left / Right goes back to the card last focused in that column; a column not visited yet starts on its first
-        // card (what's on now)
+        // Left / Right goes to the card beside the focused one: in the next column, the card whose middle is nearest
+        // the focused card's middle on screen (each column as it is scrolled, or is scrolling to)
         var cols = guideCols(), g = mem.guide, nc = Math.max(0, Math.min(cols.length - 1, g.c + dx));
         if(nc === g.c) return;
-        colRow[g.c] = g.r;
-        mem.guide = {c:nc, r:Math.min(colRow[nc] || 0, cols[nc].length - 1)};
-        mem.avatars = nc;
+        var y = settledMid(cols[g.c][g.r]), best = 0, bestD = Infinity;
+        cols[nc].forEach(function(el, i){
+          var m = settledMid(el); if(m === null) return;   // the live card, put away in a next-day column
+          if(Math.abs(m - y) < bestD){ bestD = Math.abs(m - y); best = i; }
+        });
+        mem.guide = {c:nc, r:best};
       } else {
         var items = zoneItems(zone);
         mem[zone] = Math.max(0, Math.min(items.length - 1, mem[zone] + dx));
@@ -790,12 +780,9 @@
     if(zone === 'tabs' && dy > 0 && nz === 'subs'){
       nz = zs[zi + 2];
       if(nz === 'grid') mem.grid = 0;
-      if(nz === 'avatars') mem.avatars = 0;
       if(nz === 'guide') mem.guide = {c:0, r:0};
     }
     if(!nz) return;
-    if(nz === 'guide' && zone === 'avatars') mem.guide = {c:mem.avatars, r:0};
-    if(nz === 'avatars' && zone === 'guide') mem.avatars = mem.guide.c;
     // coming onto the sub-tabs: start on the selected (underlined) one
     if(nz === 'subs') mem.subs = Math.max(0, zoneItems('subs').map(function(e){ return e.dataset.sub; }).indexOf(S.sub));
     if(nz === 'tabs') mem.tabs = Math.max(0, CATS.map(function(c){ return c.id; }).indexOf(S.cat));
@@ -817,10 +804,9 @@
     if(zone === 'guide' && mem.guide.r > 0){
       var sc = guideCols()[mem.guide.c][1].closest('.col-scroll');
       if(sc) sc.dataset.scrollTopTo = 0;   // paint() sees the change and scrolls it back
-      delete colRow[mem.guide.c];
       mem.guide = {c:mem.guide.c, r:0}; return;
     }
-    if(zone === 'grid' || zone === 'avatars' || zone === 'guide'){
+    if(zone === 'grid' || zone === 'guide'){
       if(zones().indexOf('subs') >= 0){
         zone = 'subs'; mem.subs = Math.max(0, zoneItems('subs').map(function(e){ return e.dataset.sub; }).indexOf(S.sub));
         return;
@@ -844,7 +830,7 @@
     if(has('movies')) return V + 'spiderman.mp4';
     return V + 'vall.mp4';
   }
-  function openPlayer(c, replace){
+  function openPlayer(c, replace, loud){
     var p = c.progs[onAt(c, new Date())];
     try { sessionStorage.setItem('tvGuideBack', JSON.stringify({view:S.view, cat:S.cat, sub:S.sub, no:c.no})); } catch(e){}
     // the channel numbers there are, so the player can say "not available" for a typed number without leaving
@@ -863,7 +849,7 @@
     } catch(e){}
     var q = {n:c.n, no:c.excl ? '' : c.no, crown:c.crown || '', fav:c.fav ? 1 : '', logo:c.logo || '', fit:c.fit || '', box:c.box ? c.box.join(',') : '',
              bg:c.bg || '', txt:c.txt || '', fg:c.fg || '', t:p.t, s:p.start.getTime(), e:p.end.getTime(), v:videoFor(c),
-             ts:p.ts ? 1 : '', quiet:replace ? 1 : ''};   // Time Shift: what's on now has the Time Shift icon; quiet: a channel change (see the player)
+             ts:p.ts ? 1 : '', quiet:replace && !loud ? 1 : ''};   // Time Shift: what's on now has the Time Shift icon; quiet: a channel change (see the player)
     var url = 'live-tv-player.html?' + Object.keys(q).filter(function(k){ return q[k] !== ''; })
       .map(function(k){ return k + '=' + encodeURIComponent(q[k]); }).join('&');
     if(replace) location.replace(url); else location.href = url;
@@ -875,7 +861,6 @@
     if(el.classList.contains('sw')){ setView(el.dataset.view); mem.head = S.view === 'guide' ? 1 : 0; zone = 'head'; return; }
     if(el.classList.contains('dd-trigger')){ openMenu(el.parentElement === dds.date ? 'date' : 'time'); return; }
     if(el.classList.contains('ch-card')){ openPlayer(chByNo(el.dataset.no)); return; }
-    if(el.classList.contains('ava')){ mem.guide = {c:zoneItems('avatars').indexOf(el), r:0}; zone = 'guide'; return; }
     if(el.classList.contains('prog')){
       var p = PROG_BY_KEY[el.dataset.key], now = new Date();
       if(p.start <= now && p.end > now){ openPlayer(p.ch); return; }
@@ -994,11 +979,12 @@
   // from (?from=) when there is no such channel
   // ?zap=1 / -1 & cur=<name>: Up / Down in the player, the next / previous channel by number (wrapping round; the
   // Exclusive channels have no number, so they are left out)
-  // ?play=<name>: a channel picked in the player's mini EPG (by name: Exclusive channels have no number)
+  // ?play=<name>: a channel picked in the player's mini EPG (by name: Exclusive channels have no number), or a channel
+  // card on Home (&from=home: opened with the controls showing, and Back returns to Home)
   var pick = /[?&]play=([^&]*)/.exec(location.search);
   if(pick){
     var pc = CHANNELS.filter(function(c){ return c.n === decodeURIComponent(pick[1]); })[0];
-    if(pc){ document.body.style.visibility = 'hidden'; openPlayer(pc, true); return; }
+    if(pc){ document.body.style.visibility = 'hidden'; openPlayer(pc, true, /[?&]from=home/.test(location.search)); return; }
   }
   var zap = /[?&]zap=(-?1)/.exec(location.search);
   if(zap){
@@ -1021,7 +1007,7 @@
   paintHead(); render();
   if(ret && !/view=/.test(location.search)){
     var at = channelsFor().map(function(c){ return ret.n ? c.n : c.no; }).indexOf(ret.n || ret.no);   // by name from the player (Exclusive channels have no number)
-    if(at >= 0){ if(S.view === 'channels'){ zone = 'grid'; mem.grid = at; } else { zone = 'guide'; mem.guide = {c:at, r:0}; mem.avatars = at; } }
+    if(at >= 0){ if(S.view === 'channels'){ zone = 'grid'; mem.grid = at; } else { zone = 'guide'; mem.guide = {c:at, r:0}; } }
   }
   paint();
   // first impression: the hint slides in as the page opens and leaves after a few seconds (or once a favourite is set)

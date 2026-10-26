@@ -41,11 +41,21 @@
   function visible(el){
     if(!el.isConnected || !el.getClientRects().length) return false;
     for(var n = el; n && n !== screen; n = n.parentElement) if(getComputedStyle(n).opacity === '0') return false;
+    // still being scrolled into view (a scroller on its way to data-scroll-*-to): it shows once that ends, so the ring
+    // goes there now, not hiding while the item is still under what it is scrolling out from behind
+    if(scrolling(el)) return true;
     // and not covered: a dialog's backdrop over it means the page behind keeps its focus, but the ring belongs to the dialog
     var b = el.getBoundingClientRect(), cx = (b.left + b.right) / 2, cy = (b.top + b.bottom) / 2;
     if(cx < 0 || cy < 0 || cx > innerWidth || cy > innerHeight) return true;
     var hit = document.elementFromPoint(cx, cy);
     return !hit || el.contains(hit) || hit.contains(el);
+  }
+  function scrolling(el){
+    for(var n = el.parentElement; n && n !== screen; n = n.parentElement){
+      if(n.dataset.scrollTopTo !== undefined && Math.abs(n.scrollTop - Math.min(parseFloat(n.dataset.scrollTopTo), n.scrollHeight - n.clientHeight)) > 1) return true;
+      if(n.dataset.scrollLeftTo !== undefined && Math.abs(n.scrollLeft - Math.min(parseFloat(n.dataset.scrollLeftTo), n.scrollWidth - n.clientWidth)) > 1) return true;
+    }
+    return false;
   }
   // a page can ask for the plain ring everywhere (no artwork reflected in it): <div id="screen" data-ring-plain>
   var PLAIN = screen.hasAttribute('data-ring-plain');

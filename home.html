@@ -1036,7 +1036,8 @@
     // favourites changed this session in the TV Guide or the player (tvFavs, by channel name) win over the built-in hearts
     try { var FAVS = JSON.parse(sessionStorage.getItem('tvFavs') || 'null'); if(FAVS) items.forEach(function(it){ if(it.ch in FAVS) it.heart = FAVS[it.ch]; }); } catch(e){}
     var epgCards = items.map(function(it,i){
-      return '<div class="epg-card item" data-title="'+it.title+'">'+
+      // Enter plays the channel in the Live TV player (via the TV Guide, which has its programmes and the mini EPG)
+      return '<div class="epg-card item" data-title="'+it.title+'" data-href="tv-guide.html?play='+encodeURIComponent(it.ch)+'&from=home">'+
         '<div class="epg-now">'+
           '<img class="epg-avatar'+(it.round?' round':'')+(it.contain?' contain':'')+'" src="icons/epg/'+it.logo+'" alt="">'+
           '<div class="epg-prog-data"><div class="epg-title">'+it.title+'</div><div class="epg-sub">'+it.now+'</div></div>'+
@@ -1812,7 +1813,10 @@
     var label = it.getAttribute('data-title') || it.textContent.trim() || 'Selected';
     // cards with a detail page open it (District 9 → movie-detail.html)
     var href = it.getAttribute('data-href');
-    if(href){ it.animate([{transform:getComputedStyle(it).transform},{transform:'scale(0.97)'}], {duration:140, easing:'ease-out'}); setTimeout(function(){ window.location.href = href; }, 140); return; }
+    if(href){
+      // Back from there lands on the same card
+      try { sessionStorage.setItem('homeReturn', JSON.stringify({row:curRow, col:colByRow[curRow]})); } catch(e){}
+      it.animate([{transform:getComputedStyle(it).transform},{transform:'scale(0.97)'}], {duration:140, easing:'ease-out'}); setTimeout(function(){ window.location.href = href; }, 140); return; }
     it.animate([{transform:getComputedStyle(it).transform},{transform:'scale(0.97)'},{transform:'scale(1.07)'}], {duration:220, easing:'ease-out'});
     toast('Now playing: ' + label);
   }
@@ -2150,6 +2154,12 @@
   }
   window.addEventListener('resize', function(){ placeHomeRing(true); });
 
+  // coming back from a page a card opened (the player, the TV Guide, a detail page): focus that card again
+  try {
+    var ret = JSON.parse(sessionStorage.getItem('homeReturn') || 'null');
+    sessionStorage.removeItem('homeReturn');
+    if(ret && rows[ret.row] && rows[ret.row].items[ret.col]){ curRow = ret.row; colByRow[ret.row] = ret.col; }
+  } catch(e){}
   applyScale();
   updateFocus();
   placeHomeRing(true);

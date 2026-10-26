@@ -59,11 +59,11 @@
   .top{ position:absolute; left:0; top:0; padding:60px 90px; display:flex; align-items:center; gap:24px; }
   .back{ width:80px; height:80px; border-radius:9999px; flex:0 0 auto; }
   .back img{ display:block; width:80px; height:80px; }
-  .ava{ position:relative; width:80px; height:80px; border-radius:100px; overflow:hidden; flex:0 0 auto; background:var(--avatar); }
+  .ava{ position:relative; width:90px; height:90px; border-radius:100px; overflow:hidden; flex:0 0 auto; background:var(--avatar); }
   .ava img{ position:absolute; }
   .ava img.cover{ inset:0; width:100%; height:100%; object-fit:cover; }
   .ava img.contain{ left:12%; top:12%; width:76%; height:76%; object-fit:contain; }
-  .ava.txt{ display:flex; align-items:center; justify-content:center; text-align:center; font:700 20px/1.1 var(--noto); }
+  .ava.txt{ display:flex; align-items:center; justify-content:center; text-align:center; font:700 22px/1.1 var(--noto); }
   .info{ height:112px; display:flex; flex-direction:column; justify-content:center; gap:24px; min-width:0; }
   .prog-t{ max-width:1500px; font:700 40px/32px Roboto, sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .meta{ display:flex; align-items:center; gap:16px; font:500 24px/1.2 var(--noto); letter-spacing:-.24px; white-space:nowrap; }
@@ -457,10 +457,9 @@
     // the seek bar shows focus itself (taller, with the handle), so it takes .on: focus-ring.js only rings .focused
     var el = r[row][col]; el.classList.add(el.id === 'track' ? 'on' : 'focused');
   }
-  // first focus: the seek bar when the programme has Time Shift (there is something to do on it), else Browse Channels.
-  // After that the controls come back on the button last used
+  // first focus: the seek bar, with Time Shift or without. After that the controls come back on the button last used
   (function(){
-    var want = TS ? byId('track') : $('.btn[data-act="mini-epg"]')[0];
+    var want = byId('track');
     rows().forEach(function(r, ri){ r.forEach(function(el, ci){ if(el === want){ row = ri; col = ci; } }); });
   })();
 
