@@ -20,12 +20,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       # Only the Home demo is in this repo: publish its pages and image folders as-is,
-      # with home.html as the site root
+      # with the TV's home screen (launcher.html, AIS PLAY opens Home) as the site root
       - run: |
           mkdir -p site/tv-features-test
-          cp -r home.html movie-detail.html package-detail.html tv-guide.html live-tv-player.html sport.html store.html focus-ring.js badges icons partners posters posters_portrait video sport-assets store-assets site/
+          cp -r launcher.html login.html home.html movie-detail.html package-detail.html tv-guide.html live-tv-player.html sport.html store.html focus-ring.js badges icons partners posters posters_portrait video sport-assets store-assets login-assets site/
           cp -r tv-features-test/live-stream-assets tv-features-test/shorts-assets tv-features-test/concert-assets site/tv-features-test/
-          cp home.html site/index.html
+          cp launcher.html site/index.html
           # Home's back button opens the Content Picker, which isn't published; send it back to Home
           echo '<!doctype html><meta charset="utf-8"><script>location.replace("../home.html")</script>' > site/tv-features-test/content-picker.html
       - uses: actions/upload-pages-artifact@v3

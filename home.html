@@ -1825,8 +1825,10 @@
     if(e.key === 'Escape' || e.key === 'Backspace'){
       // scrolled down the page: Back first returns to the top (the first rail, hero showing)
       if(!mobileMode && ctxRow() > HERO_ROW_INDEX){ navFrom = 0; curRow = HERO_ROW_INDEX; updateFocus(); e.preventDefault(); return; }
-      // Home is the start page now, so at the top Back stays on Home
+      // at the top Back leaves the app for the TV's home screen (launcher.html), which comes back to the AIS PLAY tile
+      // (the phone mock stays on Home)
       e.preventDefault();
+      if(!mobileMode) window.location.href = 'launcher.html';
       return;
     }
     if(e.code === 'Space' || e.key === ' '){
