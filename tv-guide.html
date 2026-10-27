@@ -134,19 +134,22 @@
 
   /* focus ring: the shared one from focus-ring.js (Home's gliding glass ring), which follows the .focused item */
 
-  /* ---------- View Channels: a 5-column grid of channel cards ---------- */
-  .grid{ margin:26px 110px 0; display:grid; grid-template-columns:repeat(5, 332px); gap:10px; }   /* 32px below the tabs */
-  .ch-card{ position:relative; height:170px; box-sizing:border-box; padding:16px; border:3.6px solid transparent; border-radius:16px; cursor:pointer;
+  /* ---------- View Channels: a grid of channel cards ---------- */
+  /* Home's Hot Channels card (Figma "Card CH", PLAY epg - mini epg 3222:170874): 190 x 262, the logo in a 112px circle,
+     the name, then the heart, crown and channel number. 24px between cards both ways (as Home's Hot Channels rail),
+     so 8 to a row fit the 1700px between the margins (8 x 190 + 7 x 24 = 1688) */
+  .grid{ margin:26px 110px 0; display:grid; grid-template-columns:repeat(8, 190px); gap:24px; }
+  .ch-card{ position:relative; width:190px; height:262px; box-sizing:border-box; padding:20px; border-radius:16px; cursor:pointer;
     background:var(--glass-card);   /* Home's channel card glass; no backdrop blur: over the plain page it shows nothing, and inside the
                                        faded scroller Chrome draws it in tiles, leaving seams */
-    display:flex; flex-direction:column; justify-content:space-between; transition:background .22s cubic-bezier(.2,0,0,1); }
+    display:flex; flex-direction:column; align-items:center; transition:background .22s cubic-bezier(.2,0,0,1); }
   .ch-card.focused{ background:var(--glass-card-on); }
-  .ch-top{ display:flex; align-items:center; gap:16px; min-width:0; }
-  .ch-top .ava-sm{ position:relative; width:90px; height:90px; border-radius:100px; flex:0 0 auto; }
-  .ch-name{ flex:1; min-width:0; font:500 24px/1.2 var(--noto); letter-spacing:-.24px; }
-  .ch-bottom{ display:flex; align-items:center; gap:10px; }
-  .ch-prog{ flex:1; min-width:0; font:400 20px/1.2 var(--noto); letter-spacing:-.24px; color:rgba(255,255,255,.7); }
-  .ch-icons{ display:flex; align-items:center; gap:16px; }
+  .ch-slot{ width:150px; height:150px; flex:0 0 auto; display:flex; justify-content:center; padding-top:8px; box-sizing:border-box; }
+  .ch-slot .ava{ position:relative; width:112px; height:112px; border-radius:999px; flex:0 0 auto; }
+  .ch-slot .logo.txt{ font-size:20px; }
+  .ch-slot .logo.txt.long{ font-size:16px; }
+  .ch-name{ width:100%; font:400 24px/normal Helvetica, Arial, sans-serif; text-align:center; }
+  .ch-meta{ display:flex; align-items:center; justify-content:center; gap:16px; margin-top:12px; }
   .ic20{ width:20px; height:20px; display:block; }
   .ch-no{ height:32px; min-width:40px; box-sizing:border-box; padding:0 12px; border-radius:8px; display:flex; align-items:center; justify-content:center;
     background:rgba(0,0,0,.35); font:600 20px/20px var(--noto); }
@@ -500,14 +503,12 @@
     subsRail.style.display = cat.subs ? '' : 'none';
   }
   function renderChannels(list){
-    var now = new Date();
     gridEl.innerHTML = list.map(function(c){
-      var p = c.progs[onAt(c, now)];
-      return '<div class="ch-card item" data-no="' + c.no + '">' +
-        '<div class="ch-top"><div class="ava-sm">' + logoHtml(c) + '</div><div class="ch-name clip">' + esc(c.n) + '</div></div>' +
-        '<div class="ch-bottom"><div class="ch-prog clip">' + esc(p.t) + '</div>' +
-          '<div class="ch-icons">' + heartIcon(c) + crownIcon(c) + '</div>' +
-          (c.excl ? '' : '<div class="ch-no">' + c.no + '</div>') + '</div>' +
+      // Home's channel card: logo circle, name, then heart, crown and number (data-ring-art="": plain glass ring)
+      return '<div class="ch-card item" data-no="' + c.no + '" data-ring-art="">' +
+        '<div class="ch-slot"><div class="ava">' + logoHtml(c) + '</div></div>' +
+        '<div class="ch-name clip">' + esc(c.n) + '</div>' +
+        '<div class="ch-meta">' + heartIcon(c) + crownIcon(c) + (c.excl ? '' : '<div class="ch-no">' + c.no + '</div>') + '</div>' +
       '</div>';
     }).join('');
   }
@@ -610,6 +611,7 @@
   }
 
   /* ---------- focus: zones top to bottom, each remembers its position ---------- */
+  var GRID_COLS = 8;   // View Channels: cards to a row (.grid)
   var mem = { head:0, tabs:0, subs:0, grid:0, guide:{c:0, r:0} }, zone = 'tabs';
   function zoneItems(z){
     if(z === 'head') return $('.sw').concat(S.view === 'guide' ? [dds.date.querySelector('.dd-trigger'), dds.time.querySelector('.dd-trigger')] : []);
@@ -671,7 +673,7 @@
       var rail = document.getElementById('guideRail');
       guideMin = (rail.getBoundingClientRect().top - page.getBoundingClientRect().top) / K + page.scrollTop + 6 - 124;
     }
-    if(zone === 'head' || zone === 'tabs' || zone === 'subs' || (zone === 'grid' && mem.grid < 5)) top = 0;
+    if(zone === 'head' || zone === 'tabs' || zone === 'subs' || (zone === 'grid' && mem.grid < GRID_COLS)) top = 0;
     else if(zone === 'guide'){
       // the page stays put (collapsed); the focused column scrolls inside itself to keep the programme in view, and
       // every other column stays scrolled as it was left
@@ -735,8 +737,8 @@
     var zs = zones(), zi = zs.indexOf(zone);
     if(dx){
       if(zone === 'grid'){
-        var n = zoneItems('grid').length, c = mem.grid % 5;
-        if((dx < 0 && c > 0) || (dx > 0 && c < 4 && mem.grid + 1 < n)) mem.grid += dx;
+        var n = zoneItems('grid').length, c = mem.grid % GRID_COLS;
+        if((dx < 0 && c > 0) || (dx > 0 && c < GRID_COLS - 1 && mem.grid + 1 < n)) mem.grid += dx;
       } else if(zone === 'guide'){
         // Left / Right goes to the card beside the focused one: in the next column, the card whose middle is nearest
         // the focused card's middle on screen (each column as it is scrolled, or is scrolling to)
@@ -756,9 +758,9 @@
       return;
     }
     if(zone === 'grid'){
-      var ng = mem.grid + dy * 5;
+      var ng = mem.grid + dy * GRID_COLS;
       if(dy > 0 && ng < zoneItems('grid').length){ mem.grid = ng; return; }
-      if(dy > 0 && Math.floor(mem.grid / 5) < Math.floor((zoneItems('grid').length - 1) / 5)){ mem.grid = zoneItems('grid').length - 1; return; }
+      if(dy > 0 && Math.floor(mem.grid / GRID_COLS) < Math.floor((zoneItems('grid').length - 1) / GRID_COLS)){ mem.grid = zoneItems('grid').length - 1; return; }
       if(dy < 0 && ng >= 0){ mem.grid = ng; return; }
     }
     if(zone === 'guide'){
