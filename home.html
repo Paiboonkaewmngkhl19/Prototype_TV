@@ -2,7 +2,7 @@
 <title>Stream Home Prototype</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;800&family=Roboto:wght@400;500&family=Inter:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg-0:#0a0714;
@@ -138,6 +138,49 @@
     border-color:transparent; box-shadow:none;
     color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35);
   }
+
+  /* ---------- Profile panel (Figma "profilePanel", PLAY profile - settings 430:137036) ----------
+     Drops down under the profile photo while the photo has focus: the profile card, My Account, then Settings,
+     Help & Support and Exit AIS PLAY. Down / Enter go into it; focus inside uses the Default theme (white glass pill
+     + the gliding ring), the photo keeps a dim fill meanwhile. */
+  /* Figma's layout and sizes in the phone app's theme (Prototype_Mobile's Profile page, the same Default theme tokens
+     as here): the page's navy with its soft glow from the lower right; the profile card its lit grey-blue glass;
+     the chip a 16% white fill, the buttons outlined in it; text #e8e8e8 / #a8a8a8 in Open Sans.
+     Focused: the Default theme's white glass pill (and the gliding ring) */
+  .prof-panel{ position:absolute; left:110px; top:100px; width:402px; box-sizing:border-box; padding:24px; border-radius:24px;
+    background:radial-gradient(600px 460px at 85% 110%, var(--th-glow), transparent 70%), var(--bg-0);
+    box-shadow:inset 0 0 0 1px rgba(214,222,240,.14), 0 12px 32px rgba(0,0,0,.5);
+    display:flex; flex-direction:column; gap:32px; overflow:hidden; font-family:'Open Sans', sans-serif;
+    opacity:0; translate:0 -12px; pointer-events:none; transition:opacity .22s cubic-bezier(.2,0,0,1), translate .22s cubic-bezier(.2,0,0,1); }
+  .topnav.prof-open .prof-panel{ opacity:1; translate:0 0; pointer-events:auto; }
+  .prof-top{ display:flex; flex-direction:column; gap:16px; }
+  .prof-card{ display:flex; align-items:center; gap:8px; padding:16px; border-radius:16px;
+    background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0) 45%), linear-gradient(160deg, #3a4254 0%, #2a3040 55%, #1f2533 100%);
+    box-shadow:inset 0 0 0 1px rgba(214,222,240,.22), inset 0 1px 0 rgba(255,255,255,.18), 0 12px 32px rgba(0,0,0,.5), 0 0 40px rgba(214,222,240,.10); }
+  .prof-ava{ position:relative; width:80px; height:80px; border-radius:100px; flex:0 0 auto; overflow:hidden; background:#404045; }
+  .prof-ava img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+  .prof-info{ flex:1; min-width:0; display:flex; flex-direction:column; gap:8px; }
+  .prof-name-row{ display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+  .prof-name{ flex:1; min-width:0; font-weight:500; font-size:24px; color:#e8e8e8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .prof-chip{ height:24px; padding:2px 10px; box-sizing:border-box; border-radius:999px; background:rgba(255,255,255,.16); display:flex; align-items:center;
+    font-weight:700; font-size:11px; line-height:1.4; color:#e8e8e8; white-space:nowrap; flex:0 0 auto; }
+  .prof-acc{ font-size:14px; color:#a8a8a8; white-space:nowrap; }
+  .prof-net{ font-size:12px; color:#a8a8a8; white-space:nowrap; }
+  .prof-div{ display:block; width:354px; height:1px; opacity:.6; }
+  .prof-menu{ display:flex; flex-direction:column; gap:16px; }
+  /* TV / Button, h56 pill */
+  .prof-btn{ position:relative; height:56px; box-sizing:border-box; padding:16px; border-radius:9999px; display:flex; align-items:center; gap:8px; cursor:pointer;
+    background:transparent; box-shadow:inset 0 0 0 2px rgba(255,255,255,.16);   /* outlined, as Figma's resting TV / Button */
+    font-weight:700; font-size:16px; line-height:24px; color:#f0f0f0; white-space:nowrap; transition:background .2s ease; }
+  .prof-btn .ic{ position:relative; width:24px; height:24px; flex:0 0 auto; }
+  .prof-btn .ic img{ display:block; width:24px; height:24px; }
+  /* Figma exports these icons in their base dark grey (#3B3C3E): shown white, like the labels */
+  .prof-btn .ic img.tint{ filter:brightness(0) invert(.94); }   /* #f0f0f0, as the labels */
+  .prof-btn .ic .dot{ position:absolute; right:-1px; top:-1px; width:8px; height:8px; }
+  .prof-btn .lbl{ position:relative; }
+  .prof-btn.focused{ background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%), var(--th-pill); box-shadow:none; color:#fff; }
+  .prof-btn.focused .lbl{ text-shadow:0 1px 4px rgba(0,0,0,.35); }
+  .topnav .profile.open{ box-shadow:0 0 0 4px rgba(255,255,255,.22); }
 
   /* ---------- Hero banner ----------
      Pinned like the top nav: anchored to the tv-frame (not the
@@ -744,6 +787,25 @@
 <div id="tv-frame">
   <nav class="topnav">
     <div class="profile item" data-title="Profile"><img src="icons/profile-tv.png" alt="Profile"></div>
+    <div class="prof-panel" id="profPanel" aria-hidden="true">
+      <div class="prof-top">
+        <div class="prof-card">
+          <div class="prof-ava"><img src="icons/profile-tv.png" alt=""></div>
+          <div class="prof-info">
+            <div class="prof-name-row"><div class="prof-name">User</div><div class="prof-chip">Not Linked</div></div>
+            <div class="prof-acc">Account: 88X XXX XXXX</div>
+            <div class="prof-net">AIS Fibre</div>
+          </div>
+        </div>
+        <div class="prof-btn" data-act="account"><span class="ic"><img src="icons/profile/icon-account.svg" alt=""></span><span class="lbl">My Account</span></div>
+      </div>
+      <img class="prof-div" src="icons/profile/divider.svg" alt="">
+      <div class="prof-menu">
+        <div class="prof-btn" data-act="settings"><span class="ic"><img class="tint" src="icons/profile/icon-settings.svg" alt=""><img class="dot" src="icons/profile/badge.svg" alt=""></span><span class="lbl">Settings</span></div>
+        <div class="prof-btn" data-act="help"><span class="ic"><img class="tint" src="icons/profile/icon-help.svg" alt=""></span><span class="lbl">Help &amp; Support</span></div>
+        <div class="prof-btn" data-act="exit"><span class="ic"><img class="tint" src="icons/profile/icon-exit.svg" alt=""></span><span class="lbl">Exit AIS PLAY</span></div>
+      </div>
+    </div>
     <div class="center" data-row="nav">
       <div class="navsearch item" data-title="Search"><img src="icons/nav-search.svg" alt="Search"></div>
       <div class="navtab item active" data-label="Home">Home</div>
@@ -1519,6 +1581,30 @@
   var navItems = Array.prototype.slice.call(document.querySelectorAll('.topnav .item'));
   rows.unshift({ el: document.querySelector('.topnav'), items: navItems, track: document.querySelector('.topnav .center') });
   var NAV_HOME_COL = Math.max(0, navItems.indexOf(document.querySelector('.navtab[data-label="Home"]')));
+  // the profile panel under the photo: profAt is the focused button in it (-1: focus is not in the panel)
+  var profileEl = document.querySelector('.topnav .profile'), profPanel = document.getElementById('profPanel');
+  var profBtns = Array.prototype.slice.call(profPanel.querySelectorAll('.prof-btn')), profAt = -1;
+  function profAction(b){
+    var act = b.dataset.act;
+    if(act === 'exit'){ window.location.href = 'launcher.html'; return; }
+    toast(b.textContent.trim() + ' isn\'t part of this prototype yet');
+  }
+  // keys while the photo or its panel has focus; returns true when handled
+  function profKey(k){
+    var onPhoto = curRow === 0 && navItems[colByRow[0]] === profileEl;
+    if(!onPhoto) return false;
+    if(profAt < 0){
+      if(k === 'ArrowDown' || k === 'Enter'){ profAt = 0; updateFocus(); return true; }
+      return false;
+    }
+    if(k === 'ArrowDown') profAt = Math.min(profBtns.length - 1, profAt + 1);
+    else if(k === 'ArrowUp') profAt--;   // up from My Account: back on the photo
+    else if(k === 'Enter'){ profAction(profBtns[profAt]); return true; }
+    else if(k === 'Escape' || k === 'Backspace') profAt = -1;
+    else return true;   // Left / Right stay in the panel
+    updateFocus(); return true;
+  }
+  profBtns.forEach(function(b, i){ b.addEventListener('click', function(e){ e.stopPropagation(); profAt = i; updateFocus(); profAction(b); }); });
 
   // first focus: the first card of the hero row (row 1; row 0 is the top nav)
   var curRow = 1;
@@ -1534,7 +1620,7 @@
   var RING_W_DESIGN = 8;
   // the scale an item grows to when focused (matches the .focused rules in the CSS)
   function focusScale(el){
-    if(el.matches('.ad-banner, .personalize, .quick-chip')) return 1;
+    if(el.matches('.ad-banner, .personalize, .quick-chip, .prof-btn')) return 1;
     if(el.closest('.topnav')) return 1.06;
     if(el.closest('.toppick-row')) return 1.05;
     return 1.07;   // every rail item, Top 10 posters included
@@ -1699,9 +1785,16 @@
   function updateFocus(prevRow){
     rows.forEach(function(r,ri){
       r.items.forEach(function(it,ci){
-        it.classList.toggle('focused', ri===curRow && ci===colByRow[ri]);
+        it.classList.toggle('focused', profAt < 0 && ri===curRow && ci===colByRow[ri]);
       });
     });
+    // the profile panel: open while the photo (or something in the panel) has focus
+    var profOn = curRow === 0 && navItems[colByRow[0]] === profileEl;
+    if(!profOn) profAt = -1;
+    profileEl.parentElement.classList.toggle('prof-open', profOn);
+    profileEl.classList.toggle('open', profAt >= 0);
+    profPanel.setAttribute('aria-hidden', profOn ? 'false' : 'true');
+    profBtns.forEach(function(b, i){ b.classList.toggle('focused', i === profAt); });
     updateTrackTransform(curRow);
     // The hero is pinned (position:fixed, never scrolls) for as long as
     // focus is anywhere in the dynamic-background zone (rows 0-8), so it
@@ -1822,6 +1915,7 @@
   }
 
   document.addEventListener('keydown', function(e){
+    if(!mobileMode && profKey(e.key)){ e.preventDefault(); return; }
     if(e.key === 'Escape' || e.key === 'Backspace'){
       // scrolled down the page: Back first returns to the top (the first rail, hero showing)
       if(!mobileMode && ctxRow() > HERO_ROW_INDEX){ navFrom = 0; curRow = HERO_ROW_INDEX; updateFocus(); e.preventDefault(); return; }
@@ -2058,6 +2152,7 @@
   var RING_W = 8;   // design px
 
   function ringTarget(){
+    if(profAt >= 0) return profBtns[profAt];   // inside the profile panel
     var r = rows[curRow]; if(!r) return null;
     var el = r.items[colByRow[curRow]]; if(!el) return null;
     if(el.classList.contains('rank-wrap')) el = el.querySelector('.card') || el;   // the poster, not the numeral
