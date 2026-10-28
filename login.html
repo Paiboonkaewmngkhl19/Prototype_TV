@@ -228,7 +228,9 @@
   var ppvBtn = document.querySelector('.btn[data-act="ppv"]'), inPpv = false, ppvAt = 0;
   var SHADE = 'linear-gradient(81.96deg, rgba(0,0,0,.768) 1.7%, rgba(0,0,0,.8) 12.76%, rgba(0,0,0,0) 76.43%)';
   var PPV = [
-    {t:'UEFA Champions League', card:'login-assets/ppv/ucl-card.jpg', bg:'login-assets/ppv/ucl-bg.jpg', box:[0, 0, 1920, 1080], img:[0, 0, 100, 100], shade:SHADE},
+    // (the UCL art's own deep blue instead of black, so the side with the options stays blue)
+    {t:'UEFA Champions League', card:'login-assets/ppv/ucl-card.jpg', bg:'login-assets/ppv/ucl-bg.jpg', box:[0, 0, 1920, 1080], img:[0, 0, 100, 100],
+      shade:'linear-gradient(81.96deg, rgba(12,26,120,.78) 1.7%, rgba(14,32,150,.62) 20%, rgba(16,40,176,.3) 50%, rgba(16,40,176,0) 76.43%)'},
     {t:'Mo Yu Yun Jian', card:'login-assets/ppv/drama.png', bg:'login-assets/ppv/drama.png', box:[0, -196, 2199, 1276], img:[.02, 14.49, 123.49, 119.78],
       shade:'linear-gradient(82.2deg, rgba(0,0,0,.768) 1.7%, rgba(0,0,0,.8) 12.76%, rgba(0,0,0,0) 76.43%)'},
     {t:'F1 The Movie', card:'login-assets/ppv/f1-card.png', bg:'login-assets/ppv/f1-bg.png', box:[-346, -63, 2316, 1344], img:[1.98, 3.39, 95.96, 92.37],

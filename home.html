@@ -1133,22 +1133,26 @@
   (function(){
     // img box: [left, top, width, height] in % of the circle (Figma's crop), or null to cover it
     // n: name on the card, no: channel number, pr: premium (gold crown). Logos reused from the previous rail.
+    // ch: the channel's name in the TV Guide's list, which opens it in the Live TV player
     var chans = [
-      {t:'Asian Games 2026 · 902', n:'Asian Games', no:'902', src:'tv-features-test/live-stream-assets/channel-asian-games.png', bg:'#fff', live:true},
-      {t:'Asian Games 2026 · 907', n:'Asian Games', no:'907', src:'tv-features-test/shorts-assets/channel-907.png', bg:'#fff', live:true},
-      {t:'PLAY Sports 61', n:'PLAY Sports', no:'61', img:'playsports.png', bg:'#404045', live:true, pr:true},
-      {t:'Warner TV', n:'Warner TV', no:'230', img:'wbtv.png', bg:'#fff', box:[10.88,12.81,80.09,74.91], tag:'hot', pr:true},
-      {t:'HBO', n:'HBO', no:'251', img:'hbo.png', bg:'#fff', tag:'hot', pr:true},
-      {t:'HBO Hits', n:'HBO Hits', no:'252', img:'hbohits.png', bg:'#fff', box:[0,17.28,95.67,65.54], tag:'new', pr:true},
-      {t:'HBO Family', n:'HBO Family', no:'253', img:'hbofamily.png', bg:'#fff', box:[-0.11,22.3,108.43,66.07], pr:true},
-      {t:'HBO Signature', n:'HBO Sig.', no:'254', img:'hbosignature.png', bg:'#fff', box:[-17.36,23.71,114.25,52.53], pr:true},
-      {t:'Cinemax', n:'Cinemax', no:'255', img:'cinemax.png', bg:'#fff', box:[5.54,25.24,88.79,50], pr:true},
-      {t:'Rock Entertainment', n:'Rock', no:'260', img:'rock.png', bg:'#fff', box:[-11.46,24.55,120.21,51.94]}
+      {t:'Asian Games 2026 · 902', n:'Asian Games', ch:'Asian Games 902', no:'902', src:'tv-features-test/live-stream-assets/channel-asian-games.png', bg:'#fff', live:true},
+      {t:'Asian Games 2026 · 907', n:'Asian Games', ch:'Asian Games 907', no:'907', src:'tv-features-test/shorts-assets/channel-907.png', bg:'#fff', live:true},
+      {t:'PLAY Sports 61', n:'PLAY Sports', ch:'PLAY Sports', no:'61', img:'playsports.png', bg:'#404045', live:true, pr:true},
+      {t:'Warner TV', n:'Warner TV', ch:'Warner TV', no:'230', img:'wbtv.png', bg:'#fff', box:[10.88,12.81,80.09,74.91], tag:'hot', pr:true},
+      {t:'HBO', n:'HBO', ch:'HBO', no:'251', img:'hbo.png', bg:'#fff', tag:'hot', pr:true},
+      {t:'HBO Hits', n:'HBO Hits', ch:'HBO Hits', no:'252', img:'hbohits.png', bg:'#fff', box:[0,17.28,95.67,65.54], tag:'new', pr:true},
+      {t:'HBO Family', n:'HBO Family', ch:'HBO Family', no:'253', img:'hbofamily.png', bg:'#fff', box:[-0.11,22.3,108.43,66.07], pr:true},
+      {t:'HBO Signature', n:'HBO Sig.', ch:'HBO Signature', no:'254', img:'hbosignature.png', bg:'#fff', box:[-17.36,23.71,114.25,52.53], pr:true},
+      {t:'Cinemax', n:'Cinemax', ch:'Cinemax', no:'255', img:'cinemax.png', bg:'#fff', box:[5.54,25.24,88.79,50], pr:true},
+      {t:'Rock Entertainment', n:'Rock', ch:'Rock Entertainment', no:'260', img:'rock.png', bg:'#fff', box:[-11.46,24.55,120.21,51.94]}
     ];
+    // Enter opens the Live TV player on the channel through the TV Guide (as Home's TV Guide cards do), so the player has
+    // the channel's programmes, Time Shift, the mini EPG and Up / Down channel changes; its Back comes back to this card
+    function playerHref(c){ return 'tv-guide.html?play=' + encodeURIComponent(c.ch) + '&from=home'; }
     var html = chans.map(function(c){
       var b = c.box, st = b ? 'left:'+b[0]+'%;top:'+b[1]+'%;width:'+b[2]+'%;height:'+b[3]+'%;' : 'inset:0;width:100%;height:100%;object-fit:cover;';
       // data-ring-art="": the focus ring uses plain frosted glass, not a blur of the logo
-      return '<div class="chan-card item'+(c.live?' live':'')+'" data-title="'+c.t+'" data-ring-art="">'+
+      return '<div class="chan-card item'+(c.live?' live':'')+'" data-title="'+c.t+'" data-href="'+playerHref(c)+'" data-ring-art="">'+
         '<div class="chan-slot"><div class="chan-avatar'+(c.live?' live':'')+(c.tag?' tagged tag-'+c.tag:'')+'">'+
           '<div class="chan-disc" style="background:'+c.bg+';"><img src="'+(c.src || 'icons/channels/'+c.img)+'" alt="'+c.t+'" style="'+st+'"></div>'+
           (c.live ? '<span class="chan-live">LIVE</span>' : '')+

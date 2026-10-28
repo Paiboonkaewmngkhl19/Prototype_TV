@@ -185,7 +185,7 @@
   .col.next-day .day-pin{ display:flex; }
   .col.next-day .col-scroll{ height:628px; }   /* 5 x 106 - 8 = 522 on screen, plus a row running on */
   .col.next-day .col-scroll.end{ height:522px; }
-  .col.next-day .day-sep{ margin-top:0; height:98px; }   /* the same 106px slot, the bar now filling it */
+  .col.next-day .day-pin{ margin-top:0; height:98px; }   /* the pinned date: the same 106px slot, the bar now filling it (the dividers still to come stay thin bars until they get there) */
   .col-list{ display:flex; flex-direction:column; gap:8px; }
   .col-empty{ padding:24px 16px; font:400 20px/1.2 var(--noto); color:var(--on-surface-variant); }
 
@@ -218,9 +218,16 @@
     background:rgba(255,255,255,.16); font:400 16px/1.2 var(--noto); letter-spacing:-.24px; color:rgba(255,255,255,.8); white-space:nowrap; }
   .tag img{ width:16px; height:16px; display:block; }
   .tag.live{ background:var(--live); border-color:var(--on-surface); color:#fff; }
-  .tag.watch{ background:#59d478; border-color:var(--on-surface); }   /* the channel the player was showing (View Program Guide from it) */
+  .tag.watch{ background:var(--live); border-color:var(--on-surface); color:#fff; }   /* the channel the player was showing (View Program Guide from it) */
+  body.arrive *, body.arrive *::before, body.arrive *::after{ transition:none !important; }   /* back from the player: no easing into place */
+  /* sound bars before Watching: the channel's sound is playing */
+  .tag .eq{ width:14px; height:14px; display:flex; align-items:flex-end; justify-content:space-between; }
+  .tag .eq b{ width:3px; height:100%; border-radius:1px; background:currentColor; transform-origin:bottom; animation:eq .9s ease-in-out infinite; }
+  .tag .eq b:nth-child(2){ animation-delay:-.3s; animation-duration:.7s; }
+  .tag .eq b:nth-child(3){ animation-delay:-.6s; animation-duration:1.1s; }
+  @keyframes eq{ 0%, 100%{ transform:scaleY(.3); } 50%{ transform:scaleY(1); } }
   .tag.live i{ width:6px; height:6px; border-radius:100px; background:#fff; }
-  .tag.watching{ background:#59d478; border-color:var(--on-surface); color:#fff; font-weight:500; }
+  .tag.watching{ background:#59d478; border-color:var(--on-surface); color:#000; font-weight:500; }
   /* date separator between days */
   .day-sep{ height:47px; box-sizing:border-box; border-radius:8px; margin-top:51px;   /* 51 + 47 = 98, a programme card's height: one grid slot */
     display:flex; align-items:center; justify-content:center;
@@ -425,8 +432,27 @@
       ['basketball','Basketball'],['tennis','Tennis'],['rugby','Rugby'],['boxing','Boxing']]},
     {id:'movies', n:'Movies & Series'}, {id:'news', n:'News'}, {id:'cartoons', n:'Cartoons'}, {id:'variety', n:'Variety'}, {id:'others', n:'Others', subs:[['all','All'],['education','Education'],['documentary','Documentary'],['shopping','Shopping']]}
   ];
-  // opened with View Program Guide from the player: that channel's live card is tagged Watching (this visit only)
-  var WATCHING = ''; try { WATCHING = sessionStorage.getItem('tvWatching') || ''; sessionStorage.removeItem('tvWatching'); } catch(e){}
+  // Watching: the channel the player was showing, when the guide is opened from it (View Program Guide, or Back); taken
+  // only if it was just set, so it never turns up later
+  var WATCHING = '', ARRIVE = false;
+  try {
+    var w = JSON.parse(sessionStorage.getItem('tvWatching') || 'null'); sessionStorage.removeItem('tvWatching');
+    if(w && w.n && Date.now() - w.t < 15000) WATCHING = w.n;
+  } catch(e){}
+  // and its sound keeps playing behind the guide, from where the player was (picture hidden). If the browser won't start
+  // it with sound before a key press on this page, it starts with the first key or click
+  if(WATCHING && w.v){
+    var bgSound = document.createElement('video');
+    bgSound.src = w.v; bgSound.loop = true; bgSound.playsInline = true; bgSound.style.display = 'none';
+    bgSound.addEventListener('loadedmetadata', function(){ bgSound.currentTime = (w.at || 0) + (Date.now() - w.t) / 1000; });
+    document.body.appendChild(bgSound);
+    bgSound.play().catch(function(){
+      function go(){ bgSound.play(); removeEventListener('keydown', go, true); removeEventListener('click', go, true); }
+      addEventListener('keydown', go, true); addEventListener('click', go, true);
+    });
+  }
+  // back from the player out of the browser's page cache: load again, for the channel it ended on and its Watching tag
+  addEventListener('pageshow', function(e){ if(e.persisted) location.reload(); });
   var SPORT_CH = ['sports'];   // channels in these categories show a red Live tag for what's on now, others On Air
 
   /* ---------- schedule: each channel repeats its line-up from a per-channel offset, around the real clock ---------- */
@@ -435,9 +461,10 @@
   function pad(n){ return (n < 10 ? '0' : '') + n; }
   function fmtTime(d){ return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
   var today = new Date(); today.setHours(0, 0, 0, 0);
+  var DAYS_AHEAD = 7;   // the date picker: today and the next 7 days (the guide's columns run through the last one)
   CHANNELS.forEach(function(c, i){
     var t = new Date(today.getTime() - (90 + Math.round(i * 37 % 120 / 15) * 15) * 60000), k = 0, list = [];   // starts on a quarter hour
-    var end = today.getTime() + 4 * 864e5;
+    var end = today.getTime() + 9 * 864e5;   // through the last day in the date picker (today + 7), and the night after it
     while(t.getTime() < end){
       var s = c.sched[k % c.sched.length], start = new Date(t);
       t = new Date(t.getTime() + s[1] * 60000);
@@ -512,23 +539,19 @@
       '</div>';
     }).join('');
   }
+  // programme cards carry no tags but Watching (the channel the player was showing, on its live card); the Time Shift
+  // icon is drawn on its own (tsHtml)
   function tagsFor(p, big, when){
-    var now = new Date(), airing = p.start <= now && p.end > now, out = '';
-    if(big && airing){
-      out += SPORT_CH.some(function(k){ return p.ch.cats.indexOf(k) >= 0; })
-        ? '<span class="tag live"><i></i>Live</span>'
-        : '<span class="tag"><img src="icons/tv-guide/live.svg" alt="">On Air</span>';
-    } else if(big && p.start > now){
-      out += '<span class="tag">Upcoming</span>';
-    }
-    if(p.hot) out += '<span class="tag"><img src="icons/tv-guide/fire.svg" alt="">Don\'t Miss</span>';
-    if(big && airing && p.ch.n === WATCHING) out += '<span class="tag watch">Watching</span>';
-    return out ? '<div class="tags">' + out + '</div>' : '';
+    var now = new Date(), airing = p.start <= now && p.end > now;
+    return big && airing && p.ch.n === WATCHING ? '<div class="tags"><span class="tag watch"><i class="eq"><b></b><b></b><b></b></i>Watching</span></div>' : '';
   }
   function renderGuide(list){
     var when = guideTime(), dayOf = function(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); };
+    // a later day (the date picker): no live card; every column opens as a next-day column does, that day's date pinned
+    // at the top and its programmes from the chosen time below it (Figma's next-day column)
+    var later = S.day > 0, lastEnd = today.getTime() + (DAYS_AHEAD + 1) * 864e5;
     guideEl.innerHTML = list.map(function(c){
-      var pin = '', i0 = onAt(c, when), shown = c.progs.slice(i0).filter(function(p, j){ return j === 0 || dayOf(p.start) <= dayOf(when) + 864e5; })   /* the day shown and the next day: the last card is the real end */, lastDay = dayOf(when), body = '', bigHtml = '';
+      var pin = '', i0 = onAt(c, when), shown = c.progs.slice(i0).filter(function(p, j){ return j === 0 || p.start.getTime() < lastEnd; })   /* through the last day in the date picker: the last card is the real end */, lastDay = dayOf(when), body = '', bigHtml = '';
       if(c.excl) shown = shown.slice(0, 1 + c.up);   // Exclusive: the live programme and at most 2 after it
       shown.forEach(function(p, j){
         // a date divider only where a later day starts: none for the day being shown (today), even when the live
@@ -538,8 +561,8 @@
           if(!pin) pin = '<div class="day-sep day-pin">' + fmtDate(p.start) + '</div>';
         }
         lastDay = dayOf(p.start);
-        var tm = fmtTime(p.start) + (j === 0 ? ' - ' : ' – ') + fmtTime(p.end);
-        if(j === 0){
+        var tm = fmtTime(p.start) + (j === 0 && !later ? ' - ' : ' – ') + fmtTime(p.end);
+        if(j === 0 && !later){
           var art = p.img ? '<div class="art" style="background-image:url(\'' + p.img + '\')"></div>'
                           : !c.logo ? '<div class="art logo-art"><span class="txt-art' + ((c.txt || c.n).length > 8 ? ' long' : '') + '" style="background:' + c.bg + ';color:' + (c.fg || '#fff') + '">' + esc(c.txt || c.n) + '</span></div>'
                           : '<div class="art logo-art"><img src="' + c.logo + '" alt="" style="background:' + (c.bg || 'transparent') + '"></div>';
@@ -552,7 +575,11 @@
             '<div class="row"><div class="tm">' + tm + '</div>' + tagsFor(p, false, when) + '</div></div>';
         }
       });
-      return '<div class="col" data-no="' + c.no + '">' +
+      if(later){   // the list opens with the day's divider (kept just out of sight under its pinned copy)
+        pin = '<div class="day-sep day-pin">' + fmtDate(when) + '</div>';
+        body = '<div class="day-sep">' + fmtDate(when) + '</div>' + body;
+      }
+      return '<div class="col' + (later ? ' next-day' : '') + '" data-no="' + c.no + '">' +
         '<div class="col-head"><div class="ava-sm">' + logoHtml(c) + '</div><div class="col-name clip">' + esc(c.n) + '</div>' +
           '<div class="col-icons"><span class="heart">' + heartIcon(c) + '</span>' +
             (c.crown ? '<span class="crown">' + crownIcon(c) + '</span>' : '') + (c.excl ? '' : '<div class="col-no">' + c.no + '</div>') + '</div></div>' +
@@ -569,6 +596,7 @@
     renderTabs();
     var list = channelsFor();
     if(S.view === 'channels') renderChannels(list); else renderGuide(list);
+    if(S.view === 'guide' && S.day > 0) $('.col-scroll', guideEl).forEach(function(o){ o.scrollTop = 106; o.dataset.scrollTopTo = 106; });
     emptyEl.style.display = list.length ? 'none' : '';
     $('.ch-card, .prog').forEach(function(el){ el.addEventListener('click', onClick); });
   }
@@ -576,8 +604,19 @@
   /* ---------- head: clock chips and the two dropdowns ---------- */
   var chipDate = document.getElementById('chipDate'), chipTime = document.getElementById('chipTime');
   var dds = { date: document.getElementById('ddDate'), time: document.getElementById('ddTime') };
-  function dateOpts(){ return [0, 1, 2, 3].map(function(i){ return {v:i, n:fmtDate(new Date(today.getTime() + i * 864e5))}; }); }
-  function timeOpts(){ var o = [{v:-1, n:'Now'}]; for(var h = 0; h < 24; h++) o.push({v:h, n:pad(h) + ':00'}); return o; }
+  function dateOpts(){ var a = []; for(var i = 0; i <= DAYS_AHEAD; i++) a.push({v:i, n:fmtDate(new Date(today.getTime() + i * 864e5))}); return a; }
+  // the time picker: today, Now and the hours still to come; a later day, every hour of it (no Now)
+  function timeOpts(){
+    var today_ = S.day === 0, o = today_ ? [{v:-1, n:'Now'}] : [];
+    for(var h = today_ ? new Date().getHours() + 1 : 0; h < 24; h++) o.push({v:h, n:pad(h) + ':00'});
+    return o;
+  }
+  // after a date is picked, the time must be one that date offers: Now on a later day becomes the same hour that day;
+  // an hour already gone on today becomes Now
+  function fitHour(){
+    if(S.day > 0 && S.hour < 0) S.hour = new Date().getHours();
+    else if(S.day === 0 && S.hour >= 0 && S.hour <= new Date().getHours()) S.hour = -1;
+  }
   function paintHead(){
     var now = new Date();
     chipDate.textContent = fmtDate(now); chipTime.textContent = fmtTime(now);
@@ -605,7 +644,7 @@
   function closeMenu(){ if(!menu) return; dds[menu.kind].classList.remove('open'); menu = null; }
   function pickMenu(){
     var o = menu.opts[menu.hl];
-    if(menu.kind === 'date') S.day = o.v; else S.hour = o.v;
+    if(menu.kind === 'date'){ S.day = o.v; fitHour(); } else S.hour = o.v;
     closeMenu(); paintHead(); render(); resetZones(); paint();
     toast('Guide from ' + fmtDate(guideTime()) + ', ' + fmtTime(guideTime()));
   }
@@ -662,7 +701,7 @@
       var maxScroll = Math.max(0, rail.scrollWidth - rail.clientWidth);   // the 110px margins already leave room for the ring
       var left = Math.max(0, Math.min(desired, maxScroll));
       rail.dataset.scrollLeftTo = left;   // focus-ring.js aims the ring at where the item will be once this scroll ends
-      rail.scrollTo({left:left, behavior:'smooth'});
+      rail.scrollTo({left:left, behavior:ARRIVE ? 'auto' : 'smooth'});
     }
     var page = document.getElementById('page'), top = page.scrollTop;
     // in the Program Guide's columns the rows above (categories, sub-tabs, logos) always collapse into the breadcrumb:
@@ -684,15 +723,22 @@
         if(o === sc){
           // a programme of the next day: the column puts its live card away and opens with that day's date divider at
           // the top (Figma's next-day column), the day's programmes below it
-          var sep = $('.day-sep', o)[0], nextDay = !!(sep && (sep.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING));
-          var wasNext = col.classList.contains('next-day');
+          // the day it belongs to: the last date divider above it. The pinned date at the top shows that day, so the date
+          // card sticks there as the list scrolls on, day after day, to the last one
+          var seps = $('.day-sep', o), si = -1;
+          seps.forEach(function(d, i){ if(d.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING) si = i; });
+          var sep = seps[si], nextDay = si >= 0, pinEl = col.querySelector('.day-pin');
+          var wasNext = col.classList.contains('next-day'), was = col.dataset.sep === undefined ? -1 : +col.dataset.sep;
           col.classList.toggle('next-day', nextDay);
+          col.dataset.sep = si;
+          if(sep && pinEl) pinEl.textContent = sep.textContent;
           var VIS = nextDay ? 522 : 416, FULL = nextDay ? 628 : 522;   // rows fully on screen; the scroller's height
           // the divider's place in the scroller (measured on screen: offsetTop would count from the column instead)
-          var sepTop = sep ? (sep.getBoundingClientRect().top - o.getBoundingClientRect().top) / K + o.scrollTop : 0;
+          // (the top of its grid slot: a divider still to come is a thin bar under a 51px margin, inside the same slot)
+          var sepTop = sep ? (sep.getBoundingClientRect().top - o.getBoundingClientRect().top) / K + o.scrollTop - (parseFloat(getComputedStyle(sep).marginTop) || 0) : 0;
           var y = (el.getBoundingClientRect().top - o.getBoundingClientRect().top) / K + o.scrollTop, h = el.offsetHeight;
           st = o.scrollTop; if(o.dataset.scrollTopTo !== undefined) st = +o.dataset.scrollTopTo;
-          if(nextDay && !wasNext) st = sepTop + 106;   // stepping into the next day: its first programme under the pinned date
+          if(nextDay && (!wasNext || si > was)) st = sepTop + 106;   // stepping into a later day: its first programme under the pinned date
           if(y + h + 8 > st + VIS) st = y + h + 8 - VIS;   // keep it in the rows on screen, ring included
           if(y < st) st = y;   // ... and above (the ring may overlap the card above the list)
           // whole steps of the 106px grid (a card or a date divider + the 8px gap), so the rows line up across columns
@@ -710,7 +756,7 @@
           st = +(o.dataset.scrollTopTo || 0);
           st = Math.max(0, Math.min(st, o.scrollHeight - 522));
         }
-        if(+(o.dataset.scrollTopTo || 0) !== st || o.scrollTop !== st){ o.dataset.scrollTopTo = st; o.scrollTo({top:st, behavior:'smooth'}); }
+        if(+(o.dataset.scrollTopTo || 0) !== st || o.scrollTop !== st){ o.dataset.scrollTopTo = st; o.scrollTo({top:st, behavior:ARRIVE ? 'auto' : 'smooth'}); }
       });
     }
     else {
@@ -720,7 +766,7 @@
     }
     top = Math.max(0, guideMin, top);
     page.dataset.scrollTopTo = top;
-    page.scrollTo({top:top, behavior:'smooth'});
+    page.scrollTo({top:top, behavior:ARRIVE ? 'auto' : 'smooth'});
     // scrolled down: the category rows collapse into one label, 60px under the header ("All Channels", "Sports · Football")
     // a category with sub-tabs shows as a breadcrumb: Sports › Football (the chosen sub-tab, "All Sports" included)
     var cat = CATS.filter(function(c){ return c.id === S.cat; })[0], sub = cat.subs && cat.subs.filter(function(x){ return x[0] === S.sub; })[0];
@@ -979,7 +1025,7 @@
   // ?tune=N: the player asked for channel N (typed on the remote). This page only passes through: it opens that channel
   // in the player in its place (so Back from there still comes here), or sends the viewer back to the player they came
   // from (?from=) when there is no such channel
-  // ?zap=1 / -1 & cur=<name>: Up / Down in the player, the next / previous channel by number (wrapping round; the
+  // ?zap=1 / -1 & cur=<name>: Down / Up in the player, the next / previous channel by number (wrapping round; the
   // Exclusive channels have no number, so they are left out)
   // ?play=<name>: a channel picked in the player's mini EPG (by name: Exclusive channels have no number), or a channel
   // card on Home (&from=home: opened with the controls showing, and Back returns to Home)
@@ -990,7 +1036,8 @@
   }
   var zap = /[?&]zap=(-?1)/.exec(location.search);
   if(zap){
-    var nums = CHANNELS.filter(function(c){ return !c.excl; }), cur = decodeURIComponent((/[?&]cur=([^&]*)/.exec(location.search) || [])[1] || '');
+    var nums = CHANNELS.filter(function(c){ return !c.excl; }).sort(function(a, b){ return a.no - b.no; }),   // in number order
+        cur = decodeURIComponent((/[?&]cur=([^&]*)/.exec(location.search) || [])[1] || '');
     var at = nums.map(function(c){ return c.n; }).indexOf(cur), dir = +zap[1];
     if(at < 0) at = dir > 0 ? -1 : 0;
     document.body.style.visibility = 'hidden';
@@ -1011,7 +1058,10 @@
     var at = channelsFor().map(function(c){ return ret.n ? c.n : c.no; }).indexOf(ret.n || ret.no);   // by name from the player (Exclusive channels have no number)
     if(at >= 0){ if(S.view === 'channels'){ zone = 'grid'; mem.grid = at; } else { zone = 'guide'; mem.guide = {c:at, r:0}; } }
   }
+  // back from the player (Back or View Program Guide): the card is focused at once, no scrolling or growing into place
+  if(ret){ ARRIVE = true; document.body.classList.add('arrive'); }
   paint();
+  if(ARRIVE) requestAnimationFrame(function(){ requestAnimationFrame(function(){ ARRIVE = false; document.body.classList.remove('arrive'); }); });
   // first impression: the hint slides in as the page opens and leaves after a few seconds (or once a favourite is set)
   setTimeout(function(){ showHint(HINT_FAV); }, 400);
 })();

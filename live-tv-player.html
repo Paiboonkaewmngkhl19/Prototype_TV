@@ -168,6 +168,20 @@
   .flash img{ width:80px; height:80px; display:block; }
   .flash.go{ animation:flash .7s cubic-bezier(.2,0,0,1); }
   @keyframes flash{ 0%{ opacity:0; transform:scale(.6); } 20%{ opacity:1; transform:scale(1); } 60%{ opacity:1; transform:scale(1.05); } 100%{ opacity:0; transform:scale(1.3); } }
+  /* Time Shift seek, as on YouTube: on the side it moves to, a dark disc with three arrows lighting in turn and how far
+     (-10 / +10, adding up while pressed again: +20, +30) or the hold speed (2x .. 16x) */
+  .seekfx{ position:absolute; top:50%; width:220px; height:220px; margin-top:-110px; border-radius:50%; z-index:20; pointer-events:none;
+    background:rgba(0,0,0,.45); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; color:#fff;
+    opacity:0; transition:opacity .25s ease; }
+  .seekfx.on{ opacity:1; transition:opacity .08s ease; }
+  .seekfx.l{ left:240px; } .seekfx.r{ right:240px; }
+  .seekfx .arr{ display:flex; gap:2px; }
+  .seekfx .arr i{ width:0; height:0; border-top:14px solid transparent; border-bottom:14px solid transparent; border-left:22px solid #fff;
+    opacity:.25; animation:seekArr .9s linear infinite; }
+  .seekfx.l .arr{ transform:scaleX(-1); }
+  .seekfx .arr i:nth-child(2){ animation-delay:.15s; } .seekfx .arr i:nth-child(3){ animation-delay:.3s; }
+  @keyframes seekArr{ 0%, 100%{ opacity:.25; } 30%{ opacity:1; } }
+  .seekfx .lbl{ font:600 36px/1 var(--inter); }
   @media (prefers-reduced-motion: reduce){ .flash.go{ animation:flashFade .7s linear; } @keyframes flashFade{ 0%, 60%{ opacity:1; } 100%{ opacity:0; } } }
 
   /* ---------- mini EPG (Figma PLAY-epg "Wake mini epg", 3168:169155): Browse Channels, or Left with the controls away.
@@ -307,6 +321,7 @@
       </div>
     </div>
   </div>
+  <div class="seekfx" id="seekfx"><div class="arr"><i></i><i></i><i></i></div><div class="lbl" id="seekLbl"></div></div>
   <div class="flash" id="flash"><img id="flashIc" src="icons/player/pause.svg" alt=""></div>
   <div class="mini" id="mini"><div class="mini-in">
     <div class="mini-cats" id="miniCats"></div>
@@ -409,7 +424,20 @@
     byId('thumb').classList.remove('on'); setSpeed(0); paintSeek();
   }
   // holding Left / Right scrubs on its own, faster the longer it is held: 2x, 4x, 8x, 16x
-  function setSpeed(s){ var el = byId('spd'); el.classList.toggle('on', !!s); el.textContent = s < 0 ? '◀◀ ' + -s + 'x' : s + 'x ▶▶'; }
+  function setSpeed(s){ var el = byId('spd'); el.classList.toggle('on', !!s); el.textContent = s < 0 ? '◀◀ ' + -s + 'x' : s + 'x ▶▶'; if(s) seekFx(s < 0 ? -1 : 1, Math.abs(s) + 'x'); }
+  // the YouTube-style side marker: a press shows -10 / +10, more presses in a row add up; a hold shows its speed
+  var seekSum = 0, seekDir = 0, seekT = null;
+  function seekFx(dir, label){
+    var f = byId('seekfx');
+    if(label === undefined){
+      seekSum = dir === seekDir && f.classList.contains('on') ? seekSum + 10 : 10;
+      label = (dir < 0 ? '-' : '+') + seekSum;
+    }
+    seekDir = dir;
+    f.classList.toggle('l', dir < 0); f.classList.toggle('r', dir > 0);
+    byId('seekLbl').textContent = label; f.classList.add('on');
+    clearTimeout(seekT); seekT = setTimeout(function(){ f.classList.remove('on'); seekSum = 0; }, 800);
+  }
   function startHold(dir){
     holdStart = Date.now();
     holdT = setInterval(function(){
@@ -482,8 +510,11 @@
     var big = document.createElement('div'); big.className = 'fav-big';
     screen.appendChild(big); setTimeout(function(){ big.remove(); }, 1000);
   }
+  // the channel being watched, for the TV Guide's Watching tag (taken only right after leaving here: see tv-guide.html)
+  function markWatching(){ try { sessionStorage.setItem('tvWatching', JSON.stringify({n:C.n, t:Date.now(), v:byId('video').src, at:byId('video').currentTime})); } catch(e){} }
   function back(){
-    try { if(document.referrer && /(tv-guide|sport)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    markWatching();
+    try { if(document.referrer && /(tv-guide|sport|home)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
     location.href = 'tv-guide.html';
   }
   function activate(el){
@@ -491,7 +522,7 @@
     switch(el.dataset.act){
       case 'back': back(); break;
       case 'play':
-        if(!TS){ toast('Time Shift is not available for this programme'); break; }
+        if(!TS) break;   // a live channel without Time Shift can't pause: OK does nothing (the play / pause icon is hidden too)
         if(scrub !== null){ commit(); break; }   // Enter while scrubbing: play from there now
         if(preview && !previewLeft){ toast('Free preview has ended. Get a package to keep watching'); break; }
         if(v.paused) v.play(); else v.pause();
@@ -544,8 +575,8 @@
   function openGuide(){
     try {
       sessionStorage.setItem('tvGuideBack', JSON.stringify({view:'guide', cat:'all', sub:'all', n:C.n}));
-      sessionStorage.setItem('tvWatching', C.n);
     } catch(e){}
+    markWatching();
     location.href = 'tv-guide.html';
   }
   function zap(dir){ location.replace('tv-guide.html?zap=' + dir + '&cur=' + encodeURIComponent(C.n)); }
@@ -749,10 +780,10 @@
       else goIdle();
       return;
     }
-    // with the controls away, OK plays / pauses straight away (as on Netflix) and brings them back; other keys only bring them back
-    // with the controls away, Up / Down change channel (the next / previous number), like a TV remote's CH+ / CH−
-    if(document.body.classList.contains('idle') && (k === 'ArrowUp' || k === 'ArrowDown')){ zap(k === 'ArrowUp' ? 1 : -1); return; }
-    if(wake()){ if(k === 'Enter' || k === ' ') activate(byId('playBtn')); return; }
+    // with the controls away, any key (OK too) only brings them back; play / pause is the next OK, on the seek bar
+    // with the controls away, Down / Up change channel: Down the next number, Up the previous one
+    if(document.body.classList.contains('idle') && (k === 'ArrowUp' || k === 'ArrowDown')){ zap(k === 'ArrowDown' ? 1 : -1); return; }
+    if(wake()) return;
     var r = rows();
     if(k === 'ArrowUp' && row > 0){ row--; col = 0; }
     else if(k === 'ArrowDown' && row < r.length - 1){ row++; col = 0; }
@@ -761,7 +792,7 @@
       var dir = k === 'ArrowRight' ? 1 : -1;
       if(!TS) toast('Time Shift is not available for this programme');
       else if(e.repeat){ if(!holdT) startHold(dir); }
-      else { scrubBy(dir * STEP); commitT = setTimeout(commit, 800); }
+      else { scrubBy(dir * STEP); seekFx(dir); commitT = setTimeout(commit, 800); }
     }
     else if(k === 'ArrowLeft') col--;
     else if(k === 'ArrowRight') col++;
@@ -773,7 +804,7 @@
   // only a real move of the mouse: Chrome also sends a mousemove (with no movement) when a page loads under a resting
   // pointer, which would bring the controls up on a channel change
   addEventListener('mousemove', function(e){ if((e.movementX || e.movementY) && !mini) wake(); });
-  byId('video').addEventListener('click', function(){ wake(); activate(byId('playBtn')); });   // a click on the picture plays / pauses
+  byId('video').addEventListener('click', function(){ if(wake()) return; activate(byId('playBtn')); });   // a click on the picture: the first wakes the controls, then it plays / pauses
   byId('video').addEventListener('play', setPlayIcon); byId('video').addEventListener('pause', setPlayIcon);
   if(!quiet) paint();   // otherwise focus comes with the controls (wake)
   if(preview && !previewLeft) endPreview();   // came back to a channel whose preview was already used up

@@ -23,7 +23,9 @@ jobs:
       # with the TV's home screen (launcher.html, AIS PLAY opens Home) as the site root
       - run: |
           mkdir -p site/tv-features-test
-          cp -r launcher.html login.html home.html movie-detail.html package-detail.html tv-guide.html live-tv-player.html sport.html store.html focus-ring.js badges icons partners posters posters_portrait video sport-assets store-assets login-assets site/
+          # every page, script and stylesheet at the root (so new pages are published too), then the image folders
+          cp *.html *.js *.css site/
+          cp -r badges icons partners posters posters_portrait video sport-assets store-assets login-assets site/
           cp -r tv-features-test/live-stream-assets tv-features-test/shorts-assets tv-features-test/concert-assets site/tv-features-test/
           cp launcher.html site/index.html
           # Home's back button opens the Content Picker, which isn't published; send it back to Home
