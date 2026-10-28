@@ -83,7 +83,7 @@
   body:not(.static) .sec.above{ opacity:0; }
   .sec-title{ margin:0 110px; font-weight:500; font-size:29px; line-height:40px; color:#fff; white-space:nowrap; }   /* Home's row title */
   .item{ cursor:pointer; }
-  .rail{ position:relative; margin-top:24px; }
+  .rail{ position:relative; margin-top:32px; }   /* room for a focused card, its 4px ring gap and the ring under the title */
   .track{ display:flex; gap:32px; padding:0 110px; width:max-content; transition:transform .35s var(--ease); }
 
   /* placeholder artwork (Figma's checkerboard at 50% over the card colour) and its ratio label */
@@ -262,6 +262,13 @@
   .chip:not(.focused), .viewall:not(.focused), .btn:not(.focused), .short:not(.focused){
     background:var(--idle-fill); -webkit-backdrop-filter:blur(80px) saturate(1.5); backdrop-filter:blur(80px) saturate(1.5); color:var(--on-surface); }
   .chip.on:not(.focused){ background:var(--idle-fill-on); color:#fff; }
+  /* focused items grow: 8% on every rail, 6% in the top bar; the opened PPV Event 4% (more would reach
+     past the 32px gap); the banner and the FAQ questions stay put, as Home's banners */
+  #screen .item{ transition:transform .22s var(--ease), background .15s ease, color .15s ease; }
+  #screen .item.focused{ transform:scale(1.08); z-index:2; }
+  #screen .topnav .item.focused{ transform:scale(1.06); }
+  #screen .ev.focused{ transform:scale(1.04); }
+  #screen .banner.focused, #screen .q.focused{ transform:none; }
 </style>
 </head>
 <body>
@@ -288,6 +295,7 @@
   <div id="toast"></div>
 </div></div>
 
+<script src="profile-panel.js"></script>
 <script>
 (function(){
   // ---- fit the 1920x1080 screen into the window ----
@@ -561,8 +569,12 @@
     ['event', 'rent', 'buy'].forEach(function(k){ var r = rows[R[k]]; r.items.forEach(function(el, ci){ el.classList.toggle('sel', ci === cur.col[R[k]] && el.dataset.kind !== 'viewall'); }); });
   }
 
+  // the profile panel under the top bar's photo, as on Home (profile-panel.js)
+  var profileEl = document.querySelector('.topnav .profile'), prof = ProfilePanel(profileEl, { paint:paint, toast:toast });
+
   function paint(){
-    rows.forEach(function(r, ri){ r.items.forEach(function(el, ci){ el.classList.toggle('focused', ri === cur.row && ci === cur.col[ri]); }); });
+    var inProf = prof.paint(cur.row === 0 && rows[0].items[cur.col[0]] === profileEl);   // focus is in the profile panel
+    rows.forEach(function(r, ri){ r.items.forEach(function(el, ci){ el.classList.toggle('focused', !inProf && ri === cur.row && ci === cur.col[ri]); }); });
     markChosen();
     var ri = cur.row === 0 ? cur.from : cur.row;   // on the top bar the page stays as it was
     document.body.classList.toggle('on-nav', cur.row === 0);
@@ -594,15 +606,17 @@
   function leave(url){ try { sessionStorage.setItem('storeReturn', '1'); } catch(e){} location.href = url; }
   function select(el){
     var k = el.dataset.kind, i = +el.dataset.i;
-    el.animate([{ transform:'none' }, { transform:'scale(0.97)' }], { duration:140, easing:'ease-out' });
+    el.animate([{ transform:getComputedStyle(el).transform }, { transform:(getComputedStyle(el).transform === 'none' ? '' : getComputedStyle(el).transform + ' ') + 'scale(0.97)' }], { duration:140, easing:'ease-out' });
     if(el.dataset.href){ location.href = el.dataset.href; return; }
+    if(el === profileEl) return;   // its panel is already open under it
     if(k === 'pkg'){
       var set = el.dataset.set, it = (set === 'onetime' ? ONETIME : set === 'others' ? OTHERS : listOf(set))[i];
       if(it.pkg) leave('package-detail.html'); else toast(it.t + ' (demo)');
       return;
     }
     if(k === 'tab') return;
-    if(k === 'viewall'){ toast('View All (demo)'); return; }
+    // View All: the All Packages page, on the matching tab (For You, Sports, Movies, Short Drama)
+    if(k === 'viewall'){ var tab = { sports:'sports', movies:'movies', short:'shorts' }[el.dataset.set]; leave('all-packages.html' + (tab ? '?tab=' + tab : '')); return; }
     if(k === 'event'){ var e = EVENTS[i]; toast(e.kind === 'live' ? 'Buy this event to watch it live (demo)' : e.kind === 'upcoming' ? 'Buy now and watch at ' + e.when.replace('Today ', '') + ' (demo)' : e.kind ? 'Buy this event (demo)' : 'Event (demo)'); return; }
     if(k === 'rent' || k === 'buy'){ toast((k === 'rent' ? 'Rent for ' : 'Buy for ') + (k === 'rent' ? RENTALS : BUYS)[i].price + ' ฿ (demo)'); return; }
     if(k === 'banner'){ leave('package-detail.html'); return; }
@@ -619,6 +633,7 @@
   }
 
   addEventListener('keydown', function(e){
+    if(prof.key(e.key)){ e.preventDefault(); return; }   // the profile photo / its panel
     var r = rows[cur.row], n = r.items.length, c = cur.col[cur.row], handled = true;
     if(e.key === 'ArrowRight') cur.col[cur.row] = Math.min(n - 1, c + 1);
     else if(e.key === 'ArrowLeft'){

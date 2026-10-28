@@ -1,0 +1,47 @@
+/*
+  Package card (Figma "card_Package"): badge, logo + title, the channel / service logos, the features (resolution,
+  audio, screens) and the price; focused, it grows 17px (8px padding + a 1.5px rim) and shows Subscribe.
+  Shared by movie-detail.html (its 3 cards) and all-packages.html. The page sets the width (--pc-w, 354px by default)
+  and the heights; the features block gives up its spare space when a focused card needs room for Subscribe.
+*/
+.pcard{ width:var(--pc-w, 354px); flex:0 0 auto; box-sizing:border-box; position:relative; display:flex; flex-direction:column; border-radius:36px; cursor:pointer;
+  background:rgba(31,31,31,.94); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.13); box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 12px 12px rgba(0,0,0,.3);
+  transition:width .22s cubic-bezier(.2,0,0,1), padding .22s cubic-bezier(.2,0,0,1), border-color .22s ease, box-shadow .22s ease; }
+.pcard.focused{ width:calc(var(--pc-w, 354px) + 17px); padding:8px; border:1.5px solid rgba(255,255,255,.5); box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 12px 12px rgba(0,0,0,.3); }
+.pcard .badge{ height:40px; box-sizing:border-box; background:rgba(255,255,255,.09); border-radius:36px 36px 0 0; padding:8px 16px; text-align:center; font-size:16px; font-weight:700; line-height:24px; letter-spacing:.15px; }
+.pcard.focused .badge{ border-radius:28px 28px 0 0; }
+.pcard .body{ flex:1; min-height:0; display:flex; flex-direction:column; gap:24px; }
+.pcard .ptitle{ flex:0 0 96px; height:96px; box-sizing:border-box; display:flex; align-items:center; gap:12px; padding:16px 16px 0; }
+.pcard .ptitle .lg{ width:80px; height:80px; border-radius:8px; background:#000; flex:0 0 auto; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+.pcard .ptitle .lg img{ width:100%; height:100%; object-fit:contain; display:block; }
+.pcard .ptitle b{ font-size:22px; line-height:28px; font-weight:700; }
+.pcard .mid{ flex:0 1 412px; min-height:380px; display:flex; flex-direction:column; }
+.pcard .chans{ flex:0 0 244px; height:244px; box-sizing:border-box; margin:0 16px; padding:16px; border-radius:20px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); display:flex; flex-direction:column; gap:16px; }
+.pcard .grid{ height:128px; display:flex; flex-wrap:wrap; align-content:flex-start; gap:16px; }
+.tile{ width:56px; height:56px; border-radius:10px; overflow:hidden; background:#000; display:flex; align-items:center; justify-content:center; flex:0 0 auto; }
+.tile img{ width:100%; height:100%; object-fit:contain; display:block; }
+.tile.cover img{ object-fit:cover; }
+.tile.white{ background:#fff; }
+.tile.pad img{ width:86%; height:86%; }
+.tile.more{ background:#d9d9d9; color:#fff; font-size:20px; font-weight:600; }
+.pcard .chanlist{ display:flex; flex-direction:column; gap:8px; }
+.pcard .small{ font-size:14px; font-weight:600; line-height:20px; letter-spacing:.1px; }
+.pcard .row40{ display:flex; gap:10px; }
+.row40 .tile{ width:40px; height:40px; border-radius:8px; }
+.pcard .feats{ flex:1 1 168px; min-height:136px; box-sizing:border-box; display:flex; flex-direction:column; justify-content:center; gap:8px; padding:0 16px; }
+.pcard .feat{ height:40px; display:flex; align-items:center; gap:8px; font-size:16px; line-height:24px; letter-spacing:.2px; }
+.pcard .feat img{ width:40px; height:40px; flex:0 0 auto; }
+.pcard .price{ flex:1 0 auto; background:rgba(255,255,255,.05); border-radius:0 0 36px 36px; padding:16px; display:flex; flex-direction:column; gap:16px; }
+.pcard.focused .price{ border-radius:0 0 28px 28px; }
+.pcard .amtwrap{ display:flex; flex-direction:column; gap:8px; }
+.pcard .amt{ height:56px; display:flex; align-items:baseline; gap:8px; text-shadow:1px 1px 2px rgba(0,0,0,.7); }
+.pcard .amt b{ font-size:48px; font-weight:600; line-height:56px; }
+.pcard.focused .amt b{ font-size:56px; }
+.pcard .amt span{ font-size:20px; }
+.pcard .vat{ font-size:12px; line-height:15px; }
+/* Subscribe appears on the focused card (320 x 80) */
+.pcard .subscribe{ display:none; align-items:center; justify-content:center; gap:8px; height:80px; box-sizing:border-box; border-radius:9999px; border:3px solid #e8e8e8; font-size:24px; font-weight:600;
+  background:radial-gradient(ellipse 120% 160% at 12% 90%, rgba(255,255,255,0) 6%, rgba(255,255,255,.3) 100%), rgba(255,255,255,.2); box-shadow:inset -1px 3px 17px rgba(255,255,255,.16); }
+.pcard .subscribe img{ width:32px; height:32px; }
+.pcard.focused .subscribe{ display:flex; }

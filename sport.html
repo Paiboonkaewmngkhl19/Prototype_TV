@@ -123,7 +123,7 @@
     font-family:var(--roboto); font-weight:500; font-size:26px; color:#1c1c1c; }
   .disc .fav{ position:absolute; right:-16px; bottom:-16px; width:84px; height:84px; transition:opacity .2s ease, transform .25s var(--ease); }
   .disc:not(.followed) .fav{ opacity:0; transform:scale(.6); }
-  .disc.focused{ transform:scale(1.194); box-shadow:0 0 0 2.5px #f00; }
+  .disc.focused{ transform:scale(1.194); }   /* no stroke: the round focus ring is the outline */
   .league .name{ width:100%; height:56px; font-family:var(--roboto); font-size:22px; line-height:28px; text-align:center; color:var(--on-surface); overflow:hidden; }
 
   /* TV Guide rail: View All + what's on now on the sports channels */
@@ -174,15 +174,15 @@
 
   /* Documentary: 2:3 posters */
   .poster{ width:220px; height:330px; flex:0 0 auto; border-radius:12px; background:var(--surface-container-high) center / cover no-repeat; }
-  .docs .track{ margin-top:16px; }
+  .docs .track{ margin-top:32px; }   /* the 2:3 posters grow 13px up when focused, plus the ring and its gap: room under the title */
 
-  /* Sport Channel: 142px discs with a red rim (160 focused, no shade) */
+  /* Sport Channel: 142px discs (160 focused, no shade); no rim, the round focus ring is the outline */
   .chans{ display:flex; align-items:center; gap:32px; padding:9px 110px; width:max-content; margin-top:34px; transition:transform .35s var(--ease); }
-  .chan{ position:relative; width:142px; height:142px; border-radius:50%; flex:0 0 auto; border:4px solid #f00; background:#000 center / cover no-repeat;
+  .chan{ position:relative; width:142px; height:142px; border-radius:50%; flex:0 0 auto; background:#000 center / cover no-repeat;
     transition:transform .3s var(--ease); }
   .chan::after{ content:''; position:absolute; inset:0; border-radius:50%; background:rgba(0,0,0,.3); transition:opacity .2s ease; }
   .chan.contain{ background-color:#fff; background-size:78% auto; }
-  .chan.focused{ transform:scale(1.127); border-width:2px; }
+  .chan.focused{ transform:scale(1.127); }
   .chan.focused::after{ opacity:0; }
 
   /* Back to Top */
@@ -217,6 +217,14 @@
   .chip::before{ display:none; }
   .chip:not(.focused), .guide-all:not(.focused), .totop .btn:not(.focused){
     background:var(--idle-fill); -webkit-backdrop-filter:blur(80px) saturate(1.5); backdrop-filter:blur(80px) saturate(1.5); color:var(--on-surface); }
+  /* focused items grow: 8% on every rail, 6% in the top bar; the wide Short Highlight 3% (more would reach
+     past the 32px gap); the league and channel discs keep their own growth */
+  #screen .item{ transition:transform .22s var(--ease), background .15s ease, color .15s ease, box-shadow .2s ease; }
+  #screen .item.focused{ transform:scale(1.08); z-index:2; }
+  #screen .topnav .item.focused{ transform:scale(1.06); }
+  #screen .short.wide.focused{ transform:scale(1.03); }
+  #screen .disc.focused{ transform:scale(1.194); }
+  #screen .chan.focused{ transform:scale(1.127); }
 </style>
 </head>
 <body>
@@ -243,6 +251,7 @@
   <div id="toast"></div>
 </div></div>
 
+<script src="profile-panel.js"></script>
 <script>
 (function(){
   // ---- fit the 1920x1080 screen into the window ----
@@ -352,10 +361,12 @@
     {t:'Match Day: FA Cup', img:'posters_portrait/ex4.jpg'}, {t:'Match Day', img:'posters_portrait/ex5.jpg'}
   ];
   var CHANNELS = [
-    {t:'AIS PLAY Sports', img:'sport-assets/channel-aisplay.jpg', c:CH.play},
+    {t:'AIS PLAY Sports', img:'sport-assets/channel-aisplay.jpg', size:'110%', c:CH.play},   // its black disc sits on white: zoomed past the white
     {t:'MUTV', img:CH.mutv.logo, c:CH.mutv}, {t:'Real Madrid TV', img:CH.rm.logo, contain:1, bg:CH.rm.bg, c:CH.rm},
-    {t:'W-Sport', img:CH.ws.logo, contain:1, c:CH.ws}, {t:'Asian Games 902', img:CH.ag902.logo, contain:1, c:CH.ag902},
-    {t:'Asian Games 907', img:CH.ag907.logo, contain:1, c:CH.ag907}
+    {t:'W-Sport', img:CH.ws.logo, contain:1, bg:'#404045', c:CH.ws},   // on Real Madrid TV's grey
+    // the Asian Games logos are full discs already: they fill the circle
+    {t:'Asian Games 902', img:CH.ag902.logo, bg:'#fff', c:CH.ag902},
+    {t:'Asian Games 907', img:CH.ag907.logo, bg:'#fff', c:CH.ag907}
   ];
 
   /* ---------- markup ---------- */
@@ -385,9 +396,9 @@
   html += '<section class="sec" data-row="leagues"><h2 class="sec-title">League &amp; Tournament</h2><div class="rail"><div class="leagues">' + LEAGUES.map(function(l, i){
     var pic = l.mono ? '<span class="mono">' + esc(l.mono) + '</span>' : '<span class="img ' + (l.fitc || '') + '" style="background-image:url(\'' + l.logo + '\')"></span>';
     return '<div class="league"><div class="disc item' + (l.fav ? ' followed' : '') + '"' + attrs({kind:'league', i:i}) + '>' + pic +
-      '<img class="fav" src="sport-assets/fav-btn.svg" alt=""></div><div class="name">' + l.name + '</div></div>';
+      '<img class="fav" src="sport-assets/fav-btn.svg" alt="" data-ring-top></div><div class="name">' + l.name + '</div></div>';
   }).join('') + '</div></div></section>';
-  html += '<section class="sec" data-row="latest"><h2 class="sec-title">Latest Highlight</h2><div class="rail" style="margin-top:16px"><div class="track">' +
+  html += '<section class="sec" data-row="latest"><h2 class="sec-title">Latest Highlight</h2><div class="rail" style="margin-top:24px"><div class="track">' +
     LATEST.map(function(it, i){ return vodCard(it, 'latest', i); }).join('') + '</div></div></section>';
   html += '<section class="sec" data-row="guide"><div class="rail"><div class="track" style="padding-top:0;padding-bottom:0">' +
     '<div class="guide-all item" data-kind="guideall" data-ring-art=""><b>TV Guide</b><span>View All &nbsp;→</span></div>' +
@@ -403,7 +414,7 @@
     '<div class="row"><div class="track">' + UCL.map(function(it, i){ return matchCard(it, i, 'ucl'); }).join('') +
     '<div class="uclava item" data-kind="uclava" data-ring-art="url(\'sport-assets/ucl-avatar.jpg\')"></div></div></div></section>';
   FOR_YOU.forEach(function(r, ri){
-    html += '<section class="sec" data-row="foryou' + ri + '"><h2 class="sec-title">' + esc(r.title) + '</h2><div class="rail" style="margin-top:16px"><div class="track">' +
+    html += '<section class="sec" data-row="foryou' + ri + '"><h2 class="sec-title">' + esc(r.title) + '</h2><div class="rail" style="margin-top:24px"><div class="track">' +
       r.items.map(function(it, i){ return vodCard(it, 'foryou', i, ri); }).join('') + '</div></div></section>';
   });
   html += '<section class="sec" data-row="shorts"><div class="shorts">' +
@@ -413,7 +424,7 @@
     return '<div class="poster item"' + attrs({kind:'doc', i:i}) + ' style="background-image:url(\'' + d.img + '\')"></div>';
   }).join('') + '</div></div></section>';
   html += '<section class="sec" data-row="channels"><h2 class="sec-title">Sport Channel</h2><div class="rail"><div class="chans">' + CHANNELS.map(function(c, i){
-    return '<div class="chan item' + (c.contain ? ' contain' : '') + '"' + attrs({kind:'chan', i:i}) + ' style="background-image:url(\'' + c.img + '\')' + (c.bg ? ';background-color:' + c.bg : '') + '"></div>';
+    return '<div class="chan item' + (c.contain ? ' contain' : '') + '"' + attrs({kind:'chan', i:i}) + ' style="background-image:url(\'' + c.img + '\')' + (c.bg ? ';background-color:' + c.bg : '') + (c.size ? ';background-size:' + c.size : '') + '"></div>';
   }).join('') + '</div></div></section>';
   html += '<section class="sec totop" data-row="totop"><div class="btn item" data-kind="totop" data-ring-art=""><img src="sport-assets/arrow-up.svg" alt="">Back to Top</div></section>';
   var page = document.getElementById('page');
@@ -499,8 +510,12 @@
     document.body.classList.toggle('ucl', ri === R.ucl);
   }
 
+  // the profile panel under the top bar's photo, as on Home (profile-panel.js)
+  var profileEl = document.querySelector('.topnav .profile'), prof = ProfilePanel(profileEl, { paint:paint, toast:toast });
+
   function paint(){
-    rows.forEach(function(r, ri){ r.items.forEach(function(el, ci){ el.classList.toggle('focused', ri === cur.row && ci === cur.col[ri]); }); });
+    var inProf = prof.paint(cur.row === 0 && rows[0].items[cur.col[0]] === profileEl);   // focus is in the profile panel
+    rows.forEach(function(r, ri){ r.items.forEach(function(el, ci){ el.classList.toggle('focused', !inProf && ri === cur.row && ci === cur.col[ri]); }); });
     var ri = cur.row === 0 ? cur.from : cur.row;   // on the top bar the page stays as it was
     document.body.classList.toggle('on-nav', cur.row === 0);
     layout(ri);
@@ -525,6 +540,7 @@
     var k = el.dataset.kind, i = +el.dataset.i;
     el.animate([{ transform:getComputedStyle(el).transform }, { transform:(getComputedStyle(el).transform === 'none' ? '' : getComputedStyle(el).transform + ' ') + 'scale(0.97)' }], { duration:140, easing:'ease-out' });
     if(el.dataset.href){ location.href = el.dataset.href; return; }
+    if(el === profileEl) return;   // its panel is already open under it
     if(k === 'match'){
       var m = (el.dataset.set === 'ucl' ? UCL : LIVE)[i];
       if(m.live) play(m.ch, m.t); else toast('We’ll remind you when ' + m.t + ' starts');
@@ -553,6 +569,7 @@
   }
 
   addEventListener('keydown', function(e){
+    if(prof.key(e.key)){ e.preventDefault(); return; }   // the profile photo / its panel
     var r = rows[cur.row], n = r.items.length, handled = true;
     if(e.key === 'ArrowRight') cur.col[cur.row] = Math.min(n - 1, cur.col[cur.row] + 1);
     else if(e.key === 'ArrowLeft'){

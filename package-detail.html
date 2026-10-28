@@ -326,13 +326,15 @@
     var plan = document.querySelector('.price.selected .amt').textContent;
     toast(el.dataset.label + ' · ' + plan + ' (demo)');
   }
-  // opened from the Store (store.html, which leaves its storeReturn flag; file:// pages get no referrer), Back and a
-  // finished purchase return there; otherwise to District 9's packages
+  // where Back and a finished purchase return: the page that opened this one. All Packages says so (?from=all-packages);
+  // the Store leaves its storeReturn flag (file:// pages get no referrer); otherwise District 9's packages
   var FROM_STORE = /store\.html/.test(document.referrer || '');
   try { FROM_STORE = FROM_STORE || !!sessionStorage.getItem('storeReturn'); } catch(e){}
+  var FROM = (location.search.match(/[?&]from=([\w-]+)/) || [])[1] || (FROM_STORE ? 'store' : 'movie-detail');
+  var RETURN = { store:'store.html', 'all-packages':'all-packages.html' }[FROM] || 'movie-detail.html#packages';
   function back(){
-    try { if(document.referrer && /(movie-detail|store)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
-    location.href = FROM_STORE ? 'store.html' : 'movie-detail.html#packages';
+    try { if(document.referrer && /(movie-detail|store|all-packages)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    location.href = RETURN;
   }
   // ---- Confirm Subscribe popup ----
   // Opens on Charge to AIS Bill. "I Agree and Confirm" stays disabled until the terms are read to the bottom
@@ -446,9 +448,10 @@
   }, true);
   otpKeys.forEach(function(k, i){ k.addEventListener('click', function(){ oF = { area: 'keys', k: i, b: 0 }; typeKey(k.dataset.k); }); });
   oBtns.forEach(function(bt, i){ bt.addEventListener('click', function(){ oF = { area: 'btns', k: 0, b: i }; otpPaint(); otpAct(bt.dataset.o); }); });
-  // success popup closed: back to the District 9 page, now subscribed (its main button becomes Play)
+  // success popup closed: back where the package was picked; District 9's page and All Packages show it subscribed
   function finishPurchase(){
-    if(FROM_STORE){ location.href = 'store.html'; return; }
+    if(FROM === 'store'){ location.href = 'store.html'; return; }
+    if(FROM === 'all-packages'){ location.href = 'all-packages.html?subscribed=1'; return; }
     location.href = 'movie-detail.html?subscribed=1';
   }
   document.querySelector('.okd').addEventListener('click', finishPurchase);

@@ -23,16 +23,36 @@
     '  mask:linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }' +
     '.fring .glass i{ position:absolute; inset:0; opacity:0; background:var(--img, linear-gradient(135deg, #9aa3b5, #5c6478)) center / cover no-repeat;' +
     '  filter:blur(4px) brightness(1.8) saturate(1.4); transition:opacity .22s cubic-bezier(.2,0,0,1); }' +
-    '.fring .glass i.front{ opacity:1; }';
+    '.fring .glass i.front{ opacity:1; }' +
+    '.fring .tops{ position:absolute; left:0; top:0; }' +
+    '.fring .tops > *{ position:absolute; margin:0; max-width:none; }';
   document.head.appendChild(css);
 
   var ring = document.createElement('div');
   ring.className = 'fring';
   ring.setAttribute('aria-hidden', 'true');
-  ring.innerHTML = '<div class="glass"><i></i><i></i></div>';
+  ring.innerHTML = '<div class="glass"><i></i><i></i></div><div class="tops"></div>';
   screen.appendChild(ring);
 
   var layers = ring.querySelectorAll('.glass i'), front = 0, art = null;
+  // parts of the focused item that sit on top of the ring (a badge over its edge): marked data-ring-top, copied into
+  // the ring and kept over the originals every frame, as Home does with a card's badge
+  var tops = ring.querySelector('.tops'), topSrc = [];
+  function setTops(el){
+    tops.innerHTML = '';
+    topSrc = Array.prototype.slice.call(el.querySelectorAll('[data-ring-top]'));
+    topSrc.forEach(function(s){ var c = s.cloneNode(true); c.removeAttribute('class'); tops.appendChild(c); });
+  }
+  function placeTops(){
+    if(!topSrc.length) return;
+    var k = scale(), sr = screen.getBoundingClientRect();
+    topSrc.forEach(function(s, i){
+      var b = s.getBoundingClientRect(), c = tops.children[i];
+      c.style.left = (b.left - sr.left) / k - cur.x + 'px'; c.style.top = (b.top - sr.top) / k - cur.y + 'px';
+      c.style.width = b.width / k + 'px'; c.style.height = b.height / k + 'px';
+      c.style.opacity = getComputedStyle(s).opacity;
+    });
+  }
   var target = null, cur = null, from = null, t0 = 0, until = 0, raf = 0, W = 8, MS = 220, FOLLOW_MS = 700;
   var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -59,6 +79,9 @@
   }
   // a page can ask for the plain ring everywhere (no artwork reflected in it): <div id="screen" data-ring-plain>
   var PLAIN = screen.hasAttribute('data-ring-plain');
+  // the gap between the item and the ring, in #screen px: 4 on every page (as Home's ring); a page can change it
+  // with <div id="screen" data-ring-gap="0">
+  var GAP = screen.dataset.ringGap !== undefined ? parseFloat(screen.dataset.ringGap) || 0 : 4;
   // the item's artwork: its own or a descendant's background image, or a large enough <img>
   function artOf(el){
     if(PLAIN) return '';
@@ -72,15 +95,21 @@
     el.dataset.ringArt = found;
     return found;
   }
-  // where the ring goes: the item's rect (in #screen px) once everything has settled, 8px bigger all round, corners
+  // where the ring goes: the item's rect (in #screen px) once everything has settled, 8px bigger all round (+ the gap), corners
   // concentric with it. A scroller that is still on its way (pages mark the target with data-scroll-left-to /
   // data-scroll-top-to) counts as already there, so the ring heads straight for the item's final place, as on Home.
+  // the item's corner radius in px, at its unscaled size (a % radius is of its width: 50% makes a circle)
+  function radiusOf(el){
+    var v = getComputedStyle(el).borderTopLeftRadius, n = parseFloat(v) || 0;
+    if(/%$/.test(v)) n = n / 100 * el.offsetWidth;
+    return Math.min(n, el.offsetHeight / 2);
+  }
   function rectOf(el){
     // a page can also say outright where the item will end up (data-ring-rect="x,y,w,h" in #screen px), when the item
     // is still growing / sliding into a fixed place (the player's mini EPG): the ring goes there and stays put
     if(el.dataset.ringRect){
-      var q = el.dataset.ringRect.split(',').map(Number), qr = parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0;
-      return { x:q[0] - W, y:q[1] - W, w:q[2] + 2 * W, h:q[3] + 2 * W, r:qr + W };
+      var q = el.dataset.ringRect.split(',').map(Number), qr = radiusOf(el);
+      return { x:q[0] - W - GAP, y:q[1] - W - GAP, w:q[2] + 2 * (W + GAP), h:q[3] + 2 * (W + GAP), r:qr + W + GAP };
     }
     var k = scale(), sr = screen.getBoundingClientRect(), b = el.getBoundingClientRect(), dx = 0, dy = 0;
     for(var n = el.parentElement; n && n !== screen; n = n.parentElement){
@@ -88,8 +117,8 @@
       if(n.dataset.scrollLeftTo !== undefined) dx += (n.scrollLeft - Math.min(parseFloat(n.dataset.scrollLeftTo), n.scrollWidth - n.clientWidth)) * k;
       if(n.dataset.scrollTopTo !== undefined) dy += (n.scrollTop - Math.min(parseFloat(n.dataset.scrollTopTo), n.scrollHeight - n.clientHeight)) * k;
     }
-    var r = Math.min(parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0, el.offsetHeight / 2) * (b.height / k / (el.offsetHeight || 1));
-    return { x:(b.left + dx - sr.left) / k - W, y:(b.top + dy - sr.top) / k - W, w:b.width / k + 2 * W, h:b.height / k + 2 * W, r:r + W };
+    var r = radiusOf(el) * (b.height / k / (el.offsetHeight || 1));
+    return { x:(b.left + dx - sr.left) / k - W - GAP, y:(b.top + dy - sr.top) / k - W - GAP, w:b.width / k + 2 * (W + GAP), h:b.height / k + 2 * (W + GAP), r:r + W + GAP };
   }
   function ease(t){   // cubic-bezier(.2,0,0,1), the curve Home's rails and ring use
     var u = t;
@@ -118,6 +147,7 @@
     ring.style.width = cur.w + 'px'; ring.style.height = cur.h + 'px';
     ring.style.transform = 'translate(' + cur.x + 'px,' + cur.y + 'px)';
     ring.style.borderRadius = cur.r + 'px';
+    placeTops();
     ring.classList.add('on');
     raf = t < until ? requestAnimationFrame(tick) : 0;   // keep following while things around it still move
   }
@@ -134,6 +164,7 @@
     }
     from = cur && target && visible(target) ? cur : null;   // the first placement (or after a hidden spell) snaps
     target = el; t0 = performance.now();
+    setTops(el);
     follow();
   }
 

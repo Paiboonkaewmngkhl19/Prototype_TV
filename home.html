@@ -295,7 +295,7 @@
   .rail-track{position:relative;display:flex;align-items:center;gap:32px;will-change:transform;transition:transform .22s cubic-bezier(.2,0,0,1);padding-right:120px;}
 
   .card{position:relative;border-radius:12px;overflow:hidden;flex:0 0 auto;transform:scale(1);transition:transform .22s cubic-bezier(.2,0,0,1), box-shadow .22s ease;cursor:pointer;}
-  .card.focused{transform:scale(1.07);z-index:5;}
+  .card.focused{transform:scale(1.08);z-index:5;}
 
   /* landscape card */
   .card-landscape{width:410px;height:230px;}
@@ -356,7 +356,7 @@
      generic .item.focused effect on the wrap itself and re-apply it to the
      inner .card instead. */
   .rank-wrap.item.focused{transform:none;box-shadow:none;}
-  .rank-wrap.item.focused .card{transform:scale(1.07);z-index:5;}
+  .rank-wrap.item.focused .card{transform:scale(1.08);z-index:5;}
 
   /* karaoke card */
   .card-karaoke{width:280px;border-radius:10px;overflow:hidden;background:#2b2b2b;}
@@ -572,9 +572,9 @@
 
   /* ---------- universal focus affordance (covers chips, nav tabs, epg/partner/portrait cards, rank cards, banners) ---------- */
   .item{cursor:pointer;transition:transform .22s cubic-bezier(.2,0,0,1), box-shadow .22s ease, border-color .22s ease;}
-  .item.focused{transform:scale(1.07);z-index:5;position:relative;}   /* every rail: 7% */
+  .item.focused{transform:scale(1.08);z-index:5;position:relative;}   /* every rail: 8% */
   .topnav .item.focused{transform:scale(1.06);}   /* the top bar isn't a rail: unchanged */
-  .toppick-row .item.focused{transform:scale(1.05);}   /* Top Pick For You + AIS Play Exclusive: their big feature card would grow too far at 7% */
+  .toppick-row .item.focused{transform:scale(1.05);}   /* Top Pick For You + AIS Play Exclusive: their big feature card would grow too far at 8% */
   /* The wide feature card grows (width × 5%)/2 = 31px past each side when focused, more than the 32px rail gap, so give
      it extra room on the right: growth + 8px ring + 24px clear before the next card. */
   .toppick-row .hero-pick{margin-right:31px;}
@@ -623,7 +623,7 @@
      scale (vs. the generic 1.06) makes the grow/shrink between cards clearly
      visible in this row — the top-anchored origin means the extra growth
      only pushes the bottom edge down, never the top edge up. */
-  .hero-row .item.focused{transform-origin:50% 50%;transform:scale(1.07);}   /* grows 7% evenly around its centre */
+  .hero-row .item.focused{transform-origin:50% 50%;transform:scale(1.08);}   /* grows 8% evenly around its centre */
   /* Even with the top-anchored scale above, the focus ring's box-shadow
      spreads 4px outward past the card's own top edge, which used to sit
      flush against the hero's bottom edge with zero clearance — that 4px
@@ -1617,13 +1617,13 @@
 
   function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
 
-  var RING_W_DESIGN = 8;
+  var RING_W_DESIGN = 8 + 4;   // the ring's band + its gap
   // the scale an item grows to when focused (matches the .focused rules in the CSS)
   function focusScale(el){
     if(el.matches('.ad-banner, .personalize, .quick-chip, .prof-btn')) return 1;
     if(el.closest('.topnav')) return 1.06;
     if(el.closest('.toppick-row')) return 1.05;
-    return 1.07;   // every rail item, Top 10 posters included
+    return 1.08;   // every rail item, Top 10 posters included
   }
   function updateTrackTransform(rowIdx){
     var r = rows[rowIdx];
@@ -1910,7 +1910,7 @@
       // Back from there lands on the same card
       try { sessionStorage.setItem('homeReturn', JSON.stringify({row:curRow, col:colByRow[curRow]})); } catch(e){}
       it.animate([{transform:getComputedStyle(it).transform},{transform:'scale(0.97)'}], {duration:140, easing:'ease-out'}); setTimeout(function(){ window.location.href = href; }, 140); return; }
-    it.animate([{transform:getComputedStyle(it).transform},{transform:'scale(0.97)'},{transform:'scale(1.07)'}], {duration:220, easing:'ease-out'});
+    it.animate([{transform:getComputedStyle(it).transform},{transform:'scale(0.97)'},{transform:'scale(1.08)'}], {duration:220, easing:'ease-out'});
     toast('Now playing: ' + label);
   }
 
@@ -2149,7 +2149,7 @@
   var ringLayers = homeRing.querySelectorAll('.glass i'), ringFront = 0, ringArt = null;
   var ringCur = null, ringRaf = 0, ringLastT = 0, ringBusyUntil = 0;
   var RING_REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var RING_W = 8;   // design px
+  var RING_W = 8, RING_GAP = 4;   // design px: the glass band, and the gap between it and the item (as focus-ring.js)
 
   function ringTarget(){
     if(profAt >= 0) return profBtns[profAt];   // inside the profile panel
@@ -2187,9 +2187,9 @@
     var fs = focusScale(target);
     var w = el.offsetWidth * fs * sc, h = el.offsetHeight * fs * sc;
     var cx = (b.left + b.right) / 2 + dx - f.left, cy = (b.top + b.bottom) / 2 + dy - f.top;
-    var o = RING_W * sc;
-    var rad = Math.min(parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0, el.offsetHeight / 2) * sc * fs + o;
-    return { x:cx - w/2 - o, y:cy - h/2 - o, w:w + 2*o, h:h + 2*o, r:rad, pad:o };
+    var o = RING_W * sc, g = RING_GAP * sc;
+    var rad = Math.min(parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0, el.offsetHeight / 2) * sc * fs + o + g;
+    return { x:cx - w/2 - o - g, y:cy - h/2 - o - g, w:w + 2*(o+g), h:h + 2*(o+g), r:rad, pad:o };
   }
   // cubic-bezier(.2,0,0,1), the curve the rails, page and focus scale use
   function ease(t){
@@ -2226,7 +2226,7 @@
   function showRingBadge(el){
     var b = el.querySelector(':scope > .card-badge-corner.ribbon, :scope > .chan-live');   // Live ribbon / channel LIVE label
     if(!b){ ringBadge.classList.remove('on'); return; }
-    var k = getScale() * focusScale(el), pad = RING_W * getScale();
+    var k = getScale() * focusScale(el), pad = (RING_W + RING_GAP) * getScale();
     ringBadge.innerHTML = b.outerHTML;
     ringBadge.style.transform = 'translate(' + pad + 'px,' + pad + 'px) scale(' + k + ')';
     ringBadge.classList.add('on');

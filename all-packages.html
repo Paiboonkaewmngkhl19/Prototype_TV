@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>All Packages</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="package-card.css">
+<!--
+  All Packages (Figma Store "main_categoryFilter", node 5088:226634), opened from View All on the Store's For You rail
+  (store.html; its Sports / Movies / Short Series View All open their own tab) and from See all Packages on Movie Detail.
+  A 1920x1080 TV screen scaled to the window, like store.html, in Store's theme; the shared gliding focus ring is
+  focus-ring.js and the package cards are Movie Detail's (package-card.css).
+
+  - Category tabs: For You, Sports, Movies, Short Drama, AIS PLAY Bundle. A tab is picked as focus lands on it.
+  - Under a tab, its filters (Figma's variants): Sports and AIS PLAY Bundle have a row of names and a row of logos,
+    Movies and Short Drama a row of logos, For You none. "All" is underlined while picked; like a tab, a filter is
+    picked as focus lands on it.
+  - The packages that match, in one rail that slides under a fixed focus slot (Home's rule); the focused card grows
+    and shows Subscribe. None match: Figma's empty state, "No packages available".
+  - The top bar is the Store's (Store is the current page): it steps away while the page is browsed and comes back,
+    over the page colour, on Up from the tabs or Left on a row's first item; its photo opens the profile panel
+    (profile-panel.js).
+  Remote / keyboard: arrows move focus, Enter subscribes (PLAY ULTIMATE opens its package page), Esc / Back goes up to
+  the tabs, then back to where the page was opened from.
+-->
+<style>
+  :root{
+    color-scheme:dark;
+    /* Store's tokens (Home's page: dark navy, Open Sans) */
+    --bg-0:#070e16;
+    --on-surface:#e8e8e8; --on-surface-variant:#a8a8a8; --surface-container:#2a2a2a; --surface-container-high:#3a3a3a; --outline-variant:#4a4a4a;
+    --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%);
+    --focus-fill:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%), var(--th-pill);
+    --idle-fill:rgba(255,255,255,.16); --idle-fill-on:rgba(255,255,255,.26);
+    --ease:cubic-bezier(.2,0,0,1);
+    --inter:'Open Sans', system-ui, sans-serif;
+  }
+  html,body{ margin:0; height:100%; background:#000; overflow:hidden; color:var(--on-surface); font-family:var(--inter); -webkit-font-smoothing:antialiased; }
+  *{ box-sizing:border-box; }
+  #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:var(--bg-0); }
+  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; overflow:hidden;
+    background:radial-gradient(1400px 900px at 85% 110%, rgba(214,222,240,.12), transparent 70%), var(--bg-0); }   /* Home's page colour and glow */
+
+  /* ---------- the page: Figma's rows from y=100, 32px apart, the cards 60px under the last filter row; it moves up as a
+     whole when the cards would reach past the bottom ---------- */
+  #page{ position:absolute; left:0; top:0; width:1920px; padding-top:100px; display:flex; flex-direction:column; gap:32px; transition:transform .45s var(--ease); }
+  .row{ display:flex; align-items:center; gap:32px; padding:0 110px; width:max-content; transition:transform .35s var(--ease); }
+  .row[hidden]{ display:none; }
+  .item{ cursor:pointer; }
+
+  /* category tabs (TV / Chip, 64px): resting = Home's chip glass, picked a little brighter, focused = the glass pill */
+  .tab{ height:64px; padding:0 32px; border-radius:12px; display:flex; align-items:center; gap:16px; flex:0 0 auto;
+    font-weight:500; font-size:24px; line-height:32px; white-space:nowrap; color:var(--on-surface);
+    background:var(--idle-fill); -webkit-backdrop-filter:blur(80px) saturate(1.5); backdrop-filter:blur(80px) saturate(1.5); }
+  .tab img{ width:32px; height:32px; display:block; filter:brightness(0) invert(.91); }   /* Figma exports them in its base grey (#3B3C3E): shown light, as the label */
+  .tab.on{ background:var(--idle-fill-on); color:#fff; }
+  .tab.focused{ background:var(--focus-fill); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+  .tab.focused img{ filter:brightness(0) invert(1); }
+
+  /* filters: names (TV / Chip, text only) and logos (TV / Avatar, 80px discs); the picked one's name is underlined */
+  .flt{ height:60px; padding:0 32px; border-radius:12px; display:flex; align-items:center; flex:0 0 auto; font-weight:500; font-size:24px; line-height:32px;
+    color:var(--on-surface-variant); white-space:nowrap; }
+  .flt.on{ color:#fff; text-decoration:underline; text-underline-offset:6px; text-decoration-thickness:2px; }
+  .flt.focused{ background:var(--focus-fill); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+  .logos{ gap:32px; }
+  .logos .flt{ width:109px; justify-content:center; padding:0; }
+  .ava{ width:80px; height:80px; border-radius:50%; flex:0 0 auto; background:#fff center / cover no-repeat; }
+  .ava.black{ background-color:#000; }
+  .ava.contain{ background-size:78% auto; }
+  .ava.zoom{ background-size:288% auto; }   /* the league logo inside its key art, as on Sport */
+  .ava.inset{ background-size:67% auto; }
+  .ava.ph{ background:#fff url('store-assets/placeholder.png') center / cover no-repeat; }
+  .ava.on{ box-shadow:0 0 0 3px #fff; }   /* the picked logo */
+
+  /* package cards (Figma: 408 wide, 24px apart, bottom-aligned; 750.6px tall, 790.6 with a badge) */
+  .cards{ --pc-w:408px; align-items:flex-end; gap:24px; margin-top:28px; }
+  .cards .pcard{ height:750.6px; }
+  .cards .pcard.has-badge{ height:790.6px; }
+  .pcard .ptitle b{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }   /* two lines at most */
+  .cards .pcard .grid{ column-gap:15px; }   /* five 56px logos a row, as in Figma, inside the shared card's 1px rim */
+  .tile.ph{ background:var(--surface-container-high) url('store-assets/image-icon-24.svg') center / 24px no-repeat; }
+  .tile.ph.half{ opacity:.6; }
+  .ptitle .lg.ph{ background:var(--surface-container-high) url('store-assets/image-icon-46.svg') center / 46px no-repeat; }
+
+  /* empty state (Figma "Type=Empty state") */
+  .empty{ position:absolute; left:0; top:572px; width:1920px; display:flex; flex-direction:column; align-items:center; gap:8px; text-align:center; opacity:0; transition:opacity .2s ease; pointer-events:none; }
+  body.none .empty{ opacity:1; }
+  .empty i{ width:72px; height:72px; border-radius:50%; background:var(--surface-container-high); margin-bottom:8px; }
+  .empty b{ font-size:36px; font-weight:600; line-height:44px; color:#fff; }
+  .empty span{ font-size:22px; line-height:28px; color:var(--on-surface); }
+
+  /* focused items grow 8%, as on every page; the package card grows itself instead (package-card.css) */
+  #screen .item{ transition:transform .22s var(--ease), background .15s ease, color .15s ease, box-shadow .2s ease; }
+  #screen .item.focused{ transform:scale(1.08); z-index:2; }
+  #screen .pcard.focused{ transform:none; }
+  .pcard{ transition:width .22s var(--ease), padding .22s var(--ease), border-color .22s ease, box-shadow .22s ease; }
+
+  /* ---------- top bar (Home's, as on the Store): away until it gets focus, with the page colour fading in behind it ---------- */
+  .scrim{ position:absolute; left:0; top:0; width:1920px; height:170px; z-index:4; pointer-events:none; opacity:0; transition:opacity .3s ease;
+    background:linear-gradient(180deg, var(--bg-0) 0%, var(--bg-0) 45%, rgba(7,14,22,0) 100%); }
+  body.on-nav .scrim{ opacity:1; }
+  .topnav{ position:absolute; left:0; top:0; z-index:5; width:1920px; padding:24px 110px 0; display:flex; align-items:center; transition:opacity .3s ease, translate .3s var(--ease); }
+  body:not(.on-nav) .topnav{ opacity:0; translate:0 -40px; pointer-events:none; }
+  .profile{ width:60px; height:60px; border-radius:999px; overflow:hidden; flex:0 0 auto; }
+  .profile img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .center{ display:flex; align-items:center; gap:12px; margin-left:20px; }
+  .navsearch{ width:60px; height:60px; margin:0 8px; border-radius:999px; display:flex; align-items:center; justify-content:center; }
+  .navsearch img{ width:32px; height:32px; display:block; }
+  .navtab{ height:60px; padding:0 20px; border-radius:999px; display:flex; align-items:center; font-family:'Plus Jakarta Sans', var(--inter); font-size:24px; line-height:1.2;
+    color:#fff; text-shadow:0 0 6px rgba(0,0,0,.4); white-space:nowrap; }
+  .navtab.active{ background:rgba(255,255,255,.22); backdrop-filter:blur(10px); }
+  .topnav .item.focused{ background:var(--th-pill); backdrop-filter:blur(12px) saturate(1.4); }
+  #screen .topnav .item.focused{ transform:scale(1.06); }
+
+  #toast{ position:absolute; left:50%; bottom:80px; z-index:60; transform:translateX(-50%); padding:14px 26px; border-radius:999px;
+    background:rgba(20,20,24,.85); font-size:24px; opacity:0; transition:opacity .2s ease; pointer-events:none; }
+  #toast.on{ opacity:1; }
+</style>
+</head>
+<body>
+<div id="frame"><div id="screen">
+  <div id="page">
+    <div class="row tabs"></div>
+    <div class="row names" hidden></div>
+    <div class="row logos" hidden></div>
+    <div class="row cards"></div>
+  </div>
+  <div class="scrim" aria-hidden="true"></div>
+  <nav class="topnav">
+    <div class="profile item" data-label="Profile"><img src="icons/profile-tv.png" alt="Profile"></div>
+    <div class="center">
+      <div class="navsearch item" data-label="Search"><img src="icons/nav-search.svg" alt="Search"></div>
+      <div class="navtab item" data-label="Home" data-href="home.html">Home</div>
+      <div class="navtab item" data-label="Live TV">Live TV</div>
+      <div class="navtab item" data-label="Movie">Movie</div>
+      <div class="navtab item" data-label="Sport" data-href="sport.html">Sport</div>
+      <div class="navtab item" data-label="My List">My List</div>
+      <div class="navtab item active" data-label="Store" data-href="store.html">Store</div>
+    </div>
+  </nav>
+  <div class="empty" aria-live="polite"><i></i><b>No packages available</b><span>Try another category to find more packages.</span></div>
+  <div id="toast"></div>
+</div></div>
+
+<script src="profile-panel.js"></script>
+<script>
+(function(){
+  // ---- fit the 1920x1080 screen into the window ----
+  var frame = document.getElementById('frame'), screen = document.getElementById('screen');
+  function fit(){
+    var k = Math.min(innerWidth / 1920, innerHeight / 1080);
+    frame.style.width = 1920 * k + 'px'; frame.style.height = 1080 * k + 'px';
+    frame.style.marginLeft = -960 * k + 'px'; frame.style.marginTop = -540 * k + 'px';
+    screen.style.transform = 'scale(' + k + ')';
+  }
+  addEventListener('resize', fit); fit();
+
+  function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  var $ = function(q, root){ return Array.prototype.slice.call((root || document).querySelectorAll(q)); };
+
+  /* ---------- content ----------
+     The packages are Movie Detail's three (same logos, from icons/pkg) and Figma's two placeholders. Each lists what it
+     carries, for the filters: sports, leagues, services and AIS PLAY bundles. */
+  var P = 'icons/pkg/';
+  var F4K = [P + 'i4k.svg', 'Up to 4K Ultra HD Resolution'], FHD = [P + 'ihd.svg', 'Full HD 1080p'],
+      FDOLBY = [P + 'idolby.svg', 'Audio 5.1 Up to Dolby Atmos'], FSCREEN = [P + 'iscreen.svg', '4 Screen at once'];
+  function t(img, cls){ return { img:P + img, cls:cls || '' }; }
+  function ph(n, half){ var a = []; for(var i = 0; i < n; i++) a.push({ ph:1, half:half }); return a; }
+  var PH = { title:'Package Title Lorem ipsum dolor sit amet, consectetur Lorem ipsum dolor sit amet, consectetur', ph:1,
+    grid:ph(4), count:'xx Premium Channels', row:ph(7, 1), feats:[F4K, FSCREEN], amt:'199', per:'/Month', tags:[] };
+  var PKGS = [
+    { title:'PLAY ULTIMATE Monthly Package', badge:'Recommend', logo:P + 'l1.png', detail:1,
+      grid:[t('l2.png'), t('l3.png'), t('l4.png'), t('l5.png', 'cover'), t('l6.png', 'cover')],
+      count:'99 Premium Channels', row:['l7', 'l8', 'l9', 'l10', 'l11', 'l12'].map(function(l){ return t(l + '.png', 'cover'); }),
+      feats:[F4K, FDOLBY, FSCREEN], amt:'999', per:'/Month',
+      tags:['netflix', 'hbo', 'disney', 'iqiyi', 'viu', 'football', 'epl', 'ucl', 'ultimate'] },
+    { title:'HBO MAX Standard Package', badge:'Best Seller', logo:P + 'l3.png',
+      grid:[t('l3.png')], count:'6 Premium Channels', row:[t('l13.png'), t('l14.png', 'cover'), t('l15.png'), t('l16.png'), t('l17.png')],
+      feats:[F4K, FDOLBY, FSCREEN], amt:'199', per:'/Month', tags:['hbo', 'premium'] },
+    { title:'PLAY ALL', logo:P + 'l18.png',
+      grid:[t('l19.png', 'white cover'), t('l20.png', 'white pad'), t('l21.png', 'white pad'), t('l22.png', 'white cover'), t('l23.png', 'white pad'),
+        t('l24.png', 'white cover'), t('l25.png', 'white pad'), { more:'13+' }],
+      count:'99 Premium Channels', row:['l28', 'l29', 'l30', 'l31', 'l32'].map(function(l){ return t(l + '.png', 'white cover'); }).concat([t('l33.png', 'white pad')]),
+      feats:[FHD, FDOLBY, FSCREEN], amt:'1,999', per:'/Year',
+      tags:['football', 'golf', 'basketball', 'tennis', 'motorsports', 'bundesliga', 'nba', 'nfl', 'lpga', 'atp', 'motogp', 'rws', 'premiumplus'] },
+    PH, PH
+  ];
+
+  // the filters under each tab (Figma's variants); logos reuse the project's league and service logos
+  var LOGO = {
+    netflix:{ img:P + 'l2.png', cls:'black contain' }, hbo:{ img:P + 'l3.png', cls:'black contain' }, disney:{ img:P + 'l4.png', cls:'black' },
+    iqiyi:{ img:P + 'l5.png' }, viu:{ img:P + 'l6.png' }, prime:{ img:'badges/tag-prime.png' }, wetv:{ img:P + 'd-wetv.png', cls:'contain' },
+    monomax:{ img:'badges/tag-monomax.png', cls:'black contain' },
+    epl:{ img:'sport-assets/league-epl.jpg', cls:'zoom' }, ucl:{ img:'sport-assets/league-ucl.jpg', cls:'zoom' },
+    bundesliga:{ img:'sport-assets/league-bundesliga.png', cls:'inset' }, motogp:{ img:P + 'd-motogp.png', cls:'contain' },
+    nba:{ img:P + 'l21.png', cls:'inset' }, nfl:{ img:P + 'l22.png', cls:'inset' }, lpga:{ img:P + 'l23.png', cls:'inset' },
+    atp:{ img:P + 'l25.png', cls:'contain' }, rws:{ img:'sport-assets/league-rws.png', cls:'black' },
+    sd1:{ ph:1 }, sd2:{ ph:1 }, sd3:{ ph:1 }
+  };
+  var TABS = [
+    { key:'foryou', t:'For You', icon:'tab-foryou' },
+    { key:'sports', t:'Sports', icon:'tab-sports',
+      names:[['all', 'All'], ['football', 'Football'], ['motorsports', 'Motorsports'], ['golf', 'Golf'], ['basketball', 'Basketball'],
+        ['tennis', 'Tennis'], ['rugby', 'Rugby'], ['boxing', 'Boxing']],
+      logos:['epl', 'ucl', 'bundesliga', 'motogp', 'nba', 'nfl', 'lpga', 'atp', 'rws'] },
+    { key:'movies', t:'Movies', icon:'tab-movies', logos:['netflix', 'hbo', 'disney', 'iqiyi', 'viu', 'prime', 'wetv', 'monomax'] },
+    { key:'shorts', t:'Short Drama', icon:'tab-shorts', logos:['sd1', 'sd2', 'sd3'] },
+    { key:'bundle', t:'AIS PLAY Bundle', icon:'tab-bundle',
+      names:[['all', 'All'], ['ultimate', 'PLAY ULTIMATE'], ['premiumplus', 'PLAY PREMIUM PLUS'], ['inter', 'PLAY INTER'], ['disneyplus', 'PLAY Disney+'],
+        ['premium', 'PLAY PREMIUM'], ['asian', 'PLAY ASIAN GAMES']],
+      logos:['netflix', 'hbo', 'disney', 'iqiyi', 'viu', 'epl', 'ucl', 'bundesliga', 'motogp', 'nba', 'nfl', 'lpga', 'atp', 'rws'] }
+  ];
+
+  /* ---------- markup ---------- */
+  function tileHtml(x){
+    if(x.more) return '<span class="tile more">' + esc(x.more) + '</span>';
+    if(x.ph) return '<span class="tile ph' + (x.half ? ' half' : '') + '"></span>';
+    return '<span class="tile ' + x.cls + '"><img src="' + x.img + '" alt=""></span>';
+  }
+  function cardHtml(p, i){
+    return '<div class="pcard item' + (p.badge ? ' has-badge' : '') + '" data-i="' + i + '" data-label="' + esc(p.title) + '">' +
+      (p.badge ? '<div class="badge">' + esc(p.badge) + '</div>' : '') +
+      '<div class="body"><div class="ptitle"><span class="lg' + (p.ph ? ' ph' : '') + '">' + (p.ph ? '' : '<img src="' + p.logo + '" alt="">') + '</span><b>' + esc(p.title) + '</b></div>' +
+      '<div class="mid"><div class="chans"><div class="grid">' + p.grid.map(tileHtml).join('') + '</div>' +
+      '<div class="chanlist"><div class="small">' + esc(p.count) + '</div><div class="row40">' + p.row.map(tileHtml).join('') + '</div></div></div>' +
+      '<div class="feats">' + p.feats.map(function(f){ return '<div class="feat"><img src="' + f[0] + '" alt="">' + esc(f[1]) + '</div>'; }).join('') + '</div></div>' +
+      '<div class="price"><div class="amtwrap"><div class="amt"><b>' + esc(p.amt) + ' baht</b><span>' + esc(p.per) + '</span></div><div class="vat">(Exclude VAT)</div></div>' +
+      '<div class="subscribe">Subscribe<img src="' + P + 'ichev.svg" alt=""></div></div></div></div>';
+  }
+  function logoHtml(k){
+    var l = LOGO[k];
+    return '<div class="ava item ' + (l.ph ? 'ph' : (l.cls || '')) + '" data-f="' + k + '"' + (l.ph ? '' : ' style="background-image:url(\'' + l.img + '\')"') + ' data-ring-art=""></div>';
+  }
+
+  var tabsEl = $('.tabs')[0], namesEl = $('.names')[0], logosEl = $('.logos')[0], cardsEl = $('.cards')[0], page = document.getElementById('page');
+  tabsEl.innerHTML = TABS.map(function(tb){
+    return '<div class="tab item" data-key="' + tb.key + '" data-ring-art=""><img src="store-assets/allpkg/' + tb.icon + '.svg" alt="">' + esc(tb.t) + '</div>';
+  }).join('');
+
+  /* ---------- state: the picked tab, its picked filters, the focus ----------
+     rows: the top bar, the tabs, then (when the tab has them) the names and the logos, then the cards (when any match);
+     cur.from: the row the top bar was reached from */
+  var navItems = $('.topnav .item'), NAV_STORE = navItems.indexOf(document.querySelector('.navtab.active'));
+  var tabAt = 0, pick = {}, rows = [], cur = { row:1, col:{ nav:NAV_STORE }, from:'tabs' };
+  TABS.forEach(function(tb){ pick[tb.key] = { name:'all', logo:'all' }; });
+  var q = location.search.match(/[?&]tab=(\w+)/);
+  if(q) TABS.forEach(function(tb, i){ if(tb.key === q[1]) tabAt = i; });
+
+  function matches(){
+    var tb = TABS[tabAt], p = pick[tb.key];
+    return PKGS.filter(function(pk){
+      return (p.name === 'all' || pk.tags.indexOf(p.name) >= 0) && (p.logo === 'all' || pk.tags.indexOf(p.logo) >= 0);
+    });
+  }
+  // the filter rows and the cards for the picked tab and filters
+  function build(){
+    var tb = TABS[tabAt], p = pick[tb.key];
+    namesEl.hidden = !tb.names; logosEl.hidden = !tb.logos;
+    namesEl.innerHTML = tb.names ? tb.names.map(function(n){ return '<div class="flt item' + (p.name === n[0] ? ' on' : '') + '" data-f="' + n[0] + '" data-ring-art="">' + esc(n[1]) + '</div>'; }).join('') : '';
+    logosEl.innerHTML = tb.logos ? '<div class="flt item' + (p.logo === 'all' ? ' on' : '') + '" data-f="all" data-ring-art="">All</div>' +
+      tb.logos.map(logoHtml).join('') : '';
+    $('.ava', logosEl).forEach(function(a){ a.classList.toggle('on', a.dataset.f === p.logo); });
+    var list = matches();
+    cardsEl.innerHTML = list.map(function(pk){ return cardHtml(pk, PKGS.indexOf(pk)); }).join('');
+    document.body.classList.toggle('none', !list.length);
+    $('.tab', tabsEl).forEach(function(el, i){ el.classList.toggle('on', i === tabAt); });
+    rows = [{ key:'nav', items:navItems }, { key:'tabs', el:tabsEl, items:$('.item', tabsEl) }];
+    if(tb.names) rows.push({ key:'names', el:namesEl, items:$('.item', namesEl) });
+    if(tb.logos) rows.push({ key:'logos', el:logosEl, items:$('.item', logosEl) });
+    if(list.length) rows.push({ key:'cards', el:cardsEl, items:$('.item', cardsEl) });
+    rows.forEach(function(r){ if(r.key !== 'nav' && r.key !== 'tabs') bindClicks(r); });   // those two are built once
+  }
+  // a click focuses the item (picking a tab or a filter, as landing on it does), then selects it
+  function bindClicks(r){
+    r.items.forEach(function(el, ci){ el.addEventListener('click', function(){
+      if(r.key === 'nav' && cur.row) cur.from = rows[cur.row].key;
+      cur.row = rowOf(r.key); setCol(ci); land(); paint(); select(el);
+    }); });
+  }
+  function rowOf(key){ for(var i = 0; i < rows.length; i++) if(rows[i].key === key) return i; return -1; }
+  function col(){ var r = rows[cur.row]; return Math.min(cur.col[r.key] || 0, r.items.length - 1); }
+  function setCol(c){ cur.col[rows[cur.row].key] = c; }
+
+  // landing on a tab or a filter picks it (as the Store's tab bars do); the rows under it are rebuilt
+  function land(){
+    var r = rows[cur.row], el = r.items[col()], tb = TABS[tabAt];
+    if(r.key === 'tabs'){
+      if(col() === tabAt) return;
+      tabAt = col(); cur.col.names = 0; cur.col.logos = 0; cur.col.cards = 0;
+    } else if(r.key === 'names' || r.key === 'logos'){
+      var k = r.key === 'names' ? 'name' : 'logo';
+      if(pick[tb.key][k] === el.dataset.f) return;
+      pick[tb.key][k] = el.dataset.f; cur.col.cards = 0;
+    } else return;
+    var key = r.key;
+    build();
+    cur.row = rowOf(key);
+  }
+
+  // ---- keep the focused item in view: a rail slides under a fixed slot (its first item's), until its end is in;
+  // the page moves up when the cards would reach past y=1014 (Figma's bottom edge for them) ----
+  function slide(r){
+    var c = col(), el = r.items[c];
+    if(!el){ r.el.style.transform = ''; return; }
+    var want = el.offsetLeft - r.items[0].offsetLeft, max = Math.max(0, r.el.scrollWidth - 1920);
+    r.el.style.transform = 'translateX(' + -Math.max(0, Math.min(want, max)) + 'px)';
+  }
+  // the profile panel under the top bar's photo, as on Home (profile-panel.js)
+  var profileEl = document.querySelector('.topnav .profile'), prof = ProfilePanel(profileEl, { paint:paint, toast:toast });
+
+  function paint(){
+    var inProf = prof.paint(cur.row === 0 && navItems[col()] === profileEl);   // focus is in the profile panel
+    rows.forEach(function(r, ri){ r.items.forEach(function(el, ci){ el.classList.toggle('focused', !inProf && ri === cur.row && ci === col()); }); });
+    rows.forEach(function(r, ri){ if(ri === cur.row && r.el) slide(r); });
+    document.body.classList.toggle('on-nav', cur.row === 0);
+    var r = cur.row === 0 ? rows[Math.max(1, rowOf(cur.from))] : rows[cur.row], y = 0;   // on the top bar the page stays as it was
+    if(r.key === 'cards') y = Math.max(0, cardsEl.offsetTop + cardsEl.offsetHeight - 1014);
+    page.style.transform = 'translateY(' + -y + 'px)';
+  }
+
+  /* ---------- actions ---------- */
+  var toastEl = document.getElementById('toast'), toastT;
+  function toast(msg){ toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove('on'); }, 1600); }
+  function select(el){
+    if(el === profileEl) return;   // its panel is already open under it
+    if(el.dataset.href){ location.href = el.dataset.href; return; }
+    if(rows[0].items.indexOf(el) >= 0){ toast(el.dataset.label + ' (demo)'); return; }
+    if(!el.classList.contains('pcard')) return;   // tabs and filters are picked on landing
+    var pk = PKGS[+el.dataset.i];
+    el.animate([{ transform:'scale(1)' }, { transform:'scale(0.98)' }], { duration:140, easing:'ease-out' });
+    // PLAY ULTIMATE: the same purchase flow as Movie Detail's and the Store's (package-detail.html), coming back here
+    if(pk.detail){ save(); location.href = 'package-detail.html?from=all-packages'; return; }
+    toast('Subscribe to ' + (pk.ph ? 'this package' : pk.title) + ' (demo)');
+  }
+  // Back: up to the tabs first, then where the page was opened from (its Back lands on View All / See all Packages).
+  // That page is remembered for the session, so it still holds after a trip through the package detail page.
+  var OPENER = /movie-detail\.html/.test(document.referrer || '') ? 'movie-detail' : /store\.html/.test(document.referrer || '') ? 'store' : '';
+  try { if(OPENER) sessionStorage.setItem('apOpener', OPENER); else OPENER = sessionStorage.getItem('apOpener') || 'store'; } catch(e){ OPENER = OPENER || 'store'; }
+  function back(){
+    if(cur.row > 1){ cur.row = 1; paint(); return; }
+    try { if(document.referrer && /(store|movie-detail)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    location.href = OPENER === 'movie-detail' ? 'movie-detail.html#packages' : 'store.html';
+  }
+  // leaving for the package detail page: coming back lands on the same tab, filters and card
+  function save(){ try { sessionStorage.setItem('apReturn', JSON.stringify({ tabAt:tabAt, pick:pick, cur:cur })); } catch(e){} }
+
+  addEventListener('keydown', function(e){
+    if(prof.key(e.key)){ e.preventDefault(); return; }   // the profile photo / its panel
+    var r = rows[cur.row], c = col(), handled = true;
+    if(e.key === 'ArrowRight') setCol(Math.min(r.items.length - 1, c + 1));
+    else if(e.key === 'ArrowLeft'){
+      // Left on a row's first item goes up to the top bar (its Store tab), as on Home
+      if(cur.row > 0 && c === 0){ cur.from = r.key; cur.row = 0; cur.col.nav = NAV_STORE; }
+      else setCol(Math.max(0, c - 1));
+    }
+    else if(e.key === 'ArrowUp'){
+      if(cur.row === 1){ cur.from = 'tabs'; cur.row = 0; cur.col.nav = NAV_STORE; }
+      else if(cur.row > 1) cur.row--;
+    }
+    else if(e.key === 'ArrowDown'){
+      if(cur.row === 0) cur.row = Math.max(1, rowOf(cur.from));
+      else cur.row = Math.min(rows.length - 1, cur.row + 1);
+    }
+    else if(e.key === 'Enter') select(r.items[c]);
+    else if(e.key === 'Escape' || e.key === 'Backspace'){ back(); e.preventDefault(); return; }
+    else handled = false;
+    if(!handled) return;
+    e.preventDefault();
+    land();
+    paint();
+  });
+
+  // coming back from the package detail page (Back, or a finished purchase): the same tab, filters and card
+  var subscribed = /[?&]subscribed=1/.test(location.search);
+  try {
+    var saved = JSON.parse(sessionStorage.getItem('apReturn') || 'null');
+    sessionStorage.removeItem('apReturn');
+    if(saved && TABS[saved.tabAt]){ tabAt = saved.tabAt; pick = saved.pick; cur = saved.cur; }
+  } catch(e){}
+
+  build();
+  bindClicks(rows[0]); bindClicks(rows[1]);
+  if(!cur.row || cur.row >= rows.length) cur.row = 1;
+  cur.col.tabs = tabAt;
+  if(subscribed){ history.replaceState(null, '', 'all-packages.html'); toast('You\'re now subscribed to PLAY ULTIMATE'); }
+  page.style.transition = 'none';
+  paint();
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(function(){ paint(); requestAnimationFrame(function(){ page.style.transition = ''; }); });
+})();
+</script>
+<script src="focus-ring.js"></script>
+</body>
+</html>

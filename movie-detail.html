@@ -13,8 +13,11 @@
   Remote / keyboard: arrows move focus (top bar, then the action buttons), Enter selects, Esc / Back returns to Home.
   The Figma frame's background is a video; this page uses that video's still (Figma only exports stills) with the frame's warm haze over it.
 -->
+<link rel="stylesheet" href="package-card.css">
 <style>
-  :root{ color-scheme:dark; }
+  :root{ color-scheme:dark;
+    /* Home's top bar glass and page navy (also the profile panel's, profile-panel.js) */
+    --bg-0:#070e16; --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%); }
   html,body{ margin:0; height:100%; background:#000; overflow:hidden; font-family:'Plus Jakarta Sans', system-ui, sans-serif; color:#fff; }
   #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:#16130f; }
   #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; }
@@ -28,15 +31,15 @@
                linear-gradient(180deg, rgba(10,8,6,.45) 0%, rgba(10,8,6,0) 18%); }
 
   /* top bar (same as Home's) */
-  .topnav{ position:absolute; left:0; top:0; width:1920px; box-sizing:border-box; padding:24px 110px 0; display:flex; align-items:center; }
+  .topnav{ position:absolute; left:0; top:0; z-index:10; width:1920px; box-sizing:border-box; padding:24px 110px 0; display:flex; align-items:center; }   /* over the page, for the profile panel */
   .profile{ width:60px; height:60px; border-radius:999px; overflow:hidden; flex:0 0 auto; }
   .profile img{ width:100%; height:100%; object-fit:cover; display:block; }
   .center{ display:flex; align-items:center; gap:12px; margin-left:20px; }
   .navsearch{ width:60px; height:60px; margin:0 8px; border-radius:999px; display:flex; align-items:center; justify-content:center; }
   .navsearch img{ width:32px; height:32px; display:block; }
   .navtab{ height:60px; padding:0 20px; border-radius:999px; display:flex; align-items:center; font-size:24px; line-height:1.2;
-    text-shadow:0 0 6px rgba(0,0,0,.4); white-space:nowrap; }
-  .navtab.active{ background:rgba(222,222,222,.5); backdrop-filter:blur(10px); }
+    color:#fff; text-shadow:0 0 6px rgba(0,0,0,.4); white-space:nowrap; }
+  .navtab.active{ background:rgba(255,255,255,.22); backdrop-filter:blur(10px); }
 
   /* hero metadata */
   .meta{ position:absolute; left:110px; bottom:286px; width:840px; display:flex; flex-direction:column; gap:40px; }
@@ -67,15 +70,16 @@
   .btn.icon.on{ background:rgba(255,255,255,.85); }
   .btn.icon.on img{ filter:brightness(0); }
   /* focused: a small lift; the ring around it is Home's gliding glass ring (focus-ring.js) */
-  .btn.focused{ transform:scale(1.06); }
+  .btn.focused{ transform:scale(1.08); }   /* 8%, as on every page */
   /* tooltip over a focused icon button */
   .btn .tip{ position:absolute; left:50%; bottom:calc(100% + 18px); transform:translate(-50%, 6px); padding:10px 18px; border-radius:12px;
     background:rgba(20,20,24,.86); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); font-size:22px; font-weight:600; white-space:nowrap;
     opacity:0; pointer-events:none; transition:opacity .18s ease, transform .18s cubic-bezier(.2,0,0,1); }
   .btn .tip::after{ content:''; position:absolute; left:50%; top:100%; transform:translateX(-50%); border:8px solid transparent; border-top-color:rgba(20,20,24,.86); }
   .btn.focused .tip{ opacity:1; transform:translate(-50%, 0); }
-  .topnav .item{ cursor:pointer; transition:background .15s ease, box-shadow .15s ease; }
-  .topnav .item.focused{ background:rgba(222,222,222,.5); }
+  /* focused top-bar item: Home's frosted glass pill, grown 6% */
+  .topnav .item{ cursor:pointer; transition:transform .22s cubic-bezier(.2,0,0,1), background .15s ease, box-shadow .15s ease; }
+  .topnav .item.focused{ background:var(--th-pill); backdrop-filter:blur(12px) saturate(1.4); transform:scale(1.06); }
 
 
   /* ---------- Package selection (Figma "02 / Package Selection / District 9", 628:69703) ----------
@@ -103,58 +107,17 @@
     transition:transform .22s cubic-bezier(.2,0,0,1), box-shadow .22s ease; }
   .glassbtn.bring{ width:100%; padding:32px 40px; font-size:28px; line-height:1.2; white-space:nowrap; }
   .glassbtn.focused{ border-color:rgba(255,255,255,.5); background:radial-gradient(ellipse 120% 160% at 12% 90%, rgba(255,255,255,.04) 6%, rgba(255,255,255,.34) 100%), rgba(255,255,255,.18); }
-  .glassbtn.focused, .seeall.focused{ transform:scale(1.05); }
+  .glassbtn.focused, .seeall.focused{ transform:scale(1.08); }
 
   /* exact Figma sizes (628:76050): a 1127px row, 24px gaps, bottom-aligned. A card is 354px wide (1px border around a
      352px body: 40px badge + 750.6px content); the focused one grows to 371 x 818 (8px padding + 1.5px border) and its
      price block takes in the Subscribe button. */
   .pkgcards{ position:absolute; left:735px; top:118px; width:1127px; height:818px; display:flex; gap:24px; align-items:flex-end; }
-  .pcard{ width:354px; flex:0 0 auto; box-sizing:border-box; position:relative; display:flex; flex-direction:column; border-radius:36px; cursor:pointer;
-    background:rgba(31,31,31,.94); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
-    border:1px solid rgba(255,255,255,.13); box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 12px 12px rgba(0,0,0,.3);
-    transition:width .22s cubic-bezier(.2,0,0,1), padding .22s cubic-bezier(.2,0,0,1), border-color .22s ease, box-shadow .22s ease; }
-  .pcard.focused{ width:371px; padding:8px; border:1.5px solid rgba(255,255,255,.5); box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 12px 12px rgba(0,0,0,.3); }
-  .pcard .badge{ height:40px; box-sizing:border-box; background:rgba(255,255,255,.09); border-radius:36px 36px 0 0; padding:8px 16px; text-align:center; font-size:16px; font-weight:700; line-height:24px; letter-spacing:.15px; }
-  .pcard.focused .badge{ border-radius:28px 28px 0 0; }
   /* stairs: the cards always step down left to right at Figma's heights, whichever one is focused; inside, the
      features block gives up its spare space when a focused card needs room for Subscribe */
   .pcard:nth-child(1){ height:818px; }
   .pcard:nth-child(2){ height:792.6px; }
   .pcard:nth-child(3){ height:752.6px; }
-  .pcard .body{ flex:1; min-height:0; display:flex; flex-direction:column; gap:24px; }
-  .pcard .ptitle{ flex:0 0 96px; height:96px; box-sizing:border-box; display:flex; align-items:center; gap:12px; padding:16px 16px 0; }
-  .pcard .ptitle .lg{ width:80px; height:80px; border-radius:8px; background:#000; flex:0 0 auto; overflow:hidden; display:flex; align-items:center; justify-content:center; }
-  .pcard .ptitle .lg img{ width:100%; height:100%; object-fit:contain; display:block; }
-  .pcard .ptitle b{ font-size:22px; line-height:28px; font-weight:700; }
-  .pcard .mid{ flex:0 1 412px; min-height:380px; display:flex; flex-direction:column; }
-  .pcard .chans{ flex:0 0 244px; height:244px; box-sizing:border-box; margin:0 16px; padding:16px; border-radius:20px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); display:flex; flex-direction:column; gap:16px; }
-  .pcard .grid{ height:128px; display:flex; flex-wrap:wrap; align-content:flex-start; gap:16px; }
-  .tile{ width:56px; height:56px; border-radius:10px; overflow:hidden; background:#000; display:flex; align-items:center; justify-content:center; flex:0 0 auto; }
-  .tile img{ width:100%; height:100%; object-fit:contain; display:block; }
-  .tile.cover img{ object-fit:cover; }
-  .tile.white{ background:#fff; }
-  .tile.pad img{ width:86%; height:86%; }
-  .tile.more{ background:#d9d9d9; color:#fff; font-size:20px; font-weight:600; }
-  .pcard .chanlist{ display:flex; flex-direction:column; gap:8px; }
-  .pcard .small{ font-size:14px; font-weight:600; line-height:20px; letter-spacing:.1px; }
-  .pcard .row40{ display:flex; gap:10px; }
-  .row40 .tile{ width:40px; height:40px; border-radius:8px; }
-  .pcard .feats{ flex:1 1 168px; min-height:136px; box-sizing:border-box; display:flex; flex-direction:column; justify-content:center; gap:8px; padding:0 16px; }
-  .pcard .feat{ height:40px; display:flex; align-items:center; gap:8px; font-size:16px; line-height:24px; letter-spacing:.2px; }
-  .pcard .feat img{ width:40px; height:40px; flex:0 0 auto; }
-  .pcard .price{ flex:1 0 auto; background:rgba(255,255,255,.05); border-radius:0 0 36px 36px; padding:16px; display:flex; flex-direction:column; gap:16px; }
-  .pcard.focused .price{ border-radius:0 0 28px 28px; }
-  .pcard .amtwrap{ display:flex; flex-direction:column; gap:8px; }
-  .pcard .amt{ height:56px; display:flex; align-items:baseline; gap:8px; text-shadow:1px 1px 2px rgba(0,0,0,.7); }
-  .pcard .amt b{ font-size:48px; font-weight:600; line-height:56px; }
-  .pcard.focused .amt b{ font-size:56px; }
-  .pcard .amt span{ font-size:20px; }
-  .pcard .vat{ font-size:12px; line-height:15px; }
-  /* Subscribe appears on the focused card (320 x 80) */
-  .pcard .subscribe{ display:none; align-items:center; justify-content:center; gap:8px; height:80px; box-sizing:border-box; border-radius:9999px; border:3px solid #e8e8e8; font-size:24px; font-weight:600;
-    background:radial-gradient(ellipse 120% 160% at 12% 90%, rgba(255,255,255,0) 6%, rgba(255,255,255,.3) 100%), rgba(255,255,255,.2); box-shadow:inset -1px 3px 17px rgba(255,255,255,.16); }
-  .pcard .subscribe img{ width:32px; height:32px; }
-  .pcard.focused .subscribe{ display:flex; }
   .seeall{ position:absolute; left:1123px; top:968px; width:350px; height:86px; border-radius:9999px; display:flex; align-items:center; justify-content:center; cursor:pointer;
     background:rgba(28,28,28,.8); color:rgba(232,232,232,.85); font-size:31px; font-weight:500; transition:transform .22s cubic-bezier(.2,0,0,1), box-shadow .22s ease; }
   #toast{ position:absolute; left:50%; bottom:80px; transform:translateX(-50%); padding:14px 26px; border-radius:999px;
@@ -174,9 +137,10 @@
     <div class="center">
       <div class="navsearch item" data-label="Search"><img src="icons/nav-search.svg" alt="Search"></div>
       <div class="navtab item active" data-label="Home" data-href="home.html">Home</div>
-      <div class="navtab item" data-label="My list">My list</div>
-      <div class="navtab item" data-label="Shorts">Shorts</div>
-      <div class="navtab item" data-label="Games">Games</div>
+      <div class="navtab item" data-label="Live TV">Live TV</div>
+      <div class="navtab item" data-label="Movie">Movie</div>
+      <div class="navtab item" data-label="Sport" data-href="sport.html">Sport</div>
+      <div class="navtab item" data-label="My List">My List</div>
       <div class="navtab item" data-label="Store" data-href="store.html">Store</div>
     </div>
   </nav>
@@ -218,12 +182,13 @@
         <div class="glassbtn bring item" data-label="Bring Me To Monomax">Bring Me To Monomax</div>
       </div>
     </div>
-    <div class="pkgcards"><div class="pcard item" data-label="PLAY ULTIMATE Monthly Package"><div class="badge">Recommend</div><div class="body"><div class="ptitle"><span class="lg"><img src="icons/pkg/l1.png" alt=""></span><b>PLAY ULTIMATE Monthly Package</b></div><div class="mid"><div class="chans"><div class="grid"><span class="tile "><img src="icons/pkg/l2.png" alt=""></span><span class="tile "><img src="icons/pkg/l3.png" alt=""></span><span class="tile "><img src="icons/pkg/l4.png" alt=""></span><span class="tile cover"><img src="icons/pkg/l5.png" alt=""></span><span class="tile cover"><img src="icons/pkg/l6.png" alt=""></span></div><div class="chanlist"><div class="small">99 Premium Channels</div><div class="row40"><span class="tile cover"><img src="icons/pkg/l7.png" alt=""></span><span class="tile cover"><img src="icons/pkg/l8.png" alt=""></span><span class="tile cover"><img src="icons/pkg/l9.png" alt=""></span><span class="tile cover"><img src="icons/pkg/l10.png" alt=""></span><span class="tile cover"><img src="icons/pkg/l11.png" alt=""></span><span class="tile cover"><img src="icons/pkg/l12.png" alt=""></span></div></div></div><div class="feats"><div class="feat"><img src="icons/pkg/i4k.svg" alt="">Up to 4K Ultra HD Resolution</div><div class="feat"><img src="icons/pkg/idolby.svg" alt="">Audio 5.1 Up to Dolby Atmos</div><div class="feat"><img src="icons/pkg/iscreen.svg" alt="">4 Screen at once</div></div></div><div class="price"><div class="amtwrap"><div class="amt"><b>999 ฿</b><span>/Month</span></div><div class="vat">(Exclude VAT)</div></div><div class="subscribe">Subscribe<img src="icons/pkg/ichev.svg" alt=""></div></div></div></div><div class="pcard item" data-label="HBO MAX Standard Package"><div class="badge">Best Seller</div><div class="body"><div class="ptitle"><span class="lg"><img src="icons/pkg/l3.png" alt=""></span><b>HBO MAX Standard Package</b></div><div class="mid"><div class="chans"><div class="grid"><span class="tile "><img src="icons/pkg/l3.png" alt=""></span></div><div class="chanlist"><div class="small">6 Premium Channels</div><div class="row40"><span class="tile "><img src="icons/pkg/l13.png" alt=""></span><span class="tile cover"><img src="icons/pkg/l14.png" alt=""></span><span class="tile "><img src="icons/pkg/l15.png" alt=""></span><span class="tile "><img src="icons/pkg/l16.png" alt=""></span><span class="tile "><img src="icons/pkg/l17.png" alt=""></span></div></div></div><div class="feats"><div class="feat"><img src="icons/pkg/i4k.svg" alt="">Up to 4K Ultra HD Resolution</div><div class="feat"><img src="icons/pkg/idolby.svg" alt="">Audio 5.1 Up to Dolby Atmos</div><div class="feat"><img src="icons/pkg/iscreen.svg" alt="">4 Screen at once</div></div></div><div class="price"><div class="amtwrap"><div class="amt"><b>199 ฿</b><span>/Month</span></div><div class="vat">(Exclude VAT)</div></div><div class="subscribe">Subscribe<img src="icons/pkg/ichev.svg" alt=""></div></div></div></div><div class="pcard item" data-label="PLAY ALL"><div class="body"><div class="ptitle"><span class="lg"><img src="icons/pkg/l18.png" alt=""></span><b>PLAY ALL</b></div><div class="mid"><div class="chans"><div class="grid"><span class="tile white cover"><img src="icons/pkg/l19.png" alt=""></span><span class="tile white pad"><img src="icons/pkg/l20.png" alt=""></span><span class="tile white pad"><img src="icons/pkg/l21.png" alt=""></span><span class="tile white cover"><img src="icons/pkg/l22.png" alt=""></span><span class="tile white pad"><img src="icons/pkg/l23.png" alt=""></span><span class="tile white cover"><img src="icons/pkg/l24.png" alt=""></span><span class="tile white pad"><img src="icons/pkg/l25.png" alt=""></span><span class="tile more">13+</span></div><div class="chanlist"><div class="small">99 Premium Channels</div><div class="row40"><span class="tile white cover"><img src="icons/pkg/l28.png" alt=""></span><span class="tile white cover"><img src="icons/pkg/l29.png" alt=""></span><span class="tile white cover"><img src="icons/pkg/l30.png" alt=""></span><span class="tile white cover"><img src="icons/pkg/l31.png" alt=""></span><span class="tile white cover"><img src="icons/pkg/l32.png" alt=""></span><span class="tile white pad"><img src="icons/pkg/l33.png" alt=""></span></div></div></div><div class="feats"><div class="feat"><img src="icons/pkg/ihd.svg" alt="">Full HD 1080p</div><div class="feat"><img src="icons/pkg/idolby.svg" alt="">Audio 5.1 Up to Dolby Atmos</div><div class="feat"><img src="icons/pkg/iscreen.svg" alt="">4 Screen at once</div></div></div><div class="price"><div class="amtwrap"><div class="amt"><b>1,999 ฿</b><span>/Year</span></div><div class="vat">(Exclude VAT)</div></div><div class="subscribe">Subscribe<img src="icons/pkg/ichev.svg" alt=""></div></div></div></div></div>
+    <div class="pkgcards"><div class="pcard item" data-label="PLAY ULTIMATE Monthly Package"><div class="badge">Recommend</div><div class="body"><div class="ptitle"><span class="lg"><img src="icons/pkg/l1.png" alt=""></span><b>PLAY ULTIMATE Monthly Package</b></div><div class="mid"><div class="chans"><div class="grid"><span class="tile "><img src="icons/pkg/l2.png" alt=""></span><span class="tile "><img src="icons/pkg/l3.png" alt=""></span><span class="tile "><img src="icons/pkg/l4.png" alt=""></span><span class="tile cover"><img src="icons/pkg/l5.png" alt=""></span><span class="tile cover"><img src="icons/pkg/l6.png" alt=""></span></div><div class="chanlist"><div class="small">99 Premium Channels</div><div class="row40"><span class="tile cover"><img src="icons/pkg/l7.png" alt=""></span><span class="tile cover"><img src="icons/pkg/l8.png" alt=""></span><span class="tile cover"><img src="icons/pkg/l9.png" alt=""></span><span class="tile cover"><img src="icons/pkg/l10.png" alt=""></span><span class="tile cover"><img src="icons/pkg/l11.png" alt=""></span><span class="tile cover"><img src="icons/pkg/l12.png" alt=""></span></div></div></div><div class="feats"><div class="feat"><img src="icons/pkg/i4k.svg" alt="">Up to 4K Ultra HD Resolution</div><div class="feat"><img src="icons/pkg/idolby.svg" alt="">Audio 5.1 Up to Dolby Atmos</div><div class="feat"><img src="icons/pkg/iscreen.svg" alt="">4 Screen at once</div></div></div><div class="price"><div class="amtwrap"><div class="amt"><b>999 baht</b><span>/Month</span></div><div class="vat">(Exclude VAT)</div></div><div class="subscribe">Subscribe<img src="icons/pkg/ichev.svg" alt=""></div></div></div></div><div class="pcard item" data-label="HBO MAX Standard Package"><div class="badge">Best Seller</div><div class="body"><div class="ptitle"><span class="lg"><img src="icons/pkg/l3.png" alt=""></span><b>HBO MAX Standard Package</b></div><div class="mid"><div class="chans"><div class="grid"><span class="tile "><img src="icons/pkg/l3.png" alt=""></span></div><div class="chanlist"><div class="small">6 Premium Channels</div><div class="row40"><span class="tile "><img src="icons/pkg/l13.png" alt=""></span><span class="tile cover"><img src="icons/pkg/l14.png" alt=""></span><span class="tile "><img src="icons/pkg/l15.png" alt=""></span><span class="tile "><img src="icons/pkg/l16.png" alt=""></span><span class="tile "><img src="icons/pkg/l17.png" alt=""></span></div></div></div><div class="feats"><div class="feat"><img src="icons/pkg/i4k.svg" alt="">Up to 4K Ultra HD Resolution</div><div class="feat"><img src="icons/pkg/idolby.svg" alt="">Audio 5.1 Up to Dolby Atmos</div><div class="feat"><img src="icons/pkg/iscreen.svg" alt="">4 Screen at once</div></div></div><div class="price"><div class="amtwrap"><div class="amt"><b>199 baht</b><span>/Month</span></div><div class="vat">(Exclude VAT)</div></div><div class="subscribe">Subscribe<img src="icons/pkg/ichev.svg" alt=""></div></div></div></div><div class="pcard item" data-label="PLAY ALL"><div class="body"><div class="ptitle"><span class="lg"><img src="icons/pkg/l18.png" alt=""></span><b>PLAY ALL</b></div><div class="mid"><div class="chans"><div class="grid"><span class="tile white cover"><img src="icons/pkg/l19.png" alt=""></span><span class="tile white pad"><img src="icons/pkg/l20.png" alt=""></span><span class="tile white pad"><img src="icons/pkg/l21.png" alt=""></span><span class="tile white cover"><img src="icons/pkg/l22.png" alt=""></span><span class="tile white pad"><img src="icons/pkg/l23.png" alt=""></span><span class="tile white cover"><img src="icons/pkg/l24.png" alt=""></span><span class="tile white pad"><img src="icons/pkg/l25.png" alt=""></span><span class="tile more">13+</span></div><div class="chanlist"><div class="small">99 Premium Channels</div><div class="row40"><span class="tile white cover"><img src="icons/pkg/l28.png" alt=""></span><span class="tile white cover"><img src="icons/pkg/l29.png" alt=""></span><span class="tile white cover"><img src="icons/pkg/l30.png" alt=""></span><span class="tile white cover"><img src="icons/pkg/l31.png" alt=""></span><span class="tile white cover"><img src="icons/pkg/l32.png" alt=""></span><span class="tile white pad"><img src="icons/pkg/l33.png" alt=""></span></div></div></div><div class="feats"><div class="feat"><img src="icons/pkg/ihd.svg" alt="">Full HD 1080p</div><div class="feat"><img src="icons/pkg/idolby.svg" alt="">Audio 5.1 Up to Dolby Atmos</div><div class="feat"><img src="icons/pkg/iscreen.svg" alt="">4 Screen at once</div></div></div><div class="price"><div class="amtwrap"><div class="amt"><b>1,999 baht</b><span>/Year</span></div><div class="vat">(Exclude VAT)</div></div><div class="subscribe">Subscribe<img src="icons/pkg/ichev.svg" alt=""></div></div></div></div></div>
     <div class="seeall item" data-label="See all Packages">See&nbsp; all Packages</div>
   </section>
   <div id="toast"></div>
 </div></div>
 
+<script src="profile-panel.js"></script>
 <script>
 (function(){
   // ---- fit the 1920x1080 screen into the window ----
@@ -240,6 +205,8 @@
   //      Package view (same page, body.pkg): top bar, then Bring Me To Monomax + the 3 package cards, then See all Packages.
   var $ = function(q){ return Array.prototype.slice.call(document.querySelectorAll(q)); };
   var nav = $('.topnav .item');
+  // the profile panel under the top bar's photo, as on Home (profile-panel.js)
+  var profileEl = document.querySelector('.topnav .profile'), prof = ProfilePanel(profileEl, { paint:paint, toast:toast });
   var VIEWS = {
     detail: { rows: [nav, $('.actions .item')], start: { row: 1, col: [2, 0] } },
     pkg:    { rows: [nav, $('.pkgleft .item').concat($('.pcard')), $('.seeall')], start: { row: 1, col: [2, 1, 0] } }
@@ -253,7 +220,8 @@
     paint();
   }
   function paint(){
-    rows.forEach(function(r, ri){ r.forEach(function(el, ci){ el.classList.toggle('focused', ri === cur.row && ci === cur.col[ri]); }); });
+    var inProf = prof.paint(cur.row === 0 && rows[0][cur.col[0]] === profileEl);   // focus is in the profile panel
+    rows.forEach(function(r, ri){ r.forEach(function(el, ci){ el.classList.toggle('focused', !inProf && ri === cur.row && ci === cur.col[ri]); }); });
     // tooltips say what the button does now (add / remove)
     document.querySelectorAll('.btn[data-tip]').forEach(function(b){ b.querySelector('.tip').textContent = b.classList.contains('on') ? b.dataset.tipOn : b.dataset.tip; });
     // My List: + becomes a check mark once added
@@ -267,8 +235,11 @@
     location.href = 'home.html';
   }
   function select(el){
+    if(el === profileEl) return;   // its panel is already open under it
     if(el.dataset.label === 'Play'){ toast('Now playing: District 9'); return; }
     if(el.dataset.label === 'View Package'){ setView('pkg'); return; }
+    // See all Packages: the All Packages page; its Back comes back to the packages here
+    if(el.dataset.label === 'See all Packages'){ history.replaceState(null, '', 'movie-detail.html#packages'); location.href = 'all-packages.html'; return; }
     if(el.classList.contains('pcard')){
       // Subscribe on PLAY ULTIMATE opens its package detail page; remember to come back to the packages
       if(el.dataset.label === 'PLAY ULTIMATE Monthly Package'){ history.replaceState(null, '', 'movie-detail.html#packages'); location.href = 'package-detail.html'; return; }
@@ -285,6 +256,7 @@
     toast(el.dataset.label + ' (demo)');
   }
   addEventListener('keydown', function(e){
+    if(prof.key(e.key)){ e.preventDefault(); return; }   // the profile photo / its panel
     var r = rows[cur.row], handled = true;
     if(e.key === 'ArrowRight') cur.col[cur.row] = Math.min(r.length - 1, cur.col[cur.row] + 1);
     // Left on a row's first item jumps up to the top nav bar (its Home tab), like on Home
