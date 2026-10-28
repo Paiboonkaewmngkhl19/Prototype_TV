@@ -337,12 +337,15 @@
   }
   // Back: up to the tabs first, then where the page was opened from (its Back lands on View All / See all Packages).
   // That page is remembered for the session, so it still holds after a trip through the package detail page.
-  var OPENER = /movie-detail\.html/.test(document.referrer || '') ? 'movie-detail' : /store\.html/.test(document.referrer || '') ? 'store' : '';
-  try { if(OPENER) sessionStorage.setItem('apOpener', OPENER); else OPENER = sessionStorage.getItem('apOpener') || 'store'; } catch(e){ OPENER = OPENER || 'store'; }
+  // (a short drama page: its address, so Back returns to the same short)
+  var ref = document.referrer || '', OPENER = /movie-detail\.html/.test(ref) ? 'movie-detail.html#packages' : /store\.html/.test(ref) ? 'store.html' :
+    /short-detail\.html/.test(ref) ? 'short-detail.html' + (ref.match(/\?s=\d+/) || [''])[0] : '';
+  try { if(OPENER) sessionStorage.setItem('apOpener', OPENER); else OPENER = sessionStorage.getItem('apOpener') || 'store.html'; } catch(e){ OPENER = OPENER || 'store.html'; }
+  if(!/\.html/.test(OPENER)) OPENER = OPENER === 'movie-detail' ? 'movie-detail.html#packages' : 'store.html';   // (saved by an earlier version)
   function back(){
     if(cur.row > 1){ cur.row = 1; paint(); return; }
-    try { if(document.referrer && /(store|movie-detail)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
-    location.href = OPENER === 'movie-detail' ? 'movie-detail.html#packages' : 'store.html';
+    try { if(document.referrer && /(store|movie-detail|short-detail)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    location.href = OPENER;
   }
   // leaving for the package detail page: coming back lands on the same tab, filters and card
   function save(){ try { sessionStorage.setItem('apReturn', JSON.stringify({ tabAt:tabAt, pick:pick, cur:cur })); } catch(e){} }
@@ -385,7 +388,10 @@
   bindClicks(rows[0]); bindClicks(rows[1]);
   if(!cur.row || cur.row >= rows.length) cur.row = 1;
   cur.col.tabs = tabAt;
-  if(subscribed){ history.replaceState(null, '', 'all-packages.html'); toast('You\'re now subscribed to PLAY ULTIMATE'); }
+  if(subscribed){
+    history.replaceState(null, '', 'all-packages.html'); toast('You\'re now subscribed to PLAY ULTIMATE');
+    try { sessionStorage.setItem('shortsSubscribed', '1'); } catch(e){}   // short dramas: every episode is open now
+  }
   page.style.transition = 'none';
   paint();
   (document.fonts ? document.fonts.ready : Promise.resolve()).then(function(){ paint(); requestAnimationFrame(function(){ page.style.transition = ''; }); });

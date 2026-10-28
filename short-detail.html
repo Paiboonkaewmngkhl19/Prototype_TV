@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Short Drama</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<!--
+  Short drama detail (Figma Movies "Short Movies VOD": default_mdType 2612:39184, the Episodes tab 2612:39207 / 39272,
+  Unlock Episode 2612:39403, You May Also Like 2612:39185), opened from a card in Home's Shorts row (?s=0..7).
+  A 1920x1080 TV screen scaled to the window, in Store's theme; the shared gliding focus ring is focus-ring.js, the
+  top bar's photo opens the profile panel (profile-panel.js), the action buttons are Movie Detail's glass buttons.
+
+  - The top: the short's picture as Home's hero (bright, a dark wash on the left, fading into the page), its title,
+    platform, genres, year, length, rating, synopsis, then Play Ep.1, My List, Like, Dislike. The bar at the bottom
+    of the screen holds the two tabs.
+  - Down onto the tabs, the page moves up so they sit at the top; a tab is picked as focus lands on it (as Store's).
+    Episodes: the ranges (1-40 ... 121-160, picked on landing too), then a grid of 10 a row. Episodes 1-10 are free;
+    from 11 they are locked until unlocked. You May Also Like: other shorts, 6 a row. The focused grid row sits in
+    the first row's place.
+  - A locked episode opens Unlock Episode N: Subscribe to unlock all (All Packages on its Short Drama tab, which
+    comes back here), Buy this episode (the short's payment: package-detail.html?short=N, a viewing pass that opens every
+    episode), or Watch Ads (an ad, a few a day). Close / Back keeps the episode locked.
+  - The top bar is visible on the top part, and steps away below it until Up / Left brings it back (as Store's).
+  Remote / keyboard: arrows move, Enter selects, Esc / Back goes up a level (the popup, the tabs, the top), then home.
+-->
+<style>
+  :root{
+    color-scheme:dark;
+    /* Store's tokens (Home's page: dark navy, Open Sans) */
+    --bg-0:#070e16;
+    --on-surface:#e8e8e8; --on-surface-variant:#a8a8a8; --surface-container:#2a2a2a; --surface-container-high:#3a3a3a; --outline:#5a5a5a; --outline-variant:#4a4a4a;
+    --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%);
+    --focus-fill:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%), var(--th-pill);
+    --idle-fill:rgba(255,255,255,.16); --idle-fill-on:rgba(255,255,255,.26);
+    --ease:cubic-bezier(.2,0,0,1);
+    --inter:'Open Sans', system-ui, sans-serif;
+  }
+  html,body{ margin:0; height:100%; background:#000; overflow:hidden; color:var(--on-surface); font-family:var(--inter); -webkit-font-smoothing:antialiased; }
+  *{ box-sizing:border-box; }
+  #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:var(--bg-0); }
+  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; overflow:hidden;
+    background:radial-gradient(1400px 900px at 85% 110%, rgba(214,222,240,.12), transparent 70%), var(--bg-0); }   /* Home's page colour and glow */
+
+  /* ---------- the page: the top (952px), the tabs bar (128), then the picked tab; it moves up as a whole ---------- */
+  #page{ position:absolute; left:0; top:0; width:1920px; transition:transform .45s var(--ease); }
+  .item{ cursor:pointer; }
+
+  /* the top: the picture as Home's hero */
+  /* the picture reaches on under the tabs bar and fades out there, so the top, the bar and the page share one background */
+  .top{ position:relative; height:952px; }
+  .top .pic{ position:absolute; left:0; right:0; top:0; bottom:-128px; background:center 25% / cover no-repeat;
+    -webkit-mask-image:linear-gradient(180deg, #000 0%, #000 58%, transparent 100%); mask-image:linear-gradient(180deg, #000 0%, #000 58%, transparent 100%); }
+  .top .pic::after{ content:''; position:absolute; inset:0;
+    background:linear-gradient(90deg, rgba(7,14,22,.92) 0%, rgba(7,14,22,.7) 32%, rgba(7,14,22,.15) 62%, transparent 80%),
+      linear-gradient(180deg, rgba(7,14,22,.35) 0%, transparent 22%); }
+  .tabsbar{ position:relative; }   /* over the picture's fade */
+  .top .playhint{ position:absolute; left:920px; top:444px; width:80px; height:80px; opacity:.85; }   /* Figma's play mark over the picture */
+  .hero{ position:absolute; left:110px; bottom:100px; width:760px; display:flex; flex-direction:column; gap:24px; }
+  .hero h1{ margin:0; width:700px; font-size:57px; font-weight:700; line-height:1.15; color:var(--on-surface); text-shadow:0 2px 12px rgba(0,0,0,.4);
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .metarow{ height:40px; display:flex; align-items:center; gap:16px; white-space:nowrap; }
+  .metarow .plat{ width:136px; height:40px; border-radius:4px; background:#000 url('icons/aisplay-logo.png') center / 84% auto no-repeat; }
+  .metarow .gen{ display:flex; align-items:center; gap:8px; font-weight:700; font-size:22px; line-height:28px; color:#fff; }
+  .metarow .gen i{ width:4px; height:4px; border-radius:50%; background:#fff; }
+  .metarow span{ font-size:20px; }
+  .metarow .pill{ height:36px; min-width:80px; padding:0 12px; border:1px solid var(--outline); border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:20px; }
+  .syn{ margin:0; width:700px; font-size:24px; line-height:32px; color:var(--on-surface-variant); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .syn b{ font-weight:400; color:#fff; }
+
+  /* action buttons: Movie Detail's frosted glass (Figma: a 300 x 91 Play pill, 90px round icon buttons) */
+  .actions{ display:flex; align-items:center; gap:16px; height:100px; }
+  .btn{ position:relative; display:flex; align-items:center; justify-content:center; color:#fff;
+    background:radial-gradient(ellipse 120% 160% at 12% 90%, rgba(255,255,255,.04) 6%, rgba(255,255,255,.34) 100%), rgba(255,255,255,.18);
+    backdrop-filter:blur(24px) saturate(1.3) brightness(1.15); -webkit-backdrop-filter:blur(24px) saturate(1.3) brightness(1.15);
+    box-shadow:inset -1px 3px 17px rgba(255,255,255,.28), inset 0 1px 0 rgba(255,255,255,.45); }
+  .btn.play{ width:300px; height:91px; gap:16px; border-radius:9999px; border:3px solid rgba(255,255,255,.8); }
+  .btn.play img{ width:40px; height:40px; }
+  .btn.play span{ font-size:31px; font-weight:600; text-shadow:0 4px 4px rgba(0,0,0,.25); }
+  .btn.icon{ width:90px; height:90px; border-radius:50%; border:1px solid rgba(255,255,255,.8); }
+  .btn.icon img{ width:45px; height:45px; }
+  .btn.icon.on{ background:rgba(255,255,255,.85); }
+  .btn.icon.on img{ filter:brightness(0); }
+
+  /* the tabs bar (ContentDetail_Menu): picked = brighter glass, focused = the glass pill */
+  .tabsbar{ height:128px; display:flex; align-items:center; gap:24px; padding:0 110px; border-bottom:1px solid rgba(255,255,255,.18); }
+  .ttab{ height:80px; padding:0 40px; border-radius:15px; display:flex; align-items:center; font-weight:500; font-size:30px; line-height:40px; white-space:nowrap; color:var(--on-surface-variant);
+    background:var(--idle-fill); -webkit-backdrop-filter:blur(80px) saturate(1.5); backdrop-filter:blur(80px) saturate(1.5); }
+  .ttab.on{ background:var(--idle-fill-on); color:#fff; }
+  .ttab.focused, .rng.focused{ background:var(--focus-fill); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+
+  .panel{ display:none; }
+  .panel.on{ display:block; }
+  /* Episodes: the ranges (quickmenu), then 10 episodes a row */
+  .ranges{ display:flex; align-items:center; gap:32px; padding:32px 110px; }
+  .rng{ height:80px; padding:0 40px; border-radius:15px; display:flex; align-items:center; font-weight:500; font-size:32px; line-height:32px; color:var(--on-surface-variant); opacity:.8; white-space:nowrap; }
+  .rng.on{ opacity:1; text-decoration:underline; text-underline-offset:8px; text-decoration-thickness:2px; }
+  .eps{ padding:28px 0 0 148px; display:flex; flex-direction:column; gap:40px; }
+  .eprow{ display:flex; gap:16px; }
+  .ep{ position:relative; width:148px; height:148px; border-radius:8px; overflow:hidden; background:#474747; display:flex; flex-direction:column; flex:0 0 auto; }
+  .ep b{ flex:1; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:28px; color:#fff; }
+  .ep.locked b{ color:var(--on-surface-variant); }
+  .ep .lock{ display:none; height:32px; background:var(--surface-container); align-items:center; justify-content:center; }
+  .ep .lock img{ width:20px; height:20px; display:block; }
+  .ep.locked .lock{ display:flex; }
+
+  /* You May Also Like: 220 x 330 posters (Home's), 6 a row */
+  .likes{ padding:93px 0 0 190px; display:flex; flex-direction:column; gap:82px; }
+  .likerow{ display:flex; gap:44px; }
+  .poster{ width:220px; height:330px; border-radius:12px; flex:0 0 auto; background:var(--surface-container-high) center / cover no-repeat; }
+
+  /* focused items grow 8%, as on every page (top bar 6%) */
+  #screen .item{ transition:transform .22s var(--ease), background .15s ease, color .15s ease, box-shadow .2s ease; }
+  #screen .item.focused{ transform:scale(1.08); z-index:2; }
+  #screen .topnav .item.focused{ transform:scale(1.06); }
+
+  /* ---------- top bar (Home's): shown over the top part; below it, away until it gets focus (as Store's) ---------- */
+  .scrim{ position:absolute; left:0; top:0; width:1920px; height:170px; z-index:4; pointer-events:none; opacity:0; transition:opacity .3s ease;
+    background:linear-gradient(180deg, var(--bg-0) 0%, var(--bg-0) 45%, rgba(7,14,22,0) 100%); }
+  body.below.on-nav .scrim{ opacity:1; }
+  .topnav{ position:absolute; left:0; top:0; z-index:5; width:1920px; padding:24px 110px 0; display:flex; align-items:center; transition:opacity .3s ease, translate .3s var(--ease); }
+  body.below:not(.on-nav) .topnav{ opacity:0; translate:0 -40px; pointer-events:none; }
+  .profile{ width:60px; height:60px; border-radius:999px; overflow:hidden; flex:0 0 auto; }
+  .profile img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .center{ display:flex; align-items:center; gap:12px; margin-left:20px; }
+  .navsearch{ width:60px; height:60px; margin:0 8px; border-radius:999px; display:flex; align-items:center; justify-content:center; }
+  .navsearch img{ width:32px; height:32px; display:block; }
+  .navtab{ height:60px; padding:0 20px; border-radius:999px; display:flex; align-items:center; font-family:'Plus Jakarta Sans', var(--inter); font-size:24px; line-height:1.2;
+    color:#fff; text-shadow:0 0 6px rgba(0,0,0,.4); white-space:nowrap; }
+  .navtab.active{ background:rgba(255,255,255,.22); backdrop-filter:blur(10px); }
+  .topnav .item.focused{ background:var(--th-pill); backdrop-filter:blur(12px) saturate(1.4); }
+
+  /* ---------- Unlock Episode (Figma "Modal Dialog (TV)", 800 wide) over the blurred page ---------- */
+  .mscrim{ position:absolute; inset:0; z-index:20; background:rgba(7,14,22,.6); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); opacity:0; pointer-events:none; transition:opacity .2s ease; }
+  .modal{ position:absolute; left:560px; top:156px; z-index:21; width:800px; padding:60px; border-radius:36px; background:#1e1e1e; border:1px solid var(--surface-container-high);
+    display:flex; flex-direction:column; align-items:center; gap:40px; opacity:0; transform:translateY(12px); pointer-events:none; transition:opacity .2s ease, transform .2s var(--ease); }
+  body.unlock .mscrim, body.unlock .modal{ opacity:1; pointer-events:auto; }
+  body.unlock .modal{ transform:none; }
+  .modal .head{ display:flex; flex-direction:column; align-items:center; gap:16px; text-align:center; }
+  .modal .head img{ width:60px; height:60px; }
+  .modal h2{ margin:0; font-weight:400; font-size:40px; line-height:48px; color:#fff; }
+  .modal p{ margin:0; width:420px; font-size:32px; line-height:40px; color:var(--on-surface); }
+  .opts{ min-width:429px; display:flex;   /* Figma's 429, wider when the label needs it (Open Sans runs wider than Roboto) */ flex-direction:column; gap:16px; }
+  .opt{ display:flex; align-items:center; gap:16px; padding:12px; border:3px solid var(--outline); border-radius:8px; font-weight:500; font-size:24px; line-height:32px; color:var(--on-surface-variant); white-space:nowrap; }
+  .opt .rd{ width:48px; height:48px; flex:0 0 auto; border-radius:50%; border:3px solid var(--outline); opacity:.8; background:center / 48px no-repeat; }
+  .opt.sel .rd{ border:0; opacity:1; background-image:url('icons/short/radio-on.svg'); }
+  .opt.sel, .opt.focused{ color:var(--on-surface); }
+  .opt.off{ opacity:.4; }
+  .opt.focused{ background:rgba(255,255,255,.08); }
+  .mbtns{ width:100%; display:flex; gap:40px; }
+  .mbtn{ flex:1; height:80px; border-radius:9999px; display:flex; align-items:center; justify-content:center; font-weight:500; font-size:24px; line-height:32px; color:var(--on-surface);
+    border:3px solid rgba(74,74,74,.4); }
+  .mbtn.focused{ background:var(--focus-fill); border-color:transparent; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+  #screen .modal .item.focused{ transform:scale(1.04); }   /* the popup's rows and buttons: a small lift */
+
+  /* the ad (Watch Ads to unlock): full screen, a countdown, then the episode is unlocked */
+  .ad{ position:absolute; inset:0; z-index:30; background:#000 center / cover no-repeat; display:none; }
+  .ad::after{ content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,.2), rgba(0,0,0,.65)); }
+  body.ad-on .ad{ display:block; }
+  .ad .tag{ position:absolute; left:110px; top:80px; z-index:1; padding:6px 16px; border-radius:8px; background:#f5c518; color:#000; font-weight:700; font-size:24px; }
+  .ad .count{ position:absolute; right:110px; bottom:90px; z-index:1; padding:16px 28px; border-radius:9999px; background:rgba(0,0,0,.7); font-size:26px; font-weight:600; }
+
+  #toast{ position:absolute; left:50%; bottom:80px; z-index:60; transform:translateX(-50%); padding:14px 26px; border-radius:999px;
+    background:rgba(20,20,24,.85); font-size:24px; opacity:0; transition:opacity .2s ease; pointer-events:none; }
+  #toast.on{ opacity:1; }
+</style>
+</head>
+<body>
+<div id="frame"><div id="screen">
+  <div id="page">
+    <section class="top">
+      <div class="pic"></div>
+      <img class="playhint" src="icons/detail-play.svg" alt="">
+      <div class="hero">
+        <h1></h1>
+        <div class="metarow"><span class="plat" aria-label="AIS PLAY"></span><span class="gen"></span><span class="yr"></span><span class="len"></span><span class="pill rate"></span><span class="pill">HD</span></div>
+        <p class="syn"></p>
+        <div class="actions">
+          <div class="btn play item" data-act="play"><img src="icons/detail-play.svg" alt=""><span>Play Ep.1</span></div>
+          <div class="btn icon item" data-act="toggle" data-toggle="Added to My List|Removed from My List"><img src="icons/detail-plus.svg" alt="My List"></div>
+          <div class="btn icon item" data-act="toggle" data-toggle="You liked this|Like removed" data-pair="1"><img src="icons/detail-like.svg" alt="Like"></div>
+          <div class="btn icon item" data-act="toggle" data-toggle="You disliked this|Dislike removed" data-pair="2"><img src="icons/detail-dislike.svg" alt="Dislike"></div>
+        </div>
+      </div>
+    </section>
+    <div class="tabsbar">
+      <div class="ttab item" data-tab="eps" data-ring-art="">Episodes</div>
+      <div class="ttab item" data-tab="likes" data-ring-art="">You May Also Like</div>
+    </div>
+    <section class="panel" data-panel="eps"><div class="ranges"></div><div class="eps"></div></section>
+    <section class="panel" data-panel="likes"><div class="likes"></div></section>
+  </div>
+
+  <div class="scrim" aria-hidden="true"></div>
+  <nav class="topnav">
+    <div class="profile item" data-label="Profile"><img src="icons/profile-tv.png" alt="Profile"></div>
+    <div class="center">
+      <div class="navsearch item" data-label="Search"><img src="icons/nav-search.svg" alt="Search"></div>
+      <div class="navtab item active" data-label="Home" data-href="home.html">Home</div>
+      <div class="navtab item" data-label="Live TV">Live TV</div>
+      <div class="navtab item" data-label="Movie">Movie</div>
+      <div class="navtab item" data-label="Sport" data-href="sport.html">Sport</div>
+      <div class="navtab item" data-label="My List">My List</div>
+      <div class="navtab item" data-label="Store" data-href="store.html">Store</div>
+    </div>
+  </nav>
+
+  <div class="mscrim"></div>
+  <div class="modal" role="dialog" aria-label="Unlock episode">
+    <div class="head"><img src="icons/short/unlock.svg" alt=""><h2>Unlock Episode 11</h2><p>Choose how you'd like to unlock this episode:</p></div>
+    <div class="opts">
+      <div class="opt item" data-o="sub" data-ring-art=""><span class="rd"></span>Subscribe to unlock all episode</div>
+      <div class="opt item" data-o="buy" data-ring-art=""><span class="rd"></span>Buy this episode</div>
+      <div class="opt item" data-o="ads" data-ring-art=""><span class="rd"></span><span class="adtxt">Watch Ads to unlock(4/5)</span></div>
+    </div>
+    <div class="mbtns"><div class="mbtn item" data-m="close" data-ring-art="">Close</div><div class="mbtn item" data-m="confirm" data-ring-art="">Confirm</div></div>
+  </div>
+  <div class="ad"><span class="tag">Ad</span><span class="count"></span></div>
+  <div id="toast"></div>
+</div></div>
+
+<script src="profile-panel.js"></script>
+<script src="shorts-data.js"></script>
+<script>
+(function(){
+  // ---- fit the 1920x1080 screen into the window ----
+  var frame = document.getElementById('frame'), screen = document.getElementById('screen');
+  function fit(){
+    var k = Math.min(innerWidth / 1920, innerHeight / 1080);
+    frame.style.width = 1920 * k + 'px'; frame.style.height = 1080 * k + 'px';
+    frame.style.marginLeft = -960 * k + 'px'; frame.style.marginTop = -540 * k + 'px';
+    screen.style.transform = 'scale(' + k + ')';
+  }
+  addEventListener('resize', fit); fit();
+
+  function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  var $ = function(q, root){ return Array.prototype.slice.call((root || document).querySelectorAll(q)); };
+
+  /* ---------- content: Home's Shorts row (the same titles and posters, shorts-data.js) ---------- */
+  var SHORTS = window.SHORTS;   // shorts-data.js
+  var si = Math.max(0, Math.min(SHORTS.length - 1, +((location.search.match(/[?&]s=(\d+)/) || [])[1] || 0)));
+  var S = SHORTS[si], EPS = 160, FREE = 10, RANGE = 40;
+  var STORE_KEY = 'shortUnlocked' + si;   // the episodes unlocked this session (bought / ads / subscribed)
+  var unlocked = {}, adsLeft = 4;
+  try { unlocked = JSON.parse(sessionStorage.getItem(STORE_KEY) || '{}'); adsLeft = +(sessionStorage.getItem('shortAdsLeft') || 4); } catch(e){}
+  var SUBSCRIBED = false;   // a package bought through All Packages (Subscribe to unlock all) opens every episode
+  try { SUBSCRIBED = !!sessionStorage.getItem('shortsSubscribed'); } catch(e){}
+  function isOpen(n){ return n <= FREE || SUBSCRIBED || unlocked.all || unlocked[n]; }
+  function keep(){ try { sessionStorage.setItem(STORE_KEY, JSON.stringify(unlocked)); sessionStorage.setItem('shortAdsLeft', adsLeft); } catch(e){} }
+
+  // the top
+  document.title = S.t;
+  $('.top .pic')[0].style.backgroundImage = "url('posters/shorts/" + S.img + "')";
+  $('.hero h1')[0].textContent = S.t;
+  $('.metarow .gen')[0].innerHTML = S.gen.map(esc).join('<i></i>');
+  $('.metarow .yr')[0].textContent = '2026';
+  $('.metarow .len')[0].textContent = EPS + ' Episodes';
+  $('.metarow .rate')[0].textContent = S.rate;
+  $('.syn')[0].innerHTML = esc(S.d) + ' <b>More</b>';
+
+  // You May Also Like: the other shorts, then Home's portrait posters
+  var MORE = ['House.jpg', 'Venom.jpg', 'John.jpg', 'F1.jpg', 'avatar.jpg', 'debt.jpg', 'topgun_m.jpg', 'ex1.jpg', 'ex2.jpg', 'ex3.jpg', 'ex4.jpg', 'ex5.jpg'];
+  var LIKES = SHORTS.map(function(x, i){ return { t:x.t, img:'posters/shorts/' + x.img, s:i }; }).filter(function(x){ return x.s !== si; })
+    .concat(MORE.map(function(m){ return { t:m.replace(/\.jpg$/, ''), img:'posters_portrait/' + m }; })).slice(0, 18);
+  var likesEl = $('.likes')[0];
+  for(var r = 0; r < LIKES.length; r += 6){
+    likesEl.insertAdjacentHTML('beforeend', '<div class="likerow">' + LIKES.slice(r, r + 6).map(function(x, j){
+      return '<div class="poster item" data-l="' + (r + j) + '" style="background-image:url(\'' + x.img + '\')"></div>';
+    }).join('') + '</div>');
+  }
+
+  // Episodes: the ranges and the grid for the picked range
+  var rangesEl = $('.ranges')[0], epsEl = $('.eps')[0], rangeAt = 0;
+  for(var a = 1; a <= EPS; a += RANGE) rangesEl.insertAdjacentHTML('beforeend', '<div class="rng item" data-ring-art="">' + a + '-' + (a + RANGE - 1) + '</div>');
+  function buildEps(){
+    var html = '';
+    for(var row = 0; row < RANGE / 10; row++){
+      html += '<div class="eprow">';
+      for(var c = 1; c <= 10; c++){
+        var n = rangeAt * RANGE + row * 10 + c;
+        html += '<div class="ep item' + (isOpen(n) ? '' : ' locked') + '" data-n="' + n + '" data-ring-art=""><b>' + n + '</b><span class="lock"><img src="icons/short/lock.svg" alt="Locked"></span></div>';
+      }
+      html += '</div>';
+    }
+    epsEl.innerHTML = html;
+    $('.rng').forEach(function(el, i){ el.classList.toggle('on', i === rangeAt); });
+  }
+  function paintLocks(){ $('.ep').forEach(function(el){ el.classList.toggle('locked', !isOpen(+el.dataset.n)); }); }
+
+  /* ---------- focus rows ----------
+     nav (the top bar), actions, tabs, then the picked tab's rows: ranges + one row per 10 episodes, or one per 6
+     posters. cur.col is kept per row key; cur.from is the row the top bar was reached from. */
+  var navItems = $('.topnav .item'), NAV_HOME = navItems.indexOf(document.querySelector('.navtab.active'));
+  var tabAt = -1, rows = [], cur = { row:1, col:{ nav:NAV_HOME }, from:'actions' };
+  function build(){
+    buildEps();
+    rows = [{ key:'nav', items:navItems }, { key:'actions', items:$('.actions .item') }, { key:'tabs', items:$('.ttab') }];
+    if(tabAt === 0){
+      rows.push({ key:'ranges', items:$('.rng') });
+      $('.eprow').forEach(function(rw, i){ rows.push({ key:'ep' + i, grid:i, items:$('.item', rw) }); });
+    } else if(tabAt === 1){
+      $('.likerow').forEach(function(rw, i){ rows.push({ key:'like' + i, grid:i, items:$('.item', rw) }); });
+    }
+    $('.ttab').forEach(function(el, i){ el.classList.toggle('on', i === tabAt); });
+    $('.panel').forEach(function(p){ p.classList.toggle('on', p.dataset.panel === (tabAt === 0 ? 'eps' : tabAt === 1 ? 'likes' : '')); });
+    bindClicks();
+  }
+  function rowOf(key){ for(var i = 0; i < rows.length; i++) if(rows[i].key === key) return i; return -1; }
+  function col(){ var r = rows[cur.row]; return Math.min(cur.col[r.key] || 0, r.items.length - 1); }
+  function setCol(c){ cur.col[rows[cur.row].key] = c; }
+
+  // landing on a tab or a range picks it (as Store's tab bars do)
+  function land(){
+    var r = rows[cur.row];
+    if(r.key === 'tabs' && col() !== tabAt){ tabAt = col(); build(); }
+    else if(r.key === 'ranges' && col() !== rangeAt){
+      rangeAt = col(); build();
+      Object.keys(cur.col).forEach(function(k){ if(/^ep\d/.test(k)) cur.col[k] = 0; });
+    }
+  }
+
+  // the profile panel under the top bar's photo, as on Home (profile-panel.js)
+  var profileEl = document.querySelector('.topnav .profile'), prof = ProfilePanel(profileEl, { paint:paint, toast:toast });
+
+  // ---- the page's place: the top at 0; below it, the tabs bar at the top of the screen, and the focused grid row in
+  // the first grid row's place ----
+  var page = document.getElementById('page');
+  function paint(){
+    var inProf = prof.paint(cur.row === 0 && navItems[col()] === profileEl);
+    rows.forEach(function(r, ri){ r.items.forEach(function(el, ci){ el.classList.toggle('focused', !inProf && !modalOn && ri === cur.row && ci === col()); }); });
+    var at = cur.row === 0 ? rows[Math.max(1, rowOf(cur.from))] : rows[cur.row];
+    var below = at.key !== 'actions', y = below ? 952 : 0;
+    if(at.grid) y += at.grid * (at.key.indexOf('ep') === 0 ? 188 : 412);
+    page.style.transform = 'translateY(' + -y + 'px)';
+    document.body.classList.toggle('below', below);
+    document.body.classList.toggle('on-nav', cur.row === 0);
+    paintModal();
+  }
+
+  /* ---------- Unlock Episode ---------- */
+  var modalOn = false, mEp = 0, mSel = 1, mFocus = { area:'opts', i:1 };
+  var optEls = $('.opt'), mBtnEls = $('.mbtn');
+  function openUnlock(n){
+    mEp = n; modalOn = true; mSel = 1; mFocus = { area:'btns', i:1 };   // Figma: Buy this episode picked, focus on Confirm
+    $('.modal h2')[0].textContent = 'Unlock Episode ' + n;
+    $('.adtxt')[0].textContent = 'Watch Ads to unlock(' + adsLeft + '/5)';
+    optEls[2].classList.toggle('off', adsLeft <= 0);
+    document.body.classList.add('unlock'); paint();
+  }
+  function closeUnlock(){ modalOn = false; document.body.classList.remove('unlock'); paint(); }
+  function paintModal(){
+    optEls.forEach(function(o, i){ o.classList.toggle('sel', i === mSel); o.classList.toggle('focused', modalOn && mFocus.area === 'opts' && mFocus.i === i); });
+    mBtnEls.forEach(function(b, i){ b.classList.toggle('focused', modalOn && mFocus.area === 'btns' && mFocus.i === i); });
+  }
+  function confirmUnlock(){
+    var o = optEls[mSel].dataset.o;
+    if(o === 'sub'){   // the Short Drama packages; All Packages comes back here
+      save(); location.href = 'all-packages.html?tab=shorts'; return;
+    }
+    if(o === 'buy'){   // the short's payment (package-detail.html, short mode): a viewing pass
+      save(); location.href = 'package-detail.html?short=' + si + '&ep=' + mEp; return;
+    }
+    if(o === 'ads'){
+      if(adsLeft <= 0){ toast('No more ads today: try another way'); return; }
+      closeUnlock(); playAd(mEp);
+    }
+  }
+  function modalKey(k){
+    if(k === 'Escape' || k === 'Backspace'){ closeUnlock(); return; }
+    if(mFocus.area === 'opts'){
+      if(k === 'ArrowUp') mFocus.i = Math.max(0, mFocus.i - 1);
+      else if(k === 'ArrowDown'){ if(mFocus.i < 2) mFocus.i++; else mFocus = { area:'btns', i:1 }; }
+      else if(k === 'Enter'){ if(!optEls[mFocus.i].classList.contains('off')) mSel = mFocus.i; }
+    } else {
+      if(k === 'ArrowLeft') mFocus.i = 0;
+      else if(k === 'ArrowRight') mFocus.i = 1;
+      else if(k === 'ArrowUp') mFocus = { area:'opts', i:mSel };
+      else if(k === 'Enter'){ if(mFocus.i === 0) closeUnlock(); else confirmUnlock(); return; }
+    }
+    paintModal();
+  }
+  optEls.forEach(function(o, i){ o.addEventListener('click', function(){ if(o.classList.contains('off')) return; mSel = i; mFocus = { area:'opts', i:i }; paintModal(); }); });
+  mBtnEls.forEach(function(b, i){ b.addEventListener('click', function(){ mFocus = { area:'btns', i:i }; paintModal(); if(i === 0) closeUnlock(); else confirmUnlock(); }); });
+  $('.mscrim')[0].addEventListener('click', closeUnlock);
+
+  // the ad: 5 seconds over another short's picture, then the episode is unlocked
+  var adOn = false;
+  function playAd(n){
+    adOn = true; adsLeft--; keep();
+    var ad = $('.ad')[0], cnt = $('.ad .count')[0], left = 5;
+    ad.style.backgroundImage = "url('posters/shorts/" + SHORTS[(si + 3) % SHORTS.length].img + "')";
+    document.body.classList.add('ad-on');
+    (function tick(){
+      cnt.textContent = left > 0 ? 'Episode ' + n + ' unlocks in ' + left : 'Unlocked';
+      if(left-- > 0){ setTimeout(tick, 1000); return; }
+      adOn = false; document.body.classList.remove('ad-on');
+      unlocked[n] = 1; keep(); paintLocks(); paint(); toast('Episode ' + n + ' unlocked');
+    })();
+  }
+
+  /* ---------- actions ---------- */
+  var toastEl = document.getElementById('toast'), toastT;
+  function toast(msg){ toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove('on'); }, 1600); }
+  function select(el){
+    if(el === profileEl) return;   // its panel is already open under it
+    if(el.dataset.href){ location.href = el.dataset.href; return; }
+    if(navItems.indexOf(el) >= 0){ toast(el.dataset.label + ' (demo)'); return; }
+    if(el.dataset.act === 'play'){ toast('Now playing: ' + S.t + ' · Ep.1'); return; }
+    if(el.dataset.act === 'toggle'){
+      var msgs = el.dataset.toggle.split('|'), on = !el.classList.contains('on');
+      el.classList.toggle('on', on);
+      if(on && el.dataset.pair){ var other = $('.actions .item')[el.dataset.pair === '1' ? 3 : 2]; other.classList.remove('on'); }   // like and dislike can't both be on
+      toast(on ? msgs[0] : msgs[1]); return;
+    }
+    if(el.classList.contains('ep')){
+      var n = +el.dataset.n;
+      if(isOpen(n)) toast('Now playing: ' + S.t + ' · Ep.' + n); else openUnlock(n);
+      return;
+    }
+    if(el.classList.contains('poster')){
+      var x = LIKES[+el.dataset.l];
+      if(x.s !== undefined){ location.href = 'short-detail.html?s=' + x.s; return; }
+      toast('Now playing: ' + x.t); return;
+    }
+  }
+  // leaving for All Packages: coming back lands on the same tab, range and episode
+  function save(){ try { sessionStorage.setItem('shortReturn', JSON.stringify({ s:si, tabAt:tabAt, rangeAt:rangeAt, cur:cur })); } catch(e){} }
+  // Back: the popup, then up to the tabs, then the top, then where the page was opened from
+  function back(){
+    if(cur.row > 2){ cur.row = 2; paint(); return; }
+    if(cur.row === 2 || cur.row === 0){ cur.row = 1; paint(); return; }
+    try { if(document.referrer && /(home|short-detail)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    location.href = 'home.html';
+  }
+
+  addEventListener('keydown', function(e){
+    if(adOn){ e.preventDefault(); return; }
+    if(modalOn){ e.preventDefault(); modalKey(e.key); return; }
+    if(prof.key(e.key)){ e.preventDefault(); return; }   // the profile photo / its panel
+    var r = rows[cur.row], c = col(), handled = true;
+    if(e.key === 'ArrowRight') setCol(Math.min(r.items.length - 1, c + 1));
+    else if(e.key === 'ArrowLeft'){
+      // Left on a row's first item goes up to the top bar (its Home tab), as on Home
+      if(cur.row > 0 && c === 0){ cur.from = r.key; cur.row = 0; cur.col.nav = NAV_HOME; }
+      else setCol(Math.max(0, c - 1));
+    }
+    else if(e.key === 'ArrowUp'){
+      if(cur.row === 1){ cur.from = 'actions'; cur.row = 0; cur.col.nav = NAV_HOME; }
+      else if(cur.row > 1){
+        cur.row--;
+        // between grid rows, keep the same column
+        if(rows[cur.row].grid !== undefined && r.grid !== undefined) setCol(Math.min(c, rows[cur.row].items.length - 1));
+      }
+    }
+    else if(e.key === 'ArrowDown'){
+      if(cur.row === 0) cur.row = Math.max(1, rowOf(cur.from));
+      else if(cur.row < rows.length - 1){
+        cur.row++;
+        if(rows[cur.row].grid !== undefined && r.grid !== undefined) setCol(Math.min(c, rows[cur.row].items.length - 1));
+      }
+    }
+    else if(e.key === 'Enter') select(r.items[c]);
+    else if(e.key === 'Escape' || e.key === 'Backspace'){ back(); e.preventDefault(); return; }
+    else handled = false;
+    if(!handled) return;
+    e.preventDefault();
+    land(); paint();
+  });
+  function bindClicks(){
+    rows.forEach(function(r){ r.items.forEach(function(el, ci){
+      if(el.dataset.bound) return; el.dataset.bound = 1;
+      el.addEventListener('click', function(){
+        var ri = -1;
+        rows.forEach(function(rr, i){ if(rr.items.indexOf(el) >= 0) ri = i; });
+        if(ri < 0 || modalOn) return;
+        if(ri === 0 && cur.row) cur.from = rows[cur.row].key;
+        cur.row = ri; setCol(rows[ri].items.indexOf(el)); land(); paint(); select(el);
+      });
+    }); });
+  }
+
+  // coming back from All Packages (Subscribe to unlock all): the same tab, range and episode
+  try {
+    var saved = JSON.parse(sessionStorage.getItem('shortReturn') || 'null');
+    sessionStorage.removeItem('shortReturn');
+    if(saved && saved.s === si){ tabAt = saved.tabAt; rangeAt = saved.rangeAt; cur = saved.cur; }
+  } catch(e){}
+  // a pass bought on the payment page: every episode of this short is open
+  if(/[?&]pass=1/.test(location.search)){
+    unlocked.all = 1; keep();
+    history.replaceState(null, '', 'short-detail.html?s=' + si);
+    setTimeout(function(){ toast('Your pass is active: every episode is unlocked'); }, 300);
+  }
+  build();
+  if(!cur.row || cur.row >= rows.length) cur.row = 1;
+  page.style.transition = 'none';
+  paint();
+  requestAnimationFrame(function(){ page.style.transition = ''; });
+})();
+</script>
+<script src="focus-ring.js"></script>
+</body>
+</html>

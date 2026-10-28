@@ -1417,8 +1417,9 @@
       {t:"The Mafia Boss's Spoiled Secretary", img:'s5.jpg'}, {t:"The Healer's Comeback", img:'s6.jpg'},
       {t:'Back to the Moonlight Promise', img:'s7.jpg'}, {t:'Short Drama #8', img:'s8.jpg'}
     ];
-    var cards = shorts.map(function(c){
-      return '<div class="card clip-card item" data-title="'+c.t+'" style="background-image:url(\'posters/shorts/'+c.img+'\');"></div>';
+    var cards = shorts.map(function(c, i){
+      // each opens its short drama page (short-detail.html, Figma Movies "Short Movies VOD")
+      return '<div class="card clip-card item" data-title="'+c.t+'" data-href="short-detail.html?s='+i+'" style="background-image:url(\'posters/shorts/'+c.img+'\');"></div>';
     }).join('') + '<div class="clip-viewall item" data-title="Shorts – View All" data-ring-art=""><b>Shorts</b><span>View All</span></div>';
     addRow('<div class="row-block clips-row"><div class="clips-bg"></div><div class="row-title">Shorts</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
     MOBILE_ROWS.push({title:'Shorts', type:'poster', items: shorts.map(function(c){ return {t:c.t, img:'posters/shorts/'+c.img}; })});

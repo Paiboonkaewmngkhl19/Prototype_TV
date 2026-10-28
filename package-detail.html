@@ -10,6 +10,10 @@
 <!--
   Package detail + payment (Figma "03 / Package Detail / Payment", node 628:76377), opened from Subscribe on the
   PLAY ULTIMATE card in movie-detail.html's package view. A 1920x1080 TV screen scaled to the window.
+  Short drama mode (?short=N&ep=E, Figma Store "Details Short pay" 3998:120134), opened from Buy this episode in a
+  short's Unlock Episode popup (short-detail.html): Title Details on the left (poster, title, meta, synopsis), the
+  viewing passes on the right (24 / 48 / 100 hours), then the same payment: Confirm, OTP, success, which returns to
+  the short with every episode open for the pass.
   Remote / keyboard: left column = Details / Terms tabs; right column = the 3 prices, then the 2 payment buttons.
   Arrows move, Enter selects, Esc / Back returns to the packages.
 -->
@@ -174,6 +178,39 @@
   .okd .okcard .v{ font-size:24px; font-weight:500; }
   .okd .okcard .d{ font-size:20px; }
 
+  /* ---------- short drama mode (Figma "Details Short pay"): Title Details + viewing passes ---------- */
+  .tdetails, .opthead, .passes{ display:none; }
+  body.short .switcher, body.short .card, body.short .rhead, body.short .prices{ display:none; }
+  body.short .left{ width:1075px; background:#1c1c1c; }
+  body.short .right{ left:1075px; width:845px; padding:80px; background:#383838; }
+  body.short .tdetails{ display:flex; gap:40px; }
+  .tdetails .poster{ width:220px; height:330px; border-radius:16px; flex:0 0 auto; background:#3a3a3a center / cover no-repeat; }
+  .tdetails .info{ flex:1; min-width:0; display:flex; flex-direction:column; gap:32px; }
+  .tdetails .head{ display:flex; flex-direction:column; gap:16px; }
+  .tdetails .nm{ font-size:24px; font-weight:600; line-height:32px; color:#fff; }
+  .tdetails .meta{ width:613px; display:flex; flex-wrap:wrap; align-items:center; gap:16px; white-space:nowrap; }
+  .tdetails .plat{ width:136px; height:40px; border-radius:4px; background:#000 url('icons/aisplay-logo.png') center / 84% auto no-repeat; }
+  .tdetails .gen{ display:flex; align-items:center; gap:8px; font-weight:700; font-size:22px; line-height:28px; }
+  .tdetails .gen i{ width:4px; height:4px; border-radius:50%; background:#fff; }
+  .tdetails .meta span{ font-size:20px; color:var(--on); }
+  .tdetails .pill{ height:36px; min-width:80px; box-sizing:border-box; padding:0 12px; border:1px solid #5a5a5a; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:20px; }
+  .tdetails .syn{ margin:0; font-size:16px; line-height:24px; letter-spacing:.25px; color:var(--muted); }
+  body.short .opthead{ display:flex; flex-direction:column; gap:8px; margin-bottom:32px; }
+  .opthead h1{ font-size:32px; line-height:40px; color:#fff; }
+  .opthead p{ margin:0; font-size:16px; line-height:24px; letter-spacing:.25px; color:var(--on); }
+  body.short .passes{ display:flex; flex-direction:column; gap:16px; }
+  .pass{ height:auto; padding:24px 16px; gap:16px; border-radius:16px; background:#4a4a4a; justify-content:flex-start; }
+  .pass .rd{ width:32px; height:32px; flex:0 0 auto; background:url('icons/short/radio-off.svg') center / 32px no-repeat; }
+  .pass.selected{ background:#4a4a4a; }
+  .pass.selected .rd{ background-image:url('icons/short/radio-on.svg'); }
+  .pass .what{ flex:1; display:flex; flex-direction:column; gap:4px; }
+  .pass .what b{ font-size:28px; font-weight:600; line-height:36px; color:#f0f0f0; }
+  .pass .what span{ display:flex; align-items:center; gap:8px; font-size:16px; line-height:24px; letter-spacing:.25px; color:var(--on); }
+  .pass .what span img{ width:24px; height:24px; }
+  .pass .cost{ display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
+  .pass .cost .amt{ font-size:28px; font-weight:600; line-height:36px; color:#f0f0f0; }
+  .pass .cost .vat{ margin:0; font-size:16px; line-height:24px; letter-spacing:.25px; color:var(--on); }
+
   #toast{ position:absolute; left:50%; bottom:60px; transform:translateX(-50%); padding:14px 26px; border-radius:999px;
     background:rgba(20,20,24,.9); font-size:24px; opacity:0; transition:opacity .2s ease; pointer-events:none; z-index:5; }
   #toast.on{ opacity:1; }
@@ -183,6 +220,7 @@
 <div id="frame"><div id="screen">
   <section class="left">
     <h1>Package Detail</h1>
+    <div class="tdetails"><div class="poster"></div><div class="info"><div class="head"><div class="nm"></div><div class="meta"></div></div><p class="syn"></p></div></div>
     <div class="content">
       <div class="switcher">
         <div class="tab item active" data-tab="details">Details</div>
@@ -238,6 +276,8 @@
       <div class="price item selected" data-label="Monthly"><div><div class="amt">999 ฿ / Month</div><div class="vat">VAT Included: 1,068.93 ฿</div></div><span class="pill">Monthly</span></div>
       <div class="price item" data-label="Yearly"><div><div class="amt">4,999 ฿ / Year</div><div class="vat">VAT Included: 5,348.93 ฿</div></div><span class="pill">Yearly</span></div>
     </div>
+    <div class="opthead"><h1>Options</h1><p>Please ensure you can watch within the viewing period. Content expires after that time.</p></div>
+    <div class="passes"></div>
     <div class="pay">
       <h2>Choose how to pay</h2>
       <div class="paybtn item" data-label="Charge to AIS Bill"><img src="icons/pkg/d-bill.svg" alt=""><span>Charge to AIS Bill</span><img src="icons/pkg/d-chev.svg" alt=""></div>
@@ -292,6 +332,7 @@
   <div id="toast"></div>
 </div></div>
 
+<script src="shorts-data.js"></script>
 <script>
 (function(){
   var frame = document.getElementById('frame'), screen = document.getElementById('screen');
@@ -304,6 +345,49 @@
   addEventListener('resize', fit); fit();
 
   var $ = function(q){ return Array.prototype.slice.call(document.querySelectorAll(q)); };
+
+  // ---- short drama mode (?short=N&ep=E): Title Details and the viewing passes take the package's place; the payment
+  // steps below are the same, with the short's name, the pass and a one-off charge ----
+  var SHORT = (location.search.match(/[?&]short=(\d+)/) || [])[1], SH = SHORT !== undefined ? window.SHORTS[+SHORT] : null;
+  var EP = +((location.search.match(/[?&]ep=(\d+)/) || [])[1] || 0);
+  var PASSES = [
+    { name:'24-Hour Pass', hours:24, start:7, amt:'199 baht', vat:'212.93 baht' },
+    { name:'48-Hour Pass', hours:48, start:30, amt:'299 baht', vat:'319.93 baht' },
+    { name:'100-Hour Pass', hours:100, start:90, amt:'399 baht', vat:'426.93 baht' }
+  ];
+  if(SH){
+    document.body.classList.add('short');
+    document.title = SH.t;
+    document.querySelector('.left > h1').textContent = 'Title Details';
+    document.querySelector('.tdetails .poster').style.backgroundImage = "url('posters/shorts/" + SH.img + "')";
+    document.querySelector('.tdetails .nm').textContent = SH.t;
+    document.querySelector('.tdetails .meta').innerHTML = '<span class="plat" aria-label="AIS PLAY"></span><span class="gen">' + SH.gen.join('<i></i>') + '</span>' +
+      '<span>160 Episodes</span><span class="pill">' + SH.rate + '</span><span class="pill">HD</span>';
+    document.querySelector('.tdetails .syn').textContent = SH.d;
+    // the passes are the right column's prices (no package prices on this page)
+    $('.prices .price').forEach(function(p){ p.remove(); });
+    document.querySelector('.passes').innerHTML = PASSES.map(function(p, i){
+      return '<div class="price pass item" data-label="' + p.name + '" data-pass="' + i + '"><span class="rd"></span>' +
+        '<div class="what"><b>' + p.name + '</b><span><img src="icons/short/pass-clock.svg" alt="">Start anytime in ' + p.start + ' days.</span>' +
+        '<span><img src="icons/short/pass-film.svg" alt="">Enjoy ' + p.hours + ' hours of unlimited viewing.</span></div>' +
+        '<div class="cost"><div class="amt">' + p.amt + '</div><p class="vat">VAT Included: ' + p.vat + '</p></div></div>';
+    }).join('');
+    // the popups: a one-off purchase of this short's pass
+    document.querySelector('.mtitle b').textContent = 'Confirm Purchase:';
+    document.querySelector('.modal').setAttribute('aria-label', 'Confirm Purchase');
+    document.querySelector('.mhero .lg').innerHTML = '<img src="posters/shorts/' + SH.img + '" alt="" style="object-fit:cover">';
+    document.querySelector('.otpd h2').textContent = SH.t;
+    document.querySelector('.okd h2').textContent = 'Your pass is ready';
+    document.querySelector('.okd .okhead p').innerHTML = 'Enjoy every episode of ' + SH.t + '.<br>Your viewing time starts when you press Play.';
+    document.querySelector('.okcard .n').textContent = SH.t;
+    document.querySelector('.tcscroll').innerHTML = ['A viewing pass gives unlimited viewing of every episode of this title for the hours of the pass.',
+      '1. The pass is a one-off purchase and does not renew automatically.', '2. The viewing period starts the first time you press Play, and must start within the days shown for the pass.',
+      '3. Once started, the pass runs continuously, including while you are not watching, and ends after its hours have passed.',
+      '4. Prices include 7% VAT and are charged once to your AIS bill or paid by QR PromptPay. Internet charges are not included.',
+      '5. The pass is for this title only and can be watched on the AIS PLAY app, website and supported TVs and devices.',
+      '6. Video quality depends on the title, your internet speed and your device.', '7. Fees already charged are non-refundable, except where required by law.',
+      '8. For assistance, contact AIS Call Center 1175 (24 hours) or visit any AIS Shop.'].map(function(t){ return '<p>' + t + '</p>'; }).join('');
+  }
   // two columns: the tabs (left/right between them), and the right column (prices then payment, up/down)
   var tabs = $('.tab:not(.disabled)'), right = $('.price').concat($('.paybtn'));
   var cur = { col: 1, tab: 0, r: 3 };   // starts on Charge to AIS Bill, as in Figma
@@ -322,6 +406,7 @@
   function select(el){
     if(el.classList.contains('tab')){ showTab(tabs.indexOf(el)); return; }
     if(el.classList.contains('price')){ $('.price').forEach(function(p){ p.classList.toggle('selected', p === el); }); toast(el.dataset.label + ' plan selected'); return; }
+    if(!document.querySelector('.price.selected')){ cur.r = 0; paint(); toast('Choose an option first'); return; }   // (short mode: none picked yet, as in Figma)
     if(el.dataset.label === 'Charge to AIS Bill'){ openConfirm(); return; }
     var plan = document.querySelector('.price.selected .amt').textContent;
     toast(el.dataset.label + ' · ' + plan + ' (demo)');
@@ -330,10 +415,10 @@
   // the Store leaves its storeReturn flag (file:// pages get no referrer); otherwise District 9's packages
   var FROM_STORE = /store\.html/.test(document.referrer || '');
   try { FROM_STORE = FROM_STORE || !!sessionStorage.getItem('storeReturn'); } catch(e){}
-  var FROM = (location.search.match(/[?&]from=([\w-]+)/) || [])[1] || (FROM_STORE ? 'store' : 'movie-detail');
-  var RETURN = { store:'store.html', 'all-packages':'all-packages.html' }[FROM] || 'movie-detail.html#packages';
+  var FROM = SH ? 'short' : (location.search.match(/[?&]from=([\w-]+)/) || [])[1] || (FROM_STORE ? 'store' : 'movie-detail');
+  var RETURN = SH ? 'short-detail.html?s=' + SHORT : { store:'store.html', 'all-packages':'all-packages.html' }[FROM] || 'movie-detail.html#packages';
   function back(){
-    try { if(document.referrer && /(movie-detail|store|all-packages)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    try { if(document.referrer && /(movie-detail|store|all-packages|short-detail)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
     location.href = RETURN;
   }
   // ---- Confirm Subscribe popup ----
@@ -359,6 +444,7 @@
     // the popup shows the plan picked on the right
     var sel = document.querySelector('.price.selected');
     document.querySelector('.m-amt').textContent = sel.querySelector('.amt').textContent;
+    if(SH) document.querySelector('.mhero .nm').textContent = SH.t + ' · ' + sel.dataset.label;
     document.querySelector('.m-vat').textContent = '(' + sel.querySelector('.vat').textContent.replace(',', '') + ')';
     tc.style.scrollBehavior = 'auto'; tc.scrollTop = 0; tc.style.scrollBehavior = '';
     document.body.classList.remove('read');
@@ -391,8 +477,12 @@
   }
   function openOtp(){
     var sel = document.querySelector('.price.selected'), vat = sel.querySelector('.vat').textContent.replace('VAT Included: ', '').replace(' ฿', '');
-    var per = sel.querySelector('.amt').textContent.split('/')[1].trim();
-    document.querySelector('.o-amt').textContent = '฿' + vat + ' /' + per;
+    if(SH){   // a pass: charged once
+      document.querySelector('.otpd .ohead p').innerHTML = 'You will be charged <b class="o-amt">' + vat + '</b> once for the ' + sel.dataset.label + '.';
+    } else {
+      var per = sel.querySelector('.amt').textContent.split('/')[1].trim();
+      document.querySelector('.o-amt').textContent = '฿' + vat + ' /' + per;
+    }
     code = ''; oF = { area: 'keys', k: 0, b: 0 };
     document.body.classList.add('otp'); startCountdown(); otpPaint();
   }
@@ -416,7 +506,8 @@
     document.querySelector('.ok-vat').textContent = sel.querySelector('.vat').textContent;
     // service period: from today until the day before the same date next period
     var d0 = new Date(), d1 = new Date(d0), lbl = sel.dataset.label;
-    if(lbl === 'Daily') d1.setDate(d1.getDate() + 6); else if(lbl === 'Yearly'){ d1.setFullYear(d1.getFullYear() + 1); d1.setDate(d1.getDate() - 1); } else { d1.setMonth(d1.getMonth() + 1); d1.setDate(d1.getDate() - 1); }
+    if(SH) d1 = new Date(d0.getTime() + PASSES[+sel.dataset.pass].hours * 3600000);   // a pass: its hours from now
+    else if(lbl === 'Daily') d1.setDate(d1.getDate() + 6); else if(lbl === 'Yearly'){ d1.setFullYear(d1.getFullYear() + 1); d1.setDate(d1.getDate() - 1); } else { d1.setMonth(d1.getMonth() + 1); d1.setDate(d1.getDate() - 1); }
     var f = function(d){ return d.getDate() + ' ' + d.toLocaleString('en-GB', { month: 'short' }) + ' ' + d.getFullYear(); };
     document.querySelector('.ok-date').textContent = f(d0) + ' | 00:00:00 - ' + f(d1) + ' | 23:59:59';
     document.body.classList.add('done');
@@ -452,6 +543,7 @@
   function finishPurchase(){
     if(FROM === 'store'){ location.href = 'store.html'; return; }
     if(FROM === 'all-packages'){ location.href = 'all-packages.html?subscribed=1'; return; }
+    if(FROM === 'short'){ location.href = RETURN + '&pass=1'; return; }   // the short, every episode open
     location.href = 'movie-detail.html?subscribed=1';
   }
   document.querySelector('.okd').addEventListener('click', finishPurchase);
@@ -481,7 +573,7 @@
     } else {
       if(e.key === 'ArrowUp') cur.r = Math.max(0, cur.r - 1);
       else if(e.key === 'ArrowDown') cur.r = Math.min(right.length - 1, cur.r + 1);
-      else if(e.key === 'ArrowLeft'){ cur.col = 0; cur.tab = 0; }   // from anywhere on the right, Left lands on Details
+      else if(e.key === 'ArrowLeft'){ if(!SH){ cur.col = 0; cur.tab = 0; } }   // from anywhere on the right, Left lands on Details (short mode: none)
       else h = false;
     }
     if(!h){
