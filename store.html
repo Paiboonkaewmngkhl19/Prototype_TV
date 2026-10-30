@@ -22,6 +22,7 @@
     FAQs (Enter opens / closes an answer), Customer Support, and Back to Top.
   Remote / keyboard: arrows move focus, Enter selects, Esc / Back returns to the top (then to Home).
 -->
+<link rel="stylesheet" href="button-theme.css">
 <style>
   :root{
     color-scheme:dark;
@@ -250,9 +251,8 @@
   .navsearch img{ width:32px; height:32px; display:block; }
   .navtab{ height:60px; padding:0 20px; border-radius:999px; display:flex; align-items:center; font-family:'Plus Jakarta Sans', var(--inter); font-size:24px; line-height:1.2;
     color:#fff; text-shadow:0 0 6px rgba(0,0,0,.4); white-space:nowrap; }
-  .navtab.active{ background:rgba(255,255,255,.22); backdrop-filter:blur(10px); }
-  .topnav .item{ transition:background .15s ease; }
-  .topnav .item.focused{ background:var(--th-pill); backdrop-filter:blur(12px) saturate(1.4); }
+  .topnav .item:not(.tv-tab){ transition:background .15s ease; }
+  .topnav .item.focused:not(.tv-tab){ background:var(--th-pill); backdrop-filter:blur(12px) saturate(1.4); }   /* the tabs: button-theme.css */
 
   #toast{ position:absolute; left:50%; bottom:80px; z-index:60; transform:translateX(-50%); padding:14px 26px; border-radius:999px;
     background:rgba(20,20,24,.85); font-size:24px; opacity:0; transition:opacity .2s ease; pointer-events:none; }
@@ -284,12 +284,12 @@
     <div class="profile item" data-label="Profile"><img src="icons/profile-tv.png" alt="Profile"></div>
     <div class="center">
       <div class="navsearch item" data-label="Search"><img src="icons/nav-search.svg" alt="Search"></div>
-      <div class="navtab item" data-label="Home" data-href="home.html">Home</div>
-      <div class="navtab item" data-label="Live TV">Live TV</div>
-      <div class="navtab item" data-label="Movie">Movie</div>
-      <div class="navtab item" data-label="Sport" data-href="sport.html">Sport</div>
-      <div class="navtab item" data-label="My List">My List</div>
-      <div class="navtab item active" data-label="Store">Store</div>
+      <div class="navtab tv-tab item" data-label="Home" data-href="home.html">Home</div>
+      <div class="navtab tv-tab item" data-label="Live TV">Live TV</div>
+      <div class="navtab tv-tab item" data-label="Movie">Movie</div>
+      <div class="navtab tv-tab item" data-label="Sport" data-href="sport.html">Sport</div>
+      <div class="navtab tv-tab item" data-label="My List">My List</div>
+      <div class="navtab tv-tab item active" data-label="Store">Store</div>
     </div>
   </nav>
   <div id="toast"></div>
@@ -575,6 +575,9 @@
   function paint(){
     var inProf = prof.paint(cur.row === 0 && rows[0].items[cur.col[0]] === profileEl);   // focus is in the profile panel
     rows.forEach(function(r, ri){ r.items.forEach(function(el, ci){ el.classList.toggle('focused', !inProf && ri === cur.row && ci === cur.col[ri]); }); });
+    // top-bar tab states (button-theme.css): the current page's tab is Active while the D-pad is on the bar, Active dim in the content
+    var curTab = document.querySelector('.topnav .navtab.active, .topnav .navtab.active-dim');
+    curTab.classList.toggle('active', cur.row === 0); curTab.classList.toggle('active-dim', cur.row !== 0);
     markChosen();
     var ri = cur.row === 0 ? cur.from : cur.row;   // on the top bar the page stays as it was
     document.body.classList.toggle('on-nav', cur.row === 0);

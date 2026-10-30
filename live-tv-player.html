@@ -514,7 +514,7 @@
   function markWatching(){ try { sessionStorage.setItem('tvWatching', JSON.stringify({n:C.n, t:Date.now(), v:byId('video').src, at:byId('video').currentTime})); } catch(e){} }
   function back(){
     markWatching();
-    try { if(document.referrer && /(tv-guide|sport|home)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    try { if(document.referrer && /(tv-guide|sport|home|news)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
     location.href = 'tv-guide.html';
   }
   function activate(el){

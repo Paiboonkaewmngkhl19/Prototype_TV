@@ -14,6 +14,7 @@
   The Figma frame's background is a video; this page uses that video's still (Figma only exports stills) with the frame's warm haze over it.
 -->
 <link rel="stylesheet" href="package-card.css">
+<link rel="stylesheet" href="button-theme.css">
 <style>
   :root{ color-scheme:dark;
     /* Home's top bar glass and page navy (also the profile panel's, profile-panel.js) */
@@ -39,7 +40,6 @@
   .navsearch img{ width:32px; height:32px; display:block; }
   .navtab{ height:60px; padding:0 20px; border-radius:999px; display:flex; align-items:center; font-size:24px; line-height:1.2;
     color:#fff; text-shadow:0 0 6px rgba(0,0,0,.4); white-space:nowrap; }
-  .navtab.active{ background:rgba(255,255,255,.22); backdrop-filter:blur(10px); }
 
   /* hero metadata */
   .meta{ position:absolute; left:110px; bottom:286px; width:840px; display:flex; flex-direction:column; gap:40px; }
@@ -79,7 +79,8 @@
   .btn.focused .tip{ opacity:1; transform:translate(-50%, 0); }
   /* focused top-bar item: Home's frosted glass pill, grown 6% */
   .topnav .item{ cursor:pointer; transition:transform .22s cubic-bezier(.2,0,0,1), background .15s ease, box-shadow .15s ease; }
-  .topnav .item.focused{ background:var(--th-pill); backdrop-filter:blur(12px) saturate(1.4); transform:scale(1.06); }
+  .topnav .item.focused{ transform:scale(1.06); }
+  .topnav .item.focused:not(.tv-tab){ background:var(--th-pill); backdrop-filter:blur(12px) saturate(1.4); }   /* the tabs: button-theme.css */
 
 
   /* ---------- Package selection (Figma "02 / Package Selection / District 9", 628:69703) ----------
@@ -136,12 +137,12 @@
     <div class="profile item" data-label="Profile"><img src="icons/profile-tv.png" alt="Profile"></div>
     <div class="center">
       <div class="navsearch item" data-label="Search"><img src="icons/nav-search.svg" alt="Search"></div>
-      <div class="navtab item active" data-label="Home" data-href="home.html">Home</div>
-      <div class="navtab item" data-label="Live TV">Live TV</div>
-      <div class="navtab item" data-label="Movie">Movie</div>
-      <div class="navtab item" data-label="Sport" data-href="sport.html">Sport</div>
-      <div class="navtab item" data-label="My List">My List</div>
-      <div class="navtab item" data-label="Store" data-href="store.html">Store</div>
+      <div class="navtab tv-tab item active" data-label="Home" data-href="home.html">Home</div>
+      <div class="navtab tv-tab item" data-label="Live TV">Live TV</div>
+      <div class="navtab tv-tab item" data-label="Movie">Movie</div>
+      <div class="navtab tv-tab item" data-label="Sport" data-href="sport.html">Sport</div>
+      <div class="navtab tv-tab item" data-label="My List">My List</div>
+      <div class="navtab tv-tab item" data-label="Store" data-href="store.html">Store</div>
     </div>
   </nav>
 
@@ -222,6 +223,9 @@
   function paint(){
     var inProf = prof.paint(cur.row === 0 && rows[0][cur.col[0]] === profileEl);   // focus is in the profile panel
     rows.forEach(function(r, ri){ r.forEach(function(el, ci){ el.classList.toggle('focused', !inProf && ri === cur.row && ci === cur.col[ri]); }); });
+    // top-bar tab states (button-theme.css): the current page's tab is Active while the D-pad is on the bar, Active dim in the content
+    var curTab = document.querySelector('.topnav .navtab.active, .topnav .navtab.active-dim');
+    curTab.classList.toggle('active', cur.row === 0); curTab.classList.toggle('active-dim', cur.row !== 0);
     // tooltips say what the button does now (add / remove)
     document.querySelectorAll('.btn[data-tip]').forEach(function(b){ b.querySelector('.tip').textContent = b.classList.contains('on') ? b.dataset.tipOn : b.dataset.tip; });
     // My List: + becomes a check mark once added

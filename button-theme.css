@@ -1,0 +1,74 @@
+/*
+  TV button theme: a Primary button (the main action, e.g. Play) and a Secondary button (e.g. Detail), each in six
+  states. Add `tv-btn` plus `tv-btn--primary` or `tv-btn--secondary`; the state comes from a class:
+    (none)              Default       primary: white frosted glass; secondary: outline only
+    .focused            Focus         primary: the grey-blue glass pill of a focused top-bar tab, white text;
+                                      secondary: no fill and no outline of its own, only the page's focus ring
+                                      around it
+    .active             Active        switched on (Added to My List, the current choice): light fill at 40%
+    .active.focused     Active focus  the focus pill, brighter, with a light rim
+    .active-dim         Active dim    switched on while focus is elsewhere on the page: a dimmer fill, grey text
+    .disabled           Disabled      40% opacity; keeps its resting look even when focus lands on it
+                        (or aria-disabled="true")
+  The page sets the size with --btn-w / --btn-h (400 x 86 by default) and draws any icon in an <i> (40px,
+  painted in the text colour, so a mask image follows each state).
+*/
+:root{
+  --btn-focus-pill:var(--th-pill, linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%));
+}
+.tv-btn{
+  width:var(--btn-w, 400px); height:var(--btn-h, 86px); box-sizing:border-box; padding:0 24px; border-radius:999px; flex:0 0 auto;
+  display:flex; align-items:center; justify-content:center; gap:16px;
+  font-size:31px; font-weight:500; line-height:1; white-space:nowrap; color:#e8e8e8;
+  transition:transform .22s cubic-bezier(.2,0,0,1), background .15s ease, color .15s ease, box-shadow .15s ease, opacity .15s ease;
+}
+.tv-btn i{ width:40px; height:40px; flex:0 0 auto; background:currentColor; }
+
+/* Default */
+.tv-btn--primary{ background:rgba(255,255,255,.16); -webkit-backdrop-filter:blur(80px) saturate(1.5); backdrop-filter:blur(80px) saturate(1.5); color:#e8e8e8; }
+.tv-btn--secondary{ background:transparent; box-shadow:inset 0 0 0 3px rgba(232,232,232,.18); color:rgba(232,232,232,.85); }
+
+/* Active / Active dim */
+.tv-btn.active{ background:rgba(232,232,232,.4); box-shadow:none; color:#fff; }
+.tv-btn.active-dim{ background:rgba(232,232,232,.2); box-shadow:none; color:#a8a8a8; }
+
+/* Focus / Active focus */
+.tv-btn--primary.focused{
+  background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%), var(--btn-focus-pill);
+  -webkit-backdrop-filter:blur(50px) saturate(1.4); backdrop-filter:blur(50px) saturate(1.4);
+  box-shadow:inset -1px 3px 17px rgba(255,255,255,.2); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35);
+}
+.tv-btn--secondary.focused{ background:transparent; box-shadow:none; color:#e8e8e8; }
+.tv-btn.active.focused, .tv-btn--secondary.active.focused{
+  background:linear-gradient(180deg, rgba(255,255,255,.3), rgba(255,255,255,.06) 60%), var(--btn-focus-pill);
+  box-shadow:inset 0 0 0 3px rgba(255,255,255,.7), inset -1px 3px 17px rgba(255,255,255,.25);
+}
+
+/* Disabled: dimmed, and focus doesn't change its look */
+.tv-btn.disabled, .tv-btn[aria-disabled="true"]{ opacity:.4; cursor:default; }
+.tv-btn--primary.disabled.focused, .tv-btn--primary[aria-disabled="true"].focused{
+  background:rgba(255,255,255,.16); -webkit-backdrop-filter:blur(80px) saturate(1.5); backdrop-filter:blur(80px) saturate(1.5); box-shadow:none; text-shadow:none; color:#e8e8e8; }
+.tv-btn--secondary.disabled.focused, .tv-btn--secondary[aria-disabled="true"].focused{
+  background:transparent; box-shadow:inset 0 0 0 3px rgba(232,232,232,.18); text-shadow:none; color:rgba(232,232,232,.85); }
+
+/*
+  Top-bar tab (Figma "TV / Top Navigation" Tab pill): add `tv-tab`; the page keeps its own size and font.
+    (none)              Default       no highlight
+    .active             Active        the current page while the D-pad is on the bar: a light frosted fill
+    .focused            Focus         the D-pad is on it: no fill, white text (only the page's focus ring around it)
+    .active.focused     Focus active  the current page, focused: the grey-blue glass pill, no outline of its own
+    .active-dim         Active dim    the current page while focus is down in the page content: a faint fill, grey text
+    .disabled           Disabled      55% opacity, never highlighted
+  Recipe: focus on the bar -> focused item Focus (or Focus active), current page Active, others Default;
+  focus in the content -> current page Active dim, the rest Default.
+*/
+.tv-tab{ background:transparent; color:#fff; transition:transform .22s ease, background .15s ease, color .15s ease, box-shadow .15s ease, opacity .15s ease; }
+.tv-tab.active{ background:rgba(255,255,255,.22); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
+.tv-tab.active-dim{ background:rgba(255,255,255,.1); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); color:#a8a8a8; text-shadow:none; }
+.tv-tab.focused{ background:transparent; -webkit-backdrop-filter:none; backdrop-filter:none; box-shadow:none; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+.tv-tab.active.focused{
+  background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%), var(--btn-focus-pill);
+  -webkit-backdrop-filter:blur(12px) saturate(1.4); backdrop-filter:blur(12px) saturate(1.4);
+  box-shadow:none;
+}
+.tv-tab.disabled, .tv-tab[aria-disabled="true"]{ opacity:.55; background:transparent; box-shadow:none; }

@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>News</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="chip-theme.css">
+<link rel="stylesheet" href="button-theme.css">
+<!--
+  News page (Figma News "MainContent", 6601:54803), opened with Enter on Home's News chip.
+  A 1920x1080 TV screen scaled to the window, built like sport.html: the same hero, rails, focus model and top bar,
+  the shared gliding focus ring (focus-ring.js) and profile panel (profile-panel.js), the chip theme (chip-theme.css)
+  for the category chips and the button theme (button-theme.css) for View All, Back to Top and the top-bar tabs.
+
+  Flow (Figma "Dynamic Background", 6222:3306): every rail from Don't Miss to the last episode rail keeps the hero,
+  which speaks for the focused item over its picture; the focused rail sits at y=649. Back to Top is the one static
+  screen: the hero and the top bar step away. Remote / keyboard: arrows move focus, Enter selects, Esc / Back returns
+  to the top (then to Home).
+-->
+<style>
+  :root{
+    color-scheme:dark;
+    /* Home's page: dark navy, Open Sans (Thai titles fall back to Noto Sans Thai) */
+    --bg-0:#070e16; --wash:10,8,24;
+    --on-surface:#e8e8e8; --on-surface-variant:#a8a8a8; --surface-container-high:#3a3a3a; --outline:#5a5a5a; --live:#ea5454;
+    --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%);
+    --ease:cubic-bezier(.2,0,0,1);
+    --font:'Open Sans', 'Noto Sans Thai', system-ui, sans-serif;
+  }
+  html,body{ margin:0; height:100%; background:#000; overflow:hidden; color:var(--on-surface); font-family:var(--font); -webkit-font-smoothing:antialiased; }
+  *{ box-sizing:border-box; }
+  #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:var(--bg-0); }
+  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; overflow:hidden;
+    background:radial-gradient(1400px 900px at 85% 110%, rgba(214,222,240,.12), transparent 70%), var(--bg-0); }
+
+  /* ---------- hero background (dynamic), as Home's and Sport's ---------- */
+  .hero-bg{ position:absolute; left:0; top:0; width:1920px; height:1080px; z-index:0; overflow:hidden; transition:opacity .4s ease; }
+  .hero-bg .pic{ position:absolute; inset:0; background:center 30% / cover no-repeat; opacity:0; transition:opacity .6s ease; }
+  .hero-bg .pic.on{ opacity:1; }
+  .hero-bg::after{ content:''; position:absolute; inset:0;
+    background:linear-gradient(90deg, rgba(var(--wash),.88) 0%, rgba(var(--wash),.62) 30%, rgba(var(--wash),.12) 58%, transparent 75%),
+      linear-gradient(180deg, transparent 40%, rgba(var(--wash),.6) 62%, var(--bg-0) 82%); }
+  body.static .hero-bg{ opacity:0; }
+
+  /* ---------- hero text (Figma localComponent_heroContent): title 57px, meta row, 3-line synopsis ---------- */
+  .hero{ position:absolute; left:110px; top:174px; width:800px; z-index:3; display:flex; flex-direction:column; gap:24px;
+    transition:opacity .3s ease, transform .3s var(--ease); }
+  body.static .hero{ opacity:0; transform:translateY(-40px); pointer-events:none; }
+  .hero.swap{ animation:heroIn .3s var(--ease); }
+  @keyframes heroIn{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
+  .hero h1{ margin:0; font-size:57px; font-weight:700; line-height:1.2; color:#e8e8e8; text-shadow:0 2px 12px rgba(0,0,0,.35);
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .hero .desc{ margin:0; width:700px; font-size:24px; line-height:32px; color:var(--on-surface-variant); text-shadow:0 0 6px rgba(0,0,0,.6);
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .meta{ display:flex; align-items:center; gap:16px; height:40px; overflow:hidden; font-size:20px; }
+  .meta:empty{ display:none; }
+  .badge{ height:36px; padding:0 12px; border-radius:9999px; display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    font-weight:500; font-size:20px; color:#fff; background:var(--surface-container-high); white-space:nowrap; }
+  .badge.live{ background:var(--live); }
+  .badge.live::before{ content:''; width:12px; height:12px; border-radius:50%; background:#fff; }
+  .meta .ch{ display:inline-flex; align-items:center; gap:8px; white-space:nowrap; }
+  .meta .ch img{ width:36px; height:36px; border-radius:50%; object-fit:contain; background:#fff; }
+  .pill{ height:36px; padding:0 12px; border:1px solid var(--outline); border-radius:18px; display:inline-flex; align-items:center; font-weight:500; white-space:nowrap; }
+
+  /* ---------- the page: Figma's rows, 60px apart, the first at y=649 under the hero; it moves as a whole ---------- */
+  #page{ position:absolute; left:0; top:0; width:1920px; z-index:1; padding:649px 0 40px; display:flex; flex-direction:column; gap:60px;
+    transition:transform .45s var(--ease); }
+  .sec{ position:relative; transition:opacity .3s ease; }
+  body:not(.static) .sec.above{ opacity:0; }
+  .sec-title{ margin:0 110px 24px; font-weight:400; font-size:32px; line-height:40px; color:var(--on-surface); }
+  .item{ cursor:pointer; }
+  .rail{ position:relative; }
+  .track{ display:flex; align-items:flex-start; gap:32px; padding:0 110px; width:max-content; transition:transform .35s var(--ease); }
+
+  /* 16:9 card (TV / Card): 320x180 picture, LIVE badge on top, the title under it */
+  .card{ width:320px; flex:0 0 auto; display:flex; flex-direction:column; gap:8px; border-radius:12px; }
+  .thumb{ position:relative; width:320px; height:180px; border-radius:12px; overflow:hidden; background:var(--surface-container-high) center / cover no-repeat; }
+  .thumb.logo{ background-color:#fff; background-size:67% auto; }   /* a channel logo on white, as Figma's CNN card */
+  .thumb .badge{ position:absolute; left:12px; top:12px; height:auto; padding:2px 12px; }
+  .card .t{ font-size:20px; font-weight:500; color:var(--on-surface); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  /* category chips: the chip theme (chip-theme.css) at Home's chip size */
+  .chips{ display:flex; gap:32px; padding:0 110px; width:max-content; transition:transform .35s var(--ease); }
+  .chip{ height:100px; min-width:180px; padding:0 40px; border-radius:26px; flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+    font-size:32px; font-weight:500; white-space:nowrap; }
+
+  /* channel rails: View All (button-theme.css) + what's on now, 24px apart (Figma movieChannelSection) */
+  .chan-track{ gap:24px; }
+  .viewall{ --btn-w:220px; --btn-h:180px; border-radius:38px; font-size:24px; }
+  .epg{ position:relative; width:320px; height:180px; flex:0 0 auto; border-radius:12px; background:var(--surface-container-high); padding:0 8px;
+    display:flex; flex-direction:column; justify-content:center; gap:16px; font-weight:500; }
+  .epg .now{ display:flex; gap:4px; align-items:flex-start; }
+  .epg .ava{ width:67px; height:67px; border-radius:50%; flex:0 0 auto; background:#fff center / 75% auto no-repeat; }
+  .epg .ava.cover{ background-size:cover; }
+  .epg .txt{ flex:1; min-width:0; align-self:stretch; display:flex; flex-direction:column; justify-content:center; gap:4px; padding-left:4px; }
+  .epg .txt b, .epg .next b{ font-weight:500; font-size:20px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .epg .txt span, .epg .next span{ font-size:14px; line-height:20px; letter-spacing:.1px; }
+  .epg .ic{ display:flex; gap:12px; flex:0 0 auto; }
+  .epg .ic img{ width:24px; height:24px; }
+  .epg .bar{ position:relative; height:8px; border-radius:24px; background:rgba(255,255,255,.4); overflow:hidden; }
+  .epg .bar i{ position:absolute; left:0; top:0; bottom:0; border-radius:24px; background:var(--outline); }
+  .epg .next{ display:flex; flex-direction:column; }
+
+  /* episode rails (Figma "Hot of big screen"): 2:3 posters, the episode's date and name under them */
+  .ep{ width:220px; flex:0 0 auto; display:flex; flex-direction:column; gap:8px; }
+  .ep .poster{ width:220px; height:330px; border-radius:12px; background:#000 center / cover no-repeat; }
+  .ep .poster.contain{ background-size:contain; }
+  .ep .t{ font-size:20px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .eps .track{ padding-top:16px; }   /* the posters grow 8% up when focused: room under the title */
+
+  /* Back to Top (button-theme.css) */
+  .totop{ height:150px; display:flex; align-items:center; justify-content:center; }
+  .totop .tv-btn{ --btn-w:auto; padding:0 100px; font-size:24px; }
+  .totop .tv-btn i{ width:32px; height:32px; -webkit-mask:url('icons/arrow-up.svg') center / contain no-repeat; mask:url('icons/arrow-up.svg') center / contain no-repeat; }
+
+  /* ---------- top bar (Home's); News lives under Home, so Home is the current tab ---------- */
+  .scrim{ position:absolute; left:0; top:0; width:1920px; height:170px; z-index:4; pointer-events:none; opacity:0; transition:opacity .3s ease;
+    background:linear-gradient(180deg, var(--bg-0) 0%, var(--bg-0) 45%, rgba(7,14,22,0) 100%); }
+  body.static.on-nav .scrim{ opacity:1; }
+  .topnav{ position:absolute; left:0; top:0; z-index:5; width:1920px; padding:24px 110px 0; display:flex; align-items:center; transition:opacity .3s ease, translate .3s var(--ease); }
+  body.static:not(.on-nav) .topnav{ opacity:0; translate:0 -40px; pointer-events:none; }
+  .profile{ width:60px; height:60px; border-radius:999px; overflow:hidden; flex:0 0 auto; }
+  .profile img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .center{ display:flex; align-items:center; gap:12px; margin-left:20px; }
+  .navsearch{ width:60px; height:60px; margin:0 8px; border-radius:999px; display:flex; align-items:center; justify-content:center; }
+  .navsearch img{ width:32px; height:32px; display:block; }
+  .navtab{ height:60px; padding:0 20px; border-radius:999px; display:flex; align-items:center; font-family:'Plus Jakarta Sans', var(--font); font-size:24px; line-height:1.2;
+    text-shadow:0 0 6px rgba(0,0,0,.4); white-space:nowrap; }
+  .topnav .item:not(.tv-tab){ transition:background .15s ease; }
+  .topnav .item.focused:not(.tv-tab){ background:var(--th-pill); backdrop-filter:blur(12px) saturate(1.4); }
+
+  #toast{ position:absolute; left:50%; bottom:80px; z-index:60; transform:translateX(-50%); padding:14px 26px; border-radius:999px;
+    background:rgba(20,20,24,.85); font-size:24px; opacity:0; transition:opacity .2s ease; pointer-events:none; }
+  #toast.on{ opacity:1; }
+  /* focused items grow: 8% on every rail, 6% in the top bar (as on every page) */
+  #screen .item{ transition:transform .22s var(--ease), background .15s ease, color .15s ease, box-shadow .2s ease; }
+  #screen .item.focused{ transform:scale(1.08); z-index:2; }
+  #screen .topnav .item.focused{ transform:scale(1.06); }
+  #screen .viewall.focused{ transform:scale(1.05); }
+</style>
+</head>
+<body>
+<div id="frame"><div id="screen">
+  <div class="hero-bg"><div class="pic"></div><div class="pic"></div></div>
+
+  <div id="page"></div>
+
+  <section class="hero" aria-live="polite"><h1></h1><div class="meta"></div><p class="desc"></p></section>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <nav class="topnav">
+    <div class="profile item" data-label="Profile"><img src="icons/profile-tv.png" alt="Profile"></div>
+    <div class="center">
+      <div class="navsearch item" data-label="Search"><img src="icons/nav-search.svg" alt="Search"></div>
+      <div class="navtab tv-tab item active" data-label="Home" data-href="home.html">Home</div>
+      <div class="navtab tv-tab item" data-label="Live TV">Live TV</div>
+      <div class="navtab tv-tab item" data-label="Movie">Movie</div>
+      <div class="navtab tv-tab item" data-label="Sport" data-href="sport.html">Sport</div>
+      <div class="navtab tv-tab item" data-label="My List">My List</div>
+      <div class="navtab tv-tab item" data-label="Store" data-href="store.html">Store</div>
+    </div>
+  </nav>
+  <div id="toast"></div>
+</div></div>
+
+<script src="profile-panel.js"></script>
+<script>
+(function(){
+  // ---- fit the 1920x1080 screen into the window ----
+  var frame = document.getElementById('frame'), screen = document.getElementById('screen');
+  function fit(){
+    var k = Math.min(innerWidth / 1920, innerHeight / 1080);
+    frame.style.width = 1920 * k + 'px'; frame.style.height = 1080 * k + 'px';
+    frame.style.marginLeft = -960 * k + 'px'; frame.style.marginTop = -540 * k + 'px';
+    screen.style.transform = 'scale(' + k + ')';
+  }
+  addEventListener('resize', fit); fit();
+
+  function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  function attrs(o){ return Object.keys(o).filter(function(k){ return o[k] != null; }).map(function(k){ return ' data-' + k + '="' + esc(o[k]) + '"'; }).join(''); }
+
+  /* ---------- content (Figma's) ----------
+     g: the channel's name in the TV Guide, which opens it in the Live TV player (none: a demo toast) */
+  var A = 'news-assets/';
+  var CH = {
+    cnn:{n:'CNN', no:'111', logo:A + 'ch-cnn.png', bg:'#cb2026', g:'CNN'},
+    bbc:{n:'BBC News', no:'112', logo:A + 'ch-bbc.png', cover:1, g:'BBC News'},
+    cnbc:{n:'CNBC News', no:'113', logo:A + 'ch-cnbc.png'},
+    sky:{n:'SKY News', no:'114', logo:A + 'ch-sky.png'},
+    fox:{n:'FOX News', no:'115', logo:A + 'ch-fox.png', cover:1},
+    thaipbs:{n:'Thai PBS', no:'3', logo:A + 'ch-thaipbs.png', g:'Thai PBS'},
+    pptv:{n:'PPTV', no:'36', logo:A + 'ch-pptv.png', cover:1, g:'PPTV HD36'},
+    nation:{n:'Nation TV', no:'22', logo:A + 'ch-nation.png', g:'Nation TV'},
+    one:{n:'One News', no:'31', logo:A + 'ch-one.png', cover:1, g:'one31'},
+    khaosod:{n:'ข่าวสด', no:'38', logo:A + 'ch-khaosod.png', cover:1},
+    ch3:{n:'Ch3 HD', no:'33', logo:A + 'dm-rueng.png', cover:1, g:'Ch3 HD'},
+    ch7:{n:'Ch7 HD', no:'35', logo:A + 'dm-sanam7.png', cover:1, g:'Ch7 HD'}
+  };
+  var NEWS_DESC = 'Live news around the clock: breaking stories, in-depth reports and analysis from the newsroom, as it happens.';
+  var DONT_MISS = [
+    {t:'CNN News', img:A + 'dm-cnn.png', logo:1, ch:CH.cnn, time:'02:00 – 04:00', bg:A + 'hero-bg.png',
+     d:'CNN Primetime brings the day’s biggest stories from around the world, with live reports from CNN’s correspondents and in-depth analysis.'},
+    {t:'เรื่องเล่าเช้านี้', img:A + 'dm-rueng.png', ch:CH.ch3, time:'06:00 – 08:00', d:'ข่าวเช้าที่เล่าเรื่องราวรอบตัวคุณ อัปเดตทุกประเด็นร้อนตั้งแต่เช้าตรู่'},
+    {t:'BBC News', img:A + 'dm-bbc.png', ch:CH.bbc, time:'07:00 – 08:00', d:'The latest from BBC News: the stories that matter in the UK and around the world, live.'},
+    {t:'สนามข่าว 7 สี', img:A + 'dm-sanam7.png', ch:CH.ch7, time:'08:00 – 09:00', d:'สนามข่าว 7 สี ติดตามทุกความเคลื่อนไหวของข่าวสำคัญ สดทุกวัน'},
+    {t:'One News', img:A + 'ch-one.png', ch:CH.one, time:'09:00 – 10:00', d:'ข่าวสด ข่าวด่วน ทันทุกเหตุการณ์ จาก One News'},
+    {t:'SKY News Live', img:A + 'ch-sky.png', ch:CH.sky, time:'10:00 – 11:00', d:'Sky News: breaking news, politics and business from the UK and around the world.'}
+  ];
+  var CATS = [
+    {t:'All', d:'Every story in one place: live channels, programmes and the latest episodes from home and abroad.'},
+    {t:'World', d:'International news from every continent, live from the world’s biggest newsrooms.'},
+    {t:'Business', d:'Markets, companies and the deals that move them, with live coverage of the business day.'},
+    {t:'Economics', d:'The economy explained: growth, inflation, jobs and what they mean for you.'},
+    {t:'Politics', d:'Parliament, elections and policy, at home and around the world.'},
+    {t:'Entertainment', d:'Celebrity news, film, music and culture, from red carpets to premieres.'},
+    {t:'IT & Tech', d:'Gadgets, start-ups and the technology shaping tomorrow.'}
+  ];
+  // what's on now on each news channel (Figma: the programme at 09:00, the next at 10:00)
+  var INTL = [
+    {c:CH.cnbc, now:'Squawk Box Asia', next:'Street Signs', p:.6, remind:1, heart:1},
+    {c:CH.cnn, now:'CNN Newsroom', next:'Amanpour', p:.4, heart:1},
+    {c:CH.bbc, now:'BBC News at Nine', next:'HARDtalk', p:.7},
+    {c:CH.sky, now:'Sky News Today', next:'The Politics Hub', p:.3},
+    {c:CH.fox, now:'FOX & Friends', next:'America’s Newsroom', p:.5}
+  ];
+  var THAI = [
+    {c:CH.thaipbs, now:'ทันโลก กับ Thai PBS', next:'ข่าวค่ำ', p:.6, remind:1, heart:1},
+    {c:CH.pptv, now:'เปิดโต๊ะข่าว', next:'เข้าข่าวค่ำ', p:.4, heart:1},
+    {c:CH.nation, now:'คมชัดลึก', next:'เนชั่นทันข่าว', p:.7},
+    {c:CH.one, now:'ข่าวเช้าช่องวัน', next:'One Day News', p:.3},
+    {c:CH.khaosod, now:'ข่าวสดออนไลน์', next:'ข่าวสดรอบวัน', p:.5}
+  ];
+  var LOCAL = [
+    {t:'ทันโลก กับ Thai PBS', img:A + 'lc-1.png', ch:CH.thaipbs, time:'09:00 – 10:00', d:'สรุปข่าวต่างประเทศรอบวัน เจาะลึกประเด็นที่คนทั้งโลกจับตา'},
+    {t:'เปิดโต๊ะข่าว PPTV', img:A + 'lc-2.png', ch:CH.pptv, time:'10:00 – 11:00', d:'เปิดโต๊ะข่าว ถกทุกประเด็นร้อนประจำวันกับทีมข่าว PPTV'},
+    {t:'สถานีประชาชน', img:A + 'lc-3.png', ch:CH.thaipbs, time:'11:00 – 12:00', d:'เสียงของประชาชน ปัญหาใกล้ตัวที่รอการแก้ไข'},
+    {t:'คมชัดลึก Nation', img:A + 'lc-4.png', ch:CH.nation, time:'21:00 – 22:00', d:'คมชัดลึก เจาะประเด็นการเมืองและสังคมแบบตรงไปตรงมา'},
+    {t:'เข้าข่าวค่ำ PPTV', img:A + 'lc-5.png', ch:CH.pptv, time:'18:00 – 19:00', d:'สรุปข่าวรอบวันในช่วงค่ำ ครบทุกประเด็นสำคัญ'},
+    {t:'แสงจากพ่อ', img:A + 'lc-6.png', ch:CH.thaipbs, time:'19:00 – 20:00', d:'สารคดีเล่าเรื่องแรงบันดาลใจจากพระราชกรณียกิจ'}
+  ];
+  // episode rails: the latest episodes, newest first (Figma: one poster per show, the date and name under it)
+  function eps(name, img, dates, contain){ return dates.map(function(d){ return {t:d + ' - ' + name, img:img, contain:contain}; }); }
+  var EPISODES = [
+    {title:'Hone-Krasae (โหนกระแส) EP', show:'Hone-Krasae (โหนกระแส)', items:eps('โหนกระแส', A + 'ep-honkrasae.png',
+      ['23/10/26', '22/10/26', '21/10/26', '20/10/26', '19/10/26', '16/10/26', '15/10/26', '14/10/26'], 1),
+      d:'โหนกระแส ทุกประเด็นร้อนที่สังคมพูดถึง ถามตรง ตอบจริง กับหนุ่ม กรรชัย'},
+    {title:'BBC The Global Story EP', show:'BBC The Global Story', items:eps('The Global Story', A + 'ep-globalstory.png',
+      ['23/10/26', '13/10/26', '03/10/26', '23/09/26', '13/09/26', '03/09/26', '23/08/26', '13/08/26']),
+      d:'One story, every weekday: the BBC’s journalists go behind the headline to explain what it means for the world.'},
+    {title:'An Aje Witness Documentary', show:'Witness', items:eps('Witness', A + 'ep-witness.png',
+      ['23/10/26', '23/09/26', '23/08/26', '23/07/26', '23/06/26', '23/05/26', '23/04/26', '23/03/26']),
+      d:'Witness: award-winning documentaries that tell the human stories behind the news.'}
+  ];
+
+  /* ---------- markup ---------- */
+  function liveCard(it, i, set){
+    return '<div class="card item"' + attrs({kind:'live', set:set, i:i}) + '><div class="thumb' + (it.logo ? ' logo' : '') + '" style="background-image:url(\'' + it.img + '\')">' +
+      '<span class="badge live">LIVE</span></div><div class="t">' + esc(it.t) + '</div></div>';
+  }
+  function epgCard(e, i, set){
+    var c = e.c, ic = (e.remind ? '<img src="sport-assets/epg-reminder.svg" alt="">' : '') + (e.heart ? '<img src="sport-assets/epg-heart.svg" alt="">' : '');
+    return '<div class="epg item"' + attrs({kind:'epg', set:set, i:i}) + ' data-ring-art=""><div class="now">' +
+      '<span class="ava' + (c.cover ? ' cover' : '') + '" style="background-image:url(\'' + c.logo + '\')' + (c.bg ? ';background-color:' + c.bg : '') + '"></span>' +
+      '<div class="txt"><b>' + esc(c.n) + '</b><span>09:00</span></div><div class="ic">' + ic + '</div></div>' +
+      '<div class="bar"><i style="width:' + Math.round(e.p * 100) + '%"></i></div>' +
+      '<div class="next"><b>' + esc(e.next) + '</b><span>10:00</span></div></div>';
+  }
+  function chanRail(key, title, list){
+    return '<section class="sec" data-row="' + key + '"><h2 class="sec-title">' + title + '</h2><div class="rail"><div class="track chan-track">' +
+      '<div class="tv-btn tv-btn--primary viewall item"' + attrs({kind:'viewall', set:key}) + ' data-ring-art="">View All</div>' +
+      list.map(function(e, i){ return epgCard(e, i, key); }).join('') + '</div></div></section>';
+  }
+  var html = '';
+  html += '<section class="sec" data-row="dontmiss"><h2 class="sec-title">Don’t Miss</h2><div class="rail"><div class="track">' +
+    DONT_MISS.map(function(it, i){ return liveCard(it, i, 'dontmiss'); }).join('') + '</div></div></section>';
+  html += '<section class="sec" data-row="cats"><div class="rail"><div class="chips">' + CATS.map(function(c, i){
+    return '<div class="chip tv-chip item"' + attrs({kind:'cat', i:i}) + ' data-ring-art="">' + esc(c.t) + '</div>';
+  }).join('') + '</div></div></section>';
+  html += chanRail('intl', 'International News Channel', INTL);
+  html += chanRail('thai', 'Thai News Channel', THAI);
+  html += '<section class="sec" data-row="local"><h2 class="sec-title">Localized Program News</h2><div class="rail"><div class="track">' +
+    LOCAL.map(function(it, i){ return liveCard(it, i, 'local'); }).join('') + '</div></div></section>';
+  EPISODES.forEach(function(r, ri){
+    html += '<section class="sec eps" data-row="ep' + ri + '"><h2 class="sec-title">' + esc(r.title) + '</h2><div class="rail"><div class="track">' +
+      r.items.map(function(it, i){
+        return '<div class="ep item"' + attrs({kind:'ep', set:ri, i:i}) + '><div class="poster' + (it.contain ? ' contain' : '') + '" style="background-image:url(\'' + it.img + '\')"></div>' +
+          '<div class="t">' + esc(it.t) + '</div></div>';
+      }).join('') + '</div></div></section>';
+  });
+  html += '<section class="sec totop" data-row="totop"><div class="tv-btn tv-btn--primary item" data-kind="totop" data-ring-art=""><i></i>Back to Top</div></section>';
+  var page = document.getElementById('page');
+  page.innerHTML = html;
+
+  /* ---------- focus rows: the top bar, then one row per section ---------- */
+  var $ = function(q, root){ return Array.prototype.slice.call((root || document).querySelectorAll(q)); };
+  var secs = $('.sec', page);
+  var rows = [{ items:$('.topnav .item') }].concat(secs.map(function(s){ return { sec:s, key:s.dataset.row, items:$('.item', s) }; }));
+  var R = {}; rows.forEach(function(r, i){ if(r.key) R[r.key] = i; });
+  var homeTab = document.querySelector('.navtab.active'), NAV_HOME = rows[0].items.indexOf(homeTab);
+  var cur = { row:R.dontmiss, col:rows.map(function(){ return 0; }), from:0 };   // from: the row the top bar was entered from
+  cur.col[0] = NAV_HOME;
+  var DYNAMIC_END = R.ep2;   // every rail up to the last episode rail keeps the hero; Back to Top is static
+  var ROW_Y = 649;           // where the focused rail sits while the hero shows (Figma)
+
+  // ---- the hero speaks for the focused item ----
+  var heroEl = document.querySelector('.hero'), heroKey = '';
+  var pics = $('.hero-bg .pic'), picFront = 0, picCur = null;
+  function setBg(img){
+    if((img || null) === picCur) return;
+    picCur = img || null;
+    pics[picFront].classList.remove('on');
+    picFront = 1 - picFront;
+    if(img){ pics[picFront].style.backgroundImage = 'url(\'' + img + '\')'; pics[picFront].classList.add('on'); }
+  }
+  function chMeta(c){ return '<span class="ch"><img src="' + c.logo + '" alt=""' + (c.bg ? ' style="background:' + c.bg + '"' : '') + '>Channel ' + c.no + ': ' + esc(c.n) + '</span>'; }
+  function heroFor(el, rowKey){
+    var k = el && el.dataset.kind, i = el ? +el.dataset.i : 0;
+    if(k === 'live'){
+      var m = (el.dataset.set === 'local' ? LOCAL : DONT_MISS)[i];
+      return { t:m.t, meta:'<span class="badge live">LIVE</span>' + chMeta(m.ch) + '<span class="pill">' + m.time + '</span>', d:m.d || NEWS_DESC, bg:m.bg || m.img };
+    }
+    if(k === 'cat'){ var c = CATS[i]; return { t:c.t + ' News', d:c.d, bg:A + 'hero-bg.png' }; }
+    if(k === 'viewall') return { t:rowKey === 'intl' ? 'International News Channel' : 'Thai News Channel',
+      d:'See what’s on now and next on every ' + (rowKey === 'intl' ? 'international' : 'Thai') + ' news channel in the TV Guide.', bg:'posters/tvguide-bg.jpg' };
+    if(k === 'epg'){
+      var e = (rowKey === 'intl' ? INTL : THAI)[i];
+      return { t:e.now, meta:'<span class="badge live">LIVE</span>' + chMeta(e.c) + '<span class="pill">09:00 – 10:00</span>', d:'Next: ' + e.next + ' at 10:00. ' + NEWS_DESC, bg:'posters/tvguide-bg.jpg' };
+    }
+    if(k === 'ep'){
+      var r = EPISODES[+el.dataset.set];
+      return { t:r.show, meta:'<span class="badge">EP ' + (r.items.length - i) + '</span><span class="pill">' + esc(r.items[i].t.split(' - ')[0]) + '</span>', d:r.d, bg:r.items[i].img };
+    }
+    return null;
+  }
+  function paintHero(rowKey, el){
+    var h = heroFor(el, rowKey);
+    if(!h) return;
+    var key = h.t + '|' + (h.meta || '');
+    if(key !== heroKey){
+      heroKey = key;
+      heroEl.querySelector('h1').textContent = h.t;
+      heroEl.querySelector('.meta').innerHTML = h.meta || '';
+      heroEl.querySelector('.desc').textContent = h.d;
+      heroEl.classList.remove('swap'); void heroEl.offsetWidth; heroEl.classList.add('swap');
+    }
+    setBg(h.bg);
+  }
+
+  // ---- keep the focused item in view (Home's "fixed focus" sideways; the focused rail at y=649 down the page) ----
+  var pageY = 0;
+  function slide(r, el){
+    if(r.key === 'totop') return;
+    var track = el.closest('.track, .chips');
+    var want = el.offsetLeft - r.items[0].offsetLeft;
+    var max = Math.max(0, track.scrollWidth - 1920);
+    track.style.transform = 'translateX(' + -Math.max(0, Math.min(want, max)) + 'px)';
+  }
+  // the hero text ends 80px above the focused rail's first line (its title, else its cards), whatever its length
+  var HERO_GAP = 80;
+  function placeHero(r){
+    var y = 0, e = r.sec.querySelector('.sec-title, .item');
+    while(e && e !== r.sec){ y += e.offsetTop; e = e.offsetParent; }
+    heroEl.style.top = 'auto';
+    heroEl.style.bottom = 1080 - (r.sec.offsetTop + y - pageY - HERO_GAP) + 'px';
+  }
+  function layout(ri){
+    var r = rows[ri], top = r.sec.offsetTop, y;
+    // a rail sits at y=649, or higher when it's too tall to end on screen there (the episode rails); Back to Top: the page's end
+    y = ri <= DYNAMIC_END ? top - Math.min(ROW_Y, 1080 - 40 - r.sec.offsetHeight) : page.offsetHeight - 1080;
+    pageY = Math.max(0, y);
+    page.style.transform = 'translateY(' + -pageY + 'px)';
+    secs.forEach(function(s, si){ s.classList.toggle('above', si + 1 < ri); });
+    document.body.classList.toggle('static', ri > DYNAMIC_END);
+  }
+
+  // the profile panel under the top bar's photo, as on Home (profile-panel.js)
+  var profileEl = document.querySelector('.topnav .profile'), prof = ProfilePanel(profileEl, { paint:paint, toast:toast });
+
+  function paint(){
+    var inProf = prof.paint(cur.row === 0 && rows[0].items[cur.col[0]] === profileEl);
+    rows.forEach(function(r, ri){ r.items.forEach(function(el, ci){ el.classList.toggle('focused', !inProf && ri === cur.row && ci === cur.col[ri]); }); });
+    // top-bar tab states (button-theme.css): Home is Active while the D-pad is on the bar, Active dim in the content
+    homeTab.classList.toggle('active', cur.row === 0);
+    homeTab.classList.toggle('active-dim', cur.row !== 0);
+    var ri = cur.row === 0 ? cur.from : cur.row;   // on the top bar the page stays as it was
+    document.body.classList.toggle('on-nav', cur.row === 0);
+    layout(ri);
+    var r = rows[ri], el = r.items[cur.col[ri]];
+    if(cur.row) slide(r, el);
+    if(ri <= DYNAMIC_END){ paintHero(r.key, el); placeHero(r); }
+    try { sessionStorage.setItem('newsFocus', JSON.stringify(cur)); } catch(e){}
+  }
+
+  /* ---------- actions ---------- */
+  var toastEl = document.getElementById('toast'), toastT;
+  function toast(msg){ toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove('on'); }, 1600); }
+  // leaving for the TV Guide / player: their Back lands on the same item here
+  function leave(url){ try { sessionStorage.setItem('newsReturn', '1'); } catch(e){} location.href = url; }
+  // a channel the TV Guide knows opens in the Live TV player through it (its programmes, the mini EPG, Up / Down)
+  function watch(c, title){
+    if(c.g) leave('tv-guide.html?play=' + encodeURIComponent(c.g) + '&from=news');
+    else toast('Now playing: ' + (title || c.n));
+  }
+  function select(el){
+    var k = el.dataset.kind, i = +el.dataset.i;
+    el.animate([{ transform:getComputedStyle(el).transform }, { transform:(getComputedStyle(el).transform === 'none' ? '' : getComputedStyle(el).transform + ' ') + 'scale(0.97)' }], { duration:140, easing:'ease-out' });
+    if(el.dataset.href){ location.href = el.dataset.href; return; }
+    if(el === profileEl) return;   // its panel is already open under it
+    if(k === 'live'){ var m = (el.dataset.set === 'local' ? LOCAL : DONT_MISS)[i]; watch(m.ch, m.t); return; }
+    if(k === 'cat'){ toast('Showing ' + CATS[i].t + ' news'); return; }
+    if(k === 'viewall'){ leave('tv-guide.html'); return; }
+    if(k === 'epg'){ var e = (el.dataset.set === 'intl' ? INTL : THAI)[i]; watch(e.c, e.now); return; }
+    if(k === 'ep'){ toast('Now playing: ' + EPISODES[+el.dataset.set].items[i].t); return; }
+    if(k === 'totop'){ cur.row = R.dontmiss; cur.col[R.dontmiss] = 0; paint(); return; }
+    toast(el.dataset.label + ' (demo)');
+  }
+  function back(){
+    if(cur.row > R.dontmiss){ cur.row = R.dontmiss; paint(); return; }
+    try { if(document.referrer && /home\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    location.href = 'home.html';
+  }
+
+  addEventListener('keydown', function(e){
+    if(prof.key(e.key)){ e.preventDefault(); return; }   // the profile photo / its panel
+    var r = rows[cur.row], n = r.items.length, handled = true;
+    if(e.key === 'ArrowRight') cur.col[cur.row] = Math.min(n - 1, cur.col[cur.row] + 1);
+    else if(e.key === 'ArrowLeft'){
+      // Left on a rail's first item goes up to the top bar (its Home tab), as on Home
+      if(cur.row > 0 && cur.col[cur.row] === 0){ cur.from = cur.row; cur.row = 0; cur.col[0] = NAV_HOME; }
+      else cur.col[cur.row] = Math.max(0, cur.col[cur.row] - 1);
+    }
+    else if(e.key === 'ArrowUp'){
+      if(cur.row === R.dontmiss){ cur.from = cur.row; cur.row = 0; cur.col[0] = NAV_HOME; }
+      else if(cur.row > 0) cur.row--;
+    }
+    else if(e.key === 'ArrowDown'){
+      if(cur.row === 0) cur.row = cur.from || R.dontmiss;
+      else cur.row = Math.min(rows.length - 1, cur.row + 1);
+    }
+    else if(e.key === 'Enter') select(r.items[cur.col[cur.row]]);
+    else if(e.key === 'Escape' || e.key === 'Backspace') back();
+    else handled = false;
+    if(handled){ e.preventDefault(); paint(); }
+  });
+  rows.forEach(function(r, ri){ r.items.forEach(function(el, ci){
+    el.addEventListener('click', function(){ if(ri === 0) cur.from = cur.row || cur.from; cur.row = ri; cur.col[ri] = ci; paint(); select(el); });
+  }); });
+
+  // coming back (Back from the player or the TV Guide): the same item again
+  try {
+    var saved = sessionStorage.getItem('newsReturn') && JSON.parse(sessionStorage.getItem('newsFocus') || 'null');
+    sessionStorage.removeItem('newsReturn');
+    if(saved && saved.col && saved.col.length === rows.length){ cur = saved; if(cur.row === 0) cur.row = cur.from || R.dontmiss; }
+  } catch(e){}
+  if(!cur.from) cur.from = R.dontmiss;
+  page.style.transition = 'none';
+  paint();
+  // fonts change the rows' heights: lay out again once they are in, then let the page glide
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(function(){ paint(); requestAnimationFrame(function(){ page.style.transition = ''; }); });
+})();
+</script>
+<script src="focus-ring.js"></script>
+</body>
+</html>

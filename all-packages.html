@@ -26,6 +26,7 @@
   Remote / keyboard: arrows move focus, Enter subscribes (PLAY ULTIMATE opens its package page), Esc / Back goes up to
   the tabs, then back to where the page was opened from.
 -->
+<link rel="stylesheet" href="button-theme.css">
 <style>
   :root{
     color-scheme:dark;
@@ -111,8 +112,7 @@
   .navsearch img{ width:32px; height:32px; display:block; }
   .navtab{ height:60px; padding:0 20px; border-radius:999px; display:flex; align-items:center; font-family:'Plus Jakarta Sans', var(--inter); font-size:24px; line-height:1.2;
     color:#fff; text-shadow:0 0 6px rgba(0,0,0,.4); white-space:nowrap; }
-  .navtab.active{ background:rgba(255,255,255,.22); backdrop-filter:blur(10px); }
-  .topnav .item.focused{ background:var(--th-pill); backdrop-filter:blur(12px) saturate(1.4); }
+  .topnav .item.focused:not(.tv-tab){ background:var(--th-pill); backdrop-filter:blur(12px) saturate(1.4); }   /* the tabs: button-theme.css */
   #screen .topnav .item.focused{ transform:scale(1.06); }
 
   #toast{ position:absolute; left:50%; bottom:80px; z-index:60; transform:translateX(-50%); padding:14px 26px; border-radius:999px;
@@ -133,12 +133,12 @@
     <div class="profile item" data-label="Profile"><img src="icons/profile-tv.png" alt="Profile"></div>
     <div class="center">
       <div class="navsearch item" data-label="Search"><img src="icons/nav-search.svg" alt="Search"></div>
-      <div class="navtab item" data-label="Home" data-href="home.html">Home</div>
-      <div class="navtab item" data-label="Live TV">Live TV</div>
-      <div class="navtab item" data-label="Movie">Movie</div>
-      <div class="navtab item" data-label="Sport" data-href="sport.html">Sport</div>
-      <div class="navtab item" data-label="My List">My List</div>
-      <div class="navtab item active" data-label="Store" data-href="store.html">Store</div>
+      <div class="navtab tv-tab item" data-label="Home" data-href="home.html">Home</div>
+      <div class="navtab tv-tab item" data-label="Live TV">Live TV</div>
+      <div class="navtab tv-tab item" data-label="Movie">Movie</div>
+      <div class="navtab tv-tab item" data-label="Sport" data-href="sport.html">Sport</div>
+      <div class="navtab tv-tab item" data-label="My List">My List</div>
+      <div class="navtab tv-tab item active" data-label="Store" data-href="store.html">Store</div>
     </div>
   </nav>
   <div class="empty" aria-live="polite"><i></i><b>No packages available</b><span>Try another category to find more packages.</span></div>
@@ -314,6 +314,9 @@
   function paint(){
     var inProf = prof.paint(cur.row === 0 && navItems[col()] === profileEl);   // focus is in the profile panel
     rows.forEach(function(r, ri){ r.items.forEach(function(el, ci){ el.classList.toggle('focused', !inProf && ri === cur.row && ci === col()); }); });
+    // top-bar tab states (button-theme.css): the current page's tab is Active while the D-pad is on the bar, Active dim in the content
+    var curTab = document.querySelector('.topnav .navtab.active, .topnav .navtab.active-dim');
+    curTab.classList.toggle('active', cur.row === 0); curTab.classList.toggle('active-dim', cur.row !== 0);
     rows.forEach(function(r, ri){ if(ri === cur.row && r.el) slide(r); });
     document.body.classList.toggle('on-nav', cur.row === 0);
     var r = cur.row === 0 ? rows[Math.max(1, rowOf(cur.from))] : rows[cur.row], y = 0;   // on the top bar the page stays as it was

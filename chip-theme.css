@@ -1,0 +1,20 @@
+/*
+  TV chip theme (the Sports page's chips): a resting chip is white frosted glass over a strong blur with light text,
+  no outline; focused, it turns to the grey-blue glass of a focused top-bar tab with white text (the page's focus
+  ring is the outline around it). Add the `tv-chip` class to any chip or button; the page keeps its own size, padding
+  and corner radius. Shared by home.html (category chips).
+*/
+:root{
+  --chip-idle-fill:rgba(255,255,255,.16);
+  --chip-focus-fill:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%),
+    var(--th-pill, linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%));
+}
+.tv-chip{
+  background:var(--chip-idle-fill); -webkit-backdrop-filter:blur(80px) saturate(1.5); backdrop-filter:blur(80px) saturate(1.5);
+  color:#e8e8e8; box-shadow:none;
+  transition:transform .22s cubic-bezier(.2,0,0,1), background .15s ease, color .15s ease;
+}
+.tv-chip.focused{
+  background:var(--chip-focus-fill); -webkit-backdrop-filter:blur(50px) saturate(1.4); backdrop-filter:blur(50px) saturate(1.4);
+  color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35);
+}
