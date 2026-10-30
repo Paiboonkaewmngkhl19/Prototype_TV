@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="chip-theme.css">
 <link rel="stylesheet" href="button-theme.css">
+<link rel="stylesheet" href="live-ribbon.css">
 <!--
   News page (Figma News "MainContent", 6601:54803), opened with Enter on Home's News chip.
   A 1920x1080 TV screen scaled to the window, built like sport.html: the same hero, rails, focus model and top bar,
@@ -75,11 +76,10 @@
   .rail{ position:relative; }
   .track{ display:flex; align-items:flex-start; gap:32px; padding:0 110px; width:max-content; transition:transform .35s var(--ease); }
 
-  /* 16:9 card (TV / Card): 320x180 picture, LIVE badge on top, the title under it */
-  .card{ width:320px; flex:0 0 auto; display:flex; flex-direction:column; gap:8px; border-radius:12px; }
+  /* 16:9 card (TV / Card): 320x180 picture, Home's Live ribbon (live-ribbon.css) on top, the title under it */
+  .card{ position:relative; width:320px; flex:0 0 auto; display:flex; flex-direction:column; gap:8px; border-radius:12px; }
   .thumb{ position:relative; width:320px; height:180px; border-radius:12px; overflow:hidden; background:var(--surface-container-high) center / cover no-repeat; }
   .thumb.logo{ background-color:#fff; background-size:67% auto; }   /* a channel logo on white, as Figma's CNN card */
-  .thumb .badge{ position:absolute; left:12px; top:12px; height:auto; padding:2px 12px; }
   .card .t{ font-size:20px; font-weight:500; color:var(--on-surface); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
   /* category chips: the chip theme (chip-theme.css) at Home's chip size */
@@ -258,7 +258,7 @@
   /* ---------- markup ---------- */
   function liveCard(it, i, set){
     return '<div class="card item"' + attrs({kind:'live', set:set, i:i}) + '><div class="thumb' + (it.logo ? ' logo' : '') + '" style="background-image:url(\'' + it.img + '\')">' +
-      '<span class="badge live">LIVE</span></div><div class="t">' + esc(it.t) + '</div></div>';
+      '</div><span class="live-ribbon" data-ring-top="styled">Live</span><div class="t">' + esc(it.t) + '</div></div>';   // Home's Live ribbon
   }
   function epgCard(e, i, set){
     var c = e.c, ic = (e.remind ? '<img src="sport-assets/epg-reminder.svg" alt="">' : '') + (e.heart ? '<img src="sport-assets/epg-heart.svg" alt="">' : '');

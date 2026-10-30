@@ -23,6 +23,7 @@
   Remote / keyboard: arrows move focus, Enter selects, Esc / Back returns to the top (then to Home).
 -->
 <link rel="stylesheet" href="button-theme.css">
+<link rel="stylesheet" href="live-ribbon.css">
 <style>
   :root{
     color-scheme:dark;
@@ -134,15 +135,14 @@
   .gene .sec-title, .gene .rail{ position:relative; margin-top:0; }
 
   /* PPV Event: 2:3 posters; the chosen one opens up to 16:9 with the event's details */
-  .ev{ position:relative; width:368.67px; height:553px; flex:0 0 auto; border-radius:12px; overflow:hidden; }
+  .ev{ position:relative; width:368.67px; height:553px; flex:0 0 auto; border-radius:12px; }
+  .ev .tall, .ev .wide{ border-radius:12px; overflow:hidden; }   /* clipped inside, so a Live ribbon can hang past the card's edge */
   .ev .wide{ display:none; }
   .ev.sel{ width:960px; }
   .ev.sel .tall{ display:none; }
   .ev.sel .wide{ display:block; }
   .ev .scrim{ position:absolute; left:0; right:0; bottom:0; height:340px; background:linear-gradient(180deg, rgba(16,16,16,0), rgba(16,16,16,.88)); }
   .ev .top{ position:absolute; left:24px; top:24px; }
-  .bdg.live{ background:var(--live); display:inline-flex; align-items:center; gap:4px; }
-  .bdg.live::before{ content:''; width:12px; height:12px; background:url('sport-assets/dot.svg') center / contain no-repeat; }
   .ev .info{ position:absolute; left:40px; right:40px; bottom:24px; display:flex; flex-direction:column; gap:12px; }
   .ev h3{ margin:0; font-size:48px; font-weight:700; line-height:57px; color:var(--on-surface); }
   .ev .cost{ display:flex; align-items:baseline; gap:8px; white-space:nowrap; }
@@ -428,7 +428,7 @@
   function eventCard(e, i){
     var tall = '<div class="tall ph-bg" style="position:absolute;inset:0"><div class="ratio big huge"><img src="' + SA + 'image-icon-60.svg" alt=""><span>2:3</span></div></div>';
     if(!e.kind) return '<div class="ev item"' + attrs({ kind:'event', i:i }) + '>' + tall + '</div>';
-    var top = e.kind === 'live' ? '<span class="bdg live">LIVE</span>' : e.kind === 'upcoming' ? '<span class="bdg dark">' + esc(e.when) + '</span>' : '';
+    var top = e.kind === 'upcoming' ? '<span class="bdg dark">' + esc(e.when) + '</span>' : '';
     var meta = e.kind === 'vod'
       ? '<span class="b plat">Platform</span><strong>Genres · Genres</strong><span>2026</span><span>2h 15m</span><span class="pill sm">16+</span><span class="pill sm">HD</span>'
       : '<span class="b"><img src="sport-assets/crown.svg" alt="">Premium</span><span class="logo"></span><span>Channel 111: AISPLAY 111</span>' +
@@ -437,7 +437,8 @@
       '<div class="wide ph-bg" style="position:absolute;inset:0"><div class="ratio row huge" style="top:46%"><img src="' + SA + 'image-icon-46.svg" alt=""><span>16:9</span></div>' +
       '<div class="scrim"></div><div class="top">' + top + '</div>' +
       '<div class="info"><h3>' + esc(e.t) + '</h3><div class="cost"><b>' + e.price + ' baht</b><span>(VAT Included: ' + vat(e.price) + ' baht)</span></div>' +
-      '<div class="meta">' + meta + '</div><p class="syn">' + EVENT_SYN + '</p></div></div></div>';
+      '<div class="meta">' + meta + '</div><p class="syn">' + EVENT_SYN + '</p></div></div>' +
+      (e.kind === 'live' ? '<span class="live-ribbon" data-ring-top="styled">Live</span>' : '') + '</div>';   // live: Home's Live ribbon (live-ribbon.css)
   }
   function posterCard(p, set, i){
     return '<div class="pst item"' + attrs({ kind:set, i:i }) + '><div class="pic ph-bg"><div class="ratio big"><img src="' + SA + 'ratio-icon-36.svg" alt=""><span>2:3</span></div></div>' +

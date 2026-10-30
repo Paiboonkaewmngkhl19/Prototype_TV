@@ -5,6 +5,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;800&family=Roboto:wght@400;500&family=Inter:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="chip-theme.css">
 <link rel="stylesheet" href="button-theme.css">
+<link rel="stylesheet" href="live-ribbon.css">
 <style>
   :root{
     --bg-0:#0a0714;
@@ -637,15 +638,7 @@
   .hero-dots{display:flex;justify-content:center;gap:8px;margin-top:58px;}
   .hero-dots i{width:12px;height:12px;border-radius:6px;background:#a8a8a8;transition:width .22s cubic-bezier(.2,0,0,1), background-color .22s ease;}
   .hero-dots i.on{width:30px;background:#e8e8e8;}
-  /* Figma "badgeWithIcon" Live ribbon (scaled ~85%): 94px wide, hangs 17px past the card's left edge, square bottom-left corner
-     with a dark fold underneath it exactly as wide as the overhang, so it meets the card edge (the ribbon wrapping
-     round the card) */
-  .card-badge-corner.ribbon{
-    left:-17px;top:6px;width:94px;box-sizing:border-box;padding:6px 12px;text-align:center;
-    font-size:22px;font-weight:600;line-height:27px;border-radius:8.4px 8.4px 8.4px 0;background:#ff383c;box-shadow:none;}
-  .card-badge-corner.ribbon::after{
-    content:'';position:absolute;left:0;bottom:-17px;width:17px;height:17px;background:#161616;
-    clip-path:polygon(0 0, 100% 0, 100% 100%);}
+  /* the Live ribbon: live-ribbon.css */
   /* a copy of the focused card's badge drawn inside the ring, so the badge sits ON TOP of the ring (placeHomeRing) */
   .home-ring .ring-badge{position:absolute;left:0;top:0;transform-origin:0 0;opacity:0;transition:opacity .12s ease;}
   .home-ring .ring-badge.on{opacity:1;}
@@ -1000,7 +993,7 @@
         ' data-desc="Liverpool host Brentford at Anfield in a big Premier League clash. Follow every moment live, from kick-off to the final whistle.">'+
         '<div class="thumb" style="background-image:url(\'posters/upcoming/live.jpg\');background-size:cover;background-position:center;"></div>'+
         '<div class="strip"><div class="t">'+big.t+'</div></div>'+
-        '<span class="card-badge-corner ribbon">Live</span>'+
+        '<span class="live-ribbon">Live</span>'+
       '</div>';
     var rest = items.map(function(it,i){
       return '<div class="card card-content item" data-title="'+it.t+'" data-desc="'+it.d+'">'+
@@ -1015,15 +1008,16 @@
 
   /* ---------- Row: Top 10 in Thailand Today ---------- */
   (function(){
-    var titles = ['Netflix pick #1','Disney pick #2','Netflix pick #3','Disney pick #4','Netflix pick #5','Prime pick #6','HBO pick #7','Viu pick #8','Netflix pick #9'];
-    var plats = ['netflix','disney','netflix','disney','netflix','prime','hbo','viu','netflix'];
-    // #8 and #9: fixed titles (the pool supplies the rest); the pool still advances so later rows keep their posters
+    var titles = ['Netflix pick #1','Disney pick #2','Netflix pick #3','Disney pick #4','Netflix pick #5','Prime pick #6','HBO pick #7','Viu pick #8','Netflix pick #9','Disney pick #10'];
+    var plats = ['netflix','disney','netflix','disney','netflix','prime','hbo','viu','netflix','disney'];
+    // #8 to #10: fixed titles (the pool supplies the rest); the pool still advances for #1-#9 so later rows keep their posters
     var TOP10_ART = {
       7:{t:'Thai Lawyer', img:'posters_portrait/legal/l1.jpg', plat:'netflix', d:'A ruthless Bangkok lawyer will defend anyone for the right price, until one case turns personal.'},
-      8:{t:'The Lord of the Rings: The Return of the King', img:'posters_portrait/lotr/r1.jpg', plat:'disney', d:'Gandalf and Aragorn lead the World of Men against Sauron\'s army as Frodo and Sam near Mount Doom.'}
+      8:{t:'The Lord of the Rings: The Return of the King', img:'posters_portrait/lotr/r1.jpg', plat:'disney', d:'Gandalf and Aragorn lead the World of Men against Sauron\'s army as Frodo and Sam near Mount Doom.'},
+      9:{t:'One Dollar Lawyer', img:'posters_portrait/legal/l2.jpg', plat:'disney', d:'A brilliant lawyer who charges just one dollar takes on the rich and powerful to protect ordinary people.'}
     };
     function rankArt(i){
-      var pool = posterStylePortrait(), a = TOP10_ART[i];
+      var a = TOP10_ART[i], pool = i < 9 ? posterStylePortrait() : '';   // #10 came later: it leaves the pool alone
       return a ? "background-image:url('"+a.img+"');background-size:cover;background-position:center;" : pool;
     }
     var cards = titles.map(function(t,i){
@@ -1066,7 +1060,10 @@
       document.querySelectorAll('.rank-num').forEach(function(svg){
         var m = ctx.measureText(svg.dataset.n);
         var k = 240 / m.actualBoundingBoxAscent;              // digit ink height 240px, as in Figma
-        var inkW = (m.actualBoundingBoxLeft + m.actualBoundingBoxRight) * k;
+        // "10": its digits pulled 36px closer together, so the 0 sits near the 1 (letter-spacing on the numeral's texts)
+        var tight = svg.dataset.n.length > 1 ? -36 : 0;
+        svg.style.letterSpacing = tight + 'px';
+        var inkW = (m.actualBoundingBoxLeft + m.actualBoundingBoxRight) * k + tight;
         svg.querySelectorAll('text').forEach(function(t){
           t.setAttribute('font-size', (400 * k).toFixed(1));
           t.setAttribute('x', (m.actualBoundingBoxLeft * k).toFixed(1));
@@ -1074,7 +1071,10 @@
         });
         svg.setAttribute('width', Math.ceil(inkW));
         svg.setAttribute('height', 330);
-        svg.parentElement.style.paddingLeft = Math.round(Math.min(169, inkW - 20)) + 'px';
+        // the card overlaps the numeral's last 20px (one digit capped at 169px); "10" sits further under it (60px), closer to its
+        // card; "1" is all stem on the right, so it isn't overlapped at all and keeps 28px clear of its card (room for the card's 8% growth and its focus ring)
+        var n = svg.dataset.n;
+        svg.parentElement.style.paddingLeft = Math.round(n === '1' ? inkW + 28 : n.length > 1 ? inkW - 60 : Math.min(169, inkW - 20)) + 'px';
       });
     }
     layoutRankNums();
@@ -1083,7 +1083,7 @@
       layoutRankNums();
       try{ placeHomeRing(true); }catch(e){}
     });
-    _portraitCursor += titles.length;   // one pool step per card, as the removed phone copy took; keeps later rails' posters
+    _portraitCursor += 9;   // one pool step per card of the original nine, as the removed phone copy took; keeps later rails' posters
   })();
 
   _portraitCursor += 12;   // Top Pick For You (removed) took 12 pool posters; keep later rows' posters unchanged
@@ -1555,7 +1555,7 @@
     if(tag) heroLogoEl.src = tag;
     var sub = el.querySelector('.s, .time-pill');
     heroChannelEl.textContent = el.dataset.meta || (sub ? sub.textContent : '');
-    heroLiveEl.style.display = el.querySelector('.card-badge-corner.ribbon') ? '' : 'none';
+    heroLiveEl.style.display = el.querySelector('.live-ribbon') ? '' : 'none';
     heroChannelEl.parentElement.style.display = tag || heroChannelEl.textContent || heroLiveEl.style.display === '' ? '' : 'none';   // nothing to say: no empty line
     var desc = el.dataset.desc || info.d || '';
     heroDescEl.textContent = desc;
@@ -1733,6 +1733,8 @@
     var it = r.items[colByRow[curRow]];
     if(!it) return;
     var label = it.getAttribute('data-title') || it.textContent.trim() || 'Selected';
+    // the Home tab: we're already here, so the focus goes to the first scene's primary button (Play), page back at the top
+    if(curRow === 0 && colByRow[0] === NAV_HOME_COL){ navFrom = 0; heroOnDetail = false; curRow = HERO_ROW_INDEX; updateFocus(); return; }
     // Back to Top: the first rail, hero showing (as Back does)
     var act = it.getAttribute('data-act');
     if(act === 'top'){ navFrom = 0; curRow = HERO_ROW_INDEX; updateFocus(); return; }
@@ -2083,7 +2085,7 @@
   // the ring at the same spot, scaled like the card, so it overlaps the ring instead of being covered by it.
   var ringBadge = homeRing.querySelector('.ring-badge');
   function showRingBadge(el){
-    var b = el.querySelector(':scope > .card-badge-corner.ribbon');   // Live ribbon
+    var b = el.querySelector(':scope > .live-ribbon');   // Live ribbon
     if(!b){ ringBadge.classList.remove('on'); return; }
     var k = getScale() * focusScale(el), pad = (RING_W + RING_GAP) * getScale();
     ringBadge.innerHTML = b.outerHTML;
@@ -2114,7 +2116,8 @@
   try {
     var ret = JSON.parse(sessionStorage.getItem('homeReturn') || 'null');
     sessionStorage.removeItem('homeReturn');
-    if(ret && rows[ret.row] && rows[ret.row].items[ret.col]){ curRow = ret.row; colByRow[ret.row] = ret.col; }
+    // left from the top bar (another page's tab): coming back starts on the first scene's primary button (Play) instead
+    if(ret && ret.row > 0 && rows[ret.row] && rows[ret.row].items[ret.col]){ curRow = ret.row; colByRow[ret.row] = ret.col; }
   } catch(e){}
   applyScale();
   updateFocus();

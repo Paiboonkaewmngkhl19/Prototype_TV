@@ -36,12 +36,13 @@
 
   var layers = ring.querySelectorAll('.glass i'), front = 0, art = null;
   // parts of the focused item that sit on top of the ring (a badge over its edge): marked data-ring-top, copied into
-  // the ring and kept over the originals every frame, as Home does with a card's badge
+  // the ring and kept over the originals every frame, as Home does with a card's badge. data-ring-top="styled" keeps
+  // the copy's class (a styled tag such as the Live ribbon, live-ribbon.css) and scales it like the original
   var tops = ring.querySelector('.tops'), topSrc = [];
   function setTops(el){
     tops.innerHTML = '';
     topSrc = Array.prototype.slice.call(el.querySelectorAll('[data-ring-top]'));
-    topSrc.forEach(function(s){ var c = s.cloneNode(true); c.removeAttribute('class'); tops.appendChild(c); });
+    topSrc.forEach(function(s){ var c = s.cloneNode(true); if(s.getAttribute('data-ring-top') !== 'styled') c.removeAttribute('class'); tops.appendChild(c); });
   }
   function placeTops(){
     if(!topSrc.length) return;
@@ -49,7 +50,10 @@
     topSrc.forEach(function(s, i){
       var b = s.getBoundingClientRect(), c = tops.children[i];
       c.style.left = (b.left - sr.left) / k - cur.x + 'px'; c.style.top = (b.top - sr.top) / k - cur.y + 'px';
-      c.style.width = b.width / k + 'px'; c.style.height = b.height / k + 'px';
+      if(s.getAttribute('data-ring-top') === 'styled'){
+        c.style.width = s.offsetWidth + 'px'; c.style.height = s.offsetHeight + 'px';
+        c.style.transformOrigin = '0 0'; c.style.transform = 'scale(' + b.width / k / (s.offsetWidth || 1) + ')';
+      } else { c.style.width = b.width / k + 'px'; c.style.height = b.height / k + 'px'; }
       c.style.opacity = getComputedStyle(s).opacity;
     });
   }
