@@ -17,13 +17,16 @@
     into the page at the bottom); the focused rail sits at y=600 and the rails above it fade away. Sports, Movies,
     Short Series and Great Value have a tab bar: Up from the cards reaches it, Left / Right picks a tab.
   - Static background, from PPV Event down: the hero and the top bar go, the page scrolls with the focused rail near
-    the top. The chosen card of PPV Event opens up to 16:9 with its details (VOD, upcoming live or live); the
-    chosen card of Rentals and Buy grows and shows its price. Then the banner, My Subscription, the shortcuts, the
-    FAQs (Enter opens / closes an answer), Customer Support, and Back to Top.
+    the top. PPV Event's focused card opens up to 16:9 with its details (VOD, upcoming live or live), as Home's AIS Play Exclusive; the
+    Rent or Buy's posters grow 8% on focus, as Home's. Then the banner, the My Subscription / FAQs / Customer Support cards and
+    Back to Top.
   Remote / keyboard: arrows move focus, Enter selects, Esc / Back returns to the top (then to Home).
 -->
 <link rel="stylesheet" href="button-theme.css">
+<link rel="stylesheet" href="chip-theme.css">
+<link rel="stylesheet" href="quick-card.css">
 <link rel="stylesheet" href="live-ribbon.css">
+<link rel="stylesheet" href="expand-card.css">
 <link rel="stylesheet" href="event-card.css">
 <link rel="stylesheet" href="corner-tag.css">
 <link rel="stylesheet" href="platform-tag.css">
@@ -64,8 +67,8 @@
     background:linear-gradient(90deg, rgba(var(--wash),.88) 0%, rgba(var(--wash),.62) 30%, rgba(var(--wash),.12) 58%, transparent 75%); }
   body.static .hero-bg{ opacity:0; }
 
-  /* ---------- hero text, as Home's: pinned at the top (tags, title, price, description), above the focused rail at y=600 ---------- */
-  .hero{ position:absolute; left:110px; top:160px; width:1100px; z-index:3; display:flex; flex-direction:column; gap:14px;
+  /* ---------- hero text, as Home's: tags, title, price, description, ending 80px above the focused rail (placeHero) ---------- */
+  .hero{ position:absolute; left:110px; bottom:560px; width:1100px; z-index:3; display:flex; flex-direction:column; gap:14px;
     transition:opacity .3s ease, transform .3s var(--ease); }
   body.static .hero{ opacity:0; transform:translateY(-40px); pointer-events:none; }
   .hero.swap{ animation:heroIn .3s var(--ease); }
@@ -112,13 +115,13 @@
   .sq .pic.black{ background-color:#000; }
   .sq .pic.contain{ background-size:contain; }
 
-  /* View All (TV / Button), the rail's height */
-  .viewall{ width:220px; flex:0 0 auto; align-self:stretch; border-radius:38px; display:flex; align-items:center; justify-content:center; padding:24px;
-    background:var(--surface-container-high); color:var(--on-surface); font-weight:500; font-size:24px; line-height:32px; transition:background .15s ease, color .15s ease; }
-  .viewall.focused{ background:var(--focus-fill); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+  /* View All: Home's View All tile (its .clip-viewall), the rail's height, with the chip theme's states (chip-theme.css .tv-chip) */
+  .viewall{ width:220px; flex:0 0 auto; align-self:stretch; border-radius:38px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:#fff; }
+  .viewall b{ font-size:28px; font-weight:700; }
 
   /* tab bar (TV / Chip): the picked tab is filled; the focused one turns light */
-  .tabs{ display:flex; gap:24px; padding:0 110px; margin-top:40px; width:max-content; transition:transform .35s var(--ease); }
+  .tabs{ display:flex; gap:32px;   /* chips 32px apart, on every page */
+    padding:0 110px; margin-top:40px; width:max-content; transition:transform .35s var(--ease); }
   .chip{ position:relative; display:flex; align-items:center; gap:16px; padding:12px 32px 12px 24px; border-radius:12px; flex:0 0 auto;
     font-weight:500; font-size:24px; line-height:32px; color:var(--on-surface-variant); white-space:nowrap; transition:background .15s ease, color .15s ease; }
   .chip::before{ content:''; position:absolute; inset:0; border-radius:inherit; border:2px solid var(--outline-variant); opacity:.5; transition:opacity .15s ease; }
@@ -134,79 +137,37 @@
   .gene::before{ content:''; position:absolute; inset:0; background:var(--ph) center / cover no-repeat; opacity:.4; }
   .gene .sec-title, .gene .rail{ position:relative; margin-top:0; }
 
-  /* PPV Event: event-card.css */
+  /* PPV Event: Home's AIS Play Exclusive cards (expand-card.css) with the event's own details (event-card.css); placeholder pictures until the events have art */
 
-  /* Rentals / Buy: 2:3 posters; the chosen one grows to 264x396 and shows its price */
-  .rent .track{ align-items:flex-start; height:396px; }
-  .pst{ position:relative; width:220px; height:330px; margin-top:33px; flex:0 0 auto; border-radius:12px; }
+  /* Rent or Buy: 2:3 posters, as Home's poster rails (no price, as in Figma) */
+  .pst{ position:relative; width:220px; height:330px; flex:0 0 auto; border-radius:12px; }   /* Home's / Movie's poster: 220 x 330, focus grows it 8% */
   .pst .pic{ position:absolute; inset:0; border-radius:12px; overflow:hidden; }
-  .pst .cost{ display:none; }
-  .pst.sel{ width:264px; height:396px; margin-top:0; padding:8px; border-radius:24px; }
-  .pst.sel .pic{ position:relative; inset:auto; height:340px; }
-  .pst.sel .cost{ display:block; margin-top:8px; font-family:var(--roboto); font-weight:500; font-size:20px; line-height:24px; color:var(--on-surface); }
-  .pst.sel .top-tag{ left:20px; top:20px; }   /* the chosen poster's picture sits 8px in */
-  .rent .viewall{ height:330px; margin-top:33px; align-self:auto; }
+  .rent .viewall{ height:330px; align-self:auto; }
 
   /* banner carousel */
-  .banner{ position:relative; width:1700px; height:500px; margin:0 110px; border-radius:12px; overflow:hidden; background:url('store-assets/banner-soundbar.png') center / cover no-repeat; }
-  .dots{ position:absolute; left:50%; top:464px; transform:translateX(-50%); display:flex; align-items:center; gap:8px; }
+  .banner{ position:relative; width:1700px; height:500px; margin:0 110px; border-radius:12px; overflow:hidden; background:var(--surface-container-high); }
+  /* the slides sit side by side and slide under the frame; Left / Right (or the arrows) move one, wrapping round */
+  .banner .slides{ position:absolute; left:0; top:0; height:100%; display:flex; transition:transform .5s var(--ease); }
+  .banner .slide{ width:1700px; height:100%; flex:0 0 auto; background:center / cover no-repeat; }
+  /* Figma "TV / Carousel arrow": an 80px round button, 24px in from the card's sides, a 32px chevron; the chip theme's
+     states (chip-theme.css .tv-chip): frosted glass at rest, the chip's focused glass pill while pressed */
+  .carr{ position:absolute; top:50%; z-index:1; width:80px; height:80px; border-radius:40px; transform:translateY(-50%);
+    display:flex; align-items:center; justify-content:center; }
+  .carr img{ width:32px; height:32px; display:block; }
+  .carr.l{ left:24px; } .carr.r{ right:24px; }
+  .carr.tv-chip.press{ background:var(--chip-focus-fill); -webkit-backdrop-filter:blur(50px) saturate(1.4); backdrop-filter:blur(50px) saturate(1.4);
+    transform:translateY(-50%) scale(.92); }   /* the pressed side lights up for a moment (not .focused: the focus ring stays on the banner) */
+  .dots{ position:absolute; z-index:1; left:50%; top:464px; transform:translateX(-50%); display:flex; align-items:center; gap:8px; }
   .dots i{ width:12px; height:12px; border-radius:6px; background:rgba(255,255,255,.5); transition:width .3s var(--ease), background .3s ease; }
   .dots i.on{ width:34px; background:#fff; }
 
-  /* My Subscription */
-  .mysub{ margin:0 110px; padding:24px 32px; border-radius:16px; background:var(--surface-container-high); display:flex; flex-direction:column; align-items:center; gap:24px; }
-  .mysub .head{ align-self:stretch; display:flex; flex-direction:column; gap:16px; }
-  .mysub .sec-title{ margin:0; }
-  .subs{ display:flex; gap:16px; }
-  .sub{ width:534.67px; height:147px; padding:11.5px 12px; border-radius:12px; background:var(--surface-container-highest); display:flex; gap:12px; }
-  .sub .pic{ position:relative; width:124px; height:124px; border-radius:8px; overflow:hidden; flex:0 0 auto; }
-  .sub .txt{ position:relative; flex:1; min-width:0; display:flex; flex-direction:column; justify-content:space-between; font-family:var(--roboto); }
-  .sub .txt b{ display:block; padding-right:120px; font-weight:500; font-size:32px; line-height:40px; color:var(--on-surface); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-  .sub .txt span{ font-size:24px; line-height:28px; color:var(--on-surface-variant); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .sub .kind{ font-style:normal; position:absolute; right:0; top:0; height:40px; padding:0 12px; border-radius:9999px; background:var(--inverse-surface); color:var(--on-inverse-surface);
-    font-size:24px; line-height:40px; font-weight:500; }
-  .sub:not(.main) .kind{ top:16px; }
   .btn{ display:flex; align-items:center; justify-content:center; gap:16px; border-radius:9999px; background:var(--surface-container); color:var(--on-surface);
     font-weight:500; white-space:nowrap; transition:background .15s ease, color .15s ease; }
   .btn.focused{ background:var(--focus-fill); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
-  .mysub .btn{ width:503px; height:91px; font-size:32px; font-family:var(--roboto); }
 
   /* shortcuts */
-  .shorts{ display:flex; gap:24px; padding:0 110px; }
-  .short{ width:550.67px; height:180px; border-radius:12px; background:var(--surface-container-highest); padding:24px 10px 30px; display:flex; flex-direction:column; justify-content:space-between;
-    align-items:center; font-family:var(--roboto); color:var(--on-surface); transition:background .15s ease, color .15s ease; }
-  .short span{ font-size:20px; line-height:23px; }
-  .short b{ font-weight:500; font-size:32px; line-height:42px; }
-  .short.focused{ background:var(--focus-fill); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
-
-  /* FAQs: the phone QR panel and the questions */
-  .faq{ display:flex; gap:24px; padding:0 110px; align-items:flex-start; }
-  .qrpanel{ width:521px; height:530px; padding:40px; border-radius:16px; background:var(--surface-container); display:flex; flex-direction:column; align-items:center; gap:32px; flex:0 0 auto;
-    font-family:var(--roboto); text-align:center; }
-  .hd{ display:flex; align-items:center; justify-content:center; gap:8px; font-family:var(--roboto); font-weight:500; font-size:36px; line-height:44px; color:var(--on-surface); }
-  .hd img{ display:block; }
-  .qr{ position:relative; width:250px; height:250px; border-radius:16px; background:#fff; flex:0 0 auto; }
-  .qr .code{ position:absolute; left:16px; top:16px; width:218px; height:218px; }
-  .qr .lg{ position:absolute; left:93px; top:93px; width:67px; height:67px; border-radius:12px; }
-  .qrpanel .t{ font-size:32px; line-height:48px; color:var(--on-surface); }
-  .qrpanel .s{ margin-top:16px; font-size:24px; line-height:36px; color:var(--on-surface-variant); }
-  .acc{ flex:1; display:flex; flex-direction:column; gap:24px; padding-right:24px; }
-  .q{ border-radius:8px; }
-  .q .qh{ display:flex; align-items:center; justify-content:space-between; gap:24px; padding:8px 8px 12px; border-bottom:1px solid var(--outline-variant);
-    font-weight:700; font-size:20px; line-height:28px; color:var(--on-surface); }
-  .q .qh i{ font-style:normal; font-weight:400; font-size:24px; width:24px; text-align:center; }
-  .q .qa{ display:none; gap:24px; padding:16px 8px 0; }
-  .q.open .qa{ display:flex; }
-  .q .thumb{ position:relative; width:160px; height:90px; border-radius:4px; overflow:hidden; flex:0 0 auto; }
-  .q p{ margin:0; font-size:16px; line-height:24px; color:var(--on-surface-variant); }
-
-  /* Customer Support */
-  .support{ padding:0 110px; display:flex; flex-direction:column; gap:32px; }
-  .cols{ display:flex; gap:40px; font-family:var(--roboto); font-size:32px; line-height:40px; color:var(--on-surface); }
-  .cols > div{ width:830px; display:flex; flex-direction:column; gap:16px; }
-  .cols .h{ display:flex; align-items:center; gap:16px; }
-  .cols ul{ margin:0; padding-left:44px; display:flex; flex-direction:column; gap:16px; }
-  .cols li b{ font-weight:500; }
+  .shorts{ display:flex; gap:32px; padding:0 110px; }
+  .quick-card{ --qc-w:545px; }   /* Home's Quick Access cards (quick-card.css, chip-theme.css), three across as Movie's */
 
   /* Back to Top */
   .totop{ padding-bottom:60px; display:flex; align-items:center; justify-content:center; }   /* the button ends 60px above the screen's bottom */
@@ -234,18 +195,22 @@
   #toast{ position:absolute; left:50%; bottom:80px; z-index:60; transform:translateX(-50%); padding:14px 26px; border-radius:999px;
     background:rgba(20,20,24,.85); font-size:24px; opacity:0; transition:opacity .2s ease; pointer-events:none; }
   #toast.on{ opacity:1; }
-  /* resting buttons, chips and shortcuts: Home's chip glass (the picked tab a little brighter); focus turns them to the glass pill */
+  /* resting buttons and chips: Home's chip glass (the picked tab a little brighter); focus turns them to the glass pill */
   .chip::before{ display:none; }
-  .chip:not(.focused), .viewall:not(.focused), .btn:not(.focused), .short:not(.focused){
+  .chip:not(.focused), .btn:not(.focused){
     background:var(--idle-fill); -webkit-backdrop-filter:blur(80px) saturate(1.5); backdrop-filter:blur(80px) saturate(1.5); color:var(--on-surface); }
   .chip.on:not(.focused){ background:var(--idle-fill-on); color:#fff; }
-  /* focused items grow: 8% on every rail, 6% in the top bar; the opened PPV Event 4% (more would reach
-     past the 32px gap); the banner and the FAQ questions stay put, as Home's banners */
+  /* the picked tab while focus is off its tab bar (on its cards or another rail): Active dim, the focused chip's glass pill
+     (its fill and white text), without the focus ring, which stays on the focused item */
+  .chip.on.active-dim:not(.focused){ background:var(--focus-fill); -webkit-backdrop-filter:blur(50px) saturate(1.4); backdrop-filter:blur(50px) saturate(1.4);
+    color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+  /* focused items grow: 8% on every rail, 6% in the top bar; the opened PPV Event 5%, as Home's AIS Play
+     Exclusive; the banner stays put, as Home's banners */
   #screen .item{ transition:transform .22s var(--ease), background .15s ease, color .15s ease; }
   #screen .item.focused{ transform:scale(1.08); z-index:2; }
   #screen .topnav .item.focused{ transform:scale(1.06); }
-  #screen .ev.focused{ transform:scale(1.04); }
-  #screen .banner.focused, #screen .q.focused{ transform:none; }
+  #screen .xcard.focused{ transform:scale(1.05); }   /* as Home's AIS Play Exclusive */
+  #screen .banner.focused{ transform:none; }
 </style>
 </head>
 <body>
@@ -338,9 +303,9 @@
     value:[ph('Best Saver'), ph(), ph(), ph(), ph(), ph(), ph()]
   };
   var TABS = {
-    sports:['Recommend', 'Football', 'NBA', 'Premier League', 'RWS'],
-    movies:['Recommend', 'Netflix', 'HBO Max', 'Disney+', 'iQIYI', 'MONOMAX'],
-    short:['Recommend', 'ReelShort', 'DramaBox'],
+    sports:['Popular', 'Premier League', 'NBA', 'RWS', 'Thai League'],
+    movies:['Popular', 'Netflix', 'HBO Max', 'Disney+', 'iQIYI', 'MONOMAX'],
+    short:['Popular', 'ReelShort', 'DramaBox'],
     value:['< 100 baht Enjoy Asia Movies & Shorts', '< 100 baht Sports Lover', '300 - 500 baht Enjoy Movies & Sports', 'Asian Games']
   };
   // the OTT tabs carry the project's own platform tag logos (Home's cards use the same ones)
@@ -350,11 +315,11 @@
     { kind:'vod', t:'Content Title', price:199 },
     { kind:'upcoming', t:'Content Title', price:199, when:'Today 20:30 PM' },
     { kind:'live', t:'Content Title', price:199, time:'20:00 – 22:15' },
-    {}, {}
+    { kind:'vod', t:'Content Title', price:149 },
+    { kind:'upcoming', t:'Content Title', price:249, when:'Tomorrow 19:00 PM' }
   ];
   var EVENT_SYN = 'Package Description Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed bibendum, ex id condimentum egestas, libero velit consectetur purus, ut tristique turpis elit eu diam. Curabitur lobortis ligula purus, sed molestie eros sagittis quis. Suspendisse potenti. Aenean';
   var RENTALS = [{ badge:'Recommend', price:199 }, { badge:'Best Seller', price:149 }, { price:99 }, { price:99 }, { price:129 }, { price:149 }, { price:99 }, { price:79 }, { price:99 }, { price:149 }, { price:199 }];
-  var BUYS = [{ badge:'Recommend', price:399 }, { badge:'Best Seller', price:349 }, { price:299 }, { price:299 }, { price:349 }, { price:399 }, { price:249 }, { price:299 }, { price:349 }, { price:299 }, { price:399 }];
   var ONETIME = [NETFLIX_7D, ph(), ph(), ph(), ph(), ph(), ph(), ph()];
   var OTHERS = [
     { t:'Smart Soundbar', price:250, per:'Month', tags:['24 Months', 'Add-on'], art:{ img:SA + 'banner-soundbar.png', pos:'left center' },
@@ -362,17 +327,13 @@
     { t:'AIS Cloud PC', price:199, per:'Month', tags:['Monthly', 'Add-on'], art:{ img:SA + 'others-cloud-pc.png' },
       d:'A Windows PC in the cloud that you can open on your TV, laptop or phone.' },
     ph(), ph(), ph(), ph(), ph(), ph(), ph(), ph(), ph(), ph()];
-  var SUBS = [
-    { t:'PLAY PREMIUM PLUS Monthly', kind:'Main', s:'Valid until 15 Jan 2027' },
-    { t:'Netflix UHD Monthly', kind:'Entertain', s:'Recurring on 20th every month' },
-    { t:'Netflix UHD Monthly', kind:'Entertain', s:'Recurring on 20th every month' }
-  ];
-  var SHORTCUTS = [{ s:'3 Subscriptions', t:'Manage Subscription' }, { s:'12 Questions', t:'FAQS' }, { s:'Call or scan', t:'Customer Support' }];
-  var FAQS = [
-    { q:'How do I activate my package?', a:'Pick a package in the Store and choose Subscribe. Pay with your AIS bill or a card; the package works on this TV straight away and on your other devices once you sign in.', open:1 },
-    { q:'How do I cancel a subscription?', a:'Open My Subscription, choose the package and select Cancel. You can keep watching until the end of the period you have paid for.' },
-    { q:'How long can I watch a rental?', a:'You have 30 days to start a rental, and 48 hours to finish it once you press Play.' }
-  ];
+  // the banner carousel's slides (the Smart Soundbar promotion, then wide pictures until the other promotions have art)
+  var BANNERS = [{ t:'Smart Soundbar', img:SA + 'banner-soundbar.png', pkg:1 }, { t:'Miss Universe Thailand 2026', img:'posters/miss-universe.jpg' },
+    { t:'Top Gun: Maverick', img:'posters/topgun-m.jpg', pos:'center 30%' }, { t:'F1', img:'posters/f1.jpg', pos:'center 30%' },
+    { t:'Superman', img:'posters/superman.jpg', pos:'center 25%' }, { t:'Wicked', img:'posters/wicked.jpg', pos:'center 30%' },
+    { t:'House of the Dragon', img:'posters/house-of-the-dragon.jpg', pos:'center 30%' }, { t:'Liverpool vs Brentford', img:'posters/liver-ben.jpg' }];
+  var SHORTCUTS = [{ s:'3 Subscriptions', t:'My Subscription', ic:'icons/quick/subscription.svg' }, { s:'12 Questions', t:'FAQs', ic:'icons/quick/faqs.svg' },
+                   { s:'Call or scan', t:'Customer Support', ic:SA + 'headset.svg' }];
 
   /* ---------- markup ---------- */
   var RATIO_SM = '<div class="ratio"><img src="sport-assets/ratio-icon.svg" alt=""><span>1:1</span></div>';
@@ -395,7 +356,7 @@
     var ring = it.art ? (it.art.logo ? 'url(\'' + it.art.logo + '\')' : null) : '';
     return '<div class="sq item"' + attrs({ kind:'pkg', set:set, i:i, 'ring-art':ring }) + '>' + sqPic(it) + badgeHtml(it) + '</div>';
   }
-  function viewAll(set){ return '<div class="viewall item"' + attrs({ kind:'viewall', set:set }) + ' data-ring-art="">View All</div>'; }
+  function viewAll(set){ return '<div class="viewall tv-chip item"' + attrs({ kind:'viewall', set:set }) + ' data-ring-art=""><b>View All</b></div>'; }
   function cardsHtml(key, list, more){ return list.map(function(it, i){ return sqCard(it, key, i); }).join('') + (more ? viewAll(key) : ''); }
   function chipHtml(t, i){
     return '<div class="chip item' + (i ? '' : ' on') + '"' + attrs({ kind:'tab', i:i }) + ' data-ring-art="">' +
@@ -403,23 +364,24 @@
         '<img src="' + (i ? 'sport-assets/chip-icon.png' : SA + 'chip-recommend.svg') + '" alt="">') + esc(t) + '</div>';
   }
   function eventCard(e, i){
-    var tall = '<div class="tall ph-bg" style="position:absolute;inset:0"><div class="ratio big huge"><img src="' + SA + 'image-icon-60.svg" alt=""><span>2:3</span></div></div>';
-    if(!e.kind) return '<div class="ev item"' + attrs({ kind:'event', i:i }) + '>' + tall + '</div>';
-    var top = e.kind === 'upcoming' ? '<span class="top-tag">' + esc(e.when) + '</span>' : '';
+    var tall = '<div class="xc-portrait ph-bg"><div class="ratio big huge"><img src="' + SA + 'image-icon-60.svg" alt=""><span>2:3</span></div></div>';
+    var wide = '<div class="xc-wide ph-bg"><div class="ratio row huge"><img src="' + SA + 'image-icon-46.svg" alt=""><span>16:9</span></div></div>';
+    var live = e.kind === 'live';
+    var open = '<div class="xcard item' + (live ? ' xc-ribbon' : '') + '"' + attrs({ kind:'event', i:i }) + ' data-ring-art="">';
+    if(!e.kind) return open + tall + wide + '</div>';
+    var top = e.kind === 'upcoming' ? '<span class="top-tag ev-top">' + esc(e.when) + '</span>' : '';
     var meta = e.kind === 'vod'
       ? '<span class="ptag ais" aria-label="AIS PLAY"></span><strong>Genres · Genres</strong><span>2026</span><span>2h 15m</span><span class="pill sm">16+</span><span class="pill sm">HD</span>'
       : '<span class="b"><img src="sport-assets/crown.svg" alt="">Premium</span><span class="logo"></span><span>Channel 111: AISPLAY 111</span>' +
         (e.time ? '<span class="pill">' + e.time + '</span>' : '') + '<span class="pill sm">HD</span>';
-    return '<div class="ev item"' + attrs({ kind:'event', i:i }) + '>' + tall +
-      '<div class="wide ph-bg" style="position:absolute;inset:0"><div class="ratio row huge" style="top:46%"><img src="' + SA + 'image-icon-46.svg" alt=""><span>16:9</span></div>' +
-      '<div class="scrim"></div>' + top +
-      '<div class="info"><h3>' + esc(e.t) + '</h3><div class="cost"><b>' + e.price + ' baht</b><span>(VAT Included: ' + vat(e.price) + ' baht)</span></div>' +
-      '<div class="meta">' + meta + '</div><p class="syn">' + EVENT_SYN + '</p></div></div>' +
-      (e.kind === 'live' ? '<span class="live-ribbon" data-ring-top="styled">Live</span>' : '') + '</div>';   // live: Home's Live ribbon (live-ribbon.css)
+    return open + tall + wide + '<div class="xc-scrim ev-scrim"></div>' + top +
+      '<div class="xc-content ev-info"><h3>' + esc(e.t) + '</h3><div class="cost"><b>' + e.price + ' baht</b><span>(VAT Included: ' + vat(e.price) + ' baht)</span></div>' +
+        '<div class="meta">' + meta + '</div><p class="syn">' + EVENT_SYN + '</p></div>' +
+      (live ? '<span class="live-ribbon" data-ring-top="styled">Live</span>' : '') + '</div>';   // live: Home's Live ribbon (live-ribbon.css)
   }
   function posterCard(p, set, i){
     return '<div class="pst item"' + attrs({ kind:set, i:i }) + '><div class="pic ph-bg"><div class="ratio big"><img src="' + SA + 'ratio-icon-36.svg" alt=""><span>2:3</span></div></div>' +
-      badgeHtml(p) + '<div class="cost">' + p.price + ' ฿</div></div>';
+      badgeHtml(p) + '</div>';
   }
   function railSec(key, title, inner, cls){
     return '<section class="sec' + (cls ? ' ' + cls : '') + '" data-sec="' + key + '"><h2 class="sec-title">' + title + '</h2><div class="rail"><div class="track">' + inner + '</div></div></section>';
@@ -437,35 +399,20 @@
   html += catSec('short', 'Short Series');
   html += catSec('value', 'Great Value');
   html += railSec('event', 'PPV Event', EVENTS.map(eventCard).join(''));
-  html += railSec('rent', 'Rentals', RENTALS.map(function(p, i){ return posterCard(p, 'rent', i); }).join('') + viewAll('rent'), 'rent');
-  html += railSec('buy', 'Buy', BUYS.map(function(p, i){ return posterCard(p, 'buy', i); }).join('') + viewAll('buy'), 'rent');
+  html += railSec('rent', 'Rent or Buy', RENTALS.map(function(p, i){ return posterCard(p, 'rent', i); }).join('') + viewAll('rent'), 'rent');
   html += railSec('onetime', 'One Time Package', cardsHtml('onetime', ONETIME));
   html += railSec('others', 'Others', cardsHtml('others', OTHERS));
-  html += '<section class="sec" data-sec="banner"><div class="banner item" data-kind="banner" data-label="Smart Soundbar"><div class="dots">' +
-    [0, 1, 2, 3, 4, 5, 6, 7].map(function(i){ return '<i' + (i === 2 ? ' class="on"' : '') + '></i>'; }).join('') + '</div></div></section>';
-  html += '<section class="sec" data-sec="mysub"><div class="mysub"><div class="head"><h2 class="sec-title">My Subscription</h2><div class="subs">' + SUBS.map(function(s){
-    return '<div class="sub' + (s.kind === 'Main' ? ' main' : '') + '"><div class="pic ph-bg">' + RATIO_SM + '</div><div class="txt"><b>' + esc(s.t) + '</b><span>' + esc(s.s) + '</span><em class="kind">' + s.kind + '</em></div></div>';
-  }).join('') + '</div></div><div class="btn item" data-kind="manage" data-label="Manage Subscription" data-ring-art="">Manage Subscription</div></div></section>';
+  html += '<section class="sec" data-sec="banner"><div class="banner item" data-kind="banner" data-label="Smart Soundbar"><div class="slides">' +
+    BANNERS.map(function(b){ return '<div class="slide" style="background-image:url(\'' + b.img + '\')' + (b.pos ? ';background-position:' + b.pos : '') + '"></div>'; }).join('') + '</div>' +
+    '<div class="carr tv-chip l"><img src="' + SA + 'carousel-arrow-left.svg" alt=""></div><div class="carr tv-chip r"><img src="' + SA + 'carousel-arrow-right.svg" alt=""></div>' +
+    '<div class="dots">' + BANNERS.map(function(_, i){ return '<i' + (i ? '' : ' class="on"') + '></i>'; }).join('') + '</div></div></section>';
   html += '<section class="sec" data-sec="shortcuts"><div class="shorts">' + SHORTCUTS.map(function(s, i){
-    return '<div class="short item"' + attrs({ kind:'shortcut', i:i, label:s.t }) + ' data-ring-art=""><span>' + esc(s.s) + '</span><b>' + esc(s.t) + '</b></div>';
+    return '<div class="quick-card tv-chip item"' + attrs({ kind:'shortcut', i:i, label:s.t }) + ' data-ring-art=""><span class="qc-sub">' + esc(s.s) + '</span>' +
+      '<span class="qc-name"><img src="' + s.ic + '" alt="">' + esc(s.t) + '</span></div>';
   }).join('') + '</div></section>';
-  html += '<section class="sec" data-sec="faq"><div class="faq"><div class="qrpanel"><div class="hd"><img src="' + SA + 'help.svg" alt="">FAQs</div>' +
-    '<div class="qr"><img class="code" src="' + SA + 'qr-myais.png" alt=""><img class="lg" src="' + SA + 'myais-logo.png" alt=""></div>' +
-    '<div><div class="t">View all FAQs on your phone</div><div class="s">Scan with your phone camera</div></div></div>' +
-    '<div class="acc">' + FAQS.map(function(f, i){
-      return '<div class="q item' + (f.open ? ' open' : '') + '"' + attrs({ kind:'faq', i:i, row:'faq' + i }) + ' data-ring-art=""><div class="qh">' + esc(f.q) + '<i></i></div>' +
-        '<div class="qa"><div class="thumb ph-bg"><div class="ratio row"><img src="sport-assets/ratio-icon.svg" alt=""><span>16:9</span></div></div><p>' + esc(f.a) + '</p></div></div>';
-    }).join('') + '</div></div></section>';
-  html += '<section class="sec support" data-sec="support"><div class="hd"><img src="' + SA + 'headset.svg" alt="">Customer Support</div><div class="cols">' +
-    '<div><div class="h"><img src="' + SA + 'phone.svg" alt="">Customer service team</div><ul>' +
-      '<li>Dial <b>1175</b> to speak directly with AIS customer support team.</li><li>Dial <b>1530</b> to speak directly with 3BB customer support team.</li></ul></div>' +
-    '<div><div class="h"><img src="' + SA + 'globe.svg" alt="">myAIS Website</div><div>Scan the QR code to access support through the website</div>' +
-      '<div class="qr"><img class="code" src="' + SA + 'qr-myais.png" alt=""><img class="lg" src="' + SA + 'myais-logo.png" alt=""></div></div></div></section>';
   html += '<section class="sec totop" data-sec="totop"><div class="btn item" data-kind="totop" data-ring-art=""><img src="' + SA + 'arrow-up.svg" alt="">Back to Top</div></section>';
   var page = document.getElementById('page');
   page.innerHTML = html;
-  function paintFaqSigns(){ page.querySelectorAll('.q').forEach(function(q){ q.querySelector('.qh i').textContent = q.classList.contains('open') ? '−' : '+'; }); }
-  paintFaqSigns();
 
   /* ---------- focus rows: the top bar, then each rail (a tab bar is a row of its own; each question is one) ---------- */
   var $ = function(q, root){ return Array.prototype.slice.call((root || document).querySelectorAll(q)); };
@@ -473,12 +420,9 @@
   var rows = [{ items:$('.topnav .item') }];
   secs.forEach(function(s){
     var key = s.dataset.sec;
-    if(key === 'support') return;
     if(s.classList.contains('cat')){
       rows.push({ sec:s, key:key + '-tabs', set:key, tabs:1, items:$('.chip', s) });
       rows.push({ sec:s, key:key, set:key, items:$('.track .item', s) });
-    } else if(key === 'faq'){
-      $('.q', s).forEach(function(q){ rows.push({ sec:s, key:q.dataset.row, items:[q] }); });
     } else rows.push({ sec:s, key:key, set:key, items:$('.item', s) });
   });
   var R = {}; rows.forEach(function(r, i){ if(r.key) R[r.key] = i; });
@@ -525,26 +469,30 @@
   // Sideways (Home's "fixed focus"): the focused item sits in the first item's slot and the rail slides under it,
   // until the rail's end is in. Every item before the chosen one is at its resting size, so the slot is a sum.
   function slide(r, el){
-    if(!r.set || r.key === 'banner' || r.key === 'mysub' || r.key === 'shortcuts' || r.key === 'totop') return;
+    if(!r.set || r.key === 'banner' || r.key === 'shortcuts' || r.key === 'totop') return;
     var track = el.parentElement, i = r.items.indexOf(el), want = 0;
-    for(var k = 0; k < i; k++) want += r.items[k].offsetWidth + (r.tabs ? 24 : 32);
+    for(var k = 0; k < i; k++) want += r.items[k].offsetWidth + 32;   // tabs and cards both 32px apart
+    want += parseFloat(getComputedStyle(el).marginLeft) || 0;   // an opened PPV Event card's room on its left (expand-card.css)
     var max = Math.max(0, track.scrollWidth - 1920);
     track.style.transform = 'translateX(' + -Math.max(0, Math.min(want, max)) + 'px)';
+  }
+  // the hero text ends 80px above the focused rail's first line (its title, else its tabs or cards), as on the other pages
+  var HERO_GAP = 80, pageY = 0;
+  function placeHero(r){
+    var y = 0, e = r.sec.querySelector('.sec-title, .item');
+    while(e && e !== r.sec){ y += e.offsetTop; e = e.offsetParent; }
+    heroEl.style.bottom = 1080 - (r.sec.offsetTop + y - pageY - HERO_GAP) + 'px';
   }
   function layout(ri){
     var r = rows[ri], top = r.sec.offsetTop, y;
     if(ri <= DYNAMIC_END) y = top - HERO_Y;
     else {
-      if(r.key.indexOf('faq') === 0) top += Math.max(0, r.items[0].offsetTop - 40);
       y = Math.min(top - STATIC_Y, page.offsetHeight - 1080);
     }
-    page.style.transform = 'translateY(' + -Math.max(0, y) + 'px)';
+    pageY = Math.max(0, y);
+    page.style.transform = 'translateY(' + -pageY + 'px)';
     secs.forEach(function(s){ s.classList.toggle('above', s.offsetTop < r.sec.offsetTop); });
     document.body.classList.toggle('static', ri > DYNAMIC_END);
-  }
-  // the chosen card of PPV Event, Rentals and Buy stays open when focus leaves the rail
-  function markChosen(){
-    ['event', 'rent', 'buy'].forEach(function(k){ var r = rows[R[k]]; r.items.forEach(function(el, ci){ el.classList.toggle('sel', ci === cur.col[R[k]] && el.dataset.kind !== 'viewall'); }); });
   }
 
   // the profile panel under the top bar's photo, as on Home (profile-panel.js)
@@ -556,13 +504,14 @@
     // top-bar tab states (button-theme.css): the current page's tab is Active while the D-pad is on the bar, Active dim in the content
     var curTab = document.querySelector('.topnav .navtab.active, .topnav .navtab.active-dim');
     curTab.classList.toggle('active', cur.row === 0); curTab.classList.toggle('active-dim', cur.row !== 0);
-    markChosen();
+    // tab bars: the picked tab is Active while its bar has focus, Active dim otherwise
+    rows.forEach(function(r, ri){ if(r.tabs) r.items.forEach(function(el){ el.classList.toggle('active-dim', el.classList.contains('on') && ri !== cur.row); }); });
     var ri = cur.row === 0 ? cur.from : cur.row;   // on the top bar the page stays as it was
     document.body.classList.toggle('on-nav', cur.row === 0);
     layout(ri);
     var r = rows[ri];
     if(cur.row) slide(r, r.items[cur.col[ri]]);
-    if(ri <= DYNAMIC_END) paintHero(r);
+    if(ri <= DYNAMIC_END){ paintHero(r); placeHero(r); }
     try { sessionStorage.setItem('storeFocus', JSON.stringify(cur)); } catch(e){}
   }
 
@@ -599,11 +548,8 @@
     // View All: the All Packages page, on the matching tab (For You, Sports, Movies, Short Drama)
     if(k === 'viewall'){ var tab = { sports:'sports', movies:'movies', short:'shorts' }[el.dataset.set]; leave('all-packages.html' + (tab ? '?tab=' + tab : '')); return; }
     if(k === 'event'){ var e = EVENTS[i]; toast(e.kind === 'live' ? 'Buy this event to watch it live (demo)' : e.kind === 'upcoming' ? 'Buy now and watch at ' + e.when.replace('Today ', '') + ' (demo)' : e.kind ? 'Buy this event (demo)' : 'Event (demo)'); return; }
-    if(k === 'rent' || k === 'buy'){ toast((k === 'rent' ? 'Rent for ' : 'Buy for ') + (k === 'rent' ? RENTALS : BUYS)[i].price + ' ฿ (demo)'); return; }
-    if(k === 'banner'){ leave('package-detail.html'); return; }
-    if(k === 'faq'){ el.classList.toggle('open'); paintFaqSigns(); return; }
-    if(k === 'shortcut' && i === 1){ cur.row = R.faq0; return; }
-    if(k === 'shortcut' && i === 2){ cur.row = R.totop; return; }
+    if(k === 'rent'){ toast('Rent or buy from ' + RENTALS[i].price + ' baht (demo)'); return; }
+    if(k === 'banner'){ if(BANNERS[bannerAt].pkg) leave('package-detail.html'); else toast(BANNERS[bannerAt].t + ' (demo)'); return; }
     if(k === 'totop'){ cur.row = R.foryou; cur.col[R.foryou] = 0; return; }
     toast((el.dataset.label || 'Selected') + ' (demo)');
   }
@@ -616,6 +562,8 @@
   addEventListener('keydown', function(e){
     if(prof.key(e.key)){ e.preventDefault(); return; }   // the profile photo / its panel
     var r = rows[cur.row], n = r.items.length, c = cur.col[cur.row], handled = true;
+    // the banner: Left / Right move the carousel (Up / Down leave it)
+    if(r.key === 'banner' && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')){ e.preventDefault(); goSlide(bannerAt + (e.key === 'ArrowRight' ? 1 : -1), e.key === 'ArrowRight' ? 'r' : 'l'); return; }
     if(e.key === 'ArrowRight') cur.col[cur.row] = Math.min(n - 1, c + 1);
     else if(e.key === 'ArrowLeft'){
       // Left on a rail's first item goes up to the top bar (its Store tab), as on Home
@@ -629,6 +577,8 @@
     else if(e.key === 'ArrowDown'){
       if(cur.row === 0) cur.row = cur.from || R.foryou;
       else cur.row = Math.min(rows.length - 1, cur.row + 1);
+      // a rail with a tab bar: Down lands on its cards (Up from the cards reaches the tabs)
+      if(rows[cur.row].tabs && rows[cur.row + 1]) cur.row++;
     }
     else if(e.key === 'Enter') select(r.items[c]);
     else if(e.key === 'Escape' || e.key === 'Backspace'){ back(); e.preventDefault(); return; }
@@ -651,6 +601,21 @@
     };
   }
   rows.forEach(function(r, ri){ r.items.forEach(bindClick(ri)); });
+
+  // ---- the banner carousel: one bannerAt at a time, wrapping round; it moves on by itself every 6s ----
+  var bannerAt = 0, bannerEl = document.querySelector('.banner'), slidesEl = bannerEl.querySelector('.slides');
+  var bannerDots = $('.dots i', bannerEl), slideT;
+  function goSlide(i, side){
+    bannerAt = (i + BANNERS.length) % BANNERS.length;
+    slidesEl.style.transform = 'translateX(' + (-bannerAt * 1700) + 'px)';
+    bannerDots.forEach(function(d, di){ d.classList.toggle('on', di === bannerAt); });
+    bannerEl.dataset.label = BANNERS[bannerAt].t;
+    if(side){ var a = bannerEl.querySelector('.carr.' + side); a.classList.add('press'); setTimeout(function(){ a.classList.remove('press'); }, 180); }
+    clearInterval(slideT); slideT = setInterval(function(){ goSlide(bannerAt + 1); }, 6000);
+  }
+  goSlide(0);
+  bannerEl.querySelector('.carr.l').addEventListener('click', function(e){ e.stopPropagation(); goSlide(bannerAt - 1, 'l'); });
+  bannerEl.querySelector('.carr.r').addEventListener('click', function(e){ e.stopPropagation(); goSlide(bannerAt + 1, 'r'); });
 
   // Flash Sale countdowns
   setInterval(function(){

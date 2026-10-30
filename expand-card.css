@@ -1,0 +1,39 @@
+/*
+  Expanding feature card (Home's "AIS Play Exclusive", Movie's "For You", Store's "PPV Event"): a 369 x 553 portrait poster at rest; focused,
+  it opens up to the 983 x 553 feature card with its wide picture, a dark scrim, badges, title, synopsis and chips.
+  Markup (add xc-ribbon to the card for a Live ribbon, live-ribbon.css):
+    <div class="xcard item">
+      <div class="xc-portrait" style="background-image:…"></div>
+      <div class="xc-wide" style="background-image:…"></div>
+      <div class="xc-scrim"></div>
+      <div class="xc-content">
+        <div class="xc-badges"><span class="xc-badge">…</span></div>
+        <h3 class="xc-title">…</h3>
+        <p class="xc-desc">…</p>
+        <div class="xc-chips"><span class="xc-premium"><img src="icons/crown-gold.svg" alt="">Premium</span><span class="xc-chip">…</span></div>
+      </div>
+    </div>
+  The page scales the focused card by 5% (an 8% feature card would grow too far): it then grows 25px past each side,
+  so the open card keeps 25px of room on either side.
+*/
+.xcard{ position:relative; flex:0 0 auto; width:983px; height:553px; border-radius:20px; overflow:hidden; margin-right:25px; }
+.xcard:not(.focused){ width:369px; border-radius:12px; margin-right:0; }
+.xcard.focused:not(:first-child){ margin-left:25px; }
+.xcard .xc-portrait, .xcard .xc-wide{ position:absolute; inset:0; border-radius:inherit; overflow:hidden; background-size:cover; background-position:center; transition:opacity .25s ease; }
+.xcard .xc-scrim{ position:absolute; inset:0; border-radius:inherit; background:linear-gradient(180deg, rgba(10,8,38,0) 45%, #0a0826 92%); }
+/* a card with a Live ribbon (live-ribbon.css) hanging past its left edge: no clipping on the card itself (its layers keep
+   the rounded corners) */
+.xcard.xc-ribbon{ overflow:visible; }
+.xcard .xc-content{ position:absolute; left:0; right:0; bottom:0; padding:28px; display:flex; flex-direction:column; gap:10px; color:#fff; }
+.xcard .xc-scrim, .xcard .xc-content{ transition:opacity .25s ease .05s; }
+.xcard:not(.focused) .xc-wide, .xcard:not(.focused) .xc-scrim, .xcard:not(.focused) .xc-content{ opacity:0; }
+.xcard.focused .xc-portrait{ opacity:0; }
+.xc-badges{ display:flex; gap:16px; align-items:center; }
+.xc-badge{ background:#30a776; padding:8px 14px; border-radius:8px; font-size:16px; text-transform:lowercase; }
+.xc-title{ margin:0; font-size:30px; font-weight:600; }
+.xc-desc{ margin:0; max-width:720px; font-size:18px; line-height:1.4; color:#e3e3e3;
+  display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.xc-chips{ display:flex; align-items:center; gap:14px; margin-top:4px; }
+.xc-premium{ height:44px; padding:0 14px; border-radius:8px; background:rgba(255,255,255,.18); display:flex; align-items:center; font-weight:700; font-size:16px; }
+.xc-premium img{ width:18px; height:18px; object-fit:contain; margin-right:6px; }
+.xc-chip{ padding:7px 12px; border-radius:8px; background:rgba(255,255,255,.3); font-size:16px; white-space:nowrap; }

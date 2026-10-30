@@ -9,7 +9,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="chip-theme.css">
 <link rel="stylesheet" href="button-theme.css">
-<link rel="stylesheet" href="event-card.css">
+<link rel="stylesheet" href="expand-card.css">
+<link rel="stylesheet" href="quick-card.css">
 <link rel="stylesheet" href="top10.css">
 <link rel="stylesheet" href="platform-tag.css">
 <link rel="stylesheet" href="corner-tag.css">
@@ -18,7 +19,7 @@
   A 1920x1080 TV screen scaled to the window, built like news.html / sport.html: the same hero, rails, focus model and
   top bar, the shared focus ring (focus-ring.js) and profile panel (profile-panel.js), and the shared themes and cards:
   chip-theme.css (genre chips), button-theme.css (Detail, Play, Back to Top, the top-bar tabs), top10.css + top10.js
-  (Top 10, as Home's), event-card.css (For You, as Store's PPV Event), shorts-data.js (Short, as Home's Shorts), and
+  (Top 10, as Home's), expand-card.css (For You, as Home's AIS Play Exclusive), shorts-data.js (Short, as Home's Shorts), and
   Home's Seasonal / Quick Access cards and TV Guide's channel card (Movie Channel).
 
   Flow (Figma "Short cut screen", 2684:62086):
@@ -59,7 +60,8 @@
   body.static .hero-bg{ opacity:0; }
 
   /* ---------- hero text (Figma localComponent_heroContent): title 57px, meta row, 3-line synopsis ---------- */
-  .hero{ position:absolute; left:110px; bottom:413px; width:800px; z-index:3; display:flex; flex-direction:column; gap:24px;
+  .hero{ position:absolute; left:110px; bottom:480px;   /* first scene: placed as Home's (synopsis ends at y=600) */
+    width:800px; z-index:3; display:flex; flex-direction:column; gap:24px;
     transition:opacity .3s ease, transform .3s var(--ease); }
   body.static .hero{ opacity:0; transform:translateY(-40px); pointer-events:none; }
   .hero.swap{ animation:heroIn .3s var(--ease); }
@@ -75,24 +77,26 @@
   .hero .watched .bar{ position:relative; width:400px; height:8px; border-radius:4px; background:rgba(255,255,255,.3); overflow:hidden; }
   .hero .watched .bar i{ position:absolute; left:0; top:0; bottom:0; background:var(--live); }
   /* meta row (Figma): platform tag, genres, year, length, age and quality pills */
-  .meta{ display:flex; align-items:center; gap:16px; height:40px; overflow:hidden; font-size:20px; color:var(--on-surface); white-space:nowrap; }
+  .meta{ display:flex; align-items:center; gap:16px; height:36px; overflow:hidden; font-size:20px; color:var(--on-surface); white-space:nowrap; }
   .meta:empty{ display:none; }
   .meta strong{ font-weight:700; }
   .pill{ height:36px; padding:0 12px; border:1px solid var(--outline); border-radius:18px; display:inline-flex; align-items:center; font-weight:500; white-space:nowrap; }
 
   /* ---------- first scene: Detail (secondary) and Play (primary) under the text, the page dots (no play mark: the pictures are stills) ---------- */
-  .scene-btns{ position:absolute; left:110px; top:691px; z-index:3; display:flex; flex-direction:column; gap:24px; transition:opacity .3s ease; }
+  .scene-btns{ position:absolute; left:110px; top:624px;   /* Home's Detail / Play */
+    z-index:3; display:flex; flex-direction:column; gap:24px; transition:opacity .3s ease; }
   .scene-btns .tv-btn i{ width:40px; height:40px; }
   .ic-info{ -webkit-mask:url('icons/hero/info.svg') center / contain no-repeat; mask:url('icons/hero/info.svg') center / contain no-repeat; }
   .ic-play{ -webkit-mask:url('icons/hero/play.svg') center / contain no-repeat; mask:url('icons/hero/play.svg') center / contain no-repeat; }
   /* Home's page dots */
-  .dots{ position:absolute; left:0; right:0; top:962px; z-index:3; display:flex; justify-content:center; gap:8px; transition:opacity .3s ease; }
+  .dots{ position:absolute; left:0; right:0; top:878px;   /* Home's page dots */
+    z-index:3; display:flex; justify-content:center; gap:8px; transition:opacity .3s ease; }
   .dots i{ width:12px; height:12px; border-radius:6px; background:#a8a8a8; transition:width .22s var(--ease), background-color .22s ease; }
   .dots i.on{ width:30px; background:#e8e8e8; }
   body:not(.scene) .scene-btns, body:not(.scene) .dots{ opacity:0; pointer-events:none; }
 
-  /* ---------- the page: Figma's rows, 60px apart, the chips at y=1060 under the first scene; it moves as a whole ---------- */
-  #page{ position:absolute; left:0; top:0; width:1920px; z-index:1; padding:1060px 0 40px; display:flex; flex-direction:column; gap:60px;
+  /* ---------- the page: Figma's rows, 60px apart, the chips at y=942 under the first scene (as Home's); it moves as a whole ---------- */
+  #page{ position:absolute; left:0; top:0; width:1920px; z-index:1; padding:942px 0 40px; display:flex; flex-direction:column; gap:60px;
     transition:transform .45s var(--ease); }
   .sec{ position:relative; transition:opacity .3s ease; }
   body:not(.static) .sec.above{ opacity:0; }
@@ -125,13 +129,17 @@
   .rank-poster .ptag{ position:absolute; right:12px; top:12px; }
   .top10 .rank-wrap + .rank-wrap{ margin-left:32px; }
 
-  /* For You: Store's event cards (event-card.css) with the movie's poster and picture */
-  .ev .tall, .ev .wide{ position:absolute; inset:0; background:var(--surface-container-high) center / cover no-repeat; }
-  .ev .meta .b{ background:#1e1e1e; }
+  /* For You: Home's AIS Play Exclusive cards (expand-card.css), the movie's poster opening up to its picture */
 
   /* Disney (Figma sectionDisney): a 600px band, its own picture in luminosity over a blue-teal gradient */
-  .brand{ height:600px; padding-top:72px; overflow:hidden; background:linear-gradient(180deg, #0b202f, #2a646b); }
-  .brand::before{ content:''; position:absolute; inset:0; background:url('movie-assets/disney-bg.jpg') center 35% / cover no-repeat; mix-blend-mode:luminosity; }
+  .brand{ height:600px; padding-top:72px; overflow:hidden; }
+  /* the gradient and the picture (luminosity over it) on one layer that fades out at its top and bottom, so the band
+     melts into the page with no edge */
+  .brand::before{ content:''; position:absolute; inset:0;
+    background:url('movie-assets/disney-bg.jpg') center 35% / cover no-repeat, linear-gradient(180deg, #0b202f, #2a646b);
+    background-blend-mode:luminosity, normal;
+    -webkit-mask-image:linear-gradient(180deg, transparent 0%, #000 22%, #000 72%, transparent 100%);
+    mask-image:linear-gradient(180deg, transparent 0%, #000 22%, #000 72%, transparent 100%); }
   .brand > *{ position:relative; }
   .brand h2{ margin:0 110px; font-size:57px; font-weight:700; line-height:1.2; color:#fff; }
   .brand p{ margin:16px 110px 0; width:700px; font-size:24px; line-height:30px; color:rgba(232,232,232,.8);
@@ -153,8 +161,7 @@
     font-size:52px; font-weight:700; line-height:1.15; color:rgba(255,255,255,.92); text-shadow:0 2px 12px rgba(0,0,0,.45); text-align:center; }
   .season-card span{ opacity:0; transform:translateY(-8px); transition:opacity .25s ease, transform .25s var(--ease); }
   .season-card.focused::after, .season-card.focused span{ opacity:1; transform:none; }
-  #screen .season-card.focused{ transform:scale(1.05); }   /* tall cards: 5%, as Home's */
-  .seasonal .track{ padding-top:16px; }
+  #screen .seasonal .season-card.focused{ transform:scale(1.05); }   /* tall cards: 5%, as Home's (over the 8% of #screen .item.focused) */
 
   /* Movie Channel: TV Guide's channel card (Figma "Card CH"), the logo in a 112px circle, the heart, crown and number */
   .chan-track{ gap:32px; }
@@ -175,12 +182,7 @@
 
   /* My Subscription / FAQs / Customer Support: Home's Quick Access cards (Figma "Rail - My Subscription"), 3 across */
   .quick-track{ gap:32px; }   /* 32px apart; three 545px cards fill the 1700px between the margins */
-  .quick-card{ width:545px; height:180px; border-radius:12px; flex:0 0 auto;   /* the chip theme's states (chip-theme.css), as Home's */
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:24px; padding:16px; text-align:center; }
-  .quick-card .qc-sub{ font-size:20px; line-height:23px; color:#e8e8e8; white-space:nowrap; }
-  .quick-card .qc-name{ display:flex; align-items:center; gap:16px; font-size:32px; font-weight:500; color:#e8e8e8; white-space:nowrap; }
-  .quick-card .qc-name img{ width:50px; height:50px; display:block; }
-  #screen .quick-card.focused{ transform:scale(1.04); }
+  .quick-card{ --qc-w:545px; }   /* quick-card.css, as Home's */
 
   /* Back to Top (button-theme.css) */
   .totop{ height:150px; display:flex; align-items:center; justify-content:center; }
@@ -210,7 +212,8 @@
   #screen .item{ transition:transform .22s var(--ease), background .15s ease, color .15s ease, box-shadow .2s ease; }
   #screen .item.focused{ transform:scale(1.08); z-index:2; }
   #screen .topnav .item.focused{ transform:scale(1.06); }
-  #screen .scene-btns .tv-btn.focused, #screen .ev.focused{ transform:scale(1.04); }
+  #screen .scene-btns .tv-btn.focused{ transform:scale(1.04); }
+  #screen .xcard.focused{ transform:scale(1.05); }   /* as Home's AIS Play Exclusive */
 </style>
 </head>
 <body class="scene">
@@ -417,11 +420,13 @@
   }).join('') + '</div></div></section>';
   html += '<section class="sec" data-row="foryou"><h2 class="sec-title">For You</h2><div class="rail"><div class="track">' + FOR_YOU.map(function(f, i){
     var m = M[f.k];
-    return '<div class="ev item"' + attrs({kind:'buy', k:f.k, i:i}) + ' data-ring-art="">' +
-      '<div class="tall" style="background-image:url(\'' + (m.p || m.w) + '\')"></div>' +
-      '<div class="wide" style="background-image:url(\'' + pic(f.k) + '\')"><div class="scrim"></div>' +
-        '<div class="info"><h3>' + esc(m.t) + '</h3><div class="cost"><b>' + f.price + ' baht</b><span>(VAT Included: ' + (f.price * 1.07).toFixed(2) + ' baht)</span></div>' +
-        '<div class="meta"><span class="b"><img src="sport-assets/crown.svg" alt="">Premium</span>' + metaRow(m) + '</div><p class="syn">' + esc(m.d) + '</p></div></div></div>';
+    return '<div class="xcard item"' + attrs({kind:'buy', k:f.k, i:i}) + ' data-ring-art="">' +
+      '<div class="xc-portrait" style="background-image:url(\'' + (m.p || m.w) + '\')"></div>' +
+      '<div class="xc-wide" style="background-image:url(\'' + pic(f.k) + '\')"></div><div class="xc-scrim"></div>' +
+      '<div class="xc-content"><div class="xc-badges"><span class="xc-badge">' + f.price + ' baht</span></div>' +
+        '<h3 class="xc-title">' + esc(m.t) + '</h3><p class="xc-desc">' + esc(m.d) + '</p>' +
+        '<div class="xc-chips"><span class="xc-premium"><img src="icons/crown-gold.svg" alt="">Premium</span>' +
+          [genres(m), m.y, m.len, m.age].map(function(c){ return '<span class="xc-chip">' + esc(String(c)) + '</span>'; }).join('') + '</div></div></div>';
   }).join('') + '</div></div></section>';
   html += sec('because', 'Because You Watched District 9', BECAUSE.map(function(k, i){ return poster(k, i, 'because'); }).join(''), 'tall-rail');
   html += '<section class="sec brand" data-row="disney"><h2>Disney</h2>' +
@@ -557,8 +562,6 @@
     // top-bar tab states (button-theme.css): Movie is Active while the D-pad is on the bar, Active dim in the content
     movieTab.classList.toggle('active', cur.row === 0);
     movieTab.classList.toggle('active-dim', cur.row !== 0);
-    // For You: the focused column's card is the one opened up (as Store's PPV Event)
-    rows[R.foryou].items.forEach(function(el, ci){ el.classList.toggle('sel', ci === cur.col[R.foryou]); });
     dots.forEach(function(d, i){ d.classList.toggle('on', i === cur.slide); });
     var ri = cur.row === 0 ? cur.from : cur.row;   // on the top bar the page stays as it was
     document.body.classList.toggle('on-nav', cur.row === 0);

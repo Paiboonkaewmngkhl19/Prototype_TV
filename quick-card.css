@@ -1,0 +1,15 @@
+/*
+  Quick Access card (Figma "Rail - My Subscription"; Home's Quick Access, Movie's and Store's My Subscription / FAQs /
+  Customer Support): 180px tall, a short status line, then the icon and the name, centred. With the chip theme's states
+  (chip-theme.css): <div class="quick-card tv-chip item"><span class="qc-sub">…</span><span class="qc-name"><img src="…"
+  alt="">…</span></div>. The page sets the width with --qc-w: 401px for four across (Home), 545px for three (Movie, Store),
+  each 32px apart in the 1700px between the margins.
+*/
+.quick-card{ width:var(--qc-w, 401px); height:180px; box-sizing:border-box; border-radius:12px; flex:0 0 auto;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:24px; padding:16px; text-align:center; }
+.quick-card .qc-sub{ font-size:20px; line-height:23px; color:#e8e8e8; white-space:nowrap; }
+.quick-card .qc-name{ display:flex; align-items:center; gap:16px; font-size:32px; font-weight:500; color:#e8e8e8; white-space:nowrap; }
+.quick-card .qc-name img{ width:50px; height:50px; display:block; }
+/* no backdrop blur: the page behind these is flat, so it showed nothing, and Chrome sometimes left a lighter stale strip
+   of it on a card after its focus scale (the card keeps the chip theme's fills) */
+.quick-card.tv-chip, .quick-card.tv-chip.focused{ -webkit-backdrop-filter:none; backdrop-filter:none; }

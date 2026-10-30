@@ -6,6 +6,8 @@
 <link rel="stylesheet" href="chip-theme.css">
 <link rel="stylesheet" href="button-theme.css">
 <link rel="stylesheet" href="live-ribbon.css">
+<link rel="stylesheet" href="expand-card.css">
+<link rel="stylesheet" href="quick-card.css">
 <link rel="stylesheet" href="top10.css">
 <link rel="stylesheet" href="platform-tag.css">
 <link rel="stylesheet" href="corner-tag.css">
@@ -275,6 +277,10 @@
     display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
   }
   .hero-meta-row{display:flex;align-items:center;gap:16px;margin-bottom:24px;min-height:36px;}
+  /* Jump Right Back In: how far in, under the title (Movie's Continue Watching: a 400px bar in the Live red, "33m of 58m") */
+  .hero-watched{display:flex;align-items:center;gap:16px;margin-bottom:24px;font-size:20px;color:#e8e8e8;text-shadow:0 0 6px rgba(0,0,0,.6);}
+  .hero-watched .bar{position:relative;width:400px;height:8px;border-radius:4px;background:rgba(255,255,255,.3);overflow:hidden;}
+  .hero-watched .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--live);}
   /* channel / provider logo, inline before the channel name */
   .hero-logo{width:var(--ptag-w);height:var(--ptag-h);object-fit:contain;border-radius:8px;display:block;flex:0 0 auto;margin-right:-8px;}   /* 8px to its channel name (Figma) */   /* the provider's tag logo, same as the rail cards' */
   .hero-channel{font-size:20px;color:#e8e8e8;}
@@ -405,6 +411,17 @@
     /* fades to transparent top and bottom, so it melts into whatever is behind the page (Figma: 1.8–17% / 83.5–100%) */
     -webkit-mask-image:linear-gradient(180deg, transparent 0%, #000 34%, #000 70%, transparent 100%);
     mask-image:linear-gradient(180deg, transparent 0%, #000 34%, #000 70%, transparent 100%);}
+  /* while focus is in the band, the artwork fills the whole screen at full strength, as the LPGA band does: a second
+     copy, from far above the screen's top edge (the band's cards sit low, level with LPGA's) and solid down to the same
+     bottom fade, cross-fades with the band's own dimmed copy */
+  .clips-bg:not(.band-full){transition:opacity .45s cubic-bezier(.2,0,0,1);}
+  .clips-row.band-on .clips-bg:not(.band-full){opacity:0;}
+  .clips-bg.band-full{top:-560px;z-index:0;opacity:0;transition:opacity .45s cubic-bezier(.2,0,0,1);
+    -webkit-mask-image:linear-gradient(180deg, #000 0, #000 calc(100% - 180px), transparent 100%);
+    mask-image:linear-gradient(180deg, #000 0, #000 calc(100% - 180px), transparent 100%);}
+  .clips-row.band-on .clips-bg.band-full{opacity:1;}
+  .row-block.band-on{position:relative;z-index:3;}   /* the focused band over the rail above it (the Top Picks rail is z-index 2) */
+  .clips-row > .row-title, .clips-row > .rail-viewport{position:relative;z-index:1;}
   .clips-row .row-title{text-shadow:0 2px 10px rgba(0,0,0,.7);}
   /* no colour overlay on the row: a painted colour would end in a visible edge where it doesn't match the page */
   .clips-bg{filter:none;}
@@ -424,13 +441,8 @@
   .clip-viewall span{font-size:22px;font-weight:400;opacity:.9;}
   /* provider tag logos (badges/tag-*.png): their colour fill and corners come from platform-tag.css */
 
-  /* Quick Access (Figma "Rail - My Subscription"): 401 x 180 cards, 32px apart (four fill the 1700px between the margins) */
+  /* Quick Access (Figma "Rail - My Subscription"): quick-card.css's 401 x 180 cards, 32px apart (four fill the 1700px between the margins) */
   .quick-row .rail-track{gap:32px;}
-  .quick-card{width:401px;height:180px;box-sizing:border-box;border-radius:12px;flex:0 0 auto;   /* the chip theme's states (chip-theme.css) */
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:16px;text-align:center;}
-  .quick-card .qc-sub{font-size:20px;line-height:23px;color:#e8e8e8;white-space:nowrap;}
-  .quick-card .qc-name{display:flex;align-items:center;gap:16px;font-size:32px;font-weight:500;color:#e8e8e8;white-space:nowrap;}
-  .quick-card .qc-name img{width:50px;height:50px;display:block;}
 
   /* partner */
   .partner-row .rail-track{align-items:center;}
@@ -443,22 +455,6 @@
   .partner-logo-tile img{ width:100%; height:100%; object-fit:cover; display:block; }
   .partner-card{width:200px;height:96px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;letter-spacing:.02em;flex:0 0 auto;}
   .partner-logo{height:34px;}
-
-  /* hero pick card (big) */
-  .hero-pick{position:relative;width:983px;height:553px;border-radius:20px;overflow:hidden;flex:0 0 auto;border:0;}   /* no stroke */
-  .hero-pick .bg{position:absolute;inset:0;}
-  .hero-pick .scrim{position:absolute;inset:0;background:linear-gradient(180deg, rgba(10,8,38,0) 45%, #0a0826 92%);}
-  .hero-pick .content{position:absolute;left:0;right:0;bottom:0;padding:28px;display:flex;flex-direction:column;gap:10px;}
-  .hero-pick .top-badges{display:flex;gap:16px;align-items:center;}
-  .pill-rank{background:#30a776;padding:8px 14px;border-radius:8px;font-size:16px;text-transform:lowercase;}
-  .hero-pick h3{font-size:30px;font-weight:600;margin:0;}
-  .hero-pick p.desc{font-size:18px;color:var(--ink-dim);max-width:720px;margin:0;line-height:1.4;}
-  .hero-pick .chanrow{display:flex;align-items:center;gap:14px;margin-top:4px;}
-  .hero-pick .chanlogo{height:44px;padding:0 14px;border-radius:8px;background:rgba(255,255,255,.18);display:flex;align-items:center;font-weight:700;font-size:16px;}
-  .hero-pick .chan-partner-logo{height:53px;width:114px;object-fit:cover;border-radius:8px;display:block;flex:0 0 auto;}
-  .hero-pick .chanmeta{font-size:20px;font-weight:500;padding:0 5px;white-space:nowrap;}
-  .hero-pick .chan-tag-logo{height:var(--ptag-h);width:var(--ptag-w);object-fit:contain;border-radius:8px;background:#000;display:block;flex:0 0 auto;}   /* platform tag logo as a filled rounded square, chip height */
-  .catchip{background:rgba(255,255,255,.3);padding:7px 12px;border-radius:8px;font-size:16px;}
 
   /* portrait card */
   .portrait-card{width:236px;height:354px;border-radius:12px;overflow:hidden;flex:0 0 auto;border:0;box-shadow:0 0 22px rgba(0,0,0,.6);align-self:flex-start;}   /* no stroke */
@@ -486,6 +482,16 @@
     --hl-fade:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.04) 6%, rgba(0,0,0,.14) 12%, rgba(0,0,0,.3) 18%, rgba(0,0,0,.5) 24%,
       rgba(0,0,0,.7) 30%, rgba(0,0,0,.86) 36%, #000 44%, #000 64%, rgba(0,0,0,.8) 72%, rgba(0,0,0,.5) 82%, rgba(0,0,0,.2) 92%, transparent 100%);
     -webkit-mask-image:var(--hl-fade); mask-image:var(--hl-fade);}
+  /* while focus is in the band, the artwork fills the whole screen: a second copy, from above the screen's top edge,
+     solid down to the same bottom fade, fades in over the first (both are 1920 wide and sit on the same bottom edge, so
+     the picture doesn't move) and the top scrim stays off */
+  .hl-bg{background-size:1920px auto;background-position:center bottom;}
+  .hl-bg.band-full{top:-220px;z-index:0;opacity:0;   /* over the rail above, which would otherwise peek in at the screen's top edge */
+    transition:opacity .45s cubic-bezier(.2,0,0,1);
+    --hl-fade:linear-gradient(180deg, #000 0, #000 calc(100% - 365px), rgba(0,0,0,.8) calc(100% - 285px),
+      rgba(0,0,0,.5) calc(100% - 183px), rgba(0,0,0,.2) calc(100% - 81px), transparent 100%);}
+  .hl-row.band-on .hl-bg.band-full{opacity:1;}
+  .hl-row > .hl-info, .hl-row > .rail-viewport{position:relative;z-index:1;}
   .hl-bg::after{content:'';position:absolute;inset:0;
     background:linear-gradient(90deg, rgba(10,7,20,.6) 0%, rgba(10,7,20,.15) 55%, rgba(10,7,20,.15) 100%);}   /* dims it behind the text */
   .hl-info{padding:0 110px;margin-bottom:80px;max-width:800px;}   /* text above a rail ends 80px over its cards, as the hero text does */
@@ -570,19 +576,7 @@
   .item{cursor:pointer;transition:transform .22s cubic-bezier(.2,0,0,1), box-shadow .22s ease, border-color .22s ease;}
   .item.focused{transform:scale(1.08);z-index:5;position:relative;}   /* every rail: 8% */
   .topnav .item.focused{transform:scale(1.06);}   /* the top bar isn't a rail: unchanged */
-  .toppick-row .item.focused{transform:scale(1.05);}   /* AIS Play Exclusive: its big feature card would grow too far at 8% */
-  /* The wide feature card (983 x 553, as tall as the posters around it) grows (width × 5%)/2 = 25px past each side
-     when focused, so give it that much extra room on the right before the next card. */
-  .toppick-row .hero-pick{margin-right:25px;}
-  /* Top Pick expanding cards (Figma "Top pick for you"): a 369 x 553 portrait poster at rest; focused, the feature card */
-  .tp-card .tp-portrait, .tp-card .tp-wide{position:absolute;inset:0;background-size:cover;background-position:center;transition:opacity .25s ease;}
-  .tp-card:not(.focused){width:369px;height:553px;border-radius:12px;margin-right:0;}
-  .tp-card:not(.focused) .tp-wide, .tp-card:not(.focused) .scrim, .tp-card:not(.focused) .content{opacity:0;}
-  .tp-card.focused .tp-portrait{opacity:0;}
-  .ex-tp:not(.focused){width:369px;border-radius:12px;}   /* AIS Play Exclusive: same posters as Top Pick */
-  /* the focused feature card grows 25px past each side, so make room on its left too (the right already has it) */
-  .tp-card.focused:not(:first-child){margin-left:25px;}
-  .tp-card .scrim, .tp-card .content{transition:opacity .25s ease .05s;}
+  .toppick-row .item.focused{transform:scale(1.05);}   /* AIS Play Exclusive: its big feature card would grow too far at 8% (expand-card.css) */
 
   /* ---------- Sliding "glass" focus ring (same as the Choose a Demo page) ----------
      ONE ring for the whole screen glides to whatever is focused (cards, chips, nav tabs, buttons), following the
@@ -703,6 +697,7 @@
   <section class="hero">
     <div class="hero-content">
       <h1 class="hero-title">Liverpool vs Brentford</h1>
+      <div class="hero-watched" style="display:none"></div>
       <div class="hero-meta-row">
         <span class="badge-live"><span class="dot"></span>Live</span>
         <img class="hero-logo" src="badges/tag-monomax.png" alt="MONOMAX">
@@ -946,6 +941,7 @@
         if(bar.dataset.dur){
           var s = bar.closest('.card').querySelector('.s');
           s.textContent = Math.max(1, Math.round(bar.dataset.dur * (100 - w) / 100)) + ' mins left';
+          if(bar.closest('.card').classList.contains('focused') && typeof showHeroWatched === 'function') showHeroWatched(bar.closest('.card'));
         }
       });
     }, 3000);
@@ -1110,7 +1106,7 @@
       // each opens its short drama page (short-detail.html, Figma Movies "Short Movies VOD")
       return '<div class="card clip-card item" data-title="'+c.t+'" data-href="short-detail.html?s='+i+'" style="background-image:url(\'posters/shorts/'+c.img+'\');"></div>';
     }).join('') + '<div class="clip-viewall tv-chip item" data-title="Shorts – View All" data-ring-art=""><b>Shorts</b><span>View All</span></div>';
-    addRow('<div class="row-block clips-row"><div class="clips-bg"></div><div class="row-title">Shorts</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
+    addRow('<div class="row-block clips-row"><div class="clips-bg"></div><div class="clips-bg band-full"></div><div class="row-title">Shorts</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
   })();
 
   _portraitCursor += 24;   // Anti-Hero Legal Drama (removed) took 24 pool posters; keep later rows' posters unchanged
@@ -1129,7 +1125,7 @@
   /* ---------- Row: AIS Play Exclusive ---------- */
   (function(){
     // Expanding cards, like Top Pick For You: portrait posters that widen into the feature card when focused
-    var PREMIUM = '<span class="chanlogo"><img src="icons/crown-gold.svg" alt="" style="width:18px;height:18px;object-fit:contain;margin-right:6px;">Premium</span>';
+    var PREMIUM = '<span class="xc-premium"><img src="icons/crown-gold.svg" alt="">Premium</span>';
     var picks = [
       {t:'Miss Universe Thailand 2026', portrait:'posters/miss-universe.jpg', ppos:'30% center', wide:'posters/miss-universe.jpg', pos:'center',
         badges:['#1 in thailand'], chips:['1 hr. 55 min','Pageant, Live Event','G'],
@@ -1151,15 +1147,15 @@
         d:'Manchester United face Arsenal under the Old Trafford lights in one of the Premier League\'s fiercest rivalries.'}
     ];
     var cards = picks.map(function(it){
-      return '<div class="card hero-pick tp-card ex-tp item" data-title="'+it.t+'" data-ring-art="url(&quot;'+it.wide+'&quot;)">'+
-        '<div class="tp-portrait" style="background-image:url(\''+it.portrait+'\');'+(it.ppos?'background-position:'+it.ppos+';':'')+'"></div>'+
-        '<div class="tp-wide" style="background-image:url(\''+it.wide+'\');background-position:'+it.pos+';"></div>'+
-        '<div class="scrim"></div>'+
-        '<div class="content">'+
-          '<div class="top-badges">'+it.badges.map(function(b){ return '<span class="pill-rank">'+b+'</span>'; }).join('')+'</div>'+
-          '<h3>'+it.t+'</h3>'+
-          '<p class="desc">'+it.d+'</p>'+
-          '<div class="chanrow">'+PREMIUM+it.chips.map(function(c){ return '<span class="catchip">'+c+'</span>'; }).join('')+'</div>'+
+      return '<div class="card xcard item" data-title="'+it.t+'" data-ring-art="url(&quot;'+it.wide+'&quot;)">'+
+        '<div class="xc-portrait" style="background-image:url(\''+it.portrait+'\');'+(it.ppos?'background-position:'+it.ppos+';':'')+'"></div>'+
+        '<div class="xc-wide" style="background-image:url(\''+it.wide+'\');background-position:'+it.pos+';"></div>'+
+        '<div class="xc-scrim"></div>'+
+        '<div class="xc-content">'+
+          '<div class="xc-badges">'+it.badges.map(function(b){ return '<span class="xc-badge">'+b+'</span>'; }).join('')+'</div>'+
+          '<h3 class="xc-title">'+it.t+'</h3>'+
+          '<p class="xc-desc">'+it.d+'</p>'+
+          '<div class="xc-chips">'+PREMIUM+it.chips.map(function(c){ return '<span class="xc-chip">'+c+'</span>'; }).join('')+'</div>'+
         '</div>'+
       '</div>';
     }).join('');
@@ -1276,7 +1272,7 @@
       return '<div class="card card-poster item" data-title="'+it.t+'" style="background-image:url(\'posters/highlight/'+it.img+'\');background-size:cover;background-position:center;">'+
         (x[1] ? '<span class="time-pill top-tag">'+x[1]+'</span>' : '')+'</div>';
     }).join('') + '<div class="clip-viewall tv-chip item" data-title="LPGA Golf – View All" data-ring-art=""><b>View All</b></div>';
-    addRow('<div class="row-block hl-row"><div class="hl-bg"></div>'+
+    addRow('<div class="row-block hl-row"><div class="hl-bg"></div><div class="hl-bg band-full"></div>'+
       '<div class="hl-info"><h3>LPGA Golf</h3><p>Every round from the LPGA tour in Thailand and beyond: Honda LPGA Thailand 2024, the LPGA Lotte Championship and the season\'s best match-play moments.</p></div>'+
       '<div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
   })();
@@ -1478,6 +1474,15 @@
   var heroLogoEl = document.querySelector('.hero-logo');
   var heroChannelEl = document.querySelector('.hero-channel');
   var heroDescEl = document.querySelector('.hero-desc');
+  var heroWatchedEl = document.querySelector('.hero-watched');
+  // a Jump Right Back In card in the hero: its bar and "33m of 58m" under the title (null: none shown)
+  function showHeroWatched(el){
+    var bar = el && el.querySelector('.play-prog[data-dur]');
+    heroWatchedEl.style.display = bar ? '' : 'none';
+    if(!bar) return;
+    var w = parseFloat(bar.style.width), dur = +bar.dataset.dur;
+    heroWatchedEl.innerHTML = '<span class="bar"><i style="width:' + w + '%"></i></span>' + Math.round(dur * w / 100) + 'm of ' + dur + 'm';
+  }
   var heroLiveEl = document.querySelector('.hero .badge-live');
   var currentHeroImgKey = 'posters/liver-ben.jpg';
   var heroVideo = document.querySelector('.hero-bg-video');
@@ -1544,6 +1549,7 @@
   function updateHeroFromCard(el){
     if(curRow <= HERO_ROW_INDEX || curRow > HERO_ZONE_LAST_ROW || !el) return;
     if(el.classList.contains('rank-wrap')) el = el.querySelector('.card') || el;
+    showHeroWatched(el.classList.contains('card') ? el : null);
     // TV Guide rail: its own dark backdrop; the "View All" tile introduces the guide, a programme card shows what's on
     if(el.closest('.epg-row')){
       setHeroBg('tvguide', "url('posters/tvguide-bg.jpg')");
@@ -1588,6 +1594,7 @@
     if(tag) heroLogoEl.src = tag;
     var sub = el.querySelector('.s, .time-pill');
     heroChannelEl.textContent = el.dataset.meta || (sub ? sub.textContent : '');
+    if(el.querySelector('.play-prog[data-dur]')) heroChannelEl.textContent = '';   // the bar above says how far in: no "mins left" again
     heroLiveEl.style.display = el.querySelector('.live-ribbon') ? '' : 'none';
     heroChannelEl.parentElement.style.display = tag || heroChannelEl.textContent || heroLiveEl.style.display === '' ? '' : 'none';   // nothing to say: no empty line
     var desc = el.dataset.desc || info.d || '';
@@ -1597,6 +1604,7 @@
   }
   function updateHeroFromItem(item){
     if(!item || !item.dataset || !item.dataset.heroTitle) return;
+    showHeroWatched(null);
     var img = item.dataset.heroImg;
     if(img) setHeroBg(img, "url('" + img + "')");
     if(heroSection) heroSection.classList.remove('card-mode');
@@ -1711,6 +1719,11 @@
         // 40px from the top, and stays put while the focus moves inside it
         var gcDelta = rowScreenBox(document.querySelector('.gc-head')).top - 40 * stageScale;
         if(Math.abs(gcDelta) > 1) scrollStageBy(gcDelta);
+      } else if(rowEl.querySelector('.band-full')){
+        // an artwork band (Shorts, LPGA) fills the screen: its cards always end 121px above the screen's bottom edge
+        // (where LPGA's land when centred), so a shorter band doesn't leave an empty strip under its cards
+        var bandDelta = rowScreenBox(rowEl.querySelector('.rail-viewport')).bottom - (frameH - 121 * stageScale);
+        if(Math.abs(bandDelta) > 1) scrollStageBy(bandDelta);
       } else {
         var targetCenter = navH + (frameH - navH) / 2;
         var rowRect = rowScreenBox(rowEl);
@@ -1868,7 +1881,14 @@
   // previous rail peeks out under the hero text. No mask on the rows: a mask would cut the chips' backdrop blur off from
   // the hero picture behind them. In the full-screen state the top scrim does this job.
   function applyRowsMask(scale){
-    if(topScrim) topScrim.classList.toggle('on', heroHiddenNow());
+    // a band with a full-screen layer (Shorts, LPGA) fills the screen while it has focus, and still while the top bar
+    // is woken over it (ctxRow), so the rail above never shows through; it brings no top scrim
+    var bandOn = false, cr = ctxRow();
+    document.querySelectorAll('.band-full').forEach(function(b){
+      var row = b.parentElement, on = !!(rows[cr] && rows[cr].el === row);
+      row.classList.toggle('band-on', on); bandOn = bandOn || on;
+    });
+    if(topScrim) topScrim.classList.toggle('on', heroHiddenNow() && !bandOn);
   }
   var TV_RATIO = 16 / 9;
 
