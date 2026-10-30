@@ -27,6 +27,7 @@
   Remote / keyboard: arrows move, Enter selects, Esc / Back goes up a level (the popup, the tabs, the top), then home.
 -->
 <link rel="stylesheet" href="button-theme.css">
+<link rel="stylesheet" href="platform-tag.css">
 <style>
   :root{
     color-scheme:dark;
@@ -63,7 +64,7 @@
   .hero h1{ margin:0; width:700px; font-size:57px; font-weight:700; line-height:1.15; color:var(--on-surface); text-shadow:0 2px 12px rgba(0,0,0,.4);
     display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
   .metarow{ height:40px; display:flex; align-items:center; gap:16px; white-space:nowrap; }
-  .metarow .plat{ width:136px; height:40px; border-radius:4px; background:#000 url('icons/aisplay-logo.png') center / 84% auto no-repeat; }
+  /* AIS PLAY's platform tag: platform-tag.css (.ptag.ais, 56 x 36) */
   .metarow .gen{ display:flex; align-items:center; gap:8px; font-weight:700; font-size:22px; line-height:28px; color:#fff; }
   .metarow .gen i{ width:4px; height:4px; border-radius:50%; background:#fff; }
   .metarow span{ font-size:20px; }
@@ -175,7 +176,7 @@
       <img class="playhint" src="icons/detail-play.svg" alt="">
       <div class="hero">
         <h1></h1>
-        <div class="metarow"><span class="plat" aria-label="AIS PLAY"></span><span class="gen"></span><span class="yr"></span><span class="len"></span><span class="pill rate"></span><span class="pill">HD</span></div>
+        <div class="metarow"><span class="plat ptag ais" aria-label="AIS PLAY"></span><span class="gen"></span><span class="yr"></span><span class="len"></span><span class="pill rate"></span><span class="pill">HD</span></div>
         <p class="syn"></p>
         <div class="actions">
           <div class="btn play item" data-act="play"><img src="icons/detail-play.svg" alt=""><span>Play Ep.1</span></div>
@@ -200,7 +201,7 @@
       <div class="navsearch item" data-label="Search"><img src="icons/nav-search.svg" alt="Search"></div>
       <div class="navtab tv-tab item active" data-label="Home" data-href="home.html">Home</div>
       <div class="navtab tv-tab item" data-label="Live TV">Live TV</div>
-      <div class="navtab tv-tab item" data-label="Movie">Movie</div>
+      <div class="navtab tv-tab item" data-label="Movie" data-href="movie.html">Movie</div>
       <div class="navtab tv-tab item" data-label="Sport" data-href="sport.html">Sport</div>
       <div class="navtab tv-tab item" data-label="My List">My List</div>
       <div class="navtab tv-tab item" data-label="Store" data-href="store.html">Store</div>
@@ -434,7 +435,7 @@
   function back(){
     if(cur.row > 2){ cur.row = 2; paint(); return; }
     if(cur.row === 2 || cur.row === 0){ cur.row = 1; paint(); return; }
-    try { if(document.referrer && /(home|short-detail)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    try { if(document.referrer && /(home|movie|short-detail)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
     location.href = 'home.html';
   }
 

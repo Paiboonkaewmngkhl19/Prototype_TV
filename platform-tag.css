@@ -1,0 +1,17 @@
+/*
+  Platform tag (Netflix, Prime Video, Disney+, HBO Max, Viu, MONOMAX: badges/tag-*.png), the same on every page:
+  56 x 36, the logo fitted inside a rounded square (6px) filled with the logo's own colour, since the tag pictures are
+  drawn as ovals on a transparent corner. On cards it sits 12px in from the card's corner. Pages give the <img> the
+  size with the `ptag` class (or their own rule at --ptag-w / --ptag-h); the fill and corners come from its src.
+  Used by home.html, movie.html, movie-detail.html, store.html, short-detail.html and package-detail.html.
+*/
+:root{ --ptag-w:56px; --ptag-h:36px; }
+.ptag{ width:var(--ptag-w); height:var(--ptag-h); object-fit:contain; display:block; flex:0 0 auto; }
+img[src*="badges/tag-"]{ border-radius:6px !important; }
+img[src*="badges/tag-netflix"], img[src*="badges/tag-hbo"]{ background:#000 !important; }
+img[src*="badges/tag-prime"]{ background:#1a98ff !important; }
+img[src*="badges/tag-disney"]{ background:#042437 !important; }
+img[src*="badges/tag-viu"]{ background:#ffbf00 !important; }
+img[src*="badges/tag-monomax"]{ background:#fff !important; }
+/* AIS PLAY's own titles: no tag picture, so its mark on black, at the same 56 x 36 (<span class="ptag ais">) */
+.ptag.ais{ border-radius:6px; background:#000 url('icons/aisplay-mark.png') center / auto 64% no-repeat; }

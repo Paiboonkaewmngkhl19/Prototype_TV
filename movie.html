@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Movie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="chip-theme.css">
+<link rel="stylesheet" href="button-theme.css">
+<link rel="stylesheet" href="event-card.css">
+<link rel="stylesheet" href="top10.css">
+<link rel="stylesheet" href="platform-tag.css">
+<link rel="stylesheet" href="corner-tag.css">
+<!--
+  Movie page (Figma Movies "PLAY:movie_mainPage_disney", 2684:55009), opened with Enter on the top bar's Movie tab.
+  A 1920x1080 TV screen scaled to the window, built like news.html / sport.html: the same hero, rails, focus model and
+  top bar, the shared focus ring (focus-ring.js) and profile panel (profile-panel.js), and the shared themes and cards:
+  chip-theme.css (genre chips), button-theme.css (Detail, Play, Back to Top, the top-bar tabs), top10.css + top10.js
+  (Top 10, as Home's), event-card.css (For You, as Store's PPV Event), shorts-data.js (Short, as Home's Shorts), and
+  Home's Seasonal / Quick Access cards and TV Guide's channel card (Movie Channel).
+
+  Flow (Figma "Short cut screen", 2684:62086):
+  - First scene: a movie's title, meta and synopsis over its picture, Detail and Play, the page dots; Left / Right
+    change the movie (and it moves on by itself every 8s). Up from Play: Detail, then the top bar.
+  - Chips to Short keep the hero: it speaks for the focused item over its picture, its text 80px above the rail.
+  - For You and below: the page scrolls, the hero and the top bar step away (Left / Up on a first item bring it back).
+  Remote / keyboard: arrows move focus, Enter selects, Esc / Back returns to the first scene (then to Home).
+-->
+<style>
+  :root{
+    color-scheme:dark;
+    /* Home's page: dark navy, Open Sans (Thai titles fall back to Noto Sans Thai) */
+    --bg-0:#070e16; --wash:10,8,24;
+    --on-surface:#e8e8e8; --on-surface-variant:#a8a8a8; --surface:#141414; --surface-container:#2a2a2a; --surface-container-high:#3a3a3a;
+    --on-inverse-surface:#1b1b1b; --outline:#5a5a5a; --live:#ff1f1f;
+    --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%);
+    --glass-card:linear-gradient(180deg, rgba(161,161,161,.25), rgba(65,65,65,.25));         /* TV Guide's / Home's channel card */
+    --glass-card-on:linear-gradient(180deg, rgba(230,230,240,.42), rgba(150,150,165,.34));
+    --ease:cubic-bezier(.2,0,0,1);
+    --font:'Open Sans', 'Noto Sans Thai', system-ui, sans-serif;
+  }
+  html,body{ margin:0; height:100%; background:#000; overflow:hidden; color:var(--on-surface); font-family:var(--font); -webkit-font-smoothing:antialiased; }
+  *{ box-sizing:border-box; }
+  #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:var(--bg-0); }
+  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; overflow:hidden;
+    background:radial-gradient(1400px 900px at 85% 110%, rgba(214,222,240,.12), transparent 70%), var(--bg-0); }
+
+  /* ---------- hero background (dynamic), as News's ---------- */
+  .hero-bg{ position:absolute; left:0; top:0; width:1920px; height:1080px; z-index:0; overflow:hidden; transition:opacity .4s ease; }
+  .hero-bg .pic{ position:absolute; inset:0; background:center 30% / cover no-repeat; opacity:0; transition:opacity .6s ease; }
+  .hero-bg .pic.on{ opacity:1; }
+  .hero-bg::after{ content:''; position:absolute; inset:0;
+    background:linear-gradient(90deg, rgba(var(--wash),.88) 0%, rgba(var(--wash),.62) 30%, rgba(var(--wash),.12) 58%, transparent 75%),
+      linear-gradient(180deg, transparent 40%, rgba(var(--wash),.6) 62%, var(--bg-0) 82%); }
+  body.scene .hero-bg::after{ background:linear-gradient(90deg, rgba(var(--wash),.85) 0%, rgba(var(--wash),.5) 32%, transparent 62%),
+      linear-gradient(180deg, transparent 60%, rgba(var(--wash),.55) 84%, var(--bg-0) 100%); }
+  body.static .hero-bg{ opacity:0; }
+
+  /* ---------- hero text (Figma localComponent_heroContent): title 57px, meta row, 3-line synopsis ---------- */
+  .hero{ position:absolute; left:110px; bottom:413px; width:800px; z-index:3; display:flex; flex-direction:column; gap:24px;
+    transition:opacity .3s ease, transform .3s var(--ease); }
+  body.static .hero{ opacity:0; transform:translateY(-40px); pointer-events:none; }
+  .hero.swap{ animation:heroIn .3s var(--ease); }
+  @keyframes heroIn{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
+  .hero h1{ margin:0; font-size:57px; font-weight:700; line-height:1.2; color:#e8e8e8; text-shadow:0 2px 12px rgba(0,0,0,.35);
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .hero .desc{ margin:0; width:700px; font-size:24px; line-height:32px; color:var(--on-surface-variant); text-shadow:0 0 6px rgba(0,0,0,.6);
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .hero .desc:empty{ display:none; }
+  /* Continue Watching: how far in (Figma: a 400px bar, "33m of 128m") */
+  .hero .watched{ display:flex; align-items:center; gap:16px; font-size:20px; color:var(--on-surface); }
+  .hero .watched:empty{ display:none; }
+  .hero .watched .bar{ position:relative; width:400px; height:8px; border-radius:4px; background:rgba(255,255,255,.3); overflow:hidden; }
+  .hero .watched .bar i{ position:absolute; left:0; top:0; bottom:0; background:var(--live); }
+  /* meta row (Figma): platform tag, genres, year, length, age and quality pills */
+  .meta{ display:flex; align-items:center; gap:16px; height:40px; overflow:hidden; font-size:20px; color:var(--on-surface); white-space:nowrap; }
+  .meta:empty{ display:none; }
+  .meta strong{ font-weight:700; }
+  .pill{ height:36px; padding:0 12px; border:1px solid var(--outline); border-radius:18px; display:inline-flex; align-items:center; font-weight:500; white-space:nowrap; }
+
+  /* ---------- first scene: Detail (secondary) and Play (primary) under the text, the page dots (no play mark: the pictures are stills) ---------- */
+  .scene-btns{ position:absolute; left:110px; top:691px; z-index:3; display:flex; flex-direction:column; gap:24px; transition:opacity .3s ease; }
+  .scene-btns .tv-btn i{ width:40px; height:40px; }
+  .ic-info{ -webkit-mask:url('icons/hero/info.svg') center / contain no-repeat; mask:url('icons/hero/info.svg') center / contain no-repeat; }
+  .ic-play{ -webkit-mask:url('icons/hero/play.svg') center / contain no-repeat; mask:url('icons/hero/play.svg') center / contain no-repeat; }
+  /* Home's page dots */
+  .dots{ position:absolute; left:0; right:0; top:962px; z-index:3; display:flex; justify-content:center; gap:8px; transition:opacity .3s ease; }
+  .dots i{ width:12px; height:12px; border-radius:6px; background:#a8a8a8; transition:width .22s var(--ease), background-color .22s ease; }
+  .dots i.on{ width:30px; background:#e8e8e8; }
+  body:not(.scene) .scene-btns, body:not(.scene) .dots{ opacity:0; pointer-events:none; }
+
+  /* ---------- the page: Figma's rows, 60px apart, the chips at y=1060 under the first scene; it moves as a whole ---------- */
+  #page{ position:absolute; left:0; top:0; width:1920px; z-index:1; padding:1060px 0 40px; display:flex; flex-direction:column; gap:60px;
+    transition:transform .45s var(--ease); }
+  .sec{ position:relative; transition:opacity .3s ease; }
+  body:not(.static) .sec.above{ opacity:0; }
+  .sec-title{ margin:0 110px 40px; font-weight:400; font-size:32px; line-height:40px; color:var(--on-surface); }
+  .item{ cursor:pointer; }
+  .rail{ position:relative; }
+  .track{ display:flex; align-items:flex-start; gap:32px; padding:0 110px; width:max-content; transition:transform .35s var(--ease); }
+
+  /* genre chips: the chip theme (chip-theme.css) at Home's chip size */
+  .chips{ display:flex; gap:32px; padding:0 110px; width:max-content; transition:transform .35s var(--ease); }
+  .chip{ height:100px; min-width:180px; padding:0 40px; border-radius:26px; flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+    font-size:32px; font-weight:500; white-space:nowrap; }
+
+  /* 16:9 card (TV / Card): 320x180 picture; Continue Watching adds the time left, a progress line and the title */
+  .card{ position:relative; width:320px; flex:0 0 auto; display:flex; flex-direction:column; gap:8px; border-radius:12px; }
+  .thumb{ position:relative; width:320px; height:180px; border-radius:12px; overflow:hidden; background:var(--surface-container-high) center / cover no-repeat; }
+  .card .t{ font-size:20px; font-weight:500; color:var(--on-surface); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  /* time left: the corner tag (corner-tag.css) */
+  .thumb .prog{ position:absolute; left:0; right:0; bottom:0; height:6px; background:rgba(74,74,74,.9); }
+  .thumb .prog i{ position:absolute; left:0; top:0; bottom:0; background:var(--live); }
+
+  /* 2:3 poster (TV / Card): 220x330, a badge top-left (New, Best Seller, Soon Leaving...), the platform tag bottom-left */
+  .pst{ position:relative; width:220px; height:330px; flex:0 0 auto; border-radius:12px; background:var(--surface-container-high) center / cover no-repeat; }
+  /* its badge (New, Best Seller, Soon Leaving): the top tag (corner-tag.css) */
+  .pst .ptag{ position:absolute; left:12px; bottom:12px; }   /* platform-tag.css: 56 x 36 */
+
+  /* Top 10: Home's rank cards (top10.css), the focus on the poster so the ring wraps the poster only */
+  .top10 .track{ gap:0; }
+  .rank-poster{ width:220px; height:330px; border-radius:12px; background:var(--surface-container-high) center / cover no-repeat; }
+  .rank-poster .ptag{ position:absolute; right:12px; top:12px; }
+  .top10 .rank-wrap + .rank-wrap{ margin-left:32px; }
+
+  /* For You: Store's event cards (event-card.css) with the movie's poster and picture */
+  .ev .tall, .ev .wide{ position:absolute; inset:0; background:var(--surface-container-high) center / cover no-repeat; }
+  .ev .meta .b{ background:#1e1e1e; }
+
+  /* Disney (Figma sectionDisney): a 600px band, its own picture in luminosity over a blue-teal gradient */
+  .brand{ height:600px; padding-top:72px; overflow:hidden; background:linear-gradient(180deg, #0b202f, #2a646b); }
+  .brand::before{ content:''; position:absolute; inset:0; background:url('movie-assets/disney-bg.jpg') center 35% / cover no-repeat; mix-blend-mode:luminosity; }
+  .brand > *{ position:relative; }
+  .brand h2{ margin:0 110px; font-size:57px; font-weight:700; line-height:1.2; color:#fff; }
+  .brand p{ margin:16px 110px 0; width:700px; font-size:24px; line-height:30px; color:rgba(232,232,232,.8);
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .brand .rail{ margin-top:80px; }   /* text above a rail ends 80px over its cards, as the hero text does */
+
+  /* Actor: round photos (the photo takes the focus), the name under them */
+  .actor{ width:160px; flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:20px; }
+  .actor .ph{ width:160px; height:160px; border-radius:50%; background:var(--glass-card) center / cover no-repeat;
+    display:flex; align-items:center; justify-content:center; font-size:48px; font-weight:600; color:rgba(232,232,232,.75); }
+  .actor .nm{ width:180px; font-size:24px; line-height:28px; text-align:center; color:var(--on-surface); }
+
+  /* Seasonal / Collection: Home's season cards */
+  .season-card{ position:relative; width:395px; height:612px; border-radius:16px; overflow:hidden; flex:0 0 auto; background-size:cover; background-position:center; }
+  /* the title and a dark fade at the top behind it show on the focused card only; at rest, just the poster (as Home's) */
+  .season-card::after{ content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,.82) 0%, rgba(0,0,0,.55) 22%, rgba(0,0,0,0) 48%);
+    opacity:0; transition:opacity .25s ease; }
+  .season-card span{ position:absolute; left:35px; right:35px; top:40px; z-index:1;   /* the title at the top, centred */
+    font-size:52px; font-weight:700; line-height:1.15; color:rgba(255,255,255,.92); text-shadow:0 2px 12px rgba(0,0,0,.45); text-align:center; }
+  .season-card span{ opacity:0; transform:translateY(-8px); transition:opacity .25s ease, transform .25s var(--ease); }
+  .season-card.focused::after, .season-card.focused span{ opacity:1; transform:none; }
+  #screen .season-card.focused{ transform:scale(1.05); }   /* tall cards: 5%, as Home's */
+  .seasonal .track{ padding-top:16px; }
+
+  /* Movie Channel: TV Guide's channel card (Figma "Card CH"), the logo in a 112px circle, the heart, crown and number */
+  .chan-track{ gap:32px; }
+  .ch-card{ position:relative; width:190px; height:262px; padding:20px; border-radius:16px; flex:0 0 auto;   /* the card glass (chip-theme.css .tv-glass) */
+    display:flex; flex-direction:column; align-items:center; transition:background .22s var(--ease); }
+  .ch-card.focused{ background:var(--glass-card-on); }
+  .ch-slot{ width:150px; height:150px; flex:0 0 auto; display:flex; justify-content:center; padding-top:8px; }
+  .ch-slot .ava{ position:relative; width:112px; height:112px; border-radius:999px; flex:0 0 auto; }
+  .logo{ position:absolute; inset:0; border-radius:inherit; overflow:hidden; background:#fff; }
+  .logo img{ position:absolute; display:block; }
+  .logo img.cover{ inset:0; width:100%; height:100%; object-fit:cover; }
+  .logo img.contain{ left:15%; top:15%; width:70%; height:70%; object-fit:contain; }
+  .ch-name{ width:100%; font:400 24px/normal Helvetica, Arial, sans-serif; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .ch-meta{ display:flex; align-items:center; justify-content:center; gap:16px; margin-top:12px; }
+  .ic20{ width:20px; height:20px; display:block; }
+  .ch-no{ height:32px; min-width:40px; padding:0 12px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+    background:rgba(0,0,0,.35); font-size:20px; font-weight:600; }
+
+  /* My Subscription / FAQs / Customer Support: Home's Quick Access cards (Figma "Rail - My Subscription"), 3 across */
+  .quick-track{ gap:32px; }   /* 32px apart; three 545px cards fill the 1700px between the margins */
+  .quick-card{ width:545px; height:180px; border-radius:12px; flex:0 0 auto;   /* the chip theme's states (chip-theme.css), as Home's */
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:24px; padding:16px; text-align:center; }
+  .quick-card .qc-sub{ font-size:20px; line-height:23px; color:#e8e8e8; white-space:nowrap; }
+  .quick-card .qc-name{ display:flex; align-items:center; gap:16px; font-size:32px; font-weight:500; color:#e8e8e8; white-space:nowrap; }
+  .quick-card .qc-name img{ width:50px; height:50px; display:block; }
+  #screen .quick-card.focused{ transform:scale(1.04); }
+
+  /* Back to Top (button-theme.css) */
+  .totop{ height:150px; display:flex; align-items:center; justify-content:center; }
+  .totop .tv-btn{ --btn-w:auto; padding:0 100px; font-size:24px; }
+  .totop .tv-btn i{ width:32px; height:32px; -webkit-mask:url('icons/arrow-up.svg') center / contain no-repeat; mask:url('icons/arrow-up.svg') center / contain no-repeat; }
+
+  /* ---------- top bar (Home's); Movie is the current tab ---------- */
+  .scrim{ position:absolute; left:0; top:0; width:1920px; height:170px; z-index:4; pointer-events:none; opacity:0; transition:opacity .3s ease;
+    background:linear-gradient(180deg, var(--bg-0) 0%, var(--bg-0) 45%, rgba(7,14,22,0) 100%); }
+  body.static.on-nav .scrim{ opacity:1; }
+  .topnav{ position:absolute; left:0; top:0; z-index:5; width:1920px; padding:24px 110px 0; display:flex; align-items:center; transition:opacity .3s ease, translate .3s var(--ease); }
+  body.static:not(.on-nav) .topnav{ opacity:0; translate:0 -40px; pointer-events:none; }
+  .profile{ width:60px; height:60px; border-radius:999px; overflow:hidden; flex:0 0 auto; }
+  .profile img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .center{ display:flex; align-items:center; gap:12px; margin-left:20px; }
+  .navsearch{ width:60px; height:60px; margin:0 8px; border-radius:999px; display:flex; align-items:center; justify-content:center; }
+  .navsearch img{ width:32px; height:32px; display:block; }
+  .navtab{ height:60px; padding:0 20px; border-radius:999px; display:flex; align-items:center; font-family:'Plus Jakarta Sans', var(--font); font-size:24px; line-height:1.2;
+    text-shadow:0 0 6px rgba(0,0,0,.4); white-space:nowrap; }
+  .topnav .item:not(.tv-tab){ transition:background .15s ease; }
+  .topnav .item.focused:not(.tv-tab){ background:var(--th-pill); backdrop-filter:blur(12px) saturate(1.4); }
+
+  #toast{ position:absolute; left:50%; bottom:80px; z-index:60; transform:translateX(-50%); padding:14px 26px; border-radius:999px;
+    background:rgba(20,20,24,.85); font-size:24px; opacity:0; transition:opacity .2s ease; pointer-events:none; }
+  #toast.on{ opacity:1; }
+  /* focused items grow: 8% on every rail, 6% in the top bar (as on every page) */
+  #screen .item{ transition:transform .22s var(--ease), background .15s ease, color .15s ease, box-shadow .2s ease; }
+  #screen .item.focused{ transform:scale(1.08); z-index:2; }
+  #screen .topnav .item.focused{ transform:scale(1.06); }
+  #screen .scene-btns .tv-btn.focused, #screen .ev.focused{ transform:scale(1.04); }
+</style>
+</head>
+<body class="scene">
+<div id="frame"><div id="screen">
+  <div class="hero-bg"><div class="pic"></div><div class="pic"></div></div>
+
+  <div id="page"></div>
+
+  <section class="hero" aria-live="polite"><h1></h1><div class="watched"></div><div class="meta"></div><p class="desc"></p></section>
+  <div class="scene-btns">
+    <div class="tv-btn tv-btn--secondary" id="detail" data-ring-art=""><i class="ic-info"></i>Detail</div>
+    <div class="tv-btn tv-btn--primary item" id="play" data-kind="play" data-ring-art=""><i class="ic-play"></i>Play</div>
+  </div>
+  <div class="dots"></div>
+  <div class="scrim" aria-hidden="true"></div>
+
+  <nav class="topnav">
+    <div class="profile item" data-label="Profile"><img src="icons/profile-tv.png" alt="Profile"></div>
+    <div class="center">
+      <div class="navsearch item" data-label="Search"><img src="icons/nav-search.svg" alt="Search"></div>
+      <div class="navtab tv-tab item" data-label="Home" data-href="home.html">Home</div>
+      <div class="navtab tv-tab item" data-label="Live TV" data-href="tv-guide.html?play=MUTV&amp;from=movie">Live TV</div>
+      <div class="navtab tv-tab item active" data-label="Movie">Movie</div>
+      <div class="navtab tv-tab item" data-label="Sport" data-href="sport.html">Sport</div>
+      <div class="navtab tv-tab item" data-label="My List">My List</div>
+      <div class="navtab tv-tab item" data-label="Store" data-href="store.html">Store</div>
+    </div>
+  </nav>
+  <div id="toast"></div>
+</div></div>
+
+<script src="profile-panel.js"></script>
+<script src="shorts-data.js"></script>
+<script src="top10.js"></script>
+<script>
+(function(){
+  // ---- fit the 1920x1080 screen into the window ----
+  var frame = document.getElementById('frame'), screen = document.getElementById('screen');
+  function fit(){
+    var k = Math.min(innerWidth / 1920, innerHeight / 1080);
+    frame.style.width = 1920 * k + 'px'; frame.style.height = 1080 * k + 'px';
+    frame.style.marginLeft = -960 * k + 'px'; frame.style.marginTop = -540 * k + 'px';
+    screen.style.transform = 'scale(' + k + ')';
+  }
+  addEventListener('resize', fit); fit();
+
+  function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  function attrs(o){ return Object.keys(o).filter(function(k){ return o[k] != null; }).map(function(k){ return ' data-' + k + '="' + esc(o[k]) + '"'; }).join(''); }
+
+  /* ---------- content: the titles behind the project's posters (Figma's placeholders) ----------
+     t title, p 2:3 poster, w 16:9 picture, plat platform tag (badges/tag-*.png), g genres, y year, len, age, d synopsis */
+  var PP = 'posters_portrait/', P = 'posters/';
+  var M = {
+    d9:     {t:'District 9', w:P + 'district9.jpg', plat:'monomax', g:['Sci-Fi', 'Action'], y:2009, len:'1h 52m', age:'16+',
+             d:'Aliens stranded over Johannesburg are forced into a slum, until a field agent exposed to their technology starts to become one of them.'},
+    topgun: {t:'Top Gun: Maverick', p:PP + 'topgun_m.jpg', w:P + 'topgun-m.jpg', plat:'hbo', g:['Action', 'Drama'], y:2022, len:'2h 11m', age:'13+',
+             d:'After thirty years, Maverick trains a new generation of Top Gun graduates for a dangerous mission.'},
+    wicked: {t:'Wicked', w:P + 'wicked.jpg', plat:'prime', g:['Musical', 'Fantasy'], y:2024, len:'2h 40m', age:'G',
+             d:'The untold story of the witches of Oz: Elphaba and Glinda, long before Dorothy arrived.'},
+    superman:{t:'Superman', w:P + 'superman.jpg', plat:'hbo', g:['Action', 'Sci-Fi'], y:2025, len:'2h 9m', age:'13+',
+             d:'The Man of Steel balances his Kryptonian heritage with his human upbringing as the ultimate protector of Earth.'},
+    house:  {t:'House of the Dragon', p:PP + 'House.jpg', w:P + 'house-of-the-dragon.jpg', plat:'hbo', g:['Fantasy', 'Drama'], y:2024, len:'2 Seasons', age:'18+',
+             d:'Set 200 years before Game of Thrones, the Targaryen dynasty tears itself apart in a war for the Iron Throne.'},
+    lastofus:{t:'The Last of Us', w:P + 'last-of-us.jpg', plat:'hbo', g:['Drama', 'Thriller'], y:2025, len:'2 Seasons', age:'18+',
+             d:'Joel and Ellie journey across a post-pandemic United States, facing new threats and impossible choices.'},
+    loki:   {t:'Loki', w:P + 'loki.jpg', plat:'disney', g:['Fantasy', 'Adventure'], y:2023, len:'2 Seasons', age:'13+',
+             d:'The God of Mischief must fix a fractured timeline while pursued by the Time Variance Authority.'},
+    dragon: {t:'How to Train Your Dragon', w:P + 'how-to-train.jpg', plat:'prime', g:['Family', 'Adventure'], y:2025, len:'2h 5m', age:'G',
+             d:'A young Viking and an injured dragon form an unlikely friendship that changes their island for ever.'},
+    john:   {t:'John Wick: Chapter 4', p:PP + 'John.jpg', plat:'netflix', g:['Action', 'Thriller'], y:2023, len:'2h 49m', age:'18+',
+             d:'John Wick uncovers a path to defeating the High Table, but must face a powerful new enemy first.'},
+    venom:  {t:'Venom: Let There Be Carnage', p:PP + 'Venom.jpg', plat:'netflix', g:['Action', 'Sci-Fi'], y:2021, len:'1h 37m', age:'13+',
+             d:'Eddie Brock and Venom face Cletus Kasady, a serial killer who becomes host to the symbiote Carnage.'},
+    avatar: {t:'Avatar: Fire and Ash', p:PP + 'avatar.jpg', plat:'disney', g:['Sci-Fi', 'Adventure'], y:2025, len:'3h 17m', age:'13+',
+             d:'Jake and Neytiri\'s family meet the Ash People, a fierce Na\'vi clan, in a new chapter on Pandora.'},
+    f1:     {t:'F1: The Movie', p:PP + 'F1.jpg', w:P + 'f1.jpg', plat:'prime', g:['Action', 'Sport'], y:2025, len:'2h 35m', age:'13+',
+             d:'A once-promising Formula 1 driver returns to mentor a young rookie and chase one last shot at glory.'},
+    debt:   {t:'The Debt Collector', p:PP + 'debt.jpg', plat:'netflix', g:['Action', 'Crime'], y:2026, len:'1h 52m', age:'18+',
+             d:'A debt collector with a violent past takes one last job that drags him back into Bangkok\'s underworld.'},
+    lotr:   {t:'The Lord of the Rings: The Return of the King', p:PP + 'lotr/r1.jpg', plat:'disney', g:['Fantasy', 'Adventure'], y:2003, len:'3h 21m', age:'13+',
+             d:'Gandalf and Aragorn lead the World of Men against Sauron\'s army as Frodo and Sam near Mount Doom.'},
+    hobbit: {t:'The Hobbit: The Battle of the Five Armies', p:PP + 'lotr/r3.jpg', plat:'hbo', g:['Fantasy', 'Adventure'], y:2014, len:'2h 24m', age:'13+',
+             d:'Bilbo and the dwarves face the dragon Smaug\'s fury, and five armies march on the Lonely Mountain.'},
+    lastking:{t:'The Last Kingdom', p:PP + 'lotr/r5.jpg', plat:'netflix', g:['Drama', 'History'], y:2022, len:'5 Seasons', age:'18+',
+             d:'Raised by Vikings, Uhtred of Bebbanburg fights for the birth of England between two worlds.'},
+    vikings:{t:'Vikings', p:PP + 'lotr/r6.jpg', plat:'prime', g:['Drama', 'History'], y:2020, len:'6 Seasons', age:'18+',
+             d:'The legendary Norse hero Ragnar Lothbrok rises from farmer to king, raiding across the seas.'},
+    got:    {t:'Game of Thrones', p:PP + 'lotr/r7.jpg', plat:'hbo', g:['Fantasy', 'Drama'], y:2019, len:'8 Seasons', age:'18+',
+             d:'Nine noble families wage war for control of Westeros, while an ancient enemy returns from the north.'},
+    thailaw:{t:'Thai Lawyer', p:PP + 'legal/l1.jpg', plat:'netflix', g:['Drama', 'Crime'], y:2026, len:'1 Season', age:'16+',
+             d:'A ruthless Bangkok lawyer will defend anyone for the right price, until one case turns personal.'},
+    dollar: {t:'One Dollar Lawyer', p:PP + 'legal/l2.jpg', plat:'disney', g:['Comedy', 'Drama'], y:2022, len:'1 Season', age:'13+',
+             d:'A brilliant lawyer who charges just one dollar takes on the rich and powerful to protect ordinary people.'},
+    judge:  {t:'The Judge from Hell', p:PP + 'legal/l3.jpg', plat:'netflix', g:['Fantasy', 'Drama'], y:2024, len:'1 Season', age:'18+',
+             d:'A demon from hell takes over the body of a judge to punish the killers the courts let walk free.'},
+    bigmouth:{t:'Big Mouth', p:PP + 'legal/l4.jpg', plat:'disney', g:['Thriller', 'Crime'], y:2022, len:'1 Season', age:'16+',
+             d:'A failing lawyer is mistaken for a genius con man and has to survive in a world of the rich and corrupt.'},
+    family: {t:'A Model Family', p:PP + 'legal/l5.jpg', plat:'netflix', g:['Thriller', 'Crime'], y:2022, len:'1 Season', age:'18+',
+             d:'A broke professor stumbles on a car full of drug money and drags his family into a cartel war.'},
+    vincenzo:{t:'Vincenzo', p:PP + 'legal/l6.jpg', plat:'netflix', g:['Comedy', 'Crime'], y:2021, len:'1 Season', age:'16+',
+             d:'A mafia consigliere returns to Seoul and uses his methods to bring down a ruthless conglomerate.'},
+    lawless:{t:'Lawless Lawyer', p:PP + 'legal/l7.jpg', plat:'viu', g:['Action', 'Drama'], y:2018, len:'1 Season', age:'16+',
+             d:'A former gangster turned lawyer takes on a corrupt judge to avenge his mother.'},
+    again:  {t:'Again My Life', p:PP + 'legal/l8.jpg', plat:'viu', g:['Fantasy', 'Drama'], y:2022, len:'1 Season', age:'16+',
+             d:'A prosecutor killed by a corrupt politician gets a second chance at life, and at taking him down.'},
+    sherlock:{t:'Young Sherlock S1:E1', w:P + 'continue/c1.jpg', plat:'prime', g:['Mystery', 'Drama'], y:2026, len:'1 Season', age:'13+',
+             d:'A teenage Sherlock Holmes stumbles into his first real mystery at Oxford, long before Baker Street.'},
+    endgame:{t:'Avengers: Endgame', w:P + 'continue/c2.jpg', plat:'disney', g:['Action', 'Sci-Fi'], y:2019, len:'3h 1m', age:'13+',
+             d:'After Thanos wiped out half of all life, the remaining Avengers assemble once more to undo the snap.'},
+    hailmary:{t:'Project Hail Mary', w:P + 'continue/c5.jpg', plat:'netflix', g:['Sci-Fi', 'Drama'], y:2026, len:'2h 36m', age:'13+',
+             d:'A lone astronaut wakes up light-years from home with one mission: save humanity from extinction.'},
+    spider: {t:'Spider-Man: No Way Home', w:P + 'P10-spiderman.jpg', plat:'disney', g:['Action', 'Adventure'], y:2021, len:'2h 28m', age:'13+',
+             d:'With his identity revealed, Peter Parker asks Doctor Strange for help, and the multiverse breaks open.'},
+    prada:  {t:'The Devil Wears Prada 2', w:P + 'P10-Devil.jpg', plat:'disney', g:['Comedy', 'Drama'], y:2026, len:'1h 59m', age:'13+',
+             d:'Miranda Priestly faces the decline of print, and an old assistant who now holds the purse strings.'},
+    odyssey:{t:'The Odyssey', w:P + 'P10_Odyssey.jpg', plat:'prime', g:['Adventure', 'Fantasy'], y:2026, len:'2h 40m', age:'13+',
+             d:'Odysseus fights his way home across a hostile sea after the fall of Troy, ten years from his family.'}
+  };
+  function pic(k){ var m = M[k]; return m.w || m.p; }       // the movie's widest picture (the hero's background)
+  function genres(m){ return m.g.join(' · '); }
+
+  var SLIDES = ['d9', 'topgun', 'wicked', 'superman', 'house', 'lastofus', 'loki', 'dragon'];   // the first scene (8 dots, as Figma)
+  var CATS = [
+    {t:'All', d:'Every movie and series in one place: new releases, blockbusters and the titles everyone is talking about.', bg:P + 'district9.jpg'},
+    {t:'Action', d:'Car chases, heists and heroes: the films that never sit still.', bg:P + 'topgun-m.jpg'},
+    {t:'Comedy', d:'Sitcoms, rom-coms and feel-good films. Sit back and enjoy a good laugh.', bg:P + 'P10-Devil.jpg'},
+    {t:'Anime', d:'Top series and films from Japan, from epic adventures to slice-of-life favourites.', bg:P + 'how-to-train.jpg'},
+    {t:'Horror', d:'Chilling thrillers and spine-tingling scares. Dare to watch with the lights off.', bg:P + 'last-of-us.jpg'},
+    {t:'Family', d:'Films the whole family can enjoy together, from animated hits to big adventures.', bg:P + 'how-to-train.jpg'},
+    {t:'Music', d:'Musicals, concert films and the stories behind the songs.', bg:P + 'wicked.jpg'},
+    {t:'Mystery', d:'Whodunnits, detectives and twists you will not see coming.', bg:P + 'continue/c1.jpg'}
+  ];
+  var CONTINUE = [{k:'sherlock', w:33, of:58}, {k:'endgame', w:122, of:181}, {k:'superman', w:96, of:129}, {k:'hailmary', w:101, of:156},
+                  {k:'spider', w:41, of:148}, {k:'wicked', w:133, of:160}];
+  var TOP10 = ['topgun', 'john', 'avatar', 'house', 'venom', 'f1', 'debt', 'got', 'vincenzo', 'lotr'];
+  var HOT = [{k:'avatar', b:'NEW'}, {k:'f1', b:'NEW'}, {k:'debt', b:'NEW', tag:1}, {k:'john', b:'NEW'}, {k:'venom', tag:1}, {k:'topgun'}, {k:'hobbit'}];
+  var FOR_YOU = [{k:'d9', price:199}, {k:'avatar', price:249}, {k:'f1', price:199}, {k:'topgun', price:149}, {k:'john', price:149}];
+  var BECAUSE = ['venom', 'avatar', 'f1', 'hobbit', 'john', 'debt', 'topgun'];
+  var DISNEY = ['endgame', 'loki', 'prada', 'spider', 'avatar'];
+  var MOVIES = ['topgun', 'john', 'venom', 'avatar', 'f1', 'debt', 'lotr', 'hobbit'];
+  var SERIES = ['house', 'got', 'lastking', 'vikings', 'thailaw', 'dollar', 'vincenzo', 'again'];
+  var MY_LIST = ['lastofus', 'house', 'superman', 'wicked', 'dragon'];
+  var RENT = [{k:'avatar', b:'Recommend'}, {k:'f1', b:'Best Seller'}, {k:'topgun', b:'Best Seller'}, {k:'john'}, {k:'venom'}, {k:'lotr'}, {k:'hobbit'}];
+  var MY_RENTAL = ['odyssey', 'spider', 'd9', 'f1', 'topgun'];
+  var ACTORS = [{n:'Johnny Depp', img:'movie-assets/actor-johnny-depp.jpg'}, {n:'Tom Cruise'}, {n:'Keanu Reeves'}, {n:'Brad Pitt'}, {n:'Zendaya'},
+                {n:'Tom Hardy'}, {n:'Song Joong-ki'}, {n:'Pedro Pascal'}, {n:'Ariana Grande'}];
+  var LEAVING = ['judge', 'bigmouth', 'family', 'lawless', 'lastking', 'vikings', 'debt'];
+  var SEASONAL = [{t:'Movies Halloween', img:PP + 'Venom.jpg'}, {t:'Seasonal Collection', img:PP + 'lotr/r1.jpg'}, {t:'Netflix (4K)', img:PP + 'John.jpg'},
+                  {t:'Award Winners', img:PP + 'topgun_m.jpg'}, {t:'K-Drama Collection', img:PP + 'legal/l6.jpg'}];
+  // the movie channels (TV Guide's: its names open them in the Live TV player)
+  var CHANNELS = [
+    {n:'HBO', no:251, logo:'icons/channels/hbo.png', fit:'cover', fav:1},
+    {n:'HBO Hits', no:252, logo:'icons/channels/hbohits.png', box:[0,17.28,95.67,65.54], fav:1},
+    {n:'HBO Family', no:253, logo:'icons/channels/hbofamily.png', box:[-0.11,22.3,108.43,66.07]},
+    {n:'HBO Signature', no:254, logo:'icons/channels/hbosignature.png', box:[-17.36,23.71,114.25,52.53]},
+    {n:'Cinemax', no:255, logo:'icons/channels/cinemax.png', box:[5.54,25.24,88.79,50]},
+    {n:'Warner TV', no:230, logo:'icons/channels/wbtv.png', box:[10.88,12.81,80.09,74.91]},
+    {n:'MONOMAX 1', no:501, logo:'partners/monomax.png', fit:'contain'}
+  ];
+  var QUICK = [{t:'My Subscription', sub:'4 Subscriptions', ic:'icons/quick/subscription.svg'}, {t:'FAQs', sub:'Billing, devices, how to watch', ic:'icons/quick/faqs.svg'},
+               {t:'Customer Support', sub:'Call customer support and Visit support website.', ic:'store-assets/headset.svg'}];
+
+  /* ---------- markup ---------- */
+  function ptag(m){ return '<img class="ptag" src="badges/tag-' + m.plat + '.png" alt="">'; }
+  function metaRow(m){
+    return ptag(m) + '<strong>' + esc(genres(m)) + '</strong><span>' + m.y + '</span><span>' + m.len + '</span><span class="pill">' + m.age + '</span><span class="pill">HD</span>';
+  }
+  function wide(k, i, set, extra){
+    return '<div class="card item"' + attrs({kind:'title', k:k, set:set, i:i}) + '><div class="thumb" style="background-image:url(\'' + M[k].w + '\')">' + (extra || '') + '</div></div>';
+  }
+  function poster(k, i, set, badge, tag){
+    var m = M[k];
+    return '<div class="pst item"' + attrs({kind:'title', k:k, set:set, i:i}) + ' style="background-image:url(\'' + m.p + '\')">' +
+      (badge ? '<span class="bdg top-tag">' + esc(badge) + '</span>' : '') + (tag ? ptag(m) : '') + '</div>';
+  }
+  function sec(key, title, body, cls){
+    return '<section class="sec' + (cls ? ' ' + cls : '') + '" data-row="' + key + '">' + (title ? '<h2 class="sec-title">' + esc(title) + '</h2>' : '') +
+      '<div class="rail"><div class="track">' + body + '</div></div></section>';
+  }
+  function logoHtml(c){
+    var b = c.box, img = b ? '<img src="' + c.logo + '" alt="" style="left:' + b[0] + '%;top:' + b[1] + '%;width:' + b[2] + '%;height:' + b[3] + '%;object-fit:contain;">'
+                          : '<img class="' + (c.fit || 'cover') + '" src="' + c.logo + '" alt="">';
+    return '<div class="logo">' + img + '</div>';
+  }
+  var html = '';
+  html += '<section class="sec" data-row="cats"><div class="rail"><div class="chips">' + CATS.map(function(c, i){
+    return '<div class="chip tv-chip item"' + attrs({kind:'cat', i:i}) + ' data-ring-art="">' + esc(c.t) + '</div>';
+  }).join('') + '</div></div></section>';
+  html += '<section class="sec" data-row="cw"><h2 class="sec-title">Continue Watching</h2><div class="rail"><div class="track">' + CONTINUE.map(function(c, i){
+    var m = M[c.k], left = c.of - c.w;
+    return '<div class="card item"' + attrs({kind:'cw', k:c.k, i:i}) + '><div class="thumb" style="background-image:url(\'' + m.w + '\')">' +
+      '<span class="left corner-tag">' + (left >= 60 ? Math.floor(left / 60) + 'h ' + left % 60 + 'm' : left + 'm') + ' left</span>' +
+      '<div class="prog"><i style="width:' + Math.round(c.w / c.of * 100) + '%"></i></div></div><div class="t">' + esc(m.t) + '</div></div>';
+  }).join('') + '</div></div></section>';
+  html += Top10.defs();
+  html += '<section class="sec top10" data-row="top10"><h2 class="sec-title">Top 10</h2><div class="rail"><div class="track">' + TOP10.map(function(k, i){
+    var m = M[k];
+    return '<div class="rank-wrap">' + Top10.numeral(i + 1) + '<div class="rank-poster item"' + attrs({kind:'title', k:k, set:'top10', i:i}) +
+      ' style="background-image:url(\'' + m.p + '\')">' + ptag(m) + '</div></div>';
+  }).join('') + '</div></div></section>';
+  html += sec('hot', 'Hot Off the Big Screen', HOT.map(function(h, i){ return poster(h.k, i, 'hot', h.b, h.tag); }).join(''), 'tall-rail');
+  html += '<section class="sec tall-rail" data-row="short"><h2 class="sec-title">Short</h2><div class="rail"><div class="track">' + window.SHORTS.map(function(s, i){
+    return '<div class="pst item"' + attrs({kind:'short', i:i}) + ' data-href="short-detail.html?s=' + i + '" style="background-image:url(\'posters/shorts/' + s.img + '\')"></div>';
+  }).join('') + '</div></div></section>';
+  html += '<section class="sec" data-row="foryou"><h2 class="sec-title">For You</h2><div class="rail"><div class="track">' + FOR_YOU.map(function(f, i){
+    var m = M[f.k];
+    return '<div class="ev item"' + attrs({kind:'buy', k:f.k, i:i}) + ' data-ring-art="">' +
+      '<div class="tall" style="background-image:url(\'' + (m.p || m.w) + '\')"></div>' +
+      '<div class="wide" style="background-image:url(\'' + pic(f.k) + '\')"><div class="scrim"></div>' +
+        '<div class="info"><h3>' + esc(m.t) + '</h3><div class="cost"><b>' + f.price + ' baht</b><span>(VAT Included: ' + (f.price * 1.07).toFixed(2) + ' baht)</span></div>' +
+        '<div class="meta"><span class="b"><img src="sport-assets/crown.svg" alt="">Premium</span>' + metaRow(m) + '</div><p class="syn">' + esc(m.d) + '</p></div></div></div>';
+  }).join('') + '</div></div></section>';
+  html += sec('because', 'Because You Watched District 9', BECAUSE.map(function(k, i){ return poster(k, i, 'because'); }).join(''), 'tall-rail');
+  html += '<section class="sec brand" data-row="disney"><h2>Disney</h2>' +
+    '<p>Stories for everyone, from Marvel and Star Wars to Pixar and the Disney classics: the films and series the whole family loves, all in one place.</p>' +
+    '<div class="rail"><div class="track">' + DISNEY.map(function(k, i){ return wide(k, i, 'disney'); }).join('') + '</div></div></section>';
+  // Disney's last card: Avatar has no 16:9 picture of its own, so it shows its poster's top
+  html += sec('movies', 'Movies', MOVIES.map(function(k, i){ return poster(k, i, 'movies'); }).join(''), 'tall-rail');
+  html += sec('series', 'Series', SERIES.map(function(k, i){ return poster(k, i, 'series'); }).join(''), 'tall-rail');
+  html += sec('mylist', 'My List', MY_LIST.map(function(k, i){ return wide(k, i, 'mylist'); }).join(''));
+  html += sec('rent', 'Rent or Buy', RENT.map(function(r, i){ return poster(r.k, i, 'rent', r.b); }).join(''), 'tall-rail');
+  html += sec('myrental', 'My Rental and Buy', MY_RENTAL.map(function(k, i){ return wide(k, i, 'myrental'); }).join(''));
+  html += sec('actor', 'Actor', ACTORS.map(function(a, i){
+    var ini = a.n.split(' ').map(function(w){ return w[0]; }).join('').slice(0, 2);
+    // the photo takes the focus, so the ring circles it (the name stays under it)
+    return '<div class="actor"><div class="ph item"' + attrs({kind:'actor', i:i}) + ' data-ring-art=""' + (a.img ? ' style="background-image:url(\'' + a.img + '\')"' : '') + '>' +
+      (a.img ? '' : ini) + '</div><div class="nm">' + esc(a.n) + '</div></div>';
+  }).join(''), 'actors');
+  html += sec('leaving', 'Soon Leaving', LEAVING.map(function(k, i){ return poster(k, i, 'leaving', 'Soon Leaving'); }).join(''), 'tall-rail');
+  html += sec('seasonal', '', SEASONAL.map(function(c, i){
+    return '<div class="season-card item"' + attrs({kind:'season', i:i}) + ' style="background-image:url(\'' + c.img + '\')"><span>' + esc(c.t) + '</span></div>';
+  }).join(''), 'seasonal');
+  html += '<section class="sec" data-row="channels"><h2 class="sec-title">Movie Channel</h2><div class="rail"><div class="track chan-track">' + CHANNELS.map(function(c, i){
+    return '<div class="ch-card tv-glass item"' + attrs({kind:'chan', i:i}) + ' data-ring-art=""><div class="ch-slot"><div class="ava">' + logoHtml(c) + '</div></div>' +
+      '<div class="ch-name">' + esc(c.n) + '</div><div class="ch-meta">' +
+      '<img class="ic20" src="icons/tv-guide/' + (c.fav ? 'heart-fill.svg' : 'heart.svg') + '" alt=""><img class="ic20" src="icons/tv-guide/crown-s.svg" alt="Premium">' +
+      '<div class="ch-no">' + c.no + '</div></div></div>';
+  }).join('') + '</div></div></section>';
+  html += '<section class="sec" data-row="quick"><div class="rail"><div class="track quick-track">' + QUICK.map(function(q, i){
+    return '<div class="quick-card tv-chip item"' + attrs({kind:'quick', i:i}) + ' data-href="store.html" data-ring-art=""><span class="qc-sub">' + esc(q.sub) + '</span>' +
+      '<span class="qc-name"><img src="' + q.ic + '" alt="">' + esc(q.t) + '</span></div>';
+  }).join('') + '</div></div></section>';
+  html += '<section class="sec totop" data-row="totop"><div class="tv-btn tv-btn--primary item" data-kind="totop" data-ring-art=""><i></i>Back to Top</div></section>';
+  var page = document.getElementById('page');
+  page.innerHTML = html;
+  // Avatar in the Disney band: no 16:9 picture, so its poster, from the top
+  page.querySelectorAll('.card[data-k="avatar"] .thumb').forEach(function(t){ t.style.backgroundImage = 'url(\'' + M.avatar.p + '\')'; t.style.backgroundPosition = 'center 20%'; });
+  Top10.ready(page);
+  document.querySelector('.dots').innerHTML = SLIDES.map(function(){ return '<i></i>'; }).join('');
+
+  /* ---------- focus rows: the top bar, the first scene (Play; Detail above it), then one row per section ---------- */
+  var $ = function(q, root){ return Array.prototype.slice.call((root || document).querySelectorAll(q)); };
+  var secs = $('.sec', page);
+  var playEl = document.getElementById('play'), detailEl = document.getElementById('detail');
+  var rows = [{ items:$('.topnav .item') }, { key:'scene', items:[playEl] }].concat(secs.map(function(s){ return { sec:s, key:s.dataset.row, items:$('.item', s) }; }));
+  var R = {}; rows.forEach(function(r, i){ if(r.key) R[r.key] = i; });
+  var movieTab = document.querySelector('.navtab.active'), NAV_MOVIE = rows[0].items.indexOf(movieTab);
+  var cur = { row:R.scene, col:rows.map(function(){ return 0; }), from:0, detail:false, slide:0 };
+  cur.col[0] = NAV_MOVIE;
+  var DYNAMIC_END = R.short;   // the chips to Short keep the hero; For You and below scroll as a plain page
+  var ROW_Y = 600;             // where the focused rail sits while the hero shows (Figma: its title at y=600)
+  var STATIC_Y = 230;          // ... and once the page scrolls (Figma: For You's title at y=230)
+
+  // ---- the hero speaks for the focused item ----
+  var heroEl = document.querySelector('.hero'), heroKey = '';
+  var pics = $('.hero-bg .pic'), picFront = 0, picCur = null;
+  function setBg(img){
+    if((img || null) === picCur) return;
+    picCur = img || null;
+    pics[picFront].classList.remove('on');
+    picFront = 1 - picFront;
+    if(img){ pics[picFront].style.backgroundImage = 'url(\'' + img + '\')'; pics[picFront].classList.add('on'); }
+  }
+  function titleHero(k){ var m = M[k]; return { t:m.t, meta:metaRow(m), d:m.d, bg:pic(k) }; }
+  function heroFor(el, rowKey){
+    if(rowKey === 'scene') return titleHero(SLIDES[cur.slide]);
+    var kind = el && el.dataset.kind, i = el ? +el.dataset.i : 0;
+    if(kind === 'cat'){ var c = CATS[i]; return { t:c.t === 'All' ? 'Movies & Series' : c.t, d:c.d, bg:c.bg }; }
+    if(kind === 'cw'){
+      var cw = CONTINUE[i], h = titleHero(cw.k);
+      h.watched = '<span class="bar"><i style="width:' + Math.round(cw.w / cw.of * 100) + '%"></i></span>' + cw.w + 'm of ' + cw.of + 'm';
+      return h;
+    }
+    if(kind === 'short'){ var s = window.SHORTS[i]; return { t:s.t, meta:'<strong>' + esc(s.gen.join(' · ')) + '</strong><span class="pill">' + s.rate + '</span><span class="pill">HD</span>', d:s.d, bg:'posters/shorts/' + s.img }; }
+    if(el && el.dataset.k) return titleHero(el.dataset.k);
+    return null;
+  }
+  function paintHero(rowKey, el){
+    var h = heroFor(el, rowKey);
+    if(!h) return;
+    var key = h.t + '|' + (h.watched || '') + '|' + (h.meta || '');
+    if(key !== heroKey){
+      heroKey = key;
+      heroEl.querySelector('h1').textContent = h.t;
+      heroEl.querySelector('.watched').innerHTML = h.watched || '';
+      heroEl.querySelector('.meta').innerHTML = h.meta || '';
+      heroEl.querySelector('.desc').textContent = h.d || '';
+      heroEl.classList.remove('swap'); void heroEl.offsetWidth; heroEl.classList.add('swap');
+    }
+    setBg(h.bg);
+  }
+
+  // ---- keep the focused item in view (Home's "fixed focus" sideways; the focused rail at a fixed y down the page) ----
+  var pageY = 0;
+  function slide(r, el){
+    if(!r.sec || r.key === 'totop') return;
+    var track = el.closest('.track, .chips');
+    var first = r.items[0], at = function(x){ return x.closest('.rank-wrap') || x; };   // a Top 10 poster: measure its whole card
+    var want = at(el).offsetLeft - at(first).offsetLeft;
+    var max = Math.max(0, track.scrollWidth - 1920);
+    track.style.transform = 'translateX(' + -Math.max(0, Math.min(want, max)) + 'px)';
+  }
+  // the hero text ends 80px above the focused rail's first line (its title, else its cards); in the first scene, 24px
+  // above Detail
+  var HERO_GAP = 80;
+  function placeHero(r){
+    if(!r.sec){ heroEl.style.bottom = ''; return; }
+    var y = 0, e = r.sec.querySelector('.sec-title, .item');
+    while(e && e !== r.sec){ y += e.offsetTop; e = e.offsetParent; }
+    heroEl.style.bottom = 1080 - (r.sec.offsetTop + y - pageY - HERO_GAP) + 'px';
+  }
+  function layout(ri){
+    var r = rows[ri], y = 0;
+    if(r.sec){
+      var top = r.sec.offsetTop;
+      y = ri <= DYNAMIC_END ? top - Math.min(ROW_Y, 1080 - 40 - r.sec.offsetHeight) : Math.min(top - STATIC_Y, page.offsetHeight - 1080);
+    }
+    pageY = Math.max(0, y);
+    page.style.transform = 'translateY(' + -pageY + 'px)';
+    rows.forEach(function(x, xi){ if(x.sec) x.sec.classList.toggle('above', xi < ri); });
+    document.body.classList.toggle('scene', ri === R.scene);
+    document.body.classList.toggle('static', ri > DYNAMIC_END);
+  }
+
+  // the profile panel under the top bar's photo, as on Home (profile-panel.js)
+  var profileEl = document.querySelector('.topnav .profile'), prof = ProfilePanel(profileEl, { paint:paint, toast:toast });
+  var dots = $('.dots i');
+
+  function paint(){
+    var inProf = prof.paint(cur.row === 0 && rows[0].items[cur.col[0]] === profileEl);
+    rows.forEach(function(r, ri){ r.items.forEach(function(el, ci){
+      el.classList.toggle('focused', !inProf && ri === cur.row && ci === cur.col[ri] && !(ri === R.scene && cur.detail)); }); });
+    detailEl.classList.toggle('focused', !inProf && cur.row === R.scene && cur.detail);
+    // top-bar tab states (button-theme.css): Movie is Active while the D-pad is on the bar, Active dim in the content
+    movieTab.classList.toggle('active', cur.row === 0);
+    movieTab.classList.toggle('active-dim', cur.row !== 0);
+    // For You: the focused column's card is the one opened up (as Store's PPV Event)
+    rows[R.foryou].items.forEach(function(el, ci){ el.classList.toggle('sel', ci === cur.col[R.foryou]); });
+    dots.forEach(function(d, i){ d.classList.toggle('on', i === cur.slide); });
+    var ri = cur.row === 0 ? cur.from : cur.row;   // on the top bar the page stays as it was
+    document.body.classList.toggle('on-nav', cur.row === 0);
+    layout(ri);
+    var r = rows[ri], el = r.items[cur.col[ri]];
+    if(cur.row) slide(r, el);
+    if(ri <= DYNAMIC_END){ paintHero(r.key, el); placeHero(r); }
+    try { sessionStorage.setItem('movieFocus', JSON.stringify(cur)); } catch(e){}
+  }
+
+  // the first scene moves on to the next movie every 8s while it has the focus
+  var autoT = setInterval(function(){
+    if(cur.row !== R.scene || document.hidden) return;
+    cur.slide = (cur.slide + 1) % SLIDES.length; paint();
+  }, 8000);
+  function nudgeSlide(dir){ cur.slide = (cur.slide + dir + SLIDES.length) % SLIDES.length; clearInterval(autoT); autoT = setInterval(function(){
+    if(cur.row !== R.scene || document.hidden) return; cur.slide = (cur.slide + 1) % SLIDES.length; paint(); }, 8000); }
+
+  /* ---------- actions ---------- */
+  var toastEl = document.getElementById('toast'), toastT;
+  function toast(msg){ toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove('on'); }, 1600); }
+  // leaving for another page whose Back comes here: land on the same item again
+  function leave(url){ try { sessionStorage.setItem('movieReturn', '1'); } catch(e){} location.href = url; }
+  function toScene(){ cur.row = R.scene; cur.detail = false; cur.col[R.scene] = 0; }
+  function select(el){
+    var k = el.dataset.kind, i = +el.dataset.i;
+    el.animate([{ transform:getComputedStyle(el).transform }, { transform:(getComputedStyle(el).transform === 'none' ? '' : getComputedStyle(el).transform + ' ') + 'scale(0.97)' }], { duration:140, easing:'ease-out' });
+    if(el === movieTab){ toScene(); paint(); return; }   // already here: the focus goes to the first scene's Play
+    if(el.dataset.href){ if(cur.row) leave(el.dataset.href); else location.href = el.dataset.href; return; }
+    if(el === profileEl) return;   // its panel is already open under it
+    if(el === detailEl){ if(SLIDES[cur.slide] === 'd9') leave('movie-detail.html'); else toast('Detail: ' + M[SLIDES[cur.slide]].t); return; }
+    if(k === 'play'){ toast('Now playing: ' + M[SLIDES[cur.slide]].t); return; }
+    if(k === 'cat'){ toast('Showing ' + CATS[i].t); return; }
+    if(k === 'cw'){ toast('Resuming ' + M[CONTINUE[i].k].t); return; }
+    if(k === 'buy'){ var f = FOR_YOU[i]; toast('Buy ' + M[f.k].t + ' for ' + f.price + ' baht (demo)'); return; }
+    if(k === 'title'){ if(el.dataset.k === 'd9') leave('movie-detail.html'); else toast(M[el.dataset.k].t); return; }
+    if(k === 'actor'){ toast('Movies with ' + ACTORS[i].n); return; }
+    if(k === 'season'){ toast(SEASONAL[i].t); return; }
+    if(k === 'chan'){ leave('tv-guide.html?play=' + encodeURIComponent(CHANNELS[i].n) + '&from=movie'); return; }
+    if(k === 'totop'){ toScene(); paint(); return; }
+    toast(el.dataset.label + ' (demo)');
+  }
+  function back(){
+    if(cur.row !== R.scene){ toScene(); paint(); return; }
+    try { if(document.referrer && /(home|news|sport|store)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    location.href = 'home.html';
+  }
+
+  addEventListener('keydown', function(e){
+    if(prof.key(e.key)){ e.preventDefault(); return; }   // the profile photo / its panel
+    var r = rows[cur.row], n = r.items.length, handled = true;
+    var inScene = cur.row === R.scene;
+    if(e.key === 'ArrowRight'){ if(inScene) nudgeSlide(1); else cur.col[cur.row] = Math.min(n - 1, cur.col[cur.row] + 1); }
+    else if(e.key === 'ArrowLeft'){
+      if(inScene) nudgeSlide(-1);
+      // Left on a rail's first item goes up to the top bar (its Movie tab), as on Home
+      else if(cur.row > 0 && cur.col[cur.row] === 0){ cur.from = cur.row; cur.row = 0; cur.col[0] = NAV_MOVIE; }
+      else cur.col[cur.row] = Math.max(0, cur.col[cur.row] - 1);
+    }
+    else if(e.key === 'ArrowUp'){
+      // first scene: Play, then Detail, then the top bar (landing on the Movie tab)
+      if(inScene && !cur.detail) cur.detail = true;
+      else if(inScene){ cur.detail = false; cur.from = R.scene; cur.row = 0; cur.col[0] = NAV_MOVIE; }
+      else if(cur.row > R.scene && cur.row - 1 === R.scene){ toScene(); }
+      else if(cur.row > 0) cur.row--;
+    }
+    else if(e.key === 'ArrowDown'){
+      if(cur.row === 0){ cur.row = cur.from || R.scene; if(cur.row === R.scene) cur.detail = false; }
+      else if(inScene && cur.detail) cur.detail = false;
+      else cur.row = Math.min(rows.length - 1, cur.row + 1);
+    }
+    else if(e.key === 'Enter') select(inScene && cur.detail ? detailEl : r.items[cur.col[cur.row]]);
+    else if(e.key === 'Escape' || e.key === 'Backspace') back();
+    else handled = false;
+    if(handled){ e.preventDefault(); paint(); }
+  });
+  rows.forEach(function(r, ri){ r.items.forEach(function(el, ci){
+    el.addEventListener('click', function(){ if(ri === 0) cur.from = cur.row || cur.from; cur.row = ri; cur.col[ri] = ci; cur.detail = false; paint(); select(el); });
+  }); });
+  detailEl.addEventListener('click', function(){ cur.row = R.scene; cur.detail = true; paint(); select(detailEl); });
+
+  // coming back (Back from the player, the TV Guide, a short or the movie's page): the same item again
+  try {
+    var saved = sessionStorage.getItem('movieReturn') && JSON.parse(sessionStorage.getItem('movieFocus') || 'null');
+    sessionStorage.removeItem('movieReturn');
+    if(saved && saved.col && saved.col.length === rows.length){ cur = saved; if(cur.row === 0) cur.row = cur.from || R.scene; }
+  } catch(e){}
+  if(!cur.from) cur.from = R.scene;
+  page.style.transition = 'none';
+  paint();
+  // fonts change the rows' heights: lay out again once they are in, then let the page glide
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(function(){ paint(); requestAnimationFrame(function(){ page.style.transition = ''; }); });
+})();
+</script>
+<script src="focus-ring.js"></script>
+</body>
+</html>

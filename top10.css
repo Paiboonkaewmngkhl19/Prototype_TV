@@ -1,0 +1,23 @@
+/*
+  Top 10 rank card (Home's "Top 10 in Thailand Today", Movie's "Top 10"), with top10.js: a glass numeral 240px tall
+  behind the 2:3 poster, baseline 285px below the card top; Top10.layout() sizes each numeral to its ink and sets the
+  wrap's left padding. Markup: <div class="rank-wrap"> Top10.numeral(n) <div class="rank-poster"> </div>.
+  Focus goes either on the wrap (Home: <div class="rank-wrap item">) or on the poster (pages using focus-ring.js, so the
+  ring wraps the poster only); either way the numeral looks selected too.
+*/
+.rank-wrap{position:relative;display:block;flex:0 0 auto;padding-left:169px;}
+.rank-wrap > .rank-poster{position:relative;z-index:1;filter:drop-shadow(0 0 8.5px rgba(0,0,0,.7));}
+.rank-num{position:absolute;left:0;top:0;height:330px;overflow:visible;pointer-events:none;user-select:none;transition:filter .22s ease;}
+/* resting numeral (Figma): the glass fill, white fading top to bottom with a dark shade on its right, edged with a
+   glass rim that catches the light at the top and fades towards the bottom (a 1.6px stroke, half masked away outside
+   the glyph, so 0.8px shows) */
+.rank-num .rn-fill{opacity:1;transition:opacity .22s ease;}
+.rank-num .rn-line{stroke-width:1.6px;transition:stroke-width .22s ease;}
+/* the focused poster's numeral looks selected too: a brighter, thicker rim and a soft white glow */
+.rank-wrap.focused .rank-num, .rank-wrap:has(> .rank-poster.focused) .rank-num{filter:drop-shadow(0 0 14px rgba(255,255,255,.28));}
+.rank-wrap.focused .rank-num .rn-fill, .rank-wrap:has(> .rank-poster.focused) .rank-num .rn-fill{opacity:1;}
+.rank-wrap.focused .rank-num .rn-line, .rank-wrap:has(> .rank-poster.focused) .rank-num .rn-line{stroke-width:3px;stroke:url(#rankNumRimOn);}
+/* Focus on the whole wrap (rank number + poster): the visible focus (scale + ring) lands on the poster only, leaving
+   the giant numeral untouched: cancel the generic .item.focused effect on the wrap and re-apply it to the poster. */
+.rank-wrap.item.focused{transform:none;box-shadow:none;}
+.rank-wrap.item.focused > .rank-poster{transform:scale(1.08);z-index:5;}

@@ -108,7 +108,7 @@
   .track .played{ width:calc(var(--f) * (100% - var(--r))); }
   .track.on{ --r:10px; }
   .track.on .base, .track.on .buf, .track.on .played{ top:8px; height:16px; border-radius:8px; }   /* 16px (Figma: 12px) */
-  .track .played{ background:#ff1f1f; }   /* a strong live red */
+  .track .played{ background:#ff1f1f; }   /* a strong live red: the Live tag and progress red on every page (--live) */
   .track .handle{ position:absolute; top:4px; left:calc(var(--f) * (100% - var(--r))); width:24px; height:24px; box-sizing:border-box; margin-left:-12px; border-radius:12px;
     border:4px solid #fff; background:var(--inverse-surface); box-shadow:0 2px 6px rgba(0,0,0,.25);
     opacity:0; transform:scale(.3); transition:opacity .2s ease, transform .2s ease; }
@@ -514,7 +514,7 @@
   function markWatching(){ try { sessionStorage.setItem('tvWatching', JSON.stringify({n:C.n, t:Date.now(), v:byId('video').src, at:byId('video').currentTime})); } catch(e){} }
   function back(){
     markWatching();
-    try { if(document.referrer && /(tv-guide|sport|home|news)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    try { if(document.referrer && /(tv-guide|sport|home|news|movie)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
     location.href = 'tv-guide.html';
   }
   function activate(el){

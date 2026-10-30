@@ -6,6 +6,9 @@
 <link rel="stylesheet" href="chip-theme.css">
 <link rel="stylesheet" href="button-theme.css">
 <link rel="stylesheet" href="live-ribbon.css">
+<link rel="stylesheet" href="top10.css">
+<link rel="stylesheet" href="platform-tag.css">
+<link rel="stylesheet" href="corner-tag.css">
 <style>
   :root{
     --bg-0:#0a0714;
@@ -14,9 +17,9 @@
     --ink:#ffffff;
     --ink-dim:#e3e3e3;
     --ink-faint:rgba(255,255,255,0.55);
-    --live:#ff383c;
+    --live:#ff1f1f;   /* the Live TV player's seek-bar red: Live tags and progress bars on every page */
     --progress-track:rgba(255,255,255,0.35);
-    --progress-fill:#f44735;
+    --progress-fill:var(--live);
     --card-title-bg:#4d4955;
     --chip-bg:rgba(255,255,255,0.08);
     --chip-border:rgba(255,255,255,0.16);
@@ -273,11 +276,11 @@
   }
   .hero-meta-row{display:flex;align-items:center;gap:16px;margin-bottom:24px;min-height:36px;}
   /* channel / provider logo, inline before the channel name */
-  .hero-logo{width:54px;height:36px;object-fit:contain;border-radius:8px;display:block;flex:0 0 auto;margin-right:-8px;}   /* 8px to its channel name (Figma) */   /* the provider's tag logo, same as the rail cards' */
+  .hero-logo{width:var(--ptag-w);height:var(--ptag-h);object-fit:contain;border-radius:8px;display:block;flex:0 0 auto;margin-right:-8px;}   /* 8px to its channel name (Figma) */   /* the provider's tag logo, same as the rail cards' */
   .hero-channel{font-size:20px;color:#e8e8e8;}
   .badge-live{
     display:inline-flex;align-items:center;gap:8px;
-    background:#ea5454;color:#fff;border-radius:18px;
+    background:var(--live);color:#fff;border-radius:18px;
     height:36px;box-sizing:border-box;padding:0 12px;font-size:20px;font-weight:500;text-transform:uppercase;white-space:nowrap;
   }
   .badge-live .dot{width:12px;height:12px;border-radius:999px;background:#fff;}
@@ -290,7 +293,7 @@
   .chip-row{padding-bottom:54px;}   /* + the chips' 6px bottom padding = 60px */
   .row-title{
     font-size:32px;font-weight:500;line-height:40px;color:#e8e8e8;
-    padding:0 110px;margin:0 0 24px;   /* Figma: a 40px title line, then 24px to the cards */
+    padding:0 110px;margin:0 0 40px;   /* a 40px title line, then 40px to the resting cards (every rail, every page) */
   }
   /* Vertical padding + matching negative margin: gives focused cards (which
      scale up via .card.focused / .item.focused) room to grow without their
@@ -313,7 +316,7 @@
   /* provider logos: the badge image IS the tag (a rounded tile with the logo filling it), so it's shown full size with
      no extra dark box or padding around it */
   .platform.has-logo, .card-tag.has-logo{ padding:0 !important; background:none !important; height:auto !important; }
-  .platform.has-logo .badge-logo, .card-tag.has-logo .badge-logo{ width:60px !important; height:40px !important; object-fit:contain; border-radius:10px; }
+  .platform.has-logo .badge-logo, .card-tag.has-logo .badge-logo{ width:var(--ptag-w) !important; height:var(--ptag-h) !important; object-fit:contain; }   /* platform-tag.css: 56 x 36 */
   .badge-logo{height:22px;width:auto;display:block;object-fit:contain;}
   .platform{background:rgba(0,0,0,.6);}
   .platform .badge-logo{height:18px;}
@@ -328,20 +331,17 @@
 
   .card-content .strip{padding:8px 0 0;display:flex;flex-direction:column;gap:4px;}   /* Figma: the title sits 8px under the picture */
   /* focused card: its grey info areas turn ~30% darker so the focused card stands apart */
-  .epg-now, .epg-next, .card-karaoke{ transition:background-color .22s cubic-bezier(.2,0,0,1); }
-  .epg-card.focused .epg-now{ background:#2d2d2d; }
-  .epg-card.focused .epg-next{ background:#393939; }
-  .card-karaoke.focused{ background:#1e1e1e; }
+  .epg-card, .card-karaoke{ transition:background-color .22s cubic-bezier(.2,0,0,1); }
+  /* the cards' glass (chip-theme.css .tv-glass) brightens a little when focused */
+  .epg-card.focused, .card-karaoke.focused{ background:rgba(255,255,255,.24); }
   .card-content .strip .t{font-size:20px;font-weight:500;color:#e8e8e8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .card-content .strip .s{font-size:16px;color:#a8a8a8;}
   /* Continue watching (Figma "Jump back right in"): tag bottom-left, time left bottom-right, a 6px bar along the bottom */
-  .card-content .cw-left{position:absolute;right:12px;bottom:14px;height:22px;padding:0 8px;border-radius:999px;background:#3a3a3a;
-    display:flex;align-items:center;font-size:14px;font-weight:500;color:#e8e8e8;white-space:nowrap;}
+  /* time left: the corner tag (corner-tag.css) */
   .card-content .thumb > .progress{position:absolute;left:0;bottom:0;height:6px;border-radius:0;}
   .card-content .thumb > .card-tag{bottom:14px;}
   /* Live and Upcoming: the start time as a pill on the picture's top-left */
-  .time-pill{position:absolute;left:12px;top:12px;height:30px;padding:0 12px;border-radius:999px;background:#3a3a3a;
-    display:flex;align-items:center;font-size:20px;font-weight:500;color:#e8e8e8;white-space:nowrap;}
+  /* start times and badges top-left on cards: the top tag (corner-tag.css) */
   .progress{height:8px;border-radius:2px;background:var(--progress-track);width:100%;overflow:hidden;}
   .progress > i{display:block;height:100%;background:var(--progress-fill);border-radius:2px;}
 
@@ -349,36 +349,16 @@
   .card-poster{width:220px;height:330px;border-radius:12px;display:flex;align-items:flex-end;}   /* Figma 2:3 card */
   .card-poster .platform{position:absolute;right:6px;top:6px;height:34px;padding:0 10px;border-radius:6px;background:rgba(0,0,0,.55);display:flex;align-items:center;font-size:13px;font-weight:700;}
 
-  /* top10 rank card */
-  /* Figma "Number style": a translucent glass numeral 240px tall (Plus Jakarta Sans ExtraBold) behind the poster,
-     baseline 285px below the card top; the poster overlaps the digit by 20px.
-     layoutRankNums() sizes each SVG numeral to its ink and sets the wrap's left padding. */
-  .rank-wrap{position:relative;display:block;flex:0 0 auto;padding-left:169px;}
-  .rank-wrap > .card{position:relative;z-index:1;filter:drop-shadow(0 0 8.5px rgba(0,0,0,.7));}
-  .rank-num{position:absolute;left:0;top:0;height:330px;overflow:visible;pointer-events:none;user-select:none;transition:filter .22s ease;}
-  /* resting numeral: fill layer at 70%, 0.3px white outline (a 0.6px stroke, half masked away outside the glyph) */
-  .rank-num .rn-fill{opacity:.7;transition:opacity .22s ease;}
-  .rank-num .rn-line{stroke-width:.6px;transition:stroke-width .22s ease;}
-  /* the focused poster's numeral looks selected too: full fill, 1px outline, soft white glow */
-  .rank-wrap.focused .rank-num{filter:drop-shadow(0 0 14px rgba(255,255,255,.28));}
-  .rank-wrap.focused .rank-num .rn-fill{opacity:1;}
-  .rank-wrap.focused .rank-num .rn-line{stroke-width:2px;}
-  /* Focus targets this whole wrap (rank number + poster) for keyboard nav,
-     but the visible focus affordance — scale + ring — should land on the
-     poster card only, leaving the giant rank numeral untouched: cancel the
-     generic .item.focused effect on the wrap itself and re-apply it to the
-     inner .card instead. */
-  .rank-wrap.item.focused{transform:none;box-shadow:none;}
-  .rank-wrap.item.focused .card{transform:scale(1.08);z-index:5;}
+  /* top10 rank card: top10.css (and top10.js) */
 
   /* karaoke card */
-  .card-karaoke{width:280px;border-radius:10px;overflow:hidden;background:#2b2b2b;}
+  .card-karaoke{width:280px;border-radius:10px;overflow:hidden;}   /* its song strip: the card glass (chip-theme.css .tv-glass) */
   .karaoke-track{gap:30px;}
   .card-karaoke .art{width:280px;height:280px;object-fit:cover;display:block;}
-  .card-karaoke .meta{padding:20px 29px;display:flex;flex-direction:column;gap:4px;line-height:1.2;}
+  .card-karaoke .meta{padding:16px 20px;display:flex;flex-direction:column;gap:4px;line-height:1.2;}
   .card-karaoke .meta .song, .card-karaoke .meta .artist{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .card-karaoke .meta .song{font-size:28px;font-weight:600;}
-  .card-karaoke .meta .artist{font-size:24px;}
+  .card-karaoke .meta .song{font-size:24px;font-weight:600;}
+  .card-karaoke .meta .artist{font-size:20px;}
 
   /* chips */
   .chip-row .rail-track{align-items:center;padding-top:6px;padding-bottom:6px;}
@@ -393,26 +373,29 @@
   /* EPG / TV guide */
   .epg-row .rail-track{align-items:stretch;}
   .epg-countdown{
-    width:180px;height:280px;border-radius:999px;border:0;   /* no stroke; the focus ring outlines it when focused */
+    width:180px;height:280px;border-radius:20px;border:0;   /* a rounded rectangle, as the TV Guide cards, focused or not; no stroke */
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;
-    /* glass over the grey accent gradient, light rim */
-    background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%), var(--th-pill);box-shadow:inset 0 0 0 2px rgba(255,255,255,.45), inset -1px 3px 17px rgba(255,255,255,.2);
-    flex:0 0 auto;
+    flex:0 0 auto;   /* its default and focused looks: the All Apps tile's (below) */
   }
   .epg-countdown b{font-size:28px;font-weight:700;}
   .epg-countdown span{font-size:22px;font-weight:400;opacity:.9;}
-  .epg-card{width:340px;border-radius:20px;overflow:hidden;background:rgba(82,82,82,0.7);flex:0 0 auto;display:flex;flex-direction:column;}
-  .epg-now{background:#404040;padding:22px 18px 16px;display:flex;flex-direction:column;gap:12px;position:relative;}
+  .epg-card{width:340px;border-radius:20px;overflow:hidden;flex:0 0 auto;   /* the card glass (chip-theme.css .tv-glass) */
+    display:flex;flex-direction:column;}
+  .epg-now{padding:22px 18px 16px;display:flex;flex-direction:column;gap:12px;position:relative;}
   .epg-avatar{width:64px;height:64px;object-fit:cover;display:block;}
   .epg-avatar.round{border-radius:999px;background:rgba(0,0,0,.2);}
   .epg-avatar.contain{object-fit:contain;}
   .epg-title{font-size:19px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:1px 1px 2px rgba(0,0,0,.7);}
   .epg-sub{font-size:15px;opacity:.9;text-shadow:1px 1px 2px rgba(0,0,0,.7);}
-  .epg-heart{position:absolute;right:16px;top:16px;}
+  /* top right: the Time Shift icon (what's on now can be watched from its start) and the favourite heart */
+  .epg-icons{position:absolute;right:18px;top:22px;display:flex;align-items:center;gap:12px;}   /* on the card's own padding: level with the logo's top, in line with the text's right edge */
+  .epg-ts{width:24px;height:24px;display:block;}
+  .epg-heart{display:block;}
   /* the heart takes the accent colour: the svg is only the shape (a mask), filled with --th-b */
   .epg-heart img{width:24px;height:24px;display:block;object-position:-9999px 0;
     background:var(--th-b);-webkit-mask:url('icons/tv-guide/heart-fill.svg') center / contain no-repeat;mask:url('icons/tv-guide/heart-fill.svg') center / contain no-repeat;}   /* filled, as a favourite shows in the TV Guide and the player */
-  .epg-next{background:#525252;padding:20px 18px;display:flex;flex-direction:column;gap:6px;flex:1;}   /* fills the card to its bottom edge (the rail stretches cards to 280px) */
+  .epg-next{background:rgba(255,255,255,.07);padding:20px 18px;   /* what's next: a lighter band of the same glass */
+    display:flex;flex-direction:column;gap:6px;flex:1;}   /* fills the card to its bottom edge (the rail stretches cards to 280px) */
 
   /* Clips rail (Figma Home 2002:105733) */
   /* the artwork band (Figma "Short"): 110px above the title, 80px below the cards; then the usual 60px */
@@ -436,22 +419,14 @@
   .clip-logo{position:absolute;left:12px;bottom:12px;width:60px;height:40px;object-fit:contain;border-radius:10px;display:block;}   /* same tag logo as the other rails */
   .clip-logo.round{width:44px;height:44px;border-radius:50%;object-fit:cover;background:#fff;}
   /* View All: same tile as the TV Guide's "TV Guide / View All" pill */
-  .clip-viewall{width:220px;border-radius:38px;flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
-    background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%), var(--th-pill);box-shadow:inset 0 0 0 2px rgba(255,255,255,.45), inset -1px 3px 17px rgba(255,255,255,.2);color:#fff;}
+  .clip-viewall{width:220px;border-radius:38px;flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#fff;}   /* looks: the All Apps tile's */
   .clip-viewall b{font-size:28px;font-weight:700;}
   .clip-viewall span{font-size:22px;font-weight:400;opacity:.9;}
-  /* provider tag logos (badges/tag-*.png) are drawn as ovals on a transparent corner: everywhere on the page they
-     sit on a rounded square filled with the logo's own colour (channel logos stay round) */
-  img[src*="badges/tag-"]{border-radius:6px !important;}
-  img[src*="badges/tag-netflix"], img[src*="badges/tag-hbo"]{background:#000 !important;}
-  img[src*="badges/tag-prime"]{background:#1a98ff !important;}
-  img[src*="badges/tag-disney"]{background:#042437 !important;}
-  img[src*="badges/tag-viu"]{background:#ffbf00 !important;}
-  img[src*="badges/tag-monomax"]{background:#fff !important;}
+  /* provider tag logos (badges/tag-*.png): their colour fill and corners come from platform-tag.css */
 
-  /* Quick Access (Figma "Rail - My Subscription"): 407 x 180 cards, 24px apart */
-  .quick-row .rail-track{gap:24px;}
-  .quick-card{width:407px;height:180px;box-sizing:border-box;border-radius:12px;flex:0 0 auto;background:#474747;
+  /* Quick Access (Figma "Rail - My Subscription"): 401 x 180 cards, 32px apart (four fill the 1700px between the margins) */
+  .quick-row .rail-track{gap:32px;}
+  .quick-card{width:401px;height:180px;box-sizing:border-box;border-radius:12px;flex:0 0 auto;   /* the chip theme's states (chip-theme.css) */
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:16px;text-align:center;}
   .quick-card .qc-sub{font-size:20px;line-height:23px;color:#e8e8e8;white-space:nowrap;}
   .quick-card .qc-name{display:flex;align-items:center;gap:16px;font-size:32px;font-weight:500;color:#e8e8e8;white-space:nowrap;}
@@ -461,11 +436,9 @@
   .partner-row .rail-track{align-items:center;}
   .partner-allapps{
     width:220px;height:140px;box-sizing:border-box;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:6px;   /* Figma "All app" button */
-    background:rgba(255,255,255,.14);box-shadow:inset -1px 3px 16px rgba(255,255,255,.16);
     font-size:28px;font-weight:700;flex:0 0 auto;
   }
-  .partner-allapps.focused{background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%), var(--th-pill);   /* grey glass fill, as a focused top-bar tab */
-    box-shadow:inset -1px 3px 17px rgba(255,255,255,.2);text-shadow:0 1px 4px rgba(0,0,0,.35);}
+  /* the View All tiles (All Apps, TV Guide, Shorts, LPGA): the chip theme's default and focus (chip-theme.css .tv-chip) */
   .partner-logo-tile{ width:250px !important; height:140px !important; border-radius:12px; overflow:hidden; background:#000; }
   .partner-logo-tile img{ width:100%; height:100%; object-fit:cover; display:block; }
   .partner-card{width:200px;height:96px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;letter-spacing:.02em;flex:0 0 auto;}
@@ -484,7 +457,7 @@
   .hero-pick .chanlogo{height:44px;padding:0 14px;border-radius:8px;background:rgba(255,255,255,.18);display:flex;align-items:center;font-weight:700;font-size:16px;}
   .hero-pick .chan-partner-logo{height:53px;width:114px;object-fit:cover;border-radius:8px;display:block;flex:0 0 auto;}
   .hero-pick .chanmeta{font-size:20px;font-weight:500;padding:0 5px;white-space:nowrap;}
-  .hero-pick .chan-tag-logo{height:36px;width:54px;object-fit:contain;border-radius:8px;background:#000;display:block;flex:0 0 auto;}   /* platform tag logo as a filled rounded square, chip height */
+  .hero-pick .chan-tag-logo{height:var(--ptag-h);width:var(--ptag-w);object-fit:contain;border-radius:8px;background:#000;display:block;flex:0 0 auto;}   /* platform tag logo as a filled rounded square, chip height */
   .catchip{background:rgba(255,255,255,.3);padding:7px 12px;border-radius:8px;font-size:16px;}
 
   /* portrait card */
@@ -494,7 +467,8 @@
   .exclusive-card img{width:100%;height:100%;object-fit:cover;display:block;}
 
   /* Hot Channel Program (Figma 3256:172436): 16:9 programme cards, a gold crown on premium ones */
-  .hcp-crown{position:absolute;left:12px;bottom:12px;width:24px;height:24px;display:block;}
+  .hcp-crown{position:absolute;left:12px;bottom:12px;width:36px;height:36px;padding:7px;box-sizing:border-box;border-radius:50%;display:block;
+    background:rgba(40,40,40,.85);box-shadow:0 2px 8px rgba(0,0,0,.4);}   /* the crown on a grey circle, so it shows on light pictures too */
 
   /* Recommended Apps (Figma 3256:172467): 250 x 140 app tiles, then All Apps */
   .recapps-row .rail-track{align-items:center;}
@@ -506,22 +480,29 @@
   .hl-row{padding:150px 0 50px;margin-bottom:60px;}
   /* the artwork fades out to nothing at its top and bottom edges (a mask, not a colour), so it melts into whatever is
      behind the page with no visible band edge */
-  .hl-bg{position:absolute;inset:0;z-index:-1;pointer-events:none;background:url('posters/highlight/bg.png') center top / cover no-repeat;
-    -webkit-mask-image:linear-gradient(180deg, transparent 0%, #000 24%, #000 66%, transparent 100%);
-    mask-image:linear-gradient(180deg, transparent 0%, #000 24%, #000 66%, transparent 100%);}
+  .hl-bg{position:absolute;left:0;right:0;top:-160px;bottom:-60px;z-index:-1;pointer-events:none;background:url('posters/highlight/bg.png') center top / cover no-repeat;
+    /* it starts 160px above the band and fades in over its top third on an eased curve (and out the same way at the
+       bottom), so there's no line where the picture begins */
+    --hl-fade:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.04) 6%, rgba(0,0,0,.14) 12%, rgba(0,0,0,.3) 18%, rgba(0,0,0,.5) 24%,
+      rgba(0,0,0,.7) 30%, rgba(0,0,0,.86) 36%, #000 44%, #000 64%, rgba(0,0,0,.8) 72%, rgba(0,0,0,.5) 82%, rgba(0,0,0,.2) 92%, transparent 100%);
+    -webkit-mask-image:var(--hl-fade); mask-image:var(--hl-fade);}
   .hl-bg::after{content:'';position:absolute;inset:0;
     background:linear-gradient(90deg, rgba(10,7,20,.6) 0%, rgba(10,7,20,.15) 55%, rgba(10,7,20,.15) 100%);}   /* dims it behind the text */
-  .hl-info{padding:0 110px;margin-bottom:24px;max-width:800px;}
+  .hl-info{padding:0 110px;margin-bottom:80px;max-width:800px;}   /* text above a rail ends 80px over its cards, as the hero text does */
   .hl-info h3{font-size:57px;font-weight:700;line-height:1.15;margin:0 0 24px;text-shadow:0 2px 12px rgba(0,0,0,.35);}
   .hl-info p{width:700px;margin:0;font-size:24px;line-height:32px;color:#e8e8e8;text-shadow:0 0 6px rgba(0,0,0,.6);
     display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
   .hl-row .rail-track{align-items:stretch;}
 
   /* Seasonal / Collection (Figma "seasonal" 3256:172487): 395 x 612 tall cards, the collection's name across the art */
-  .season-card{position:relative;width:395px;height:612px;border-radius:42px;overflow:hidden;flex:0 0 auto;background-size:cover;background-position:center;}
-  .season-card::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,.2) 0%, rgba(0,0,0,.55) 100%);}
-  .season-card span{position:absolute;left:35px;right:35px;top:50%;transform:translateY(-50%);z-index:1;
-    font-size:52px;font-weight:700;line-height:1.15;color:#fff;opacity:.9;text-shadow:0 2px 12px rgba(0,0,0,.45);}
+  .season-card{position:relative;width:395px;height:612px;border-radius:16px;overflow:hidden;flex:0 0 auto;background-size:cover;background-position:center;}
+  /* the title and a dark fade at the top behind it show on the focused card only; at rest, just the poster */
+  .season-card::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,.82) 0%, rgba(0,0,0,.55) 22%, rgba(0,0,0,0) 48%);
+    opacity:0;transition:opacity .25s ease;}
+  .season-card span{opacity:0;transform:translateY(-8px);transition:opacity .25s ease, transform .25s cubic-bezier(.2,0,0,1);}
+  .season-card.focused::after, .season-card.focused span{opacity:1;transform:none;}
+  .season-card span{position:absolute;left:35px;right:35px;top:40px;z-index:1;text-align:center;   /* the title at the top, centred */
+    font-size:52px;font-weight:700;line-height:1.15;color:rgba(255,255,255,.92);text-shadow:0 2px 12px rgba(0,0,0,.45);}
   .seasonal-row .item.focused{transform:scale(1.05);}   /* tall cards: 5%, so they don't reach the rails around them */
 
   /* Choose what you like (Figma 3256:172489): 12 topic tiles in two rows of six, then Continue / Skip */
@@ -532,25 +513,47 @@
   .gc-title p{font-size:32px;line-height:32px;color:#a8a8a8;margin:0;}
   .genre{position:relative;width:260px;height:146px;border-radius:10px;overflow:hidden;flex:0 0 auto;background-size:cover;background-position:center;}
   .genre::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,.45);}
-  .genre span{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;padding:0 16px;
-    text-align:center;font-size:21px;font-weight:500;line-height:1.1;color:#e8e8e8;}
-  .genre .gchk{position:absolute;left:10px;top:10px;z-index:2;width:26px;height:26px;border-radius:50%;background:#3a3a3a;
-    display:flex;align-items:center;justify-content:center;}
-  .genre .gchk img{width:16px;height:16px;display:block;}
-  .genre.on .gchk{background:#e8e8e8;}
-  .genre.on .gchk::after{content:'';position:absolute;width:10px;height:10px;border-radius:50%;background:#2a2a2a;}
+  .genre > span:not(.gchk){position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;padding:44px 16px 10px;   /* centred under the check box's row */
+    text-align:center;font-size:32px;font-weight:500;line-height:1.15;color:#e8e8e8;text-shadow:0 1px 6px rgba(0,0,0,.6);}
+  /* check box: an empty ring at rest; picked, a filled white circle with a dark tick, and the tile gets a white rim */
+  .genre .gchk{position:absolute;left:12px;top:12px;z-index:2;width:36px;height:36px;border-radius:50%;box-sizing:border-box;
+    border:2px solid rgba(255,255,255,.85);background:rgba(0,0,0,.35);transition:background .15s ease, border-color .15s ease;}
+  .genre .gchk::after{content:'';position:absolute;left:11px;top:5px;width:8px;height:16px;border:solid #1b1b1b;border-width:0 3px 3px 0;
+    transform:rotate(45deg) scale(.4);opacity:0;transition:opacity .15s ease, transform .2s cubic-bezier(.2,0,0,1);}
+  .genre.on .gchk{background:#fff;border-color:#fff;}
+  .genre.on .gchk::after{opacity:1;transform:rotate(45deg);}
+  .genre::after{content:'';position:absolute;inset:0;z-index:2;border-radius:inherit;box-shadow:inset 0 0 0 3px #fff;opacity:0;transition:opacity .15s ease;pointer-events:none;}
+  .genre.on::after{opacity:1;}
+  /* the overlay behind the label: dark at rest, darker when focused; once picked, a white overlay instead */
+  .genre::before{transition:background .2s ease;}
+  .genre.focused::before{background:rgba(0,0,0,.68);}
+  .genre.on::before, .genre.on.focused::before{background:rgba(255,255,255,.3);}
   .gc-actions .rail-track, .back-row .rail-track{justify-content:center;padding-right:110px;}
-  .gc-btn{min-width:172px;height:86px;box-sizing:border-box;padding:0 40px;border-radius:999px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;
-    background:rgba(58,58,58,.6);font-size:28px;font-weight:500;color:#e8e8e8;opacity:.8;}
-  .gc-btn.off{opacity:.4;}   /* Continue: until 3 topics are picked */
-  .gc-btn.focused{opacity:1;}
+  /* Continue (primary) and Skip (secondary): button-theme.css */
+  .gc-btn{--btn-w:auto;min-width:220px;padding:0 48px;font-size:28px;}
+  .gc-btn.off:not(.focused){opacity:.4;}   /* Continue: dimmed until 3 topics are picked; focused, the primary button's own focus */
+
+  /* Refreshing Your New Home (Figma PLAY epg 3299:86154): a full-screen loading after Continue in Choose what you like */
+  .refresh{position:absolute;inset:0;z-index:2000;background:#1e1e1e;opacity:0;pointer-events:none;transition:opacity .35s ease;}
+  .refresh.on{opacity:1;pointer-events:auto;}
+  .refresh .in{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px;padding:60px 90px;box-sizing:border-box;}
+  /* the spinner (Figma's 144px icon: 8 rounded spokes, 12 x 36, from 30px to 66px off the centre), drawn as 8 bars so
+     they can fade one after another: a bright spoke runs round with a fading tail */
+  .refresh .spin{position:relative;width:144px;height:144px;flex:0 0 auto;}
+  .refresh .spin i{position:absolute;left:66px;top:6px;width:12px;height:36px;border-radius:6px;background:#e8e8e8;
+    transform-origin:6px 66px;opacity:.2;animation:refreshSpoke .8s linear infinite;}
+  @keyframes refreshSpoke{0%{opacity:.85;} 100%{opacity:.15;}}
+  .refresh .txt{display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;font-family:'Plus Jakarta Sans', sans-serif;
+    text-shadow:0 0 4px rgba(0,0,0,.5);white-space:nowrap;}
+  .refresh h2{margin:0;font-size:40px;font-weight:600;color:#fff;}
+  .refresh p{margin:0;font-size:24px;font-weight:500;color:#d6d6d6;line-height:normal;}
 
   /* Back to Top (Figma 3256:172509) */
   .back-row{padding-bottom:40px;}
-  .back-top{height:80px;box-sizing:border-box;padding:0 100px;border-radius:999px;flex:0 0 auto;display:flex;align-items:center;gap:16px;
-    background:#4a4a4a;color:#e8e8e8;font-size:24px;font-weight:500;}
-  .back-top i{width:32px;height:32px;background:currentColor;-webkit-mask:url('icons/arrow-up.svg') center / contain no-repeat;mask:url('icons/arrow-up.svg') center / contain no-repeat;}
-  .back-top.focused{background:#e8e8e8;color:#2a2a2a;}
+  /* the primary button's states (button-theme.css), as News / Movie's Back to Top */
+  .back-top{--btn-w:auto;--btn-h:80px;padding:0 100px;font-size:24px;}
+  .back-top i{width:32px;height:32px;-webkit-mask:url('icons/arrow-up.svg') center / contain no-repeat;mask:url('icons/arrow-up.svg') center / contain no-repeat;}
 
   .end-spacer{height:70px;}
 
@@ -654,6 +657,7 @@
 </style>
 
 <div id="tv-frame">
+  <div class="refresh" id="refresh" aria-live="polite"><div class="in"><div class="spin" aria-hidden="true"><i style="transform:rotate(0deg);animation-delay:-0.8s"></i><i style="transform:rotate(45deg);animation-delay:-0.7s"></i><i style="transform:rotate(90deg);animation-delay:-0.6s"></i><i style="transform:rotate(135deg);animation-delay:-0.5s"></i><i style="transform:rotate(180deg);animation-delay:-0.4s"></i><i style="transform:rotate(225deg);animation-delay:-0.3s"></i><i style="transform:rotate(270deg);animation-delay:-0.2s"></i><i style="transform:rotate(315deg);animation-delay:-0.1s"></i></div><div class="txt"><h2>Refreshing Your New Home</h2><p>Sit back while we tailor your Home to your interests.<br>You can always make changes later in Settings.</p></div></div></div>
   <nav class="topnav">
     <div class="profile item" data-title="Profile"><img src="icons/profile-tv.png" alt="Profile"></div>
     <div class="prof-panel" id="profPanel" aria-hidden="true">
@@ -680,7 +684,7 @@
       <div class="navtab tv-tab item active" data-label="Home">Home</div>
       <!-- Live TV: Enter plays a channel in the Live TV player (MUTV, the first TV Guide card), as the channel cards do -->
       <div class="navtab tv-tab item" data-label="Live TV" data-href="tv-guide.html?play=MUTV&amp;from=home">Live TV</div>
-      <div class="navtab tv-tab item" data-label="Movie">Movie</div>
+      <div class="navtab tv-tab item" data-label="Movie" data-href="movie.html">Movie</div>
       <div class="navtab tv-tab item" data-label="Sport" data-href="sport.html">Sport</div>
       <div class="navtab tv-tab item" data-label="My List">My List</div>
       <div class="navtab tv-tab item" data-label="Store" data-href="store.html">Store</div>
@@ -724,6 +728,8 @@
   <div id="toast"></div>
 </div>
 
+<script src="channels-data.js"></script>
+<script src="top10.js"></script>
 <script>
 (function(){
   "use strict";
@@ -887,7 +893,7 @@
     var cards = items.map(function(it,i){
       return '<div class="card card-content item" data-title="'+it.t+'" data-desc="'+it.d+'">'+
         '<div class="thumb" style="background-image:url(\'posters/continue/'+it.img+'\');background-size:cover;background-position:center;">'+platformTag(it.plat)+
-          '<span class="cw-left s">'+it.s+'</span>'+
+          '<span class="cw-left corner-tag s">'+it.s+'</span>'+
           '<div class="progress"><i class="play-prog" data-dur="'+it.dur+'" style="width:'+it.pct+'%"></i></div></div>'+
       '</div>';
     }).join('');
@@ -897,32 +903,43 @@
 
   /* ---------- Row: TV Guide ---------- */
   (function(){
-    // Figma "TV guide": channel logo, programme now (with progress) and next
+    // Figma "TV guide": channel logo, programme now (with progress) and next, read from the TV Guide's own schedule
+    // (channels-data.js), so the card, the hero text and the player (Enter) show the same programme at the same time.
+    // MUTV and CNN have Time Shift on what's on now: the Time Shift icon next to the heart.
     var items = [
-      {ch:'MUTV', logo:'mutv.png', round:true, title:'PL Match: v Chelsea (A) 25/26', now:'Started at 6:30 PM', next:'Inside United', nextTime:'Start in 7:30 PM', heart:true},
-      {ch:'CNN', logo:'cnn.jpg', round:true, title:'CNN News Central', now:'Started at 6:30 PM', next:'Anderson Cooper 360°', nextTime:'Start in 7:30 PM', heart:true},
-      {ch:'Real Madrid TV', logo:'realmadrid.png', title:'Champions League 15/16: Real Madrid vs Atlético de Madrid (11th) La Undécima', now:'Started at 6:30 PM', next:'Classic Highlights', nextTime:'Start in 7:30 PM'},
-      {ch:'BBC News', logo:'bbc.jpg', round:true, title:'BBC News at Ten', now:'Started at 6:30 PM', next:'HARDtalk', nextTime:'Start in 7:30 PM'},
-      {ch:'W-Sport', logo:'wsport.png', contain:true, title:'Malaysia Regional Cup \'26: Wildcats v Sneakers', now:'Started at 6:30 PM', next:'Heroines (S2): Heroines (S2E02)', nextTime:'Start in 7:30 PM'}
+      {ch:'MUTV', logo:'mutv.png', round:true}, {ch:'CNN', logo:'cnn.jpg', round:true}, {ch:'Real Madrid TV', logo:'realmadrid.png'},
+      {ch:'BBC News', logo:'bbc.jpg', round:true}, {ch:'W-Sport', logo:'wsport.png', contain:true}
     ];
+    function clock(d){ var h = d.getHours(), m = d.getMinutes(); return (h % 12 || 12) + ':' + (m < 10 ? '0' : '') + m + ' ' + (h < 12 ? 'AM' : 'PM'); }
+    function attrQ(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
+    var nowT = new Date();
+    items.forEach(function(it){
+      var c = window.TV.byName(it.ch), i = window.TV.onAt(c, nowT);
+      it.prog = c.progs[i]; it.nextProg = c.progs[i + 1]; it.heart = !!c.fav;
+    });
     // favourites changed this session in the TV Guide or the player (tvFavs, by channel name) win over the built-in hearts
     try { var FAVS = JSON.parse(sessionStorage.getItem('tvFavs') || 'null'); if(FAVS) items.forEach(function(it){ if(it.ch in FAVS) it.heart = FAVS[it.ch]; }); } catch(e){}
     var epgCards = items.map(function(it,i){
+      var p = it.prog, n = it.nextProg, pct = Math.round((nowT - p.start) / (p.end - p.start) * 100);
       // Enter plays the channel in the Live TV player (via the TV Guide, which has its programmes and the mini EPG)
-      return '<div class="epg-card item" data-title="'+it.title+'" data-href="tv-guide.html?play='+encodeURIComponent(it.ch)+'&from=home">'+
+      return '<div class="epg-card tv-glass item" data-title="'+attrQ(p.t)+'" data-href="tv-guide.html?play='+encodeURIComponent(it.ch)+'&from=home">'+
         '<div class="epg-now">'+
           '<img class="epg-avatar'+(it.round?' round':'')+(it.contain?' contain':'')+'" src="icons/epg/'+it.logo+'" alt="">'+
-          '<div class="epg-prog-data"><div class="epg-title">'+it.title+'</div><div class="epg-sub">'+it.now+'</div></div>'+
-          (it.heart?'<span class="epg-heart"><img src="icons/epg/heart.svg" alt=""></span>':'')+
-          '<div class="progress" style="background:#8a8a8a;"><i class="epg-prog" style="width:'+(15 + Math.round(Math.random()*70))+'%"></i></div>'+
+          '<div class="epg-prog-data"><div class="epg-title">'+p.t+'</div><div class="epg-sub">Started at '+clock(p.start)+'</div></div>'+
+          '<span class="epg-icons">'+(p.ts?'<img class="epg-ts" src="icons/tv-guide/timeshift.svg" alt="Time Shift">':'')+
+            (it.heart?'<span class="epg-heart"><img src="icons/epg/heart.svg" alt=""></span>':'')+'</span>'+
+          '<div class="progress" style="background:#8a8a8a;"><i class="epg-prog" data-s="'+p.start.getTime()+'" data-e="'+p.end.getTime()+'" style="width:'+pct+'%"></i></div>'+
         '</div>'+
-        '<div class="epg-next"><div class="epg-title">'+it.next+'</div><div class="epg-sub">'+it.nextTime+'</div></div>'+
+        '<div class="epg-next"><div class="epg-title">'+n.t+'</div><div class="epg-sub">Starts at '+clock(n.start)+'</div></div>'+
       '</div>';
     }).join('');
-    // each programme (and each Jump Right Back In title) starts at a random point and keeps playing: +1% every 3s,
-    // starting over when it ends; Jump Right Back In's "mins left" follows its bar
+    // the programmes' bars follow the real clock; each Jump Right Back In title starts at a random point and keeps
+    // playing: +1% every 3s, starting over when it ends, its "mins left" following its bar
     setInterval(function(){
-      document.querySelectorAll('.epg-prog, .play-prog').forEach(function(bar){
+      document.querySelectorAll('.epg-prog').forEach(function(bar){
+        bar.style.width = Math.min(100, (Date.now() - bar.dataset.s) / (bar.dataset.e - bar.dataset.s) * 100) + '%';
+      });
+      document.querySelectorAll('.play-prog').forEach(function(bar){
         var w = parseFloat(bar.style.width) + 1;
         if(w > 100) w = 2;
         bar.style.width = w + '%';
@@ -932,7 +949,7 @@
         }
       });
     }, 3000);
-    var countdown = '<div class="epg-countdown item" data-title="TV Guide – View All" data-href="tv-guide.html"><b>TV Guide</b><span>View All</span></div>';
+    var countdown = '<div class="epg-countdown tv-chip item" data-title="TV Guide – View All" data-href="tv-guide.html"><b>TV Guide</b><span>View All</span></div>';
     addRow('<div class="row-block epg-row"><div class="rail-viewport"><div class="rail-track">'+countdown+epgCards+'</div></div></div>');
   })();
 
@@ -950,7 +967,7 @@
       return '<div class="partner-card partner-logo-tile item" data-title="'+a.t+'"><img src="partners/'+a.img+'" alt="'+a.t+'"></div>';
     }).join('');
     addRow('<div class="row-block partner-row"><div class="rail-viewport"><div class="rail-track">'+
-      '<div class="partner-allapps item" data-title="All Apps">All Apps</div>'+cards+
+      '<div class="partner-allapps tv-chip item" data-title="All Apps">All Apps</div>'+cards+
     '</div></div></div>');
   })();
 
@@ -960,7 +977,7 @@
       var pool = posterStylePortrait();
       return '<div class="card card-poster item" data-title="'+it.t+'" style="'+(it.img ? "background-image:url('"+it.img+"');background-size:cover;background-position:center;" : pool)+'"'+(it.d ? ' data-desc="'+it.d+'"' : '')+'>'+
         (it.plat?platformPill(it.plat):'')+
-        (it.pill?'<span class="time-pill">'+it.pill+'</span>':'')+
+        (it.pill?'<span class="time-pill top-tag">'+it.pill+'</span>':'')+
         (it.badge?'<span class="card-badge-corner" style="left:auto;right:0;top:0;border-radius:0 9px 0 9px;">'+it.badge+'</span>':'')+
       '</div>';
     }).join('');
@@ -998,7 +1015,7 @@
     var rest = items.map(function(it,i){
       return '<div class="card card-content item" data-title="'+it.t+'" data-desc="'+it.d+'">'+
         '<div class="thumb" style="background-image:url(\'posters/upcoming/'+it.img+'\');background-size:cover;background-position:center;">'+
-          '<span class="time-pill">'+it.time+'</span></div>'+
+          '<span class="time-pill top-tag">'+it.time+'</span></div>'+
         '<div class="strip"><div class="t">'+it.t+'</div></div>'+
       '</div>';
     }).join('');
@@ -1023,89 +1040,59 @@
     var cards = titles.map(function(t,i){
       if(TOP10_ART[i]) t = TOP10_ART[i].t;
       return '<div class="rank-wrap item" data-title="#'+(i+1)+' '+t+'">'+
-        // Figma "2 (Stroke)" (PLAY-player 1326:9848): a translucent glass numeral, two gradient fills plus a soft inner shadow,
-        // outlined in 0.3px white; the fill layer at 70%. The font builds some digits from overlapping contours, so a plain stroke would show seams
-        // inside the "3" etc.: instead a 0.6px stroke is masked to outside the glyph, leaving a clean 0.3px outer outline.
-        '<svg class="rank-num" data-n="'+(i+1)+'">'+
-          '<defs><mask id="rankMask'+(i+1)+'" maskUnits="userSpaceOnUse" x="-50" y="-50" width="600" height="500">'+
-            '<rect x="-50" y="-50" width="600" height="500" fill="#fff"/>'+
-            '<text font-family="Plus Jakarta Sans" font-weight="800" fill="#000">'+(i+1)+'</text></mask></defs>'+
-          '<g class="rn-fill" filter="url(#rankNumGlass)">'+
-            '<text font-family="Plus Jakarta Sans" font-weight="800" fill="url(#rankNumTone)" fill-opacity=".5">'+(i+1)+'</text>'+
-            '<text font-family="Plus Jakarta Sans" font-weight="800" fill="url(#rankNumShade)" fill-opacity=".4">'+(i+1)+'</text>'+
-          '</g>'+
-          '<text font-family="Plus Jakarta Sans" font-weight="800" class="rn-line" fill="none" stroke="#fff" mask="url(#rankMask'+(i+1)+')">'+(i+1)+'</text>'+
-        '</svg>'+
-        '<div class="card card-poster" style="'+rankArt(i)+'"'+(TOP10_ART[i] ? ' data-desc="'+TOP10_ART[i].d+'"' : '')+'>'+platformPill(TOP10_ART[i] ? TOP10_ART[i].plat : plats[i])+'</div>'+
+        Top10.numeral(i+1)+   // top10.js
+        '<div class="card card-poster rank-poster" style="'+rankArt(i)+'"'+(TOP10_ART[i] ? ' data-desc="'+TOP10_ART[i].d+'"' : '')+'>'+platformPill(TOP10_ART[i] ? TOP10_ART[i].plat : plats[i])+'</div>'+
       '</div>';
     }).join('');
     addRow('<div class="row-block">'+
-      '<svg width="0" height="0" style="position:absolute"><defs>'+
-        // white, fading from 40% at the top to 10% at the bottom
-        '<linearGradient id="rankNumTone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".4"/><stop offset="1" stop-color="#fff" stop-opacity=".1"/></linearGradient>'+
-        // shading across the digit: black on the right, fading to faint grey to the left
-        '<linearGradient id="rankNumShade" x1=".85" y1="0" x2=".61" y2="0"><stop offset="0" stop-color="#000"/><stop offset="1" stop-color="#393939" stop-opacity=".2"/></linearGradient>'+
-        // inner shadow: light grey at 10%, 3.7px down, 20px blur
-        '<filter id="rankNumGlass" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">'+
-          '<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>'+
-          '<feOffset dy="3.7"/><feGaussianBlur stdDeviation="20"/>'+
-          '<feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>'+
-          '<feColorMatrix type="matrix" values="0 0 0 0 .852 0 0 0 0 .852 0 0 0 0 .852 0 0 0 .1 0"/>'+
-          '<feBlend mode="normal" in2="SourceGraphic"/></filter>'+
-      '</defs></svg>'+
+      Top10.defs()+
       '<div class="row-title">Top 10 in Thailand Today</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
-    function layoutRankNums(){
-      var ctx = document.createElement('canvas').getContext('2d');
-      ctx.font = '800 400px "Plus Jakarta Sans"';
-      document.querySelectorAll('.rank-num').forEach(function(svg){
-        var m = ctx.measureText(svg.dataset.n);
-        var k = 240 / m.actualBoundingBoxAscent;              // digit ink height 240px, as in Figma
-        // "10": its digits pulled 36px closer together, so the 0 sits near the 1 (letter-spacing on the numeral's texts)
-        var tight = svg.dataset.n.length > 1 ? -36 : 0;
-        svg.style.letterSpacing = tight + 'px';
-        var inkW = (m.actualBoundingBoxLeft + m.actualBoundingBoxRight) * k + tight;
-        svg.querySelectorAll('text').forEach(function(t){
-          t.setAttribute('font-size', (400 * k).toFixed(1));
-          t.setAttribute('x', (m.actualBoundingBoxLeft * k).toFixed(1));
-          t.setAttribute('y', 285);
-        });
-        svg.setAttribute('width', Math.ceil(inkW));
-        svg.setAttribute('height', 330);
-        // the card overlaps the numeral's last 20px (one digit capped at 169px); "10" sits further under it (60px), closer to its
-        // card; "1" is all stem on the right, so it isn't overlapped at all and keeps 28px clear of its card (room for the card's 8% growth and its focus ring)
-        var n = svg.dataset.n;
-        svg.parentElement.style.paddingLeft = Math.round(n === '1' ? inkW + 28 : n.length > 1 ? inkW - 60 : Math.min(169, inkW - 20)) + 'px';
-      });
-    }
-    layoutRankNums();
-    // Re-measure once the numeral font arrives; the ring may already sit on a Top 10 poster, so re-place it too.
-    if(document.fonts) document.fonts.load('800 400px "Plus Jakarta Sans"').then(function(){
-      layoutRankNums();
-      try{ placeHomeRing(true); }catch(e){}
-    });
+    // size the numerals; again once their font arrives, when the ring may already sit on a Top 10 poster
+    Top10.ready(document, function(){ try{ placeHomeRing(true); }catch(e){} });
     _portraitCursor += 9;   // one pool step per card of the original nine, as the removed phone copy took; keeps later rails' posters
   })();
 
   _portraitCursor += 12;   // Top Pick For You (removed) took 12 pool posters; keep later rows' posters unchanged
 
-  /* ---------- Row: Watch List (landscape) ---------- */
+  /* ---------- Row: My List (landscape) ----------
+     Each card keeps the pool picture it always had; the title, platform, meta line and synopsis behind each picture
+     fill the screen text when it is focused (updateHeroFromCard: data-title / data-tag / data-meta / data-desc). */
   (function(){
-    var items = [
-      {},
-      {},
-      {},
-      {},
-      {},
-      {},
-      {},
-      {}
-    ];
+    var MY_LIST = {
+      'maxresdefault.jpg':{t:'Sir Alex Ferguson: Never Give In', tag:'prime', meta:'Documentary · Sport · 2021 · 1h 52m',
+        d:'The life of Manchester United\'s legendary manager, told by his son: from the Govan shipyards to 26 years at Old Trafford, and the fight back from a brain haemorrhage.'},
+      'loki.jpg':{t:'Loki', tag:'disney', meta:'Series · Fantasy · 2023 · 2 Seasons',
+        d:'The God of Mischief must fix a fractured timeline while pursued by the Time Variance Authority.'},
+      'last-of-us.jpg':{t:'The Last of Us', tag:'hbo', meta:'Series · Drama · 2025 · 2 Seasons',
+        d:'Joel and Ellie journey across a post-pandemic United States, facing new threats and impossible choices.'},
+      'wicked.jpg':{t:'Wicked', tag:'prime', meta:'Musical · Fantasy · 2024 · 2h 40m',
+        d:'The untold story of the witches of Oz: Elphaba and Glinda, long before Dorothy arrived.'},
+      'superman.jpg':{t:'Superman', tag:'hbo', meta:'Action · Sci-Fi · 2025 · 2h 9m',
+        d:'The Man of Steel balances his Kryptonian heritage with his human upbringing as the ultimate protector of Earth.'},
+      'topgun-m.jpg':{t:'Top Gun: Maverick', tag:'hbo', meta:'Action · Drama · 2022 · 2h 11m',
+        d:'After thirty years, Maverick trains a new generation of Top Gun graduates for a dangerous mission.'},
+      'how-to-train.jpg':{t:'How to Train Your Dragon', tag:'prime', meta:'Family · Adventure · 2025 · 2h 5m',
+        d:'A young Viking and an injured dragon form an unlikely friendship that changes their island for ever.'},
+      'P10_Odyssey.jpg':{t:'The Odyssey', tag:'prime', meta:'Adventure · Fantasy · 2026 · 2h 40m',
+        d:'Odysseus fights his way home across a hostile sea after the fall of Troy, ten years from his family.'},
+      'P10-Devil.jpg':{t:'The Devil Wears Prada 2', tag:'disney', meta:'Comedy · Drama · 2026 · 1h 59m',
+        d:'Miranda Priestly faces the decline of print, and an old assistant who now holds the purse strings.'},
+      'P10-spiderman.jpg':{t:'Spider-Man: No Way Home', tag:'disney', meta:'Action · Adventure · 2021 · 2h 28m',
+        d:'With his identity revealed, Peter Parker asks Doctor Strange for help, and the multiverse breaks open.'},
+      'f1.jpg':{t:'F1: The Movie', tag:'prime', meta:'Action · Sport · 2025 · 2h 35m',
+        d:'A once-promising Formula 1 driver returns to mentor a young rookie and chase one last shot at glory.'}
+    };
+    function attr(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
+    var items = [{}, {}, {}, {}, {}, {}, {}, {}];
     var cards = items.map(function(it,i){
-      return '<div class="card card-landscape'+(it.wide?' wide':'')+' item" data-title="Watch list item #'+(i+1)+'" style="'+posterStyle()+'">'+
+      var style = posterStyle(), f = (style.match(/posters\/([^']+)'/) || [])[1], c = MY_LIST[f] || {t:'My List item #'+(i+1)};
+      return '<div class="card card-landscape'+(it.wide?' wide':'')+' item" data-title="'+attr(c.t)+'"'+
+        (c.tag ? ' data-tag="tag-'+c.tag+'.png"' : '')+(c.meta ? ' data-meta="'+attr(c.meta)+'"' : '')+(c.d ? ' data-desc="'+attr(c.d)+'"' : '')+
+        ' style="'+style+'">'+
         (it.badge ? '<span class="card-badge-corner dim">'+it.badge+'</span>' : '') +
       '</div>';
     }).join('');
-    addRow('<div class="row-block"><div class="row-title">Watch List</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
+    addRow('<div class="row-block"><div class="row-title">My List</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
     _posterCursor += items.length;   // one pool step per card, as the removed phone copy took; keeps later rails' posters
   })();
 
@@ -1122,7 +1109,7 @@
     var cards = shorts.map(function(c, i){
       // each opens its short drama page (short-detail.html, Figma Movies "Short Movies VOD")
       return '<div class="card clip-card item" data-title="'+c.t+'" data-href="short-detail.html?s='+i+'" style="background-image:url(\'posters/shorts/'+c.img+'\');"></div>';
-    }).join('') + '<div class="clip-viewall item" data-title="Shorts – View All" data-ring-art=""><b>Shorts</b><span>View All</span></div>';
+    }).join('') + '<div class="clip-viewall tv-chip item" data-title="Shorts – View All" data-ring-art=""><b>Shorts</b><span>View All</span></div>';
     addRow('<div class="row-block clips-row"><div class="clips-bg"></div><div class="row-title">Shorts</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
   })();
 
@@ -1193,7 +1180,7 @@
       ['Take Me Home, Country Roads','John Denver'], ['Wanipok','Carabao']
     ];
     var cards = songs.map(function(s,i){
-      return '<div class="card-karaoke item" data-title="'+s[0]+' – '+s[1]+'">'+
+      return '<div class="card-karaoke tv-glass item" data-title="'+s[0]+' – '+s[1]+'">'+
         '<img class="art" src="posters/karaoke/k'+(i+1)+'.jpg" alt="">'+
         '<div class="meta"><div class="song">'+s[0]+'</div><div class="artist">'+s[1]+'</div></div>'+
       '</div>';
@@ -1223,7 +1210,7 @@
       {t:'FAQs', sub:'Billing, devices, how to watch', ic:'faqs'}, {t:'Setting', sub:'Manage your account and preferences', ic:'setting'}
     ];
     addRow('<div class="row-block quick-row"><div class="rail-viewport"><div class="rail-track">'+
-      cards.map(function(c){ return '<div class="quick-card item" data-title="'+c.t+'" data-ring-art="">'+
+      cards.map(function(c){ return '<div class="quick-card tv-chip item" data-title="'+c.t+'" data-ring-art="">'+
         '<span class="qc-sub">'+c.sub+'</span><span class="qc-name"><img src="icons/quick/'+c.ic+'.svg" alt="">'+c.t+'</span></div>'; }).join('')+
     '</div></div></div>');
   })();
@@ -1232,16 +1219,35 @@
      Built after every older rail, so the pool posters those take stay where they were; the rail order below puts
      each one in its place. */
 
-  /* ---------- Row: Hot Channel Program (16:9 programme cards, crown on premium) ---------- */
+  /* ---------- Row: Hot Channel Program (16:9 programme cards, crown on premium) ----------
+     The News page's programme pictures (news-assets/), with their titles, channels and descriptions there; focused,
+     a card's picture and text fill the screen (updateHeroFromCard: data-meta / data-desc). */
   (function(){
+    var N = 'news-assets/';
     var progs = [
-      {t:'Premier League Tonight', pr:false}, {t:'House of the Dragon: Season Recap', pr:true}, {t:'Sport Center Live', pr:false},
-      {t:'Movie Night on Warner TV', pr:true}, {t:'CNN Newsroom', pr:false}, {t:'Asian Games Daily', pr:false}, {t:'HBO Premiere', pr:true}
+      {t:'CNN News', img:'dm-cnn.png', logo:1, ch:'Channel 111: CNN', pr:true,
+       d:'CNN Primetime brings the day\u2019s biggest stories from around the world, with live reports from CNN\u2019s correspondents and in-depth analysis.'},
+      {t:'Morning Stories', img:'dm-rueng.png', ch:'Channel 33: Ch3 HD',
+       d:'The morning news that tells the stories around you, with every hot topic from the crack of dawn.'},
+      {t:'BBC News', img:'dm-bbc.png', ch:'Channel 112: BBC News', pr:true,
+       d:'The latest from BBC News: the stories that matter in the UK and around the world, live.'},
+      {t:'Channel 7 News Insight', img:'dm-sanam7.png', ch:'Channel 35: Ch7 HD',
+       d:'Follow every move in the day\u2019s biggest stories, live every day on Channel 7.'},
+      {t:'World Update with Thai PBS', img:'lc-1.png', ch:'Channel 3: Thai PBS',
+       d:'The day\u2019s international news in one round-up, digging into the stories the whole world is watching.'},
+      {t:'Open News Desk', img:'lc-2.png', ch:'Channel 36: PPTV',
+       d:'The PPTV news team opens the desk on every hot topic of the day.'},
+      {t:'Komchadluek', img:'lc-4.png', ch:'Channel 22: Nation TV', pr:true,
+       d:'Komchadluek goes straight to the heart of Thai politics and society, with frank, in-depth interviews.'}
     ];
+    function attrQ(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
     var cards = progs.map(function(p){
-      return '<div class="card card-landscape item" data-title="'+p.t+'" style="'+posterStyle()+'">'+
+      var pic = "background-image:url('"+N+p.img+"');background-position:center;" +
+        (p.logo ? 'background-size:67% auto;background-repeat:no-repeat;background-color:#fff;' : 'background-size:cover;');   // CNN: its logo on white, as on News
+      return '<div class="card card-landscape item" data-title="'+attrQ(p.t)+'" data-meta="'+attrQ(p.ch)+'" data-desc="'+attrQ(p.d)+'" style="'+pic+'">'+
         (p.pr ? '<img class="hcp-crown" src="icons/crown-gold.svg" alt="Premium">' : '')+'</div>';
     }).join('');
+    _posterCursor += progs.length;   // the pool pictures these cards used to take: later rails keep theirs
     addRow('<div class="row-block"><div class="row-title">Hot Channel Program</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
   })();
 
@@ -1255,7 +1261,7 @@
       return '<div class="partner-card partner-logo-tile item'+(a.white?' on-white':'')+'" data-title="'+a.t+'"><img src="partners/'+a.img+'" alt="'+a.t+'"></div>';
     }).join('');
     addRow('<div class="row-block recapps-row"><div class="row-title">Recommended Apps</div><div class="rail-viewport"><div class="rail-track">'+
-      cards+'<div class="partner-allapps item" data-title="All Apps">All Apps</div></div></div></div>');
+      cards+'<div class="partner-allapps tv-chip item" data-title="All Apps">All Apps</div></div></div></div>');
   })();
 
   /* ---------- Row: Highlight (LPGA golf) ---------- */
@@ -1268,8 +1274,8 @@
     var cards = list.map(function(x){
       var it = P[x[0]];
       return '<div class="card card-poster item" data-title="'+it.t+'" style="background-image:url(\'posters/highlight/'+it.img+'\');background-size:cover;background-position:center;">'+
-        (x[1] ? '<span class="time-pill">'+x[1]+'</span>' : '')+'</div>';
-    }).join('') + '<div class="clip-viewall item" data-title="LPGA Golf – View All" data-ring-art=""><b>View All</b></div>';
+        (x[1] ? '<span class="time-pill top-tag">'+x[1]+'</span>' : '')+'</div>';
+    }).join('') + '<div class="clip-viewall tv-chip item" data-title="LPGA Golf – View All" data-ring-art=""><b>View All</b></div>';
     addRow('<div class="row-block hl-row"><div class="hl-bg"></div>'+
       '<div class="hl-info"><h3>LPGA Golf</h3><p>Every round from the LPGA tour in Thailand and beyond: Honda LPGA Thailand 2024, the LPGA Lotte Championship and the season\'s best match-play moments.</p></div>'+
       '<div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
@@ -1310,7 +1316,7 @@
                   'Sport','Documentary','Tech & Business','Food & Travel','Variety & Reality','Asian Series & Movies'];
     function tile(t, i){
       return '<div class="genre item" data-act="genre" data-title="'+t+'" style="background-image:url(\'posters/genres/g'+(i+1)+'.jpg\');">'+
-        '<span class="gchk"><img src="icons/genre-check.svg" alt=""></span><span>'+t+'</span></div>';
+        '<span class="gchk" aria-hidden="true"></span><span>'+t+'</span></div>';
     }
     addRow('<div class="row-block gc-head"><div class="gc-title"><h2>Choose what you like</h2>'+
       '<p>Pick 3 or more. Your Home will show rails for the topics you choose.</p></div>'+
@@ -1318,13 +1324,13 @@
     addRow('<div class="row-block gc-row2"><div class="rail-viewport"><div class="rail-track">'+
       topics.slice(6).map(function(t, i){ return tile(t, i + 6); }).join('')+'</div></div></div>');
     addRow('<div class="row-block gc-actions"><div class="rail-viewport"><div class="rail-track">'+
-      '<div class="gc-btn off item" data-act="genre-continue" data-title="Continue" data-ring-art="">Continue</div>'+
-      '<div class="gc-btn item" data-act="genre-skip" data-title="Skip" data-ring-art="">Skip</div></div></div></div>');
+      '<div class="gc-btn tv-btn tv-btn--primary off item" data-act="genre-continue" data-title="Continue" data-ring-art="">Continue</div>'+
+      '<div class="gc-btn tv-btn tv-btn--secondary item" data-act="genre-skip" data-title="Skip" data-ring-art="">Skip</div></div></div></div>');
   })();
 
   /* ---------- Row: Back to Top ---------- */
   addRow('<div class="row-block back-row"><div class="rail-viewport"><div class="rail-track">'+
-    '<div class="back-top item" data-act="top" data-title="Back to Top" data-ring-art=""><i></i>Back to Top</div></div></div></div>');
+    '<div class="back-top tv-btn tv-btn--primary item" data-act="top" data-title="Back to Top" data-ring-art=""><i></i>Back to Top</div></div></div></div>');
 
   /* ---------- Rail order: Figma Home (3258:337279) ----------
      The rails are built above in their old order (so each keeps the pool posters it always had), then moved into
@@ -1332,7 +1338,7 @@
      the list doesn't name keep their place at the end. */
   (function(){
     var ORDER = ['.hero-row', '.chip-row', 'Jump Right Back In', 'Top 10 in Thailand Today', '.partner-row', '.epg-row',
-      'Live and Upcoming', 'Hot Channel Program', 'Hot Off the Big Screen', 'Watch List', 'Recommended Apps',
+      'Live and Upcoming', 'Hot Channel Program', 'Hot Off the Big Screen', 'My List', 'Recommended Apps',
       'AIS Play Exclusive', '.clips-row', '.hl-row', 'Ray Macdonald', 'We think you', 'Date night Selected',
       'Because You Watched', '.seasonal-row', '.karaoke-track', '.gc-head', '.gc-row2', '.gc-actions', '.quick-row', '.back-row'];
     function rank(d){
@@ -1393,6 +1399,13 @@
   var navFrom = 0;
   function ctxRow(){ return curRow === 0 && navFrom ? navFrom : curRow; }
   var colByRow = rows.map(function(){ return 0; });
+  // Choose what you like: once Continue (after the loading) or Skip is pressed, its three rows (title + topics, topics,
+  // Continue / Skip) leave the page; they are back the next time Home loads (nothing is remembered, so the demo repeats)
+  function removePicker(){
+    for(var i = rows.length - 1; i > 0; i--){
+      if(rows[i].el && rows[i].el.matches('.gc-head, .gc-row2, .gc-actions')){ rows[i].el.remove(); rows.splice(i, 1); colByRow.splice(i, 1); }
+    }
+  }
   colByRow[0] = NAV_HOME_COL;
 
   function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
@@ -1412,6 +1425,8 @@
     var viewport = r.track.parentElement;
     var item = r.items[colByRow[rowIdx]];
     if(!item) return;
+    // Choose what you like is a grid (six topics that fit on screen): its rows never slide
+    if(r.el && r.el.closest('.gc-head, .gc-row2')){ r.track.style.transform = ''; return; }
     // "Fixed focus": the focused item sits at the first item's slot (the anchor) and the rail slides under it. The
     // rail stops at maxScroll, where the last item ends the same distance from the right edge as the first starts
     // from the left (the rail's left inset), allowing for its focus scale-up and ring; past that the focus (and
@@ -1439,7 +1454,7 @@
      swaps title/description, like a TV home-screen "top shelf". ---------- */
   var HERO_ROW_INDEX = 1;
   // rows[1..]: the hero cards, the category chips, Continue watching, Top 10, Apps, TV Guide, Live and Upcoming,
-  // Hot Channel Program, Hot Off the Big Screen, Watch List and Recommended Apps — the "dynamic background" zone.
+  // Hot Channel Program, Hot Off the Big Screen, My List and Recommended Apps — the "dynamic background" zone.
   // AIS Play Exclusive onward has no dynamic background driving the screen, so center-lock scrolling takes over.
   // FULLSCREEN_FROM: the first rail that takes the whole screen (hero picture and text fade out); every rail above it
   // sits over the pinned hero picture. Found by its title, so adding rows above it keeps working.
@@ -1475,6 +1490,7 @@
   function isVideoSlide(it){ return !!(heroVideo && it && it.dataset.heroImg === 'posters/liver-ben.jpg'); }
   function scheduleHeroAuto(){
     clearTimeout(heroAutoTimer);
+    syncHeroSound();
     if(curRow !== HERO_ROW_INDEX){ heroAutoCol = -1; return; }   // paused while focus is anywhere else
     var col = colByRow[HERO_ROW_INDEX], it = rows[HERO_ROW_INDEX].items[col];
     var arrived = col !== heroAutoCol;
@@ -1486,6 +1502,23 @@
     }
     heroAutoTimer = setTimeout(advanceHero, HERO_SLIDE_MS);
   }
+  // The video's sound: on while its slide is on screen in the first scene (focus on Play / Detail, or on the top bar
+  // above it), muted anywhere else, on another slide, or in another tab. Browsers only allow sound after a key press or
+  // click on the page, so it comes on with the first one; until then the video plays muted.
+  var heroSoundOk = false;
+  function syncHeroSound(){
+    if(!heroVideo) return;
+    var atScene = curRow === HERO_ROW_INDEX || (curRow === 0 && !navFrom);
+    var on = heroSoundOk && atScene && !document.hidden && isVideoSlide(rows[HERO_ROW_INDEX].items[colByRow[HERO_ROW_INDEX]]);
+    if(heroVideo.muted === !on) return;
+    heroVideo.muted = !on;
+    if(on && heroVideo.paused && !heroVideo.ended) heroVideo.play().catch(function(){});
+  }
+  function allowHeroSound(){ if(heroSoundOk) return; heroSoundOk = true; setTimeout(syncHeroSound, 0); }
+  addEventListener('keydown', allowHeroSound, true);
+  addEventListener('pointerdown', allowHeroSound, true);
+  document.addEventListener('visibilitychange', syncHeroSound);
+  addEventListener('pagehide', function(){ if(heroVideo) heroVideo.muted = true; });
   function advanceHero(){
     if(curRow !== HERO_ROW_INDEX) return;
     colByRow[HERO_ROW_INDEX] = (colByRow[HERO_ROW_INDEX] + 1) % rows[HERO_ROW_INDEX].items.length;
@@ -1673,6 +1706,11 @@
         if(Math.abs(lockDelta) > 1){
           scrollStageBy(lockDelta);
         }
+      } else if(rowEl.closest('.gc-head, .gc-row2, .gc-actions')){
+        // Choose what you like: the whole picker shows at once (title, both rows of topics, Continue / Skip), its title
+        // 40px from the top, and stays put while the focus moves inside it
+        var gcDelta = rowScreenBox(document.querySelector('.gc-head')).top - 40 * stageScale;
+        if(Math.abs(gcDelta) > 1) scrollStageBy(gcDelta);
       } else {
         var targetCenter = navH + (frameH - navH) / 2;
         var rowRect = rowScreenBox(rowEl);
@@ -1747,10 +1785,22 @@
     }
     if(act === 'genre-continue'){
       var n = document.querySelectorAll('.genre.on').length;
-      toast(n < 3 ? 'Pick ' + (3 - n) + ' more to continue' : 'Your Home will show rails for ' + n + ' topics');
+      if(n < 3){ toast('Pick ' + (3 - n) + ' more to continue'); return; }
+      // the full-screen loading, then Home again from the top without the picker
+      var rf = document.getElementById('refresh');
+      rf.querySelector('.in').style.transform = 'scale(' + (tvFrame.clientWidth / 1920) + ')';
+      rf.classList.add('on'); refreshing = true;
+      setTimeout(function(){
+        finishPicker();
+        navFrom = 0; curRow = HERO_ROW_INDEX; heroOnDetail = false;
+        stage.style.transition = 'none'; updateFocus(); stage.offsetHeight; stage.style.transition = '';
+        rf.classList.remove('on'); refreshing = false;
+        toast('Your Home now shows rails for your ' + n + ' topics');
+      }, 2800);
       return;
     }
-    if(act === 'genre-skip'){ toast('You can choose topics any time'); return; }
+    // Skip: the picker goes away and the focus moves on to the rail after it
+    if(act === 'genre-skip'){ var at = curRow; finishPicker(); curRow = Math.min(at - 2, rows.length - 1); updateFocus(); toast('You can choose topics any time in Settings'); return; }
     // cards with a detail page open it (District 9 → movie-detail.html)
     var href = it.getAttribute('data-href');
     if(href){
@@ -1761,7 +1811,10 @@
     toast('Now playing: ' + label);
   }
 
+  var refreshing = false;
+  function finishPicker(){ removePicker(); }
   document.addEventListener('keydown', function(e){
+    if(refreshing){ e.preventDefault(); return; }   // the loading screen: the remote waits
     if(profKey(e.key)){ e.preventDefault(); return; }
     if(e.key === 'Escape' || e.key === 'Backspace'){
       // scrolled down the page: Back first returns to the top (the first rail, hero showing)

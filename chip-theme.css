@@ -18,3 +18,10 @@
   background:var(--chip-focus-fill); -webkit-backdrop-filter:blur(50px) saturate(1.4); backdrop-filter:blur(50px) saturate(1.4);
   color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35);
 }
+
+/*
+  Card glass: the chip's resting fill on a card's own surface (a TV Guide card, a karaoke card's song strip, a channel
+  card...): the same white frosted glass over the strong blur, with no change of its own on focus (the card keeps its
+  focus ring and scale; a page may brighten it). Add the `tv-glass` class to the card.
+*/
+.tv-glass{ background:var(--chip-idle-fill); -webkit-backdrop-filter:blur(80px) saturate(1.5); backdrop-filter:blur(80px) saturate(1.5); }

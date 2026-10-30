@@ -17,6 +17,7 @@
   Remote / keyboard: left column = Details / Terms tabs; right column = the 3 prices, then the 2 payment buttons.
   Arrows move, Enter selects, Esc / Back returns to the packages.
 -->
+<link rel="stylesheet" href="platform-tag.css">
 <style>
   :root{ color-scheme:dark; --on:#e8e8e8; --muted:#a8a8a8; }
   html,body{ margin:0; height:100%; background:#000; overflow:hidden; font-family:'Plus Jakarta Sans', system-ui, sans-serif; color:#fff; }
@@ -189,7 +190,7 @@
   .tdetails .head{ display:flex; flex-direction:column; gap:16px; }
   .tdetails .nm{ font-size:24px; font-weight:600; line-height:32px; color:#fff; }
   .tdetails .meta{ width:613px; display:flex; flex-wrap:wrap; align-items:center; gap:16px; white-space:nowrap; }
-  .tdetails .plat{ width:136px; height:40px; border-radius:4px; background:#000 url('icons/aisplay-logo.png') center / 84% auto no-repeat; }
+  /* AIS PLAY's platform tag: platform-tag.css (.ptag.ais, 56 x 36) */
   .tdetails .gen{ display:flex; align-items:center; gap:8px; font-weight:700; font-size:22px; line-height:28px; }
   .tdetails .gen i{ width:4px; height:4px; border-radius:50%; background:#fff; }
   .tdetails .meta span{ font-size:20px; color:var(--on); }
@@ -361,7 +362,7 @@
     document.querySelector('.left > h1').textContent = 'Title Details';
     document.querySelector('.tdetails .poster').style.backgroundImage = "url('posters/shorts/" + SH.img + "')";
     document.querySelector('.tdetails .nm').textContent = SH.t;
-    document.querySelector('.tdetails .meta').innerHTML = '<span class="plat" aria-label="AIS PLAY"></span><span class="gen">' + SH.gen.join('<i></i>') + '</span>' +
+    document.querySelector('.tdetails .meta').innerHTML = '<span class="plat ptag ais" aria-label="AIS PLAY"></span><span class="gen">' + SH.gen.join('<i></i>') + '</span>' +
       '<span>160 Episodes</span><span class="pill">' + SH.rate + '</span><span class="pill">HD</span>';
     document.querySelector('.tdetails .syn').textContent = SH.d;
     // the passes are the right column's prices (no package prices on this page)

@@ -1,6 +1,6 @@
 /*
   Live ribbon (Figma "badgeWithIcon", Home's Live and Upcoming card): a red "Live" tag that hangs 17px past the card's
-  left edge, with a dark fold under the overhang so it reads as wrapping round the card. Put
+  left edge, with a maroon fold under the overhang so it reads as wrapping round the card. Put
   <span class="live-ribbon" data-ring-top="styled">Live</span> straight inside the card (after its picture, not in it,
   so the picture's clipping doesn't cut it), and give the card position:relative and no overflow clipping.
   data-ring-top="styled" makes focus-ring.js draw it over the focus ring; Home's own ring does the same.
@@ -8,9 +8,11 @@
 .live-ribbon{
   position:absolute; left:-17px; top:6px; width:94px; box-sizing:border-box; padding:6px 12px; text-align:center;
   font-size:22px; font-weight:600; line-height:27px; color:#fff; white-space:nowrap;
-  background:#ff383c; border-radius:8.4px 8.4px 8.4px 0; pointer-events:none;
+  background:var(--live, #ff1f1f);   /* the player's seek-bar red */
+  border-radius:8.4px 8.4px 8.4px 0; pointer-events:none;
+  box-shadow:0 2px 8px rgba(0,0,0,.4);   /* a soft drop shadow, as the card tags */
 }
 .live-ribbon::after{
-  content:''; position:absolute; left:0; bottom:-17px; width:17px; height:17px; background:#161616;
+  content:''; position:absolute; left:0; bottom:-17px; width:17px; height:17px; background:#570000;   /* the fold: a deep maroon shade of the red, so it reads on dark pages */
   clip-path:polygon(0 0, 100% 0, 100% 100%);
 }

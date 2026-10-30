@@ -1,0 +1,29 @@
+/*
+  Corner tag: any small tag in a card's bottom-right corner (time left, duration...), the same on every page:
+  a white pill with black text and a soft drop shadow, 24px tall, 12px side padding, 16px medium text, 12px from the card's right edge and
+  14px from its bottom (just above a 6px progress line, when the card has one). Add the `corner-tag` class to a
+  <span> inside the card's picture (its positioned box). Used by home.html (Jump Right Back In), movie.html
+  (Continue Watching) and sport.html (highlight / For You durations).
+*/
+.corner-tag{
+  position:absolute; right:12px; bottom:14px; z-index:1;
+  height:24px; box-sizing:border-box; padding:0 12px; border-radius:9999px;
+  display:flex; align-items:center; justify-content:center;
+  background:#fff; color:#000; font-size:16px; font-weight:500; line-height:1; white-space:nowrap;
+  box-shadow:0 2px 8px rgba(0,0,0,.4);   /* lifts it off bright pictures */
+}
+
+/*
+  Top tag: any small tag in a card's top-left corner (start time, New, Best Seller, Soon Leaving, Top 10...), the same
+  on every page: a white pill with black text and a soft drop shadow, 30px tall, 12px side padding, 20px medium text, 12px from the card's
+  left edge and top. Add the `top-tag` class to a <span> inside the card's picture (its positioned box). Used by
+  home.html (Live and Upcoming, poster rails), movie.html (posters), sport.html (match times) and store.html (card
+  badges, the PPV event's start time).
+*/
+.top-tag{
+  position:absolute; left:12px; top:12px; z-index:1;
+  height:30px; box-sizing:border-box; padding:0 12px; border-radius:9999px;
+  display:flex; align-items:center; justify-content:center;
+  background:#fff; color:#000; font-size:20px; font-weight:500; line-height:1; white-space:nowrap;
+  box-shadow:0 2px 8px rgba(0,0,0,.4);   /* lifts it off bright pictures */
+}

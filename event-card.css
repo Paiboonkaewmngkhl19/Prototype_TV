@@ -1,0 +1,30 @@
+/*
+  Event card (Figma "TV / Card" PPV event, Store's PPV Event and Movie's For You): 2:3 posters 368.67 x 553; the chosen
+  one (.sel, the rail's focused column) opens up to 960 wide with its 16:9 picture, title, price, meta row and synopsis.
+  Markup: <div class="ev item"> <div class="tall"> (the poster) <div class="wide"> (scrim, top, info) [live ribbon].
+  The page supplies the colour tokens (--on-surface, --on-surface-variant, --surface, --surface-container,
+  --on-inverse-surface, --outline) and the pictures.
+*/
+/* PPV Event: 2:3 posters; the chosen one opens up to 16:9 with the event's details */
+.ev{ position:relative; width:368.67px; height:553px; flex:0 0 auto; border-radius:12px; }
+.ev .tall, .ev .wide{ border-radius:12px; overflow:hidden; }   /* clipped inside, so a Live ribbon can hang past the card's edge */
+.ev .wide{ display:none; }
+.ev.sel{ width:960px; }
+.ev.sel .tall{ display:none; }
+.ev.sel .wide{ display:block; }
+.ev .scrim{ position:absolute; left:0; right:0; bottom:0; height:340px; background:linear-gradient(180deg, rgba(16,16,16,0), rgba(16,16,16,.88)); }
+.ev .top{ position:absolute; left:24px; top:24px; }
+.ev .info{ position:absolute; left:40px; right:40px; bottom:24px; display:flex; flex-direction:column; gap:12px; }
+.ev h3{ margin:0; font-size:48px; font-weight:700; line-height:57px; color:var(--on-surface); }
+.ev .cost{ display:flex; align-items:baseline; gap:8px; white-space:nowrap; }
+.ev .cost b{ font-size:36px; font-weight:500; }
+.ev .cost span{ font-size:24px; color:var(--on-surface); }
+.ev .meta{ display:flex; align-items:center; gap:16px; height:36px; font-size:20px; color:var(--on-surface-variant); white-space:nowrap; }
+.ev .meta .b{ height:36px; padding:0 12px; border-radius:9999px; display:inline-flex; align-items:center; gap:4px; background:var(--surface-container); color:var(--on-surface); font-weight:500; }
+.ev .meta .b img{ width:20px; height:20px; }
+.ev .meta .plat{ width:133px; justify-content:center; background:#fff; color:var(--on-inverse-surface); }
+.ev .meta .logo{ width:60px; height:36px; border-radius:9999px; background:#fff var(--ph) center / cover no-repeat; opacity:.9; }
+.ev .meta .pill{ height:36px; padding:0 12px; border:1px solid var(--outline); border-radius:18px; display:inline-flex; align-items:center; color:var(--on-surface); }
+.ev .meta .pill.sm{ height:28px; min-width:80px; justify-content:center; }
+.ev .meta strong{ color:var(--on-surface); font-weight:700; }
+.ev .syn{ margin:0; font-size:20px; line-height:24px; color:var(--on-surface-variant); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }

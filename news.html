@@ -26,7 +26,7 @@
     color-scheme:dark;
     /* Home's page: dark navy, Open Sans (Thai titles fall back to Noto Sans Thai) */
     --bg-0:#070e16; --wash:10,8,24;
-    --on-surface:#e8e8e8; --on-surface-variant:#a8a8a8; --surface-container-high:#3a3a3a; --outline:#5a5a5a; --live:#ea5454;
+    --on-surface:#e8e8e8; --on-surface-variant:#a8a8a8; --surface-container-high:#3a3a3a; --outline:#5a5a5a; --live:#ff1f1f;
     --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%);
     --ease:cubic-bezier(.2,0,0,1);
     --font:'Open Sans', 'Noto Sans Thai', system-ui, sans-serif;
@@ -71,7 +71,7 @@
     transition:transform .45s var(--ease); }
   .sec{ position:relative; transition:opacity .3s ease; }
   body:not(.static) .sec.above{ opacity:0; }
-  .sec-title{ margin:0 110px 24px; font-weight:400; font-size:32px; line-height:40px; color:var(--on-surface); }
+  .sec-title{ margin:0 110px 40px; font-weight:400; font-size:32px; line-height:40px; color:var(--on-surface); }
   .item{ cursor:pointer; }
   .rail{ position:relative; }
   .track{ display:flex; align-items:flex-start; gap:32px; padding:0 110px; width:max-content; transition:transform .35s var(--ease); }
@@ -90,7 +90,8 @@
   /* channel rails: View All (button-theme.css) + what's on now, 24px apart (Figma movieChannelSection) */
   .chan-track{ gap:24px; }
   .viewall{ --btn-w:220px; --btn-h:180px; border-radius:38px; font-size:24px; }
-  .epg{ position:relative; width:320px; height:180px; flex:0 0 auto; border-radius:12px; background:var(--surface-container-high); padding:0 8px;
+  /* what's on now: the card glass (chip-theme.css .tv-glass) */
+  .epg{ position:relative; width:320px; height:180px; flex:0 0 auto; border-radius:12px; padding:0 8px;
     display:flex; flex-direction:column; justify-content:center; gap:16px; font-weight:500; }
   .epg .now{ display:flex; gap:4px; align-items:flex-start; }
   .epg .ava{ width:67px; height:67px; border-radius:50%; flex:0 0 auto; background:#fff center / 75% auto no-repeat; }
@@ -101,7 +102,7 @@
   .epg .ic{ display:flex; gap:12px; flex:0 0 auto; }
   .epg .ic img{ width:24px; height:24px; }
   .epg .bar{ position:relative; height:8px; border-radius:24px; background:rgba(255,255,255,.4); overflow:hidden; }
-  .epg .bar i{ position:absolute; left:0; top:0; bottom:0; border-radius:24px; background:var(--outline); }
+  .epg .bar i{ position:absolute; left:0; top:0; bottom:0; border-radius:24px; background:var(--live); }   /* the player's seek-bar red */
   .epg .next{ display:flex; flex-direction:column; }
 
   /* episode rails (Figma "Hot of big screen"): 2:3 posters, the episode's date and name under them */
@@ -109,7 +110,6 @@
   .ep .poster{ width:220px; height:330px; border-radius:12px; background:#000 center / cover no-repeat; }
   .ep .poster.contain{ background-size:contain; }
   .ep .t{ font-size:20px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .eps .track{ padding-top:16px; }   /* the posters grow 8% up when focused: room under the title */
 
   /* Back to Top (button-theme.css) */
   .totop{ height:150px; display:flex; align-items:center; justify-content:center; }
@@ -157,7 +157,7 @@
       <div class="navsearch item" data-label="Search"><img src="icons/nav-search.svg" alt="Search"></div>
       <div class="navtab tv-tab item active" data-label="Home" data-href="home.html">Home</div>
       <div class="navtab tv-tab item" data-label="Live TV">Live TV</div>
-      <div class="navtab tv-tab item" data-label="Movie">Movie</div>
+      <div class="navtab tv-tab item" data-label="Movie" data-href="movie.html">Movie</div>
       <div class="navtab tv-tab item" data-label="Sport" data-href="sport.html">Sport</div>
       <div class="navtab tv-tab item" data-label="My List">My List</div>
       <div class="navtab tv-tab item" data-label="Store" data-href="store.html">Store</div>
@@ -262,7 +262,7 @@
   }
   function epgCard(e, i, set){
     var c = e.c, ic = (e.remind ? '<img src="sport-assets/epg-reminder.svg" alt="">' : '') + (e.heart ? '<img src="sport-assets/epg-heart.svg" alt="">' : '');
-    return '<div class="epg item"' + attrs({kind:'epg', set:set, i:i}) + ' data-ring-art=""><div class="now">' +
+    return '<div class="epg tv-glass item"' + attrs({kind:'epg', set:set, i:i}) + ' data-ring-art=""><div class="now">' +
       '<span class="ava' + (c.cover ? ' cover' : '') + '" style="background-image:url(\'' + c.logo + '\')' + (c.bg ? ';background-color:' + c.bg : '') + '"></span>' +
       '<div class="txt"><b>' + esc(c.n) + '</b><span>09:00</span></div><div class="ic">' + ic + '</div></div>' +
       '<div class="bar"><i style="width:' + Math.round(e.p * 100) + '%"></i></div>' +
