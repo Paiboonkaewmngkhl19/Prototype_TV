@@ -271,6 +271,7 @@
   document.title = S.t;
   $('.top .pic')[0].style.backgroundImage = "url('posters/shorts/" + S.img + "')";
   $('.hero h1')[0].textContent = S.t;
+  $('.metarow .plat')[0].outerHTML = '<img class="plat ptag" src="badges/tag-' + S.plat + '.png" alt="">';   // its app (ReelShort / DramaBox)
   $('.metarow .gen')[0].innerHTML = S.gen.map(esc).join('<i></i>');
   $('.metarow .yr')[0].textContent = '2026';
   $('.metarow .len')[0].textContent = EPS + ' Episodes';

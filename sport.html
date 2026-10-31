@@ -22,6 +22,7 @@
 -->
 <link rel="stylesheet" href="chip-theme.css">
 <link rel="stylesheet" href="tvguide-card.css">
+<link rel="stylesheet" href="league-disc.css">
 <link rel="stylesheet" href="button-theme.css">
 <link rel="stylesheet" href="corner-tag.css">
 <link rel="stylesheet" href="live-ribbon.css">
@@ -122,12 +123,8 @@
   .league{ width:210px; margin-right:-23px; display:flex; flex-direction:column; align-items:center; gap:24px; }
   .disc{ position:relative; width:134px; height:134px; margin:9px 0; border-radius:50%; background:#fff;
     transition:transform .3s var(--ease), box-shadow .2s ease; }
-  .disc .img{ position:absolute; inset:0; border-radius:50%; overflow:hidden; background:center / cover no-repeat; }
-  .disc .img.zoom{ background-size:288% auto; }
-  .disc .img.inset{ background-size:67% auto; }
-  .disc .img .lg{ position:absolute; max-width:none; display:block; }   /* a Figma logo, placed in its disc by its box */
-  .disc .mono{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; border-radius:50%;
-    font-family:var(--roboto); font-weight:500; font-size:26px; color:#1c1c1c; }
+  /* the logo inside: league-disc.css (leagues.js Leagues.pic) */
+  .disc .lg-mono{ font-family:var(--roboto); font-size:26px; }
   .disc .fav{ position:absolute; right:-16px; bottom:-16px; width:84px; height:84px; transition:opacity .2s ease, transform .25s var(--ease); }
   .disc:not(.followed) .fav{ opacity:0; transform:scale(.6); }
   .disc.focused{ transform:scale(1.194); }   /* no stroke: the round focus ring is the outline */
@@ -277,6 +274,7 @@
 <script src="profile-panel.js"></script>
 <script src="channels-data.js"></script>
 <script src="content.js"></script>
+<script src="leagues.js"></script>
 <script src="tv-screen.js"></script>
 <script>
 (function(){
@@ -288,7 +286,7 @@
 
   /* ---------- content ----------
      Pictures are the project's own sport stills; items with no matching picture keep Figma's placeholder (ph). */
-  var LS = 'tv-features-test/live-stream-assets/';
+  var LS = 'tv-features-test/live-stream-assets/', PS = 'posters_portrait/sport/';
   // the sport channels by their TV Guide names (tv); name, number, crown and logo come from channels-data.js, so they
   // match the TV Guide. n / fit here: only where this page shows them its own way
   var CH = {
@@ -324,7 +322,9 @@
     {t:'Dortmund vs Hamburg', when:'Today 20:30 PM', img:'posters/upcoming/u3.jpg', ch:CH.play, time:'20:30 – 22:30'},
     {t:'Bayern München vs Dortmund', when:'Today 21:00 PM', img:'posters/bayern-dortmund.webp', bg:'posters/bayern-dortmund-bg.webp', ch:CH.play, time:'21:00 – 23:00',
      d:'Der Klassiker on Bundesliga Matchday 8: Bayern München host Borussia Dortmund at the Allianz Arena, Munich. Live in full HD with Thai and English commentary.'},
-    {t:'Mainz vs Paderborn', when:'Today 21:00 PM', img:'posters/SC.jpg', ch:CH.play, time:'21:00 – 23:00'}
+    {t:'Mainz vs Paderborn', when:'Today 21:00 PM', img:'posters/SC.jpg', ch:CH.play, time:'21:00 – 23:00'},
+    {t:'Union Berlin vs Eintracht Frankfurt', when:'Today 20:30 PM', img:'sport-assets/match-union-frankfurt.jpg', ch:CH.play, time:'20:30 – 22:30',
+     d:'Union Berlin host Eintracht Frankfurt at the Stadion An der Alten Försterei in the Bundesliga. Live in full HD with Thai and English commentary.'}
   ];
   var UCL = [
     LIVE[0], LIVE[1],
@@ -344,28 +344,7 @@
     {t:'Rugby', sp:'rugby', d:'International rugby and the top club competitions, live and on replay.'},
     {t:'Boxing', sp:'boxing', d:'Title fights, undercards and classic bouts from the biggest nights in boxing.'}
   ];
-  // Figma (Sports 3336:63788 rail_league): the logo in a white disc, placed by box [left, top, width, height] in % of the disc;
-  // UCL, Bundesliga and RWS fill theirs (cover / zoom). fav: followed (the heart shows)
-  // id: its landing page (sport.html?league=id, Figma Sports 3011:44457)
-  var LEAGUES = [
-    {id:'ucl', t:'UEFA Champions League', sp:'football', name:'UEFA<br>Champions League', logo:'sport-assets/league-ucl.jpg', fitc:'zoom', fav:1, img:'sport-assets/ucl-bg.jpg'},
-    {id:'bundesliga', t:'Bundesliga', sp:'football', name:'Bundesliga', logo:'sport-assets/league-bundesliga.png', fitc:'inset', fav:1, img:'posters/upcoming/u3.jpg'},
-    {id:'europa', t:'UEFA Europa League', sp:'football', name:'UEFA<br>Europa League', logo:'sport-assets/league-europa.png', box:[21.95,10,56.1,80], fav:1},
-    {id:'motogp', t:'MotoGP', sp:'motorsport', name:'MotoGP', logo:'sport-assets/league-motogp.png', box:[5,24.69,90,50.62]},
-    {id:'nfl', t:'NFL', sp:'nfl', name:'NFL', logo:'sport-assets/league-nfl.png', box:[19.08,7.5,61.84,85]},
-    {id:'nba', t:'NBA', sp:'basketball', name:'NBA', logo:'sport-assets/league-nba.png', box:[-28.13,6.05,156.25,87.89]},
-    {id:'conference', t:'UEFA Conference League', sp:'football', name:'UEFA Conference League', logo:'sport-assets/league-conference.png', box:[11.13,11.24,78.18,77.53]},
-    {id:'rws', t:'RWS', sp:'rws', name:'RWS', logo:'sport-assets/league-rws.png'},
-    {id:'pga', t:'PGA Tour', sp:'golf', name:'PGA<br>Tour', logo:'sport-assets/league-pga.png', box:[-18.13,11.68,136.25,76.64]},
-    {id:'atp', t:'ATP Tour', sp:'tennis', name:'ATP<br>Tour', logo:'sport-assets/league-atp.png', box:[8.5,30.5,83,39.01]},
-    // the landing page's own rail (Figma 3258:67811): Premier League (its lion, zoomed), FA Cup, the four Grand Slams
-    {id:'epl', t:'Premier League', sp:'football', name:'Premier<br>League', logo:'sport-assets/league-epl.jpg', box:[-15.27,-15.07,130.06,130.06]},
-    {id:'facup', t:'FA Cup', sp:'football', name:'FA Cup', logo:'sport-assets/league-facup.jpg'},
-    {id:'wimbledon', t:'Wimbledon', sp:'tennis', name:'Wimbledon', logo:'sport-assets/league-wimbledon.png'},
-    {id:'usopen', t:'US Open', sp:'tennis', name:'US Open', logo:'sport-assets/league-usopen.jpg'},
-    {id:'ausopen', t:'Australian Open', sp:'tennis', name:'Australian<br>Open', logo:'sport-assets/league-ausopen.jpg'},
-    {id:'rg', t:'French Open', sp:'tennis', name:'French<br>Open', logo:'sport-assets/league-rg.png'}
-  ];
+  var LEAGUES = Leagues.list;   // leagues.js (Store's sport chips show the same logos)
   // followed leagues, as changed this session (the heart on a league's landing page); the rail's discs show it
   var FOLLOW = {}; try { FOLLOW = JSON.parse(sessionStorage.getItem('leagueFollow') || '{}'); } catch(e){}
   LEAGUES.forEach(function(l){ if(l.id in FOLLOW) l.fav = FOLLOW[l.id] ? 1 : 0; });
@@ -373,7 +352,8 @@
   var LG = (function(id){ return LEAGUES.filter(function(l){ return l.id === id; })[0] || null; })((/[?&]league=([\w-]+)/.exec(location.search) || [])[1]);
   var LATEST = [
     {t:'Como vs Man United Highlights', dur:'6m', img:LS + 'football-024.jpg', g:'Football · Highlights'},
-    {t:'Timberwolves vs Heat Full Game Highlights', dur:'8m', g:'Basketball · Highlights'},
+    {t:'Timberwolves vs Heat Full Game Highlights', dur:'8m', img:'sport-assets/hl-basketball.jpg', g:'Basketball · Highlights'},
+    {t:'RWS Muay Thai Highlights', dur:'9m', img:'sport-assets/hl-rws.jpg', g:'Muay Thai · Highlights'},
     {t:'Best Moto GP Moments 2026 Japanese GP', dur:'6m', g:'Motorsport · Highlights'},
     {t:'F.Cobolli vs A.Zverev Men’s Final Highlights', dur:'12m', img:'posters/upcoming/u4.png', g:'Tennis · Highlights'},
     {t:'Asian Games: Badminton Highlights', dur:'12m', img:'tv-features-test/shorts-assets/badminton.jpg', g:'Badminton · Highlights'},
@@ -383,33 +363,48 @@
   // and the player show the same programme, time, Time Shift and favourite
   var EPG = [CH.play, CH.mutv, CH.rm, CH.ws, CH.ag902].map(function(c){ return {c:c, tv:c.tv}; });
   var FOR_YOU = [
-    {title:'Football For You', sp:'football', items:[
-      {t:'Como vs Man United Highlights', dur:'6m', img:LS + 'football-109.jpg'},
-      {t:'Paris Saint-Germain vs Barcelona Full Match', dur:'97m', img:LS + 'football-180.jpg'},
-      {t:'Tottenham Hotspur vs Coventry Highlights', dur:'8m', img:LS + 'football-190.jpg'},
-      {t:'Liverpool vs Brentford Full Match', dur:'11m', img:'posters/liver-ben.jpg'},
-      {t:'Man United: Matchday Live', dur:'102m', img:LS + 'mutv-148.jpg'},
-      {t:'Sir Alex Ferguson: Never Give In', dur:'98m', img:'posters/maxresdefault.jpg'}]},
-    {title:'Basketball For You', sp:'basketball', items:[
-      {t:'Timberwolves vs Heat Full Game Highlights', dur:'18m'},
-      {t:'Warriors vs Lakers Full Game', dur:'82m'},
-      {t:'76ers vs Knicks Full Game', dur:'95m'},
-      {t:'Basketball Team Name vs Basketball Team Name', dur:'14m'},
-      {t:'Basketball Team Name vs Basketball Team Name', dur:'88m'},
-      {t:'Basketball Team Name vs Basketball Team Name', dur:'40m'}]},
+    // posters (2:3, Figma For PBR 8:11001): the rail shows them as Related Contents does
+    {title:'Football For You', sp:'football', portrait:1, items:[
+      {t:'Next Match: Manchester City', dur:'25m', img:PS + 'fb-next-mancity.jpg'},
+      {t:'Kick-Off: Premier League Matchday 9', dur:'12m', img:PS + 'fb-kickoff.jpg'},
+      {t:'Next Match: Man United vs Chelsea', dur:'18m', img:PS + 'fb-next-manutd-chelsea.jpg'},
+      {t:'Next Match: Chelsea in the FA Cup', dur:'15m', img:PS + 'fb-next-chelsea-facup.jpg'},
+      {t:'Up Next: Premier League', dur:'10m', img:PS + 'fb-upnext.jpg'},
+      {t:'Last Match: Bruno Fernandes', dur:'22m', img:PS + 'fb-last-fernandes.jpg'}]},
+    {title:'Basketball For You', sp:'basketball', portrait:1, items:[
+      {t:'Best Match: Lakers vs Knicks', dur:'18m', img:PS + 'bb-best-match.jpg'},
+      {t:'Gameday: Celtics', dur:'12m', img:PS + 'bb-gameday.jpg'},
+      {t:'Knicks at Kings', dur:'95m', img:PS + 'bb-nyk-sac.jpg'},
+      {t:'Starting 5: Lakers', dur:'9m', img:PS + 'bb-starting5.jpg'},
+      {t:'Playoffs: Cavaliers vs Knicks, Game 1', dur:'98m', img:PS + 'bb-playoffs.jpg'},
+      {t:'Up Next: NBA', dur:'8m', img:PS + 'bb-upnext.jpg'},
+      {t:'Game Day at Utah', dur:'88m', img:PS + 'bb-gameday-utah.jpg'}]},
     {title:'Motorsport For You', sp:'motorsport', items:[
       {t:'2026 Australian GP Full Race', dur:'78m', img:'posters/f1.jpg'},
       {t:'2026 German GP Full Race', dur:'71m'},
       {t:'Best Moto GP Moments 2026 Japanese GP', dur:'16m'},
       {t:'Race Title', dur:'14m'},
       {t:'Race Title', dur:'64m'},
-      {t:'Race Title', dur:'52m'}]}
+      {t:'Race Title', dur:'52m'}]},
+    {title:'Golf For You', sp:'golf', portrait:1, items:[
+      {t:'Career Grand Slam', dur:'45m', img:PS + 'golf-career-slam.jpg'},
+      {t:'Career Grand Slam: Rory McIlroy', dur:'52m', img:PS + 'golf-career-slam-rory.jpg'},
+      {t:'Masters Tournament', dur:'64m', img:PS + 'golf-masters.jpg'},
+      {t:'Masters Tournament: Final Round', dur:'78m', img:PS + 'golf-masters-final.jpg'},
+      {t:'Manors Golf', dur:'24m', img:PS + 'golf-manors.jpg'},
+      {t:'Featured Group 2', dur:'60m', img:PS + 'golf-featured-group.jpg'},
+      {t:'Grand Slam', dur:'38m', img:PS + 'golf-grand-slam.jpg'}]}
   ];
+  // F1: The Movie, then the Netflix sports documentaries (Figma For PBR 8:11038)
   var DOCS = [
-    {t:'F1: The Movie', img:'posters_portrait/F1.jpg'}, {t:'Man City vs Arsenal: The Story', img:'posters_portrait/ex3.jpg'},
-    {t:'Match Day: FA Cup', img:'posters_portrait/ex4.jpg'}, {t:'Match Day', img:'posters_portrait/ex5.jpg'},
-    {t:'F1: The Movie', img:'posters_portrait/F1.jpg'}, {t:'Man City vs Arsenal: The Story', img:'posters_portrait/ex3.jpg'},
-    {t:'Match Day: FA Cup', img:'posters_portrait/ex4.jpg'}, {t:'Match Day', img:'posters_portrait/ex5.jpg'}
+    {t:'F1: The Movie', img:'posters_portrait/F1.jpg'},
+    {t:'Giannis: The Marvelous Journey', img:PS + 'doc-giannis.jpg', plat:'netflix', len:'1h 46m', d:'From selling goods on the streets of Athens to NBA champion: the rise of Giannis Antetokounmpo.'},
+    {t:'The Rise', img:PS + 'doc-the-rise.jpg', plat:'netflix', len:'1h 38m', d:'One young player\'s fight to make it from the playground courts to the professional game.'},
+    {t:'The Knockout', img:PS + 'doc-the-knockout.jpg', plat:'netflix', len:'1h 32m', d:'Inside the ring and out: a fighter\'s long road back to a title shot.'},
+    {t:'The Ascent', img:PS + 'doc-the-ascent.jpg', plat:'netflix', len:'1h 41m', d:'An ultra-runner sets out to conquer the hardest mountain race on earth.'},
+    {t:'Solo Echoes', img:PS + 'doc-solo-echoes.jpg', plat:'netflix', len:'1h 28m', d:'Under empty stadium lights, a footballer faces the season that will define his career.'},
+    {t:'Tour de Force', img:PS + 'doc-tour-de-force.jpg', plat:'netflix', len:'1h 52m', d:'Three weeks, 3,400 kilometres and the riders who push past every limit in the Tour de France.'},
+    {t:'Match Point', img:PS + 'doc-match-point.jpg', plat:'netflix', len:'1h 35m', d:'The tennis stars chasing a Grand Slam, on court and behind the scenes.'}
   ];
   var CHANNELS = [
     {t:'AIS PLAY Sports', img:'sport-assets/channel-aisplay.jpg', size:'110%', c:CH.play, tv:CH.play.tv},   // its black disc sits on white: zoomed past the white
@@ -430,10 +425,10 @@
   var SPORT = {
     football:{ label:'Football', upcoming:LIVE, who:'Manchester United',
       because:[phv('Como vs Manchester United Highlights','6m',LS + 'football-024.jpg'), phv('Man United: Matchday Live','102m',LS + 'mutv-148.jpg'),
-        phv('Sir Alex Ferguson: Never Give In','98m','posters/maxresdefault.jpg'), phv('Liverpool vs Brentford Full Match','11m','posters/liver-ben.jpg'), phv('Leeds United vs Manchester United Highlights','12m')],
-      highlights:[phv('Como vs Man United Highlights','6m',LS + 'football-109.jpg'), phv('Everton vs Chelsea Highlights','8m'), phv('Brentford vs Liverpool Highlights','6m','posters/upcoming/live.jpg'),
+        phv('Sir Alex Ferguson: Never Give In','98m','posters/maxresdefault.jpg'), phv('Liverpool vs Brentford Full Match','11m','posters/liver-ben.jpg'), phv('Arsenal vs Man United Full Match','95m','sport-assets/watch-arsenal-manutd.jpg')],
+      highlights:[phv('Como vs Man United Highlights','6m',LS + 'football-109.jpg'), phv('Leeds United vs Chelsea Highlights','8m','sport-assets/hl-leeds-chelsea.jpg'), phv('Brentford vs Liverpool Highlights','6m','posters/upcoming/live.jpg'),
         phv('Hamburger SV vs VfB Stuttgart Highlights','12m','posters/upcoming/u3.jpg'), phv('Bayern München vs RB Leipzig Highlights','12m','posters/bayern-dortmund.webp')],
-      leagueHl:{t:'Premier League 26/27 Highlights', items:[phv('Bournemouth vs Sunderland Highlights','6m'), phv('Brighton vs Crystal Palace Highlights','97m'),
+      leagueHl:{t:'Premier League 26/27 Highlights', items:[phv('Bournemouth vs Sunderland Highlights','6m','sport-assets/hl-match.jpg'), phv('Brighton vs Crystal Palace Highlights','97m'),
         phv('Leeds United vs Manchester United Highlights','11m'), phv('Tottenham Hotspur vs Coventry Highlights','8m',LS + 'football-190.jpg'), phv(vs('Football Club'),'102m')]},
       band:{t:'UEFA Champion League', ucl:1, d:'The road to the final runs through here. Every match of the league phase live, with the knockout draw, highlights and the best goals of each matchday.', matches:UCL},
       forYou:FOR_YOU[0] },
@@ -446,8 +441,10 @@
       band:{t:'Formula 1', img:'posters/f1.jpg', d:'Every Grand Prix weekend live: practice, qualifying and the race, with onboard cameras and race replays.'},
       highlights:[phv('Best Moto GP Moments 2026 Japanese GP','6m')], leagueHl:{t:'Formula 1 2026 Highlights'}, forYou:FOR_YOU[2] },
     basketball:{ label:'Basketball', who:'Golden State Warriors', ph:'Basketball Team',
-      highlights:[phv('Timberwolves vs Heat Full Game Highlights','8m')], leagueHl:{t:'NBA 25/26 Highlights'}, forYou:FOR_YOU[1] },
-    golf:{ label:'Golf', who:'Scottie Scheffler', ph:'Player', race:1, leagueHl:{t:'PGA Tour Highlights'} },
+      highlights:[phv('Timberwolves vs Heat Full Game Highlights','8m','sport-assets/hl-basketball.jpg')], leagueHl:{t:'NBA 25/26 Highlights'}, forYou:FOR_YOU[1],
+      because:[phv('Knicks vs Spurs (Game 3)','98m','sport-assets/watch-knicks-spurs-g3.jpg'), phv('Spurs vs Knicks (Game 2)','96m','sport-assets/watch-spurs-knicks-g2.jpg')] },
+    golf:{ label:'Golf', who:'Scottie Scheffler', ph:'Player', race:1, leagueHl:{t:'PGA Tour Highlights'}, forYou:FOR_YOU[3],
+      because:[phv('Austrian Alpine Open: Final Round Highlights','12m','sport-assets/watch-austrian-open.jpg')] },
     rugby:{ label:'Rugby', who:'All Blacks', ph:'Rugby Team', leagueHl:{t:'Rugby Championship Highlights'} },
     boxing:{ label:'Boxing', who:'Canelo Álvarez', ph:'Boxer', leagueHl:{t:'Fight Night Highlights'} }
   };
@@ -462,6 +459,9 @@
     S.leagueHl.items = fill(S.leagueHl.items, 5);
     if(!S.forYou) S.forYou = { title:S.label + ' For You', items:fill([], 6) };
   });
+  // the NBA match on now (Figma For PBR 8:10938): first in Basketball's LIVE & Upcoming, its court as the screen picture
+  SPORT.basketball.upcoming.unshift({t:'Minnesota Timberwolves vs Denver Nuggets', live:true, img:'sport-assets/match-min-den.jpg', bg:'sport-assets/match-min-den-bg.jpg',
+    ch:CH.play, time:'02:00 – 04:30', d:'A thrilling NBA showdown as the Minnesota Timberwolves take on the Denver Nuggets. Expect fast-paced action, elite scoring, and a battle for every possession.'});
 
   /* ---------- markup ---------- */
   function thumbStyle(img){ return img ? ' style="background-image:url(\'' + img + '\')"' : ''; }
@@ -509,11 +509,12 @@
     var first = null; list.forEach(function(it){ if(!first && it.img) first = it.img; });
     return list.map(function(it){ return it.img ? it : Object.assign({}, it, { img:first || fallback || SPORT_PIC[sportCur] }); });
   }
-  function vodSec(key, title, list, sp){
+  // portrait: posters (2:3) as Related Contents' (a For You of the Figma's posters)
+  function vodSec(key, title, list, sp, portrait){
     list = withPics(list, sp ? SPORT_PIC[sp] : null);
     SETS[key] = list;
     return '<section class="sec" data-row="' + key + '"><h2 class="sec-title">' + esc(title) + '</h2><div class="rail" style="margin-top:32px"><div class="track">' +
-      list.map(function(it, i){ return vodCard(it, 'vod', i, key); }).join('') + '</div></div></section>';
+      list.map(function(it, i){ return portrait ? '<div class="poster item"' + attrs({kind:'vod', set:key, i:i}) + ' style="background-image:url(\'' + it.img + '\')"></div>' : vodCard(it, 'vod', i, key); }).join('') + '</div></div></section>';
   }
   function matchSec(key, title, list){
     list = withPics(list);
@@ -524,9 +525,7 @@
   function leaguesSec(list){
     SHOWN_LEAGUES = list;
     return '<section class="sec" data-row="leagues"><h2 class="sec-title">League &amp; Tournament</h2><div class="rail"><div class="leagues">' + list.map(function(l, i){
-      var pic = l.mono ? '<span class="mono">' + esc(l.mono) + '</span>'
-        : l.box ? '<span class="img"><img class="lg" src="' + l.logo + '" alt="" style="left:' + l.box[0] + '%;top:' + l.box[1] + '%;width:' + l.box[2] + '%;height:' + l.box[3] + '%"></span>'
-        : '<span class="img ' + (l.fitc || '') + '" style="background-image:url(\'' + l.logo + '\')"></span>';
+      var pic = Leagues.pic(l);   // leagues.js
       return '<div class="league"><div class="disc item' + (l.fav ? ' followed' : '') + '"' + attrs({kind:'league', i:i}) + '>' + pic +
         '<img class="fav" src="sport-assets/fav-btn.svg" alt="" data-ring-top></div><div class="name">' + l.name + '</div></div>';
     }).join('') + '</div></div></section>';
@@ -577,7 +576,7 @@
         '<div class="ltext"><h1>' + esc(l.t) + '</h1><p>' + esc(d) + '</p>' +
         '<div class="tv-btn tv-btn--secondary lfav item' + (l.fav ? ' on' : '') + '" data-kind="lfav" data-ring-art=""><img src="icons/tv-guide/heart' + (l.fav ? '-fill' : '') + '.svg" alt="Follow"></div></div></section>' +
       '<section class="sec" data-row="live"><div class="rail"><div class="track">' + live.map(function(it, i){ return matchCard(it, i, 'live'); }).join('') + '</div></div></section>' +
-      vodSec('highlights', 'Highlights', S.highlights, l.sp) + vodSec('rerun', 'Rerun', rerun, l.sp) + vodSec('moments', 'Moments of the Week', S.leagueHl.items, l.sp) +
+      vodSec('highlights', 'Highlights', S.highlights, l.sp) + vodSec('rerun', 'Rerun', rerun, l.sp, (S.forYou || {}).portrait) + vodSec('moments', 'Moments of the Week', S.leagueHl.items, l.sp) +
       '<section class="sec" data-row="sched"><div class="shorts">' +
         '<div class="short wide sched item" data-kind="sched" data-label="Match Schedule: This Week" style="--img:url(\'' + pic + '\')"><div class="sl"><b>Match Schedule</b><i>This Week</i></div></div>' +
         '<div class="short tall sched item" data-kind="sched" data-label="Match Schedule: Next Week" style="--img:url(\'' + pic + '\')"><div class="sl"><b>Match Schedule</b><i>Next Week</i></div></div></div></section>' +
@@ -588,13 +587,13 @@
     var h = '';
     if(!sp){
       h += leaguesSec(LEAGUES) + vodSec('latest', 'Highlight', LATEST) + bandSec(SPORT.football.band) + guideSec();
-      FOR_YOU.forEach(function(r, ri){ h += vodSec('foryou' + ri, r.title, r.items, r.sp); });
+      FOR_YOU.forEach(function(r, ri){ h += vodSec('foryou' + ri, r.title, r.items, r.sp, r.portrait); });
     } else {
       var S = SPORT[sp];
       h += matchSec('upcoming', 'LIVE & Upcoming', S.upcoming) + leaguesSec(LEAGUES.filter(function(l){ return l.sp === sp; })) +
         vodSec('because', 'Because You Watched ' + S.who, S.because) + (S.band ? bandSec(S.band) : '') +
         vodSec('highlights', 'Highlights', S.highlights) + vodSec('leaguehl', S.leagueHl.t, S.leagueHl.items) + guideSec() +
-        vodSec('foryou', S.forYou.title, S.forYou.items);
+        vodSec('foryou', S.forYou.title, S.forYou.items, null, S.forYou.portrait);
     }
     return h + tailSecs();
   }
@@ -796,7 +795,10 @@
     }
     // videos, documentaries and shorts: their detail page (content.js), then the player
     if(k === 'vod'){ leave(Content.detailUrl(vodInfo(el))); return; }
-    if(k === 'doc' || k === 'short'){ var ci = Content.info(el); if(ci){ if(k === 'doc') ci.t = DOCS[i].t; ci.g = ['Sport']; leave(Content.detailUrl(ci)); return; } }
+    if(k === 'doc' || k === 'short'){ var ci = Content.info(el); if(ci){
+      if(k === 'doc'){ var dc = DOCS[i]; ci.t = dc.t; ci.g = ['Documentary', 'Sport']; if(dc.plat){ ci.plat = dc.plat; ci.len = dc.len; ci.d = dc.d; ci.own = 1; } }
+      else ci.g = ['Sport'];
+      leave(Content.detailUrl(ci)); return; } }
     if(k === 'doc'){ toast('Now playing: ' + DOCS[i].t); return; }
     if(k === 'uclava'){ toast(BAND.t); return; }
     if(k === 'short'){ toast(el.dataset.label + ' (demo)'); return; }

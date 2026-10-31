@@ -3,6 +3,7 @@
   56 x 36, the logo fitted inside a rounded square (6px) filled with the logo's own colour, since the tag pictures are
   drawn as ovals on a transparent corner. On cards it sits 12px in from the card's corner. Pages give the <img> the
   size with the `ptag` class (or their own rule at --ptag-w / --ptag-h); the fill and corners come from its src.
+  ReelShort and DramaBox (the short dramas' apps) are their square icons, cropped to fill the tag.
   Used by home.html, movie.html, movie-detail.html, store.html, short-detail.html and package-detail.html.
 */
 :root{ --ptag-w:56px; --ptag-h:36px; }
@@ -13,5 +14,7 @@ img[src*="badges/tag-prime"]{ background:#1a98ff !important; }
 img[src*="badges/tag-disney"]{ background:#042437 !important; }
 img[src*="badges/tag-viu"]{ background:#ffbf00 !important; }
 img[src*="badges/tag-monomax"]{ background:#fff !important; }
+/* the short drama apps (ReelShort, DramaBox): their square app icon, filling the tag */
+img[src*="badges/tag-reelshort"], img[src*="badges/tag-dramabox"]{ object-fit:cover !important; background:#ff2a5f !important; }
 /* AIS PLAY's own titles: no tag picture, so its mark on black, at the same 56 x 36 (<span class="ptag ais">) */
 .ptag.ais{ border-radius:6px; background:#000 url('icons/aisplay-mark.png') center / auto 64% no-repeat; }

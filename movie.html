@@ -281,7 +281,7 @@
   var FOR_YOU = MD.FOR_YOU;
   var BECAUSE = ['venom', 'avatar', 'f1', 'hobbit', 'john', 'debt', 'topgun'];
   var DISNEY = ['endgame', 'loki', 'prada', 'spider', 'avatar'];
-  var MOVIES = ['topgun', 'john', 'venom', 'avatar', 'f1', 'debt', 'lotr', 'hobbit'];
+  var MOVIES = ['topgun', 'john', 'khemjira', 'venom', 'avatar', 'medium', 'f1', 'debt', 'lotr', 'hobbit'];
   var SERIES = ['house', 'got', 'lastking', 'vikings', 'thailaw', 'dollar', 'vincenzo', 'again'];
   var MY_LIST = ['lastofus', 'house', 'superman', 'wicked', 'dragon'];
   var RENT = MD.RENT;
@@ -321,7 +321,7 @@
     return ptag(m) + '<strong>' + esc(genres(m)) + '</strong><span>' + m.y + '</span><span>' + m.len + '</span><span class="pill">' + m.age + '</span><span class="pill">HD</span>';
   }
   function wide(k, i, set, extra){
-    return '<div class="card item"' + attrs({kind:'title', k:k, set:set, i:i}) + '><div class="thumb" style="background-image:url(\'' + M[k].w + '\')">' + (extra || '') + '</div></div>';
+    return '<div class="card item"' + attrs({kind:'title', k:k, set:set, i:i}) + '><div class="thumb" style="background-image:url(\'' + (M[k].w || M[k].p) + '\')">' + (extra || '') + '</div></div>';
   }
   function poster(k, i, set, badge, tag){
     var m = M[k];
@@ -440,7 +440,7 @@
       h.watched = '<span class="bar"><i style="width:' + Math.round(cw.w / cw.of * 100) + '%"></i></span>' + cw.w + 'm of ' + cw.of + 'm';
       return h;
     }
-    if(kind === 'short'){ var s = window.SHORTS[i]; return { t:s.t, meta:'<strong>' + esc(s.gen.join(' · ')) + '</strong><span class="pill">' + s.rate + '</span><span class="pill">HD</span>', d:s.d, bg:'posters/shorts/' + s.img }; }
+    if(kind === 'short'){ var s = window.SHORTS[i]; return { t:s.t, meta:ptag(s) + '<strong>' + esc(s.gen.join(' · ')) + '</strong><span class="pill">' + s.rate + '</span><span class="pill">HD</span>', d:s.d, bg:'posters/shorts/' + s.img }; }
     if(el && el.dataset.k) return titleHero(el.dataset.k);
     return null;
   }

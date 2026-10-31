@@ -764,10 +764,12 @@
     if(n.indexOf('HBO') >= 0) return 'tag-hbo.png';
     if(n.indexOf('PRIME') >= 0) return 'tag-prime.png';
     if(n.indexOf('VIU') >= 0) return 'tag-viu.png';
+    if(n.indexOf('REELSHORT') >= 0) return 'tag-reelshort.png';   // the short dramas' apps
+    if(n.indexOf('DRAMABOX') >= 0) return 'tag-dramabox.png';
     return 'tag-monomax.png';
   }
   function badgeImg(name, cls){
-    var files = {netflix:'tag-netflix.png', prime:'tag-prime.png', disney:'tag-disney.png', hbo:'tag-hbo.png', viu:'tag-viu.png', monomax:'tag-monomax.png'};
+    var files = {netflix:'tag-netflix.png', prime:'tag-prime.png', disney:'tag-disney.png', hbo:'tag-hbo.png', viu:'tag-viu.png', monomax:'tag-monomax.png', reelshort:'tag-reelshort.png', dramabox:'tag-dramabox.png'};
     var f = files[name];
     if(!f) return '';
     return '<img src="badges/'+f+'" class="'+(cls||'badge-logo')+'" alt="'+name+'">';

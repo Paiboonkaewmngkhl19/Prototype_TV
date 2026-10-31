@@ -1,7 +1,8 @@
 /*
   content.js: every title in the prototype and where it opens. One file for all pages:
     window.MD       movies and series (the Movie page's catalogue, details, prices, progress), below
-    window.SHORTS   the short dramas, window.SHORT their episodes, locks and progress, below
+    window.SHORTS   the short dramas (plat: their app, ReelShort or DramaBox: badges/tag-*.png), window.SHORT their
+                    episodes, locks and progress, below
     window.Content  the router: any card → its detail page (movie-detail.html for a movie or series, short-detail.html
                     for a short), and a title's player (player.html); Content.hero(info) what the card's screen text
                     shows, word for word what that detail page shows. See the end of the file.
@@ -95,6 +96,11 @@
              d:'With his identity revealed, Peter Parker asks Doctor Strange for help, and the multiverse breaks open.'},
     prada:  {t:'The Devil Wears Prada 2', w:P + 'P10-Devil.jpg', plat:'disney', g:['Comedy', 'Drama'], y:2026, len:'1h 59m', age:'13+',
              d:'Miranda Priestly faces the decline of print, and an old assistant who now holds the purse strings.'},
+    // Thai horror (Figma For PBR 8:11038)
+    khemjira:{t:'Khemjira', p:PP + 'khemjira.jpg', plat:'monomax', g:['Horror', 'Thriller'], y:2025, len:'1h 58m', age:'18+',
+             d:'A young man haunted by a curse on his family\'s bloodline turns to an ancient ritual, and the spirit it wakes will not let him go.'},
+    medium: {t:'The Medium', p:PP + 'the-medium.jpg', plat:'monomax', g:['Horror', 'Mystery'], y:2021, len:'2h 10m', age:'18+',
+             d:'A documentary crew follows a shaman in rural north-east Thailand, until her niece starts to show signs of something far darker.'},
     odyssey:{t:'The Odyssey', w:P + 'P10_Odyssey.jpg', plat:'prime', g:['Adventure', 'Fantasy'], y:2026, len:'2h 40m', age:'13+',
              d:'Odysseus fights his way home across a hostile sea after the fall of Troy, ten years from his family.'}
   };
@@ -172,21 +178,21 @@
   (each short's page) and package-detail.html (its payment, ?short=N).
 */
 window.SHORTS = [
-  { t:'Seven Days Back, Old Love Ends', img:'s1.jpg', gen:['Romance', 'Period'], rate:'13+',
+  { t:'Seven Days Back, Old Love Ends', img:'s1.jpg', plat:'reelshort', gen:['Romance', 'Period'], rate:'13+',
     d:'Seven days before her wedding, a palace maid wakes up in the past with one chance to undo the love that ruined her, and the courage to finally walk away.' },
-  { t:'Grandma Takes Over the Family II', img:'s2.jpg', gen:['Comedy', 'Family'], rate:'13+',
+  { t:'Grandma Takes Over the Family II', img:'s2.jpg', plat:'dramabox', gen:['Comedy', 'Family'], rate:'13+',
     d:'Back in a young body, the family matriarch returns to set her spoiled heirs straight and save the business they nearly lost.' },
-  { t:'Ink and Rain', img:'s3.jpg', gen:['Romance', 'Fantasy'], rate:'13+',
+  { t:'Ink and Rain', img:'s3.jpg', plat:'reelshort', gen:['Romance', 'Fantasy'], rate:'13+',
     d:'A painter whose brush brings ink to life and a guarded swordsman cross paths in a city of rain, where every painting hides a promise.' },
-  { t:"The Secretary's Forbidden Love", img:'s4.jpg', gen:['Romance', 'Drama'], rate:'16+',
+  { t:"The Secretary's Forbidden Love", img:'s4.jpg', plat:'dramabox', gen:['Romance', 'Drama'], rate:'16+',
     d:'A new secretary falls for the CEO she was hired to watch, and has to choose between the job, the truth and her heart.' },
-  { t:"The Mafia Boss's Spoiled Secretary", img:'s5.jpg', gen:['Romance', 'Crime'], rate:'18+',
+  { t:"The Mafia Boss's Spoiled Secretary", img:'s5.jpg', plat:'reelshort', gen:['Romance', 'Crime'], rate:'18+',
     d:'Hired by the most feared man in the city, a quiet secretary finds out she is the only one he will not let go.' },
-  { t:"The Healer's Comeback", img:'s6.jpg', gen:['Drama', 'Period'], rate:'13+',
+  { t:"The Healer's Comeback", img:'s6.jpg', plat:'dramabox', gen:['Drama', 'Period'], rate:'13+',
     d:'Cast out of the imperial clinic, a young healer comes back under a new name to cure the court and expose the ones who framed her.' },
-  { t:'Back to the Moonlight Promise', img:'s7.jpg', gen:['Romance', 'Drama'], rate:'13+',
+  { t:'Back to the Moonlight Promise', img:'s7.jpg', plat:'reelshort', gen:['Romance', 'Drama'], rate:'13+',
     d:'Two strangers keep meeting under the same full moon, until they remember the promise they made in another life.' },
-  { t:'Short Drama #8', img:'s8.jpg', gen:['Romance', 'Drama'], rate:'13+',
+  { t:'Short Drama #8', img:'s8.jpg', plat:'dramabox', gen:['Romance', 'Drama'], rate:'13+',
     d:'A short drama in bite-size episodes: new episodes every day, the first ten free.' }
 ];
 
@@ -292,7 +298,7 @@ window.Content = (function(){
     if(!info) return null;
     var f = target(info);
     if(f.s !== undefined){ var sh = window.SHORTS[f.s];
-      return { t:sh.t, d:sh.d, plat:'ais', meta:sh.gen.join(' · ') + ' · ' + sh.rate, bg:'posters/shorts/' + sh.img, s:f.s }; }
+      return { t:sh.t, d:sh.d, plat:sh.plat, meta:sh.gen.join(' · ') + ' · ' + sh.rate, bg:'posters/shorts/' + sh.img, s:f.s }; }
     var m = window.MD.M[f.k];
     return { t:m.t, d:m.d, plat:m.plat, meta:m.g.join(' · ') + ' · ' + m.y + ' · ' + m.len + ' · ' + m.age, bg:window.MD.bg(f.k), k:f.k };
   }

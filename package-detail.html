@@ -334,6 +334,7 @@
 </div></div>
 
 <script src="content.js"></script>
+<script src="packages.js"></script>
 <script src="tv-screen.js"></script>
 <script>
 (function(){
@@ -356,7 +357,7 @@
     document.querySelector('.left > h1').textContent = 'Title Details';
     document.querySelector('.tdetails .poster').style.backgroundImage = "url('posters/shorts/" + SH.img + "')";
     document.querySelector('.tdetails .nm').textContent = SH.t;
-    document.querySelector('.tdetails .meta').innerHTML = '<span class="plat ptag ais" aria-label="AIS PLAY"></span><span class="gen">' + SH.gen.join('<i></i>') + '</span>' +
+    document.querySelector('.tdetails .meta').innerHTML = '<img class="plat ptag" src="badges/tag-' + SH.plat + '.png" alt="">' + '<span class="gen">' + SH.gen.join('<i></i>') + '</span>' +
       '<span>160 Episodes</span><span class="pill">' + SH.rate + '</span><span class="pill">HD</span>';
     document.querySelector('.tdetails .syn').textContent = SH.d;
     // the passes are the right column's prices (no package prices on this page)
@@ -383,9 +384,51 @@
       '6. Video quality depends on the title, your internet speed and your device.', '7. Fees already charged are non-refundable, except where required by law.',
       '8. For assistance, contact AIS Call Center 1175 (24 hours) or visit any AIS Shop.'].map(function(t){ return '<p>' + t + '</p>'; }).join('');
   }
+  // ---- an OTT package from the Store (?ott=netflix&p=0, packages.js): its brand and package on the left, the brand's
+  // packages as the prices on the right (the one picked selected), then the same payment ----
+  var OK = (location.search.match(/[?&]ott=(\w+)/) || [])[1], OB = OK && Packages.OTT[OK], OP = OB ? Packages.PKG[OK] : null;
+  var OI = OP ? Math.max(0, Math.min(OP.length - 1, +((location.search.match(/[?&]p=(-?\d+)/) || [])[1] || 0))) : 0;
+  function ottLg(){ return '<img src="' + OB.logo + '" alt="' + OB.n + '" style="object-fit:contain;' + (OB.tile ? '' : 'background:#000;padding:8px;box-sizing:border-box') + '">'; }
+  if(OB){
+    var P0 = OP[OI], DEV = { phone:'Phone', tablet:'Tablet', laptop:'Laptop', tv:'TV' };
+    document.title = P0.t + ' · Package Detail';
+    document.querySelector('.card .hero .lg').innerHTML = ottLg();
+    document.querySelector('.card .hero b').textContent = P0.t;
+    document.querySelector('.services').innerHTML = '<div class="svc"><span class="ic">' + ottLg() + '</span><div class="info">' + P0.screens + ' Screen' + (P0.screens > 1 ? 's' : '') +
+      '<div class="tags">' + (P0.q === '4K' ? '<img src="icons/pkg/d-badge-a.svg" alt="4K"><img src="icons/pkg/d-badge-b.svg" alt="Dolby Atmos">' : '<span class="fhd">Full HD</span>') + '</div></div></div>' +
+      '<div class="svc"><span class="ic"><img src="' + Packages.AIS + '" alt="AIS PLAYBOX" style="object-fit:contain;background:#000;padding:6px;box-sizing:border-box"></span><div class="info">AIS PLAYBOX<div class="tags"><span class="fhd">Included</span></div></div></div>';
+    // no sports or channels in a streaming package: only where it plays
+    var groups = $('.groups .group');
+    groups.slice(0, 2).forEach(function(g){ g.remove(); });
+    document.querySelector('.logos.devices').innerHTML = P0.devices.map(function(d){ return '<img src="icons/pkg/d-' + d + '.svg" alt="' + DEV[d] + '">'; }).join('');
+    document.querySelector('.fine').textContent = P0.d + ' THB ' + P0.price + ' / ' + P0.per + ', excluding 7% VAT and internet charges. Available to AIS postpaid and prepaid customers.';
+    document.querySelector('.terms ol').innerHTML = [P0.per === 'Month' ? 'The package renews automatically at the end of each billing cycle until cancelled.' : 'The pass is a one-off purchase and ends after 7 days; it does not renew.',
+      'Prices exclude 7% VAT and internet charges.', 'Number of screens and video quality depend on ' + OB.n + ' and your device.',
+      'You may need to sign in to ' + OB.n + ' with an account linked to AIS PLAY.', 'AIS reserves the right to change the package terms without prior notice.']
+      .map(function(t){ return '<li>' + t + '</li>'; }).join('');
+    // the brand's packages are the prices
+    document.querySelector('.rhead span').innerHTML = OP.length + '&nbsp; Package' + (OP.length > 1 ? 's' : '');
+    document.querySelector('.prices').innerHTML = OP.map(function(p, i){
+      var v = (Math.round(p.price * 107) / 100).toLocaleString('en-US', { minimumFractionDigits:2 });
+      return '<div class="price item' + (i === OI ? ' selected' : '') + '" data-label="' + p.t + '"><div><div class="amt">' + p.price + ' ฿ / ' + (p.card === 'Month' ? 'Month' : '7 Days') + '</div>' +
+        '<div class="vat">VAT Included: ' + v + ' ฿</div></div><span class="pill">' + (p.card === 'Month' ? 'Monthly' : '7 Days') + '</span></div>';
+    }).join('');
+    // the popups: this package
+    document.querySelector('.mhero .lg').innerHTML = ottLg();
+    document.querySelector('.mhero .nm').textContent = P0.t;
+    document.querySelector('.otpd h2').textContent = P0.t;
+    document.querySelector('.okcard .n').textContent = P0.t;
+    document.querySelector('.tcscroll').innerHTML = ['1. This package is available to AIS postpaid and prepaid customers.',
+      '2. ' + OB.n + ' is included at no additional charge while the package remains active.', '3. A confirmation SMS is sent once the package is active.',
+      '4. Monthly packages renew automatically at the end of each billing cycle; cancel anytime via the myAIS app or by dialling *1185. 7-day passes do not renew.',
+      '5. Video quality and the number of screens depend on ' + OB.n + ', the content, your internet speed and your device.',
+      '6. You may need to sign in or create an ' + OB.n + ' account and link it to your AIS PLAY account.',
+      '7. Content availability is determined by ' + OB.n + ' and may change without prior notice.', '8. Fees already charged are non-refundable, except where required by law.',
+      '9. For assistance, contact AIS Call Center 1175 (24 hours) or visit any AIS Shop.'].map(function(t){ return '<p>' + t + '</p>'; }).join('');
+  }
   // two columns: the tabs (left/right between them), and the right column (prices then payment, up/down)
   var tabs = $('.tab:not(.disabled)'), right = $('.price').concat($('.paybtn'));
-  var cur = { col: 1, tab: 0, r: 3 };   // starts on Charge to AIS Bill, as in Figma
+  var cur = { col: 1, tab: 0, r: $('.price').length };   // starts on Charge to AIS Bill (after the prices), as in Figma
   function paint(){
     $('.item').forEach(function(e){ e.classList.remove('focused'); });
     (cur.col === 0 ? tabs[cur.tab] : right[cur.r]).classList.add('focused');
@@ -440,6 +483,7 @@
     var sel = document.querySelector('.price.selected');
     document.querySelector('.m-amt').textContent = sel.querySelector('.amt').textContent;
     if(SH) document.querySelector('.mhero .nm').textContent = SH.t + ' · ' + sel.dataset.label;
+    if(OB){ document.querySelector('.mhero .nm').textContent = sel.dataset.label; document.querySelector('.otpd h2').textContent = sel.dataset.label; document.querySelector('.okcard .n').textContent = sel.dataset.label; }
     document.querySelector('.m-vat').textContent = '(' + sel.querySelector('.vat').textContent.replace(',', '') + ')';
     tc.style.scrollBehavior = 'auto'; tc.scrollTop = 0; tc.style.scrollBehavior = '';
     document.body.classList.remove('read');
@@ -474,6 +518,8 @@
     var sel = document.querySelector('.price.selected'), vat = sel.querySelector('.vat').textContent.replace('VAT Included: ', '').replace(' ฿', '');
     if(SH){   // a pass: charged once
       document.querySelector('.otpd .ohead p').innerHTML = 'You will be charged <b class="o-amt">' + vat + '</b> once for the ' + sel.dataset.label + '.';
+    } else if(OB && /7 Days/.test(sel.querySelector('.amt').textContent)){   // an OTT 7-day pass: charged once too
+      document.querySelector('.otpd .ohead p').innerHTML = 'You will be charged <b class="o-amt">฿' + vat + '</b> once for 7 days.';
     } else {
       var per = sel.querySelector('.amt').textContent.split('/')[1].trim();
       document.querySelector('.o-amt').textContent = '฿' + vat + ' /' + per;

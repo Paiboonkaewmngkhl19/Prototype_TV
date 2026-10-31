@@ -1,0 +1,10 @@
+/*
+  League disc picture (leagues.js Leagues.pic): a league's logo inside a round white disc. The disc (its size, the white,
+  the ring) is the page's own; this fills it. Used by sport.html (League & Tournament) and store.html (sport chips).
+*/
+.lg-pic{ position:absolute; inset:0; border-radius:50%; overflow:hidden; background:center / cover no-repeat; }
+.lg-pic.zoom{ background-size:288% auto; }
+.lg-pic.inset{ background-size:67% auto; }
+.lg-pic .lg{ position:absolute; max-width:none; display:block; }   /* a Figma logo, placed in its disc by its box */
+.lg-mono{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; border-radius:50%;
+  font-weight:500; color:#1c1c1c; }

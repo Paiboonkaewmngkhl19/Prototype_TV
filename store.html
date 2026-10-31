@@ -30,6 +30,7 @@
 <link rel="stylesheet" href="event-card.css">
 <link rel="stylesheet" href="corner-tag.css">
 <link rel="stylesheet" href="platform-tag.css">
+<link rel="stylesheet" href="league-disc.css">
 <style>
   :root{
     color-scheme:dark;
@@ -66,6 +67,30 @@
   .hero-bg .side{ position:absolute; inset:0;
     background:linear-gradient(90deg, rgba(var(--wash),.88) 0%, rgba(var(--wash),.62) 30%, rgba(var(--wash),.12) 58%, transparent 75%); }
   body.static .hero-bg{ opacity:0; }
+  /* an OTT package (Figma Store 5472:228410 …): the brand's gradient over the whole screen, and its logo with AIS PLAYBOX
+     and the price on the right of the hero */
+  .hero-bg .brand{ position:absolute; inset:0; opacity:0; transition:opacity .45s ease, background .45s ease; }
+  .hero-bg.ott .brand{ opacity:1; }
+  .hero-bg.ott .ph{ opacity:0; }
+  .ott-hero{ position:absolute; left:1178px; top:255px; width:666px; display:flex; flex-direction:column; align-items:center; gap:24px; opacity:0; transition:opacity .35s ease; }
+  .hero-bg.ott .ott-hero{ opacity:1; }
+  .ott-hero .logos{ display:flex; align-items:center; gap:34px; }
+  .ott-hero .logos > img:first-child{ width:316px; height:120px; object-fit:contain; }   /* Figma: Netflix's wordmark 316 wide */
+  .ott-hero .logos > img.tile{ width:260px; height:110px; border-radius:12px; }
+  .ott-hero .logos i{ width:3px; height:184px; background:#e8e8e8; opacity:.6; }
+  .ott-hero .logos .ais{ width:282px; }
+  .ott-hero .pr{ display:flex; align-items:center; gap:27px; font-size:36px; font-weight:300; line-height:32px; color:#fff; }
+  .ott-hero .pr i{ width:2px; height:49px; background:#fff; }
+  /* the package card: its OTT's logo | AIS PLAYBOX on black, the price under them */
+  .sq .pic.ott{ background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; }
+  .sq .pic.ott img{ position:static; }
+  .sq .ott .lg{ display:flex; align-items:center; gap:12px; height:56px; }
+  .sq .ott .lg > img:first-child{ max-width:112px; max-height:40px; }
+  .sq .ott .lg > img.tile{ max-height:52px; border-radius:6px; }
+  .sq .ott .lg i{ width:1px; height:49px; background:#e8e8e8; opacity:.6; }
+  .sq .ott .lg .ais{ width:89px; }
+  .sq .ott .pr{ display:flex; align-items:center; gap:15px; font-size:36px; font-weight:500; line-height:32px; color:#fff; white-space:nowrap; }
+  .sq .ott .pr i{ width:3px; height:40px; background:#fff; }
 
   /* ---------- hero text, as Home's: tags, title, price, description, ending 80px above the focused rail (placeHero) ---------- */
   .hero{ position:absolute; left:110px; bottom:560px; width:1100px; z-index:3; display:flex; flex-direction:column; gap:14px;
@@ -126,6 +151,9 @@
     font-weight:500; font-size:24px; line-height:32px; color:var(--on-surface-variant); white-space:nowrap; transition:background .15s ease, color .15s ease; }
   .chip::before{ content:''; position:absolute; inset:0; border-radius:inherit; border:2px solid var(--outline-variant); opacity:.5; transition:opacity .15s ease; }
   .chip img{ width:48px; height:48px; border-radius:48px; display:block; }
+  .chip.txt{ padding:20px 32px; }
+  .chip .lgdisc{ position:relative; width:48px; height:48px; border-radius:50%; background:#fff; flex:0 0 auto; }   /* a league's disc (league-disc.css) */
+  .chip .lgdisc .lg-mono{ font-size:18px; }   /* no icon: the same 72px height, even sides */
   .chip img.ott{ width:var(--ptag-w); height:var(--ptag-h); border-radius:6px; object-fit:contain; background:#000; }   /* the platform tag (platform-tag.css, 56 x 36; its brand fill) */
   .chip.on{ background:var(--outline); color:var(--on-surface); }
   .chip.on::before, .chip.focused::before{ opacity:0; }
@@ -215,7 +243,7 @@
 </head>
 <body>
 <div id="frame"><div id="screen">
-  <div class="hero-bg"><div class="ph"></div><div class="art"></div><div class="art"></div><div class="down"></div><div class="side"></div></div>
+  <div class="hero-bg"><div class="brand"></div><div class="ph"></div><div class="art"></div><div class="art"></div><div class="down"></div><div class="side"></div><div class="ott-hero"></div></div>
 
   <div id="page"></div>
 
@@ -239,6 +267,8 @@
 
 <script src="profile-panel.js"></script>
 <script src="content.js"></script>
+<script src="leagues.js"></script>
+<script src="packages.js"></script>
 <script src="tv-screen.js"></script>
 <script>
 (function(){
@@ -258,9 +288,10 @@
   var ULTIMATE = { badge:'Recommend', dark:1, t:'PLAY ULTIMATE', price:999, per:'Month', tags:['Monthly', 'Recurring', 'Recommend'],
     d:'Netflix, HBO Max, Disney+ Hotstar, iQIYI, oneD and WeTV in one package, with AIS PLAY Premium channels and live sport. Watch on your TV, phone and tablet.',
     art:{ img:SA + 'foryou-play-ultimate.png', crop:'height:123.75%;left:-60%;top:-17.17%;width:220%' }, hero:SA + 'hero-play-ultimate.png', pkg:1 };
-  var NETFLIX_7D = { badge:'Recommend', t:'Netflix Mobile 7 Days', price:99, per:'7 days', tags:['7 Days', 'One-time'],
-    d:'Netflix on your phone and tablet for 7 days, charged once to your AIS bill. Series, films and anime, with no recurring charge.',
-    art:{ logo:SA + 'netflix-playbox.png', price:{ img:SA + 'netflix-price-99-7days.png', at:'height:17.12%;left:12.97%;top:76.18%;width:74.08%' } }, pkg:1 };
+  var OTT = Packages.OTT, PKG = Packages.PKG;   // packages.js (Package Detail shows the same)
+  // the Movies tabs: Popular, then each OTT's own packages
+  var TAB_OTT = { 'Netflix':'netflix', 'HBO Max':'hbo', 'Disney+':'disney', 'iQIYI':'iqiyi', 'Viu':'viu', 'MONOMAX':'monomax' };
+  var NETFLIX_7D = PKG.netflix[0];
   var ROWS = {
     foryou:[ ULTIMATE,
       { badge:'Best Seller', dark:1, t:'PLAY ALL Asian Games', price:199, per:'Month', tags:['Monthly', 'Recurring', 'Best Seller'],
@@ -286,26 +317,22 @@
         d:'Premier League and more sport on the MONOMAX app, for AIS customers. Every match live, with replays and highlights.',
         art:{ img:SA + 'sports-monomax.png' }, pkg:1 },
       ph(), ph(), ph(), ph(), ph()],
-    movies:[ NETFLIX_7D,
-      { t:'Netflix Mobile Monthly', price:199, per:'Month', tags:['Monthly', 'Recurring'],
-        d:'Netflix on your phone and tablet every month, billed to your AIS account. Cancel at any time.',
-        art:{ logo:SA + 'netflix-playbox.png', price:{ img:SA + 'netflix-price-199-month.png', at:'height:17.46%;left:7.3%;top:74.06%;width:85.2%' } }, pkg:1 },
-      { t:'Netflix Standard', price:349, per:'Month', tags:['Monthly', 'Recurring'],
-        d:'Netflix in Full HD on two screens at a time, on your TV and every other device, billed to your AIS account.',
-        art:{ logo:SA + 'netflix-playbox.png' }, pkg:1 },
-      ph(), ph(), ph(), ph()],
+    // Popular: one of each OTT, as the Figma's rail
+    movies:[ NETFLIX_7D ].concat([PKG.disney[0], PKG.hbo[0], PKG.prime[0], PKG.viu[0], PKG.iqiyi[0], PKG.netflix[1], PKG.monomax[0]].map(function(p){
+      return Object.assign({}, p, { badge:null }); })),   // (Recommend: the rail's first only)
     short:[ph('Recommend'), ph(), ph(), ph(), ph(), ph(), ph()],
     value:[ph('Best Saver'), ph(), ph(), ph(), ph(), ph(), ph()]
   };
   var TABS = {
     sports:['Popular', 'Premier League', 'NBA', 'RWS', 'Thai League'],
-    movies:['Popular', 'Netflix', 'HBO Max', 'Disney+', 'iQIYI', 'MONOMAX'],
+    movies:['Popular', 'Netflix', 'HBO Max', 'Disney+', 'iQIYI', 'Viu', 'MONOMAX'],
     short:['Popular', 'ReelShort', 'DramaBox'],
     value:['< 100 baht Enjoy Asia Movies & Shorts', '< 100 baht Sports Lover', '300 - 500 baht Enjoy Movies & Sports', 'Asian Games']
   };
   // the OTT tabs carry the project's own platform tag logos (Home's cards use the same ones)
   var TAB_LOGO = { 'Netflix':'badges/tag-netflix.png', 'HBO Max':'badges/tag-hbo.png', 'Disney+':'badges/tag-disney.png',
-    'iQIYI':'partners/iqiyi.png', 'MONOMAX':'badges/tag-monomax.png' };
+    'iQIYI':'partners/iqiyi.png', 'Viu':'badges/tag-viu.png', 'MONOMAX':'badges/tag-monomax.png',
+    'ReelShort':'badges/tag-reelshort.png', 'DramaBox':'badges/tag-dramabox.png' };
   var EVENTS = [
     { kind:'vod', t:'Content Title', price:199 },
     { kind:'upcoming', t:'Content Title', price:199, when:'Today 20:30 PM' },
@@ -339,7 +366,11 @@
     return '<span class="bdg top-tag"' + (it.timer ? ' data-timer="' + it.timer + '"' : '') + '>' +
       esc(it.badge + (it.timer ? ' ' + hms(it.timer) : '')) + '</span>';
   }
+  function ottLogo(o, cls){ return '<img class="' + (cls || '') + (o.tile ? ' tile' : '') + '" src="' + o.logo + '" alt="' + esc(o.n) + '">'; }
   function sqPic(it){
+    if(it.ott){ var o = OTT[it.ott];
+      return '<div class="pic ott"><div class="lg">' + ottLogo(o) + '<i></i><img class="ais" src="' + SA + 'ott/ais-playbox.png" alt="AIS PLAYBOX"></div>' +
+        '<div class="pr">' + it.price + '<i></i>' + it.card + '</div></div>'; }
     var a = it.art;
     if(!a) return '<div class="pic ph-bg">' + RATIO_SM + '</div>';
     if(a.logo) return '<div class="pic black contain" style="background-image:url(\'' + a.logo + '\')">' +
@@ -353,10 +384,11 @@
   }
   function viewAll(set){ return '<div class="viewall tv-chip item"' + attrs({ kind:'viewall', set:set }) + ' data-ring-art=""><b>View All</b></div>'; }
   function cardsHtml(key, list, more){ return list.map(function(it, i){ return sqCard(it, key, i); }).join('') + (more ? viewAll(key) : ''); }
+  // Popular (the first): its name only, no icon; the others: their OTT's tag, else the league's disc, as Sport's
+  // League & Tournament (leagues.js; one with no logo yet: its initials)
   function chipHtml(t, i){
-    return '<div class="chip item' + (i ? '' : ' on') + '"' + attrs({ kind:'tab', i:i }) + ' data-ring-art="">' +
-      (TAB_LOGO[t] ? '<img class="ott" src="' + TAB_LOGO[t] + '" alt="">' :
-        '<img src="' + (i ? 'sport-assets/chip-icon.png' : SA + 'chip-recommend.svg') + '" alt="">') + esc(t) + '</div>';
+    return '<div class="chip item' + (i ? '' : ' on txt') + '"' + attrs({ kind:'tab', i:i }) + ' data-ring-art="">' +
+      (TAB_LOGO[t] ? '<img class="ott" src="' + TAB_LOGO[t] + '" alt="">' : i ? '<span class="lgdisc">' + Leagues.pic(Leagues.find(t) || { t:t }) + '</span>' : '') + esc(t) + '</div>';
   }
   function eventCard(e, i){
     var tall = '<div class="xc-portrait ph-bg"><div class="ratio big huge"><img src="' + SA + 'image-icon-60.svg" alt=""><span>2:3</span></div></div>';
@@ -441,6 +473,7 @@
   // the list a tab bar is showing: the picked tab's packages (Recommend), Figma's placeholders on the others
   function listOf(set){
     if(cur.tab[set] === undefined || !cur.tab[set]) return ROWS[set];
+    if(set === 'movies') return PKG[TAB_OTT[TABS.movies[cur.tab[set]]]];   // an OTT's tab: its own packages
     return ROWS[set].map(function(_, i){ return ph(i ? null : 'Recommend'); });
   }
   function paintHero(r){
@@ -457,7 +490,17 @@
       heroEl.querySelector('.desc').textContent = it.d;
       heroEl.classList.remove('swap'); void heroEl.offsetWidth; heroEl.classList.add('swap');
     }
-    setArt(it.hero || (it.art && it.art.img) || null);
+    // an OTT package: its brand over the screen, its logos and price on the right (no picture of its own)
+    var o = it.ott && OTT[it.ott];
+    heroBg.classList.toggle('ott', !!o);
+    if(o){
+      heroBg.querySelector('.brand').style.background = o.bg;
+      var oh = heroBg.querySelector('.ott-hero'), ok = it.ott + it.price + it.card;
+      if(oh.dataset.k !== ok){ oh.dataset.k = ok;
+        oh.innerHTML = '<div class="logos">' + ottLogo(o) + '<i></i><img class="ais" src="' + SA + 'ott/ais-playbox.png" alt="AIS PLAYBOX"></div>' +
+          '<div class="pr">' + it.price + '<i></i>' + it.card + '</div>'; }
+    }
+    setArt(o ? null : it.hero || (it.art && it.art.img) || null);
   }
 
   // ---- keep the focused item in view ----
@@ -538,6 +581,8 @@
     if(el === profileEl) return;   // its panel is already open under it
     if(k === 'pkg'){
       var set = el.dataset.set, it = (set === 'onetime' ? ONETIME : set === 'others' ? OTHERS : listOf(set))[i];
+      // an OTT package: Package Detail for it (packages.js), its own price picked
+      if(it.ott){ leave('package-detail.html?ott=' + it.ott + '&p=' + PKG[it.ott].map(function(p){ return p.t; }).indexOf(it.t)); return; }
       if(it.pkg) leave('package-detail.html'); else toast(it.t + ' (demo)');
       return;
     }
