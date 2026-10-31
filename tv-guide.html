@@ -56,6 +56,14 @@
   .cat-label{ display:flex; align-items:baseline; gap:12px; }
   .cat-label .crumb, .cat-label .sep{ font-weight:400; color:rgba(255,255,255,.55); }
   .cat-label .cur{ font-weight:700; color:#fff; }
+  /* Figma (3274:85667): opened from the player, whose channel keeps playing behind the guide, the label row names it on
+     the right: "Currently playing : ChannelName", the label grey, the name white, both 24px */
+  .now-playing{ position:absolute; right:110px; top:200px; z-index:9; pointer-events:none; white-space:nowrap; display:flex; align-items:baseline; gap:8px;
+    font:400 24px/32px var(--noto); letter-spacing:-.24px; color:var(--on-surface-variant, #a8a8a8); text-shadow:0 1px 4px rgba(0,0,0,.4);
+    opacity:0; transform:translateY(6px); transition:opacity .22s cubic-bezier(.2,0,0,1), transform .22s cubic-bezier(.2,0,0,1); }
+  .now-playing b{ font-weight:400; font-size:24px; color:#e8e8e8; }
+  body.collapsed .now-playing{ opacity:1; transform:none; }
+  .now-playing[hidden]{ display:none; }
   /* label bottom = 92px into the page: fade from 24px below it (116px) to fully visible 48px below it (140px) */
   body.collapsed #page{ -webkit-mask-image:linear-gradient(180deg, transparent 0, transparent 116px, #000 140px); mask-image:linear-gradient(180deg, transparent 0, transparent 116px, #000 140px); }
   .clip{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -71,7 +79,7 @@
   /* the chosen view: dim (Figma "Dim View Channels"; the same fill as Home's active nav tab) until focus is on it */
   .sw.on{ background:rgba(255,255,255,.22); font-weight:500; color:#fff; transition:background .22s cubic-bezier(.2,0,0,1); }
   .sw.on.focused{ background:var(--pill-hi), var(--th-pill); font-weight:600; text-shadow:0 1px 4px rgba(0,0,0,.35); }
-  .head-right{ display:flex; align-items:center; gap:12px; }
+  .head-right{ display:flex; align-items:center; gap:16px; }
   /* View Channels: the date and clock as plain text chips */
   .time-chip{ height:80px; padding:0 50px; border-radius:50px; display:flex; align-items:center; box-sizing:border-box;
     backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
@@ -91,6 +99,12 @@
     max-height:560px; overflow:hidden; background:rgba(30,36,48,.92); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); border-radius:16px;
     box-shadow:0 1px 3px rgba(0,0,0,.3), 0 4px 8px 3px rgba(0,0,0,.15); }
   .dd.open .dd-menu{ display:flex; }
+  /* reset (Figma "Chip / Icon Only (TV)"): an 80px square icon button 16px after the time picker, a 2px outline, 12px corners,
+     a 48px reset icon; focused, the dropdowns' glass pill */
+  .dd-reset{ width:80px; height:80px; box-sizing:border-box; border-radius:12px; border:2px solid #4a4a4a; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+  .dd-reset img{ width:48px; height:48px; display:block; }
+  .dd-reset.focused{ background:var(--pill-hi), var(--th-pill); border-color:transparent; }
+  .dd-reset.focused img{ filter:brightness(0) invert(1) drop-shadow(0 1px 3px rgba(0,0,0,.35)); }   /* the icon white, as the triggers' text */
   .dd-opt{ flex:0 0 auto; padding:10px 20px; border-radius:10px; font:400 22px/34px var(--noto); letter-spacing:-.24px; color:var(--on-surface); white-space:nowrap; cursor:pointer; }
   .dd-opt.sel{ font-weight:500; }
   .dd-opt.sel::after{ content:' ✓'; }
@@ -250,6 +264,8 @@
   .alert .bar{ width:6px; height:34.286px; flex:0 0 auto; border-radius:4px; background:var(--on-surface);
     box-shadow:0 2px 6px 2px rgba(0,0,0,.15), 0 1px 2px 0 rgba(0,0,0,.3); }
   .alert p{ margin:0; font:400 32px/40px Roboto, sans-serif; color:var(--on-surface); white-space:nowrap; }
+  /* View Channels: a channel card shows its heart only once it's a favourite (hold OK still adds / removes it) */
+  .ch-card .fav-wrap.off{ display:none; }
   /* favourite added, like a TikTok / Facebook like: a big heart pops over the card and floats away, and the small heart
      bounces in with a ring and a burst of sparks; removing it just shrinks the small heart back */
   .fav-wrap{ position:relative; display:block; width:20px; height:20px; }
@@ -296,9 +312,11 @@
         <div class="time-chip only-channels" id="chipTime"></div>
         <div class="dd only-guide" id="ddDate"><div class="dd-trigger item"><span class="v"></span><img class="a" src="icons/pkg/d-chev.svg" alt=""></div><div class="dd-menu"></div></div>
         <div class="dd only-guide" id="ddTime"><div class="dd-trigger item"><span class="v"></span><img class="a" src="icons/pkg/d-chev.svg" alt=""></div><div class="dd-menu"></div></div>
+        <div class="dd-reset item only-guide" id="ddReset" data-ring-art="" aria-label="Back to now"><img src="icons/tv-guide/reset.svg" alt=""></div>
       </div>
     </div>
   <div class="cat-label" id="catLabel"></div>
+  <div class="now-playing" id="nowPlaying" hidden></div>
   <div id="page"><div id="content">
     <div class="rail tabs"><div class="rail-track" id="tabs"></div></div>
     <div class="rail subs" id="subsRail"><div class="rail-track" id="subs"></div></div>
@@ -343,6 +361,7 @@
   } catch(e){}
   // and its sound keeps playing behind the guide, from where the player was (picture hidden). If the browser won't start
   // it with sound before a key press on this page, it starts with the first key or click
+  if(WATCHING){ var np = document.getElementById('nowPlaying'); np.innerHTML = 'Currently playing :<b></b>'; np.querySelector('b').textContent = WATCHING; np.hidden = false; }
   if(WATCHING && w.v){
     var bgSound = document.createElement('video');
     bgSound.src = w.v; bgSound.loop = true; bgSound.playsInline = true; bgSound.style.display = 'none';
@@ -394,7 +413,7 @@
     return '<div class="logo" style="' + (c.bg ? 'background:' + c.bg : '') + '">' + img + '</div>';
   }
   // favourite: the heart filled white; hold Enter on a channel card to add or remove it
-  function heartIcon(c){ return '<span class="fav-wrap"><img class="ic20 fav-ic" src="icons/tv-guide/' + (c.fav ? 'heart-fill.svg' : 'heart.svg') + '" alt="' + (c.fav ? 'Favorite' : '') + '"></span>'; }
+  function heartIcon(c){ return '<span class="fav-wrap' + (c.fav ? '' : ' off') + '"><img class="ic20 fav-ic" src="icons/tv-guide/' + (c.fav ? 'heart-fill.svg' : 'heart.svg') + '" alt="' + (c.fav ? 'Favorite' : '') + '"></span>'; }
   // reminder bell on an upcoming programme (Figma "Card Program", 230:108415): the outline bell shows on the focused card
   // only; once set it is filled and always shows
   function bellHtml(p){ var on = !!reminders[p.key];
@@ -543,7 +562,7 @@
   var GRID_COLS = 8;   // View Channels: cards to a row (.grid)
   var mem = { head:0, tabs:0, subs:0, grid:0, guide:{c:0, r:0} }, zone = 'tabs';
   function zoneItems(z){
-    if(z === 'head') return $('.sw').concat(S.view === 'guide' ? [dds.date.querySelector('.dd-trigger'), dds.time.querySelector('.dd-trigger')] : []);
+    if(z === 'head') return $('.sw').concat(S.view === 'guide' ? [dds.date.querySelector('.dd-trigger'), dds.time.querySelector('.dd-trigger'), document.getElementById('ddReset')] : []);
     if(z === 'tabs') return $('.tab', tabsEl);
     if(z === 'subs') return $('.sub', subsEl);
     if(z === 'grid') return $('.ch-card', gridEl);
@@ -798,6 +817,8 @@
     if(el.classList.contains('sub')){ selectSub(el.dataset.sub); return; }
     if(el.classList.contains('sw')){ setView(el.dataset.view); mem.head = S.view === 'guide' ? 1 : 0; zone = 'head'; return; }
     if(el.classList.contains('dd-trigger')){ openMenu(el.parentElement === dds.date ? 'date' : 'time'); return; }
+    // reset: the guide back to today, now
+    if(el.id === 'ddReset'){ S.day = 0; S.hour = -1; paintHead(); render(); resetZones(); paint(); toast('Guide from now'); return; }
     if(el.classList.contains('ch-card')){ openPlayer(chByNo(el.dataset.no)); return; }
     if(el.classList.contains('prog')){
       var p = PROG_BY_KEY[el.dataset.key], now = new Date();
@@ -845,7 +866,7 @@
     c.fav = !c.fav; saveFav(c);
     toast(c.fav ? 'Added to Favorite: ' + c.n : 'Removed from Favorite: ' + c.n);
     if(S.cat === 'fav'){ render(); resetZones(); paint(); return; }   // the Favorite list itself changed
-    $('[data-no="' + c.no + '"] .fav-ic').forEach(function(img){ img.src = 'icons/tv-guide/' + (c.fav ? 'heart-fill.svg' : 'heart.svg'); img.alt = c.fav ? 'Favorite' : ''; });
+    $('[data-no="' + c.no + '"] .fav-ic').forEach(function(img){ img.src = 'icons/tv-guide/' + (c.fav ? 'heart-fill.svg' : 'heart.svg'); img.alt = c.fav ? 'Favorite' : ''; img.parentElement.classList.toggle('off', !c.fav); });
     favAnim(c, from);
   }
   // a small icon turning on (heart, bell): bounces in with a ring and a burst of sparks; turning off: a quick squeeze

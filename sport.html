@@ -21,6 +21,7 @@
   Remote / keyboard: arrows move focus, Enter selects, Esc / Back returns to the top (then to Home).
 -->
 <link rel="stylesheet" href="chip-theme.css">
+<link rel="stylesheet" href="tvguide-card.css">
 <link rel="stylesheet" href="button-theme.css">
 <link rel="stylesheet" href="corner-tag.css">
 <link rel="stylesheet" href="live-ribbon.css">
@@ -113,6 +114,9 @@
   .chip img{ width:48px; height:48px; border-radius:48px; }
   .chip.focused{ background:var(--focus-fill); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); border-radius:24px; }
   .chip.focused::before{ opacity:0; }
+  /* the sport chosen: its chip keeps the focused glass fill (no ring) while focus is elsewhere; the rails below are that sport's */
+  .chip.sel:not(.focused){ background:var(--focus-fill); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+  .chip.sel::before{ opacity:0; }
 
   /* League & Tournament: 134px discs (160 focused), 187px apart; the followed ones carry a heart */
   .leagues{ display:flex; padding:0 85px; width:max-content; margin-top:31px; transition:transform .35s var(--ease); }
@@ -122,6 +126,7 @@
   .disc .img{ position:absolute; inset:0; border-radius:50%; overflow:hidden; background:center / cover no-repeat; }
   .disc .img.zoom{ background-size:288% auto; }
   .disc .img.inset{ background-size:67% auto; }
+  .disc .img .lg{ position:absolute; max-width:none; display:block; }   /* a Figma logo, placed in its disc by its box */
   .disc .mono{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; border-radius:50%;
     font-family:var(--roboto); font-weight:500; font-size:26px; color:#1c1c1c; }
   .disc .fav{ position:absolute; right:-16px; bottom:-16px; width:84px; height:84px; transition:opacity .2s ease, transform .25s var(--ease); }
@@ -129,30 +134,16 @@
   .disc.focused{ transform:scale(1.194); }   /* no stroke: the round focus ring is the outline */
   .league .name{ width:100%; height:56px; font-family:var(--roboto); font-size:22px; line-height:28px; text-align:center; color:var(--on-surface); overflow:hidden; }
 
-  /* TV Guide rail: View All + what's on now on the sports channels */
-  .guide-all{ width:220px; height:180px; flex:0 0 auto; padding:24px; border-radius:16px; background:var(--surface-container-high); color:var(--on-surface);
-    font-weight:500; line-height:41.877px; transition:background .15s ease, color .15s ease; }
-  .guide-all b{ display:block; font-weight:500; font-size:31px; }
-  .guide-all span{ font-size:24px; }
-  .guide-all.focused{ background:var(--focus-fill); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
-  /* what's on now: the card glass (chip-theme.css .tv-glass) */
-  .epg{ position:relative; width:320px; height:180px; flex:0 0 auto; border-radius:12px; padding:0 18px;
-    display:flex; flex-direction:column; justify-content:center; gap:16px; font-family:var(--roboto); font-weight:500; }
-  .epg .now{ display:flex; gap:4px; align-items:flex-start; }
-  .epg .ava{ width:67px; height:67px; border-radius:50%; flex:0 0 auto; background:#fff center / cover no-repeat; }
-  .epg .ava.contain{ background-size:78% auto; }
-  .epg .txt{ flex:1; min-width:0; align-self:stretch; display:flex; flex-direction:column; justify-content:center; gap:4px; }
-  .epg .txt b, .epg .next b{ font-weight:500; font-size:20px; line-height:normal; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .epg .txt span, .epg .next span{ font-size:14px; line-height:20px; letter-spacing:.1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .epg .ic{ display:flex; gap:12px; flex:0 0 auto; }
-  .epg .ic img{ width:24px; height:24px; }
-  .epg .bar{ position:relative; height:8px; border-radius:24px; background:rgba(255,255,255,.4); overflow:hidden; }
-  .epg .bar i{ position:absolute; left:0; top:0; bottom:0; border-radius:24px; background:var(--live); }   /* the player's seek-bar red */
-  .epg .next{ display:flex; flex-direction:column; }
+  /* TV Guide rail: Home's TV Guide tile and channel cards (tvguide-card.css), all 280px tall */
+  [data-row="guide"] .track{ align-items:stretch; }
 
   /* the suggested league (UCL): key art + glows, clipped to the section; on focus the art also fills the screen above it */
   .ucl{ height:600px; padding:80px 110px 40px; display:flex; flex-direction:column; gap:60px; }
   .ucl .back{ position:absolute; left:0; right:0; top:0; bottom:0; overflow:hidden; transition:top .45s var(--ease); }
+  /* the artwork fades out at its top and bottom edges (a mask, not a colour), so it melts into the page with no band edge;
+     focused, the top fade sits above the screen and the picture fills it to the top */
+  .ucl .back{ -webkit-mask-image:linear-gradient(180deg, transparent 0, #000 140px, #000 calc(100% - 200px), transparent 100%);
+    mask-image:linear-gradient(180deg, transparent 0, #000 140px, #000 calc(100% - 200px), transparent 100%); }
   body.ucl .ucl .back{ top:-600px; }
   .ucl .inner{ position:absolute; left:0; bottom:0; width:1920px; height:600px; }
   .ucl .art{ position:absolute; left:-1177px; top:-160px; width:3110px; height:1432px; max-width:none; }
@@ -167,6 +158,10 @@
   .ucl .text p{ margin:0; height:87px; font-size:24px; color:var(--on-surface-variant); overflow:hidden; }
   .ucl .row{ position:relative; display:flex; align-items:center; gap:60px; margin:0 -110px; }
   .ucl .row .track{ padding-right:0; }
+  /* another tournament's band (ATP Tour, Formula 1): its picture fills the band, darkened behind the text */
+  .ucl.plain .inner{ height:100%; }
+  .ucl.plain .art{ left:0; top:0; width:100%; height:100%; object-fit:cover; }
+  .ucl.plain .inner::after{ content:''; position:absolute; inset:0; background:linear-gradient(90deg, rgba(8,8,24,.82) 0%, rgba(8,8,24,.45) 55%, rgba(8,8,24,.2) 100%); }
   .ucl .uclava{ width:160px; height:160px; border-radius:50%; flex:0 0 auto; background:url('sport-assets/ucl-avatar.jpg') 46% 40% / 208% auto no-repeat; }
 
   /* Short Highlight + Short */
@@ -200,9 +195,9 @@
   /* past the hero the rails get the full screen: the top bar steps away until it gets focus, with the page colour fading in behind it */
   .scrim{ position:absolute; left:0; top:0; width:1920px; height:170px; z-index:4; pointer-events:none; opacity:0; transition:opacity .3s ease;
     background:linear-gradient(180deg, var(--bg-0) 0%, var(--bg-0) 45%, rgba(7,14,22,0) 100%); }
-  body.static.on-nav .scrim{ opacity:1; }   /* full screen past the hero: no fade over the rails, only behind the top bar when it comes back */
+  body.static.on-nav .scrim, body.past-first.on-nav .scrim{ opacity:1; }   /* full screen past the hero: no fade over the rails, only behind the top bar when it comes back */
   .topnav{ position:absolute; left:0; top:0; z-index:5; width:1920px; padding:24px 110px 0; display:flex; align-items:center; transition:opacity .3s ease, translate .3s var(--ease); }
-  body.static:not(.on-nav) .topnav{ opacity:0; translate:0 -40px; pointer-events:none; }
+  body.static:not(.on-nav) .topnav, body.past-first:not(.on-nav) .topnav{ opacity:0; translate:0 -40px; pointer-events:none; }
   .profile{ width:60px; height:60px; border-radius:999px; overflow:hidden; flex:0 0 auto; }
   .profile img{ width:100%; height:100%; object-fit:cover; display:block; }
   .center{ display:flex; align-items:center; gap:12px; margin-left:20px; }
@@ -218,7 +213,7 @@
   #toast.on{ opacity:1; }
   /* resting chips and buttons: Home's chip glass; focus turns them to the glass pill */
   .chip::before{ display:none; }
-  .chip:not(.focused), .guide-all:not(.focused), .totop .btn:not(.focused){
+  .chip:not(.focused), .totop .btn:not(.focused){
     background:var(--idle-fill); -webkit-backdrop-filter:blur(80px) saturate(1.5); backdrop-filter:blur(80px) saturate(1.5); color:var(--on-surface); }
   /* focused items grow: 8% on every rail, 6% in the top bar; the wide Short Highlight 3% (more would reach
      past the 32px gap); the league and channel discs keep their own growth */
@@ -255,6 +250,7 @@
 </div></div>
 
 <script src="profile-panel.js"></script>
+<script src="channels-data.js"></script>
 <script>
 (function(){
   // ---- fit the 1920x1080 screen into the window ----
@@ -299,26 +295,29 @@
     {t:'Mainz vs Paderborn', when:'Tomorrow 03:00 PM', img:'posters/SC.jpg', ch:CH.play, time:'15:00 – 17:00'}
   ];
   var CHIPS = [
+    // sp: the sport each chip filters the rails below by (channels-data.js's tags); All Sport shows everything
     {t:'All Sport', img:'posters/all.jpg', d:'Every sport in one place. Live matches, upcoming fixtures, highlights and documentaries from the leagues you follow.'},
-    {t:'Football', img:LS + 'football-024.jpg', d:'Champions League, Premier League, Bundesliga and more: live football, full matches and the best goals of the week.'},
-    {t:'Motorsports', img:'posters/f1.jpg', d:'Formula 1, MotoGP and World Superbike: every race live, with qualifying, onboard cameras and race replays.'},
-    {t:'Golf', d:'PGA Tour and the majors, live from the first tee to the final putt, with round highlights.'},
-    {t:'Basketball', d:'NBA and regional leagues: live games, full replays and the plays everyone is talking about.'},
-    {t:'Tennis', img:'posters/upcoming/u4.png', d:'Grand Slams and tour events: live matches on every court, with daily highlights.'},
-    {t:'Rugby', d:'International rugby and the top club competitions, live and on replay.'},
-    {t:'Boxing', d:'Title fights, undercards and classic bouts from the biggest nights in boxing.'}
+    {t:'Football', sp:'football', img:LS + 'football-024.jpg', d:'Champions League, Premier League, Bundesliga and more: live football, full matches and the best goals of the week.'},
+    {t:'Motorsports', sp:'motorsport', img:'posters/f1.jpg', d:'Formula 1, MotoGP and World Superbike: every race live, with qualifying, onboard cameras and race replays.'},
+    {t:'Golf', sp:'golf', d:'PGA Tour and the majors, live from the first tee to the final putt, with round highlights.'},
+    {t:'Basketball', sp:'basketball', d:'NBA and regional leagues: live games, full replays and the plays everyone is talking about.'},
+    {t:'Tennis', sp:'tennis', img:'posters/upcoming/u4.png', d:'Grand Slams and tour events: live matches on every court, with daily highlights.'},
+    {t:'Rugby', sp:'rugby', d:'International rugby and the top club competitions, live and on replay.'},
+    {t:'Boxing', sp:'boxing', d:'Title fights, undercards and classic bouts from the biggest nights in boxing.'}
   ];
+  // Figma (Sports 3336:63788 rail_league): the logo in a white disc, placed by box [left, top, width, height] in % of the disc;
+  // UCL, Bundesliga and RWS fill theirs (cover / zoom). fav: followed (the heart shows)
   var LEAGUES = [
-    {t:'UEFA Champions League', name:'UEFA<br>Champions League', logo:'sport-assets/league-ucl.jpg', fitc:'zoom', fav:1, img:'sport-assets/ucl-bg.jpg'},
-    {t:'Premier League', name:'Premiere<br>League', logo:'sport-assets/league-epl.jpg', fitc:'zoom', fav:1, img:'posters/liver-ben.jpg'},
-    {t:'Bundesliga', name:'Bundesliga', logo:'sport-assets/league-bundesliga.png', fitc:'inset', fav:1, img:'posters/upcoming/u3.jpg'},
-    {t:'FA Cup', name:'FA Cup', logo:'sport-assets/league-facup.jpg', fav:1, img:'posters/arsenal.jpg'},
-    {t:'French Open', name:'French<br>Open', logo:'sport-assets/league-rg.png', img:'posters/upcoming/u4.png'},
-    {t:'RWS', name:'RWS', logo:'sport-assets/league-rws.png'},
-    {t:'NBA', name:'NBA', mono:'NBA'},
-    {t:'PGA Tour', name:'PGA<br>Tour', mono:'PGA'},
-    {t:'MotoGP', name:'MotoGP', mono:'MotoGP'},
-    {t:'Wimbledon', name:'Wimbledon', mono:'W'}
+    {t:'UEFA Champions League', sp:'football', name:'UEFA<br>Champions League', logo:'sport-assets/league-ucl.jpg', fitc:'zoom', fav:1, img:'sport-assets/ucl-bg.jpg'},
+    {t:'Bundesliga', sp:'football', name:'Bundesliga', logo:'sport-assets/league-bundesliga.png', fitc:'inset', fav:1, img:'posters/upcoming/u3.jpg'},
+    {t:'UEFA Europa League', sp:'football', name:'UEFA<br>Europa League', logo:'sport-assets/league-europa.png', box:[21.95,10,56.1,80], fav:1},
+    {t:'MotoGP', sp:'motorsport', name:'MotoGP', logo:'sport-assets/league-motogp.png', box:[5,24.69,90,50.62]},
+    {t:'NFL', sp:'nfl', name:'NFL', logo:'sport-assets/league-nfl.png', box:[19.08,7.5,61.84,85]},
+    {t:'NBA', sp:'basketball', name:'NBA', logo:'sport-assets/league-nba.png', box:[-28.13,6.05,156.25,87.89]},
+    {t:'UEFA Conference League', sp:'football', name:'UEFA Conference League', logo:'sport-assets/league-conference.png', box:[11.13,11.24,78.18,77.53]},
+    {t:'RWS', sp:'rws', name:'RWS', logo:'sport-assets/league-rws.png'},
+    {t:'PGA Tour', sp:'golf', name:'PGA<br>Tour', logo:'sport-assets/league-pga.png', box:[-18.13,11.68,136.25,76.64]},
+    {t:'ATP Tour', sp:'tennis', name:'ATP<br>Tour', logo:'sport-assets/league-atp.png', box:[8.5,30.5,83,39.01]}
   ];
   var LATEST = [
     {t:'Como vs Man United Highlights', dur:'6m', img:LS + 'football-024.jpg', g:'Football · Highlights'},
@@ -328,29 +327,25 @@
     {t:'Asian Games: Badminton Highlights', dur:'12m', img:'tv-features-test/shorts-assets/badminton.jpg', g:'Badminton · Highlights'},
     {t:'Asian Games: Volleyball Highlights', dur:'9m', img:'tv-features-test/shorts-assets/volleyball.jpg', g:'Volleyball · Highlights'}
   ];
-  var EPG = [
-    {c:CH.play, now:'Formula 1: Grand Prix Qualifying', next:'Paddock Pass', p:.6, remind:1, heart:1},
-    {c:CH.mutv, now:'PL Match: v Chelsea (A) 25/26', next:'Inside United', p:.4, heart:1},
-    {c:CH.rm, now:'Champions League Classics', next:'Classic Highlights', p:.7},
-    {c:CH.ws, now:'Malaysia Regional Cup ’26: Wildcats v Sneakers', next:'Heroines (S2E02)', p:.3},
-    {c:CH.ag902, now:'Asian Games 2026: Football', next:'Asian Games 2026: Athletics', p:.5}
-  ];
+  // what's on now on the sport channels: the TV Guide's own channels (channels-data.js, `tv`), so the card, the TV Guide
+  // and the player show the same programme, time, Time Shift and favourite
+  var EPG = [{c:CH.play, tv:'PLAY Sports'}, {c:CH.mutv, tv:'MUTV'}, {c:CH.rm, tv:'Real Madrid TV'}, {c:CH.ws, tv:'W-Sport'}, {c:CH.ag902, tv:'Asian Games 902'}];
   var FOR_YOU = [
-    {title:'Football For You', items:[
+    {title:'Football For You', sp:'football', items:[
       {t:'Como vs Man United Highlights', dur:'6m', img:LS + 'football-109.jpg'},
       {t:'Paris Saint-Germain vs Barcelona Full Match', dur:'97m', img:LS + 'football-180.jpg'},
       {t:'Tottenham Hotspur vs Coventry Highlights', dur:'8m', img:LS + 'football-190.jpg'},
       {t:'Liverpool vs Brentford Full Match', dur:'11m', img:'posters/liver-ben.jpg'},
       {t:'Man United: Matchday Live', dur:'102m', img:LS + 'mutv-148.jpg'},
       {t:'Sir Alex Ferguson: Never Give In', dur:'98m', img:'posters/maxresdefault.jpg'}]},
-    {title:'Basketball For You', items:[
+    {title:'Basketball For You', sp:'basketball', items:[
       {t:'Timberwolves vs Heat Full Game Highlights', dur:'18m'},
       {t:'Warriors vs Lakers Full Game', dur:'82m'},
       {t:'76ers vs Knicks Full Game', dur:'95m'},
       {t:'Basketball Team Name vs Basketball Team Name', dur:'14m'},
       {t:'Basketball Team Name vs Basketball Team Name', dur:'88m'},
       {t:'Basketball Team Name vs Basketball Team Name', dur:'40m'}]},
-    {title:'Motorsport For You', items:[
+    {title:'Motorsport For You', sp:'motorsport', items:[
       {t:'2026 Australian GP Full Race', dur:'78m', img:'posters/f1.jpg'},
       {t:'2026 German GP Full Race', dur:'71m'},
       {t:'Best Moto GP Moments 2026 Japanese GP', dur:'16m'},
@@ -365,13 +360,56 @@
     {t:'Match Day: FA Cup', img:'posters_portrait/ex4.jpg'}, {t:'Match Day', img:'posters_portrait/ex5.jpg'}
   ];
   var CHANNELS = [
-    {t:'AIS PLAY Sports', img:'sport-assets/channel-aisplay.jpg', size:'110%', c:CH.play},   // its black disc sits on white: zoomed past the white
-    {t:'MUTV', img:CH.mutv.logo, c:CH.mutv}, {t:'Real Madrid TV', img:CH.rm.logo, contain:1, bg:CH.rm.bg, c:CH.rm},
-    {t:'W-Sport', img:CH.ws.logo, contain:1, bg:'#404045', c:CH.ws},   // on Real Madrid TV's grey
+    {t:'AIS PLAY Sports', img:'sport-assets/channel-aisplay.jpg', size:'110%', c:CH.play, tv:'PLAY Sports'},   // its black disc sits on white: zoomed past the white
+    {t:'MUTV', img:CH.mutv.logo, c:CH.mutv, tv:'MUTV'}, {t:'Real Madrid TV', img:CH.rm.logo, contain:1, bg:CH.rm.bg, c:CH.rm, tv:'Real Madrid TV'},
+    {t:'W-Sport', img:CH.ws.logo, contain:1, bg:'#404045', c:CH.ws, tv:'W-Sport'},   // on Real Madrid TV's grey
     // the Asian Games logos are full discs already: they fill the circle
-    {t:'Asian Games 902', img:CH.ag902.logo, bg:'#fff', c:CH.ag902},
-    {t:'Asian Games 907', img:CH.ag907.logo, bg:'#fff', c:CH.ag907}
+    {t:'Asian Games 902', img:CH.ag902.logo, bg:'#fff', c:CH.ag902, tv:'Asian Games 902'},
+    {t:'Asian Games 907', img:CH.ag907.logo, bg:'#fff', c:CH.ag907, tv:'Asian Games 907'}
   ];
+
+  /* ---------- what each chip shows below it (Figma Sports: All Sport 3203:107793, Football 3220:64263, Tennis 3220:65693) ----------
+     All Sport: League & Tournament, Highlight, the Champions League band, TV Guide, each sport's For You, Short, Related
+     Contents. A sport: LIVE & Upcoming, its leagues, Because You Watched…, its tournament band (when it has one),
+     Highlights, the tournament's highlights, TV Guide, the sport's For You, Short, Related Contents. Placeholder titles
+     (as the Figma's) where there is no content yet. */
+  function phv(t, dur, img){ return {t:t, dur:dur, img:img || null}; }
+  function vs(n){ return n + ' Name vs ' + n + ' Name'; }
+  var SPORT = {
+    football:{ label:'Football', upcoming:LIVE, who:'Manchester United',
+      because:[phv('Como vs Manchester United Highlights','6m',LS + 'football-024.jpg'), phv('Man United: Matchday Live','102m',LS + 'mutv-148.jpg'),
+        phv('Sir Alex Ferguson: Never Give In','98m','posters/maxresdefault.jpg'), phv('Liverpool vs Brentford Full Match','11m','posters/liver-ben.jpg'), phv('Leeds United vs Manchester United Highlights','12m')],
+      highlights:[phv('Como vs Man United Highlights','6m',LS + 'football-109.jpg'), phv('Everton vs Chelsea Highlights','8m'), phv('Brentford vs Liverpool Highlights','6m','posters/upcoming/live.jpg'),
+        phv('Hamburger SV vs VfB Stuttgart Highlights','12m','posters/upcoming/u3.jpg'), phv('Bayern München vs RB Leipzig Highlights','12m','posters/bayern-dortmund.webp')],
+      leagueHl:{t:'Premier League 26/27 Highlights', items:[phv('Bournemouth vs Sunderland Highlights','6m'), phv('Brighton vs Crystal Palace Highlights','97m'),
+        phv('Leeds United vs Manchester United Highlights','11m'), phv('Tottenham Hotspur vs Coventry Highlights','8m',LS + 'football-190.jpg'), phv(vs('Football Club'),'102m')]},
+      band:{t:'UEFA Champion League', ucl:1, d:'The road to the final runs through here. Every match of the league phase live, with the knockout draw, highlights and the best goals of each matchday.', matches:UCL},
+      forYou:FOR_YOU[0] },
+    tennis:{ label:'Tennis', who:'Ben Shelton', ph:'Athlete',
+      upcoming:[{t:vs('Athlete'), live:true, ch:CH.play, time:'02:00 – 04:00'}, {t:vs('Athlete'), live:true, ch:CH.play, time:'02:00 – 04:00'}],
+      band:{t:'ATP Tour', img:'posters/upcoming/u4.png', d:'The men’s tour from the first round to the Finals: every court live, with the day’s best rallies and the results.',
+        matches:[{t:vs('Athlete'), live:true, ch:CH.play, time:'02:00 – 04:00'}, {t:vs('Athlete'), live:true, ch:CH.play, time:'02:00 – 04:00'}]},
+      highlights:[phv('F.Cobolli vs A.Zverev Men’s Final Highlights','12m','posters/upcoming/u4.png')], leagueHl:{t:'ATP Tour Highlights'} },
+    motorsport:{ label:'Motorsport', who:'Max Verstappen', ph:'Race Title', race:1,
+      band:{t:'Formula 1', img:'posters/f1.jpg', d:'Every Grand Prix weekend live: practice, qualifying and the race, with onboard cameras and race replays.'},
+      highlights:[phv('Best Moto GP Moments 2026 Japanese GP','6m')], leagueHl:{t:'Formula 1 2026 Highlights'}, forYou:FOR_YOU[2] },
+    basketball:{ label:'Basketball', who:'Golden State Warriors', ph:'Basketball Team',
+      highlights:[phv('Timberwolves vs Heat Full Game Highlights','8m')], leagueHl:{t:'NBA 25/26 Highlights'}, forYou:FOR_YOU[1] },
+    golf:{ label:'Golf', who:'Scottie Scheffler', ph:'Player', race:1, leagueHl:{t:'PGA Tour Highlights'} },
+    rugby:{ label:'Rugby', who:'All Blacks', ph:'Rugby Team', leagueHl:{t:'Rugby Championship Highlights'} },
+    boxing:{ label:'Boxing', who:'Canelo Álvarez', ph:'Boxer', leagueHl:{t:'Fight Night Highlights'} }
+  };
+  // the rest of a sport's rails, from placeholders where it has no content yet
+  Object.keys(SPORT).forEach(function(k){
+    var S = SPORT[k], t = S.race ? S.ph : vs(S.ph || 'Team'), durs = ['6m','8m','12m','17m','11m','64m'];
+    function fill(list, n){ list = (list || []).slice(); while(list.length < n) list.push(phv(t, durs[list.length % durs.length])); return list; }
+    if(!S.upcoming) S.upcoming = [{t:t, live:true, ch:CH.play, time:'02:00 – 04:00'}, {t:t, live:true, ch:CH.play, time:'02:00 – 04:00'},
+      {t:t, when:'Today 20:30 PM', ch:CH.play, time:'20:30 – 22:30'}, {t:t, when:'Tomorrow 02:30 AM', ch:CH.play, time:'02:30 – 04:30'}];
+    if(S.band && !S.band.matches) S.band.matches = S.upcoming;
+    S.because = fill(S.because, 5); S.highlights = fill(S.highlights, 5);
+    S.leagueHl.items = fill(S.leagueHl.items, 5);
+    if(!S.forYou) S.forYou = { title:S.label + ' For You', items:fill([], 6) };
+  });
 
   /* ---------- markup ---------- */
   function thumbStyle(img){ return img ? ' style="background-image:url(\'' + img + '\')"' : ''; }
@@ -385,65 +423,122 @@
     return '<div class="card item"' + attrs({kind:kind, set:set, i:i}) + '><div class="thumb' + (it.img ? '' : ' ph') + '" data-ratio="16:9"' + thumbStyle(it.img) + '>' +
       '<span class="dur corner-tag">' + esc(it.dur) + '</span></div><div class="t two">' + esc(it.t) + '</div></div>';
   }
+  function epgIcons(o){ return (o.ts ? '<img class="epg-ts" src="icons/tv-guide/timeshift.svg" alt="Time Shift">' : '') + (o.fav ? '<span class="epg-heart"><img src="icons/epg/heart.svg" alt="Favorite"></span>' : ''); }
+  // Home's TV Guide card (tvguide-card.css): the channel's logo, what's on now and its progress, then what's next
   function epgCard(e, i){
-    var c = e.c, ic = (e.remind ? '<img src="sport-assets/epg-reminder.svg" alt="">' : '') + (e.heart ? '<img src="sport-assets/epg-heart.svg" alt="">' : '');
-    return '<div class="epg tv-glass item"' + attrs({kind:'epg', i:i}) + ' data-ring-art=""><div class="now">' +
-      '<span class="ava' + (c.fit === 'contain' ? ' contain' : '') + '" style="background-image:url(\'' + c.logo + '\')' + (c.bg ? ';background-color:' + c.bg : '') + '"></span>' +
-      '<div class="txt"><b>' + esc(e.now) + '</b><span>Started at 6:30 PM</span></div><div class="ic">' + ic + '</div></div>' +
-      '<div class="bar"><i style="width:' + Math.round(e.p * 100) + '%"></i></div>' +
-      '<div class="next"><b>' + esc(e.next) + '</b><span>Start in 7:30 PM</span></div></div>';
+    var c = e.c, o = TV.onNow(TV.byName(e.tv));
+    return '<div class="epg-card tv-glass item"' + attrs({kind:'epg', i:i}) + ' data-ring-art=""><div class="epg-now">' +
+      '<img class="epg-avatar round' + (c.fit === 'contain' ? ' contain' : '') + '" src="' + c.logo + '" alt=""' + (c.bg ? ' style="background:' + c.bg + '"' : '') + '>' +
+      '<div class="epg-prog-data"><div class="epg-title">' + esc(o.now.t) + '</div><div class="epg-sub">Started at ' + o.startedAt + '</div></div>' +
+      '<span class="epg-icons">' + epgIcons(o) + '</span>' +
+      '<div class="progress"><i style="width:' + o.pct + '%"></i></div></div>' +
+      '<div class="epg-next"><div class="epg-title">' + esc(o.next.t) + '</div><div class="epg-sub">Starts at ' + o.nextAt + '</div></div></div>';
   }
+  // back from the player: the sport that was picked
+  var RETURNING = !!sessionStorage.getItem('sportReturn'), PICK = 0;
+  try { if(RETURNING) PICK = +(sessionStorage.getItem('sportPick') || 0) || 0; } catch(e){}
   var html = '';
   html += '<section class="sec" data-row="live"><div class="rail"><div class="track">' + LIVE.map(function(it, i){ return matchCard(it, i, 'live'); }).join('') + '</div></div></section>';
   html += '<section class="sec" data-row="chips"><div class="rail"><div class="chips">' + CHIPS.map(function(c, i){
-    return '<div class="chip item"' + attrs({kind:'chip', i:i}) + ' data-ring-art="">' + (i ? '<img src="sport-assets/chip-icon.png" alt="">' : '') + esc(c.t) + '</div>';
+    return '<div class="chip item' + (i === PICK ? ' sel' : '') + '"' + attrs({kind:'chip', i:i}) + ' data-ring-art="">' + (i ? '<img src="sport-assets/chip-icon.png" alt="">' : '') + esc(c.t) + '</div>';
   }).join('') + '</div></div></section>';
-  html += '<section class="sec" data-row="leagues"><h2 class="sec-title">League &amp; Tournament</h2><div class="rail"><div class="leagues">' + LEAGUES.map(function(l, i){
-    var pic = l.mono ? '<span class="mono">' + esc(l.mono) + '</span>' : '<span class="img ' + (l.fitc || '') + '" style="background-image:url(\'' + l.logo + '\')"></span>';
-    return '<div class="league"><div class="disc item' + (l.fav ? ' followed' : '') + '"' + attrs({kind:'league', i:i}) + '>' + pic +
-      '<img class="fav" src="sport-assets/fav-btn.svg" alt="" data-ring-top></div><div class="name">' + l.name + '</div></div>';
-  }).join('') + '</div></div></section>';
-  html += '<section class="sec" data-row="latest"><h2 class="sec-title">Latest Highlight</h2><div class="rail" style="margin-top:32px"><div class="track">' +
-    LATEST.map(function(it, i){ return vodCard(it, 'latest', i); }).join('') + '</div></div></section>';
-  html += '<section class="sec" data-row="guide"><div class="rail"><div class="track" style="padding-top:0;padding-bottom:0">' +
-    '<div class="guide-all item" data-kind="guideall" data-ring-art=""><b>TV Guide</b><span>View All &nbsp;→</span></div>' +
-    EPG.map(epgCard).join('') + '</div></div></section>';
-  html += '<section class="sec ucl" data-row="ucl"><div class="back"><div class="inner">' +
-    '<img class="art" src="sport-assets/ucl-bg.jpg" alt=""><img class="art top" src="sport-assets/ucl-bg.jpg" alt="">' +
-    '<div class="glow" style="left:-417.44px;top:-697.17px;width:2056.26px;height:1424.171px"><div style="transform:rotate(-14.2deg)"><div style="position:relative;width:1869px;height:996px">' +
-      '<img src="sport-assets/ucl-ring-1.svg" alt="" style="left:-1240px;top:-1240px;width:4349px;height:3476px"></div></div></div>' +
-    '<div class="glow" style="left:-195.49px;top:-421.98px;width:2674.459px;height:1698.144px"><div style="transform:rotate(15.99deg)"><div style="position:relative;width:2479.497px;height:1056.018px">' +
-      '<img src="sport-assets/ucl-ring-2.svg" alt="" style="left:-1183.96px;top:-1184.03px;width:4847.4px;height:3424.1px"></div></div></div>' +
-    '</div></div>' +
-    '<div class="text"><h2>UEFA Champion League</h2><p>The road to the final runs through here. Every match of the league phase live, with the knockout draw, highlights and the best goals of each matchday.</p></div>' +
-    '<div class="row"><div class="track">' + UCL.map(function(it, i){ return matchCard(it, i, 'ucl'); }).join('') +
-    '<div class="uclava item" data-kind="uclava" data-ring-art="url(\'sport-assets/ucl-avatar.jpg\')"></div></div></div></section>';
-  FOR_YOU.forEach(function(r, ri){
-    html += '<section class="sec" data-row="foryou' + ri + '"><h2 class="sec-title">' + esc(r.title) + '</h2><div class="rail" style="margin-top:32px"><div class="track">' +
-      r.items.map(function(it, i){ return vodCard(it, 'foryou', i, ri); }).join('') + '</div></div></section>';
-  });
-  html += '<section class="sec" data-row="shorts"><div class="shorts">' +
-    '<div class="short wide item" data-kind="short" data-label="Short Highlight" style="--img:url(\'' + LS + 'football-255.jpg\')"><span>Short Highlight</span></div>' +
-    '<div class="short tall item" data-kind="short" data-label="Short" style="--img:url(\'tv-features-test/shorts-assets/volleyball.jpg\')"><span>Short</span></div></div></section>';
-  html += '<section class="sec docs" data-row="docs"><h2 class="sec-title">Documentary</h2><div class="rail"><div class="track">' + DOCS.map(function(d, i){
-    return '<div class="poster item"' + attrs({kind:'doc', i:i}) + ' style="background-image:url(\'' + d.img + '\')"></div>';
-  }).join('') + '</div></div></section>';
-  html += '<section class="sec" data-row="channels"><h2 class="sec-title">Sport Channel</h2><div class="rail"><div class="chans">' + CHANNELS.map(function(c, i){
-    return '<div class="chan item' + (c.contain ? ' contain' : '') + '"' + attrs({kind:'chan', i:i}) + ' style="background-image:url(\'' + c.img + '\')' + (c.bg ? ';background-color:' + c.bg : '') + (c.size ? ';background-size:' + c.size : '') + '"></div>';
-  }).join('') + '</div></div></section>';
-  html += '<section class="sec totop" data-row="totop"><div class="btn item" data-kind="totop" data-ring-art=""><img src="sport-assets/arrow-up.svg" alt="">Back to Top</div></section>';
+  // the rails below the chips, for the sport picked ('' = All Sport). SETS: each rail's items by set name, for the screen
+  // text and Enter
+  var SETS = { live:LIVE }, SHOWN_LEAGUES = LEAGUES, BAND = SPORT.football.band, sportCur = '';
+  // a card without a picture yet borrows the first picture in its rail (else its sport's), until its own art is added
+  var SPORT_PIC = { football:LS + 'football-024.jpg', tennis:'posters/upcoming/u4.png', motorsport:'posters/f1.jpg', basketball:'posters/all.jpg',
+    golf:'posters/all.jpg', rugby:'posters/all.jpg', boxing:'posters/all.jpg', '':LS + 'football-024.jpg' };
+  function withPics(list, fallback){
+    var first = null; list.forEach(function(it){ if(!first && it.img) first = it.img; });
+    return list.map(function(it){ return it.img ? it : Object.assign({}, it, { img:first || fallback || SPORT_PIC[sportCur] }); });
+  }
+  function vodSec(key, title, list, sp){
+    list = withPics(list, sp ? SPORT_PIC[sp] : null);
+    SETS[key] = list;
+    return '<section class="sec" data-row="' + key + '"><h2 class="sec-title">' + esc(title) + '</h2><div class="rail" style="margin-top:32px"><div class="track">' +
+      list.map(function(it, i){ return vodCard(it, 'vod', i, key); }).join('') + '</div></div></section>';
+  }
+  function matchSec(key, title, list){
+    list = withPics(list);
+    SETS[key] = list;
+    return '<section class="sec" data-row="' + key + '"><h2 class="sec-title">' + esc(title) + '</h2><div class="rail" style="margin-top:32px"><div class="track">' +
+      list.map(function(it, i){ return matchCard(it, i, key); }).join('') + '</div></div></section>';
+  }
+  function leaguesSec(list){
+    SHOWN_LEAGUES = list;
+    return '<section class="sec" data-row="leagues"><h2 class="sec-title">League &amp; Tournament</h2><div class="rail"><div class="leagues">' + list.map(function(l, i){
+      var pic = l.mono ? '<span class="mono">' + esc(l.mono) + '</span>'
+        : l.box ? '<span class="img"><img class="lg" src="' + l.logo + '" alt="" style="left:' + l.box[0] + '%;top:' + l.box[1] + '%;width:' + l.box[2] + '%;height:' + l.box[3] + '%"></span>'
+        : '<span class="img ' + (l.fitc || '') + '" style="background-image:url(\'' + l.logo + '\')"></span>';
+      return '<div class="league"><div class="disc item' + (l.fav ? ' followed' : '') + '"' + attrs({kind:'league', i:i}) + '>' + pic +
+        '<img class="fav" src="sport-assets/fav-btn.svg" alt="" data-ring-top></div><div class="name">' + l.name + '</div></div>';
+    }).join('') + '</div></div></section>';
+  }
+  // the tournament band: the Champions League's own artwork, or a plain picture for the others; its matches under the text
+  function bandSec(b){
+    BAND = b; SETS.ucl = withPics(b.matches, b.img);
+    var back = b.ucl ? '<div class="back"><div class="inner">' +
+      '<img class="art" src="sport-assets/ucl-bg.jpg" alt=""><img class="art top" src="sport-assets/ucl-bg.jpg" alt="">' +
+      '<div class="glow" style="left:-417.44px;top:-697.17px;width:2056.26px;height:1424.171px"><div style="transform:rotate(-14.2deg)"><div style="position:relative;width:1869px;height:996px">' +
+        '<img src="sport-assets/ucl-ring-1.svg" alt="" style="left:-1240px;top:-1240px;width:4349px;height:3476px"></div></div></div>' +
+      '<div class="glow" style="left:-195.49px;top:-421.98px;width:2674.459px;height:1698.144px"><div style="transform:rotate(15.99deg)"><div style="position:relative;width:2479.497px;height:1056.018px">' +
+        '<img src="sport-assets/ucl-ring-2.svg" alt="" style="left:-1183.96px;top:-1184.03px;width:4847.4px;height:3424.1px"></div></div></div>' +
+      '</div></div>'
+      : '<div class="back"><div class="inner"><img class="art" src="' + b.img + '" alt=""></div></div>';
+    return '<section class="sec ucl' + (b.ucl ? '' : ' plain') + '" data-row="ucl">' + back +
+      '<div class="text"><h2>' + esc(b.t) + '</h2><p>' + esc(b.d) + '</p></div>' +
+      '<div class="row"><div class="track">' + SETS.ucl.map(function(it, i){ return matchCard(it, i, 'ucl'); }).join('') +
+      (b.ucl ? '<div class="uclava item" data-kind="uclava" data-ring-art="url(\'sport-assets/ucl-avatar.jpg\')"></div>' : '') + '</div></div></section>';
+  }
+  function guideSec(){
+    return '<section class="sec" data-row="guide"><div class="rail"><div class="track" style="padding-top:0;padding-bottom:0">' +
+      '<div class="epg-countdown tv-chip item" data-kind="guideall" data-ring-art=""><b>TV Guide</b><span>View All</span></div>' +
+      EPG.map(epgCard).join('') + '</div></div></section>';
+  }
+  function tailSecs(){
+    return '<section class="sec" data-row="shorts"><div class="shorts">' +
+      '<div class="short wide item" data-kind="short" data-label="Short Highlight" style="--img:url(\'' + LS + 'football-255.jpg\')"><span>Short Highlight</span></div>' +
+      '<div class="short tall item" data-kind="short" data-label="Short" style="--img:url(\'tv-features-test/shorts-assets/volleyball.jpg\')"><span>Short</span></div></div></section>' +
+      '<section class="sec docs" data-row="docs"><h2 class="sec-title">Related Contents</h2><div class="rail"><div class="track">' + DOCS.map(function(d, i){
+        return '<div class="poster item"' + attrs({kind:'doc', i:i}) + ' style="background-image:url(\'' + d.img + '\')"></div>';
+      }).join('') + '</div></div></section>' +
+      '<section class="sec totop" data-row="totop"><div class="btn item" data-kind="totop" data-ring-art=""><img src="sport-assets/arrow-up.svg" alt="">Back to Top</div></section>';
+  }
+  function renderBelow(sp){
+    sportCur = sp; SETS = { live:LIVE };
+    var h = '';
+    if(!sp){
+      h += leaguesSec(LEAGUES) + vodSec('latest', 'Highlight', LATEST) + bandSec(SPORT.football.band) + guideSec();
+      FOR_YOU.forEach(function(r, ri){ h += vodSec('foryou' + ri, r.title, r.items, r.sp); });
+    } else {
+      var S = SPORT[sp];
+      h += matchSec('upcoming', 'LIVE & Upcoming', S.upcoming) + leaguesSec(LEAGUES.filter(function(l){ return l.sp === sp; })) +
+        vodSec('because', 'Because You Watched ' + S.who, S.because) + (S.band ? bandSec(S.band) : '') +
+        vodSec('highlights', 'Highlights', S.highlights) + vodSec('leaguehl', S.leagueHl.t, S.leagueHl.items) + guideSec() +
+        vodSec('foryou', S.forYou.title, S.forYou.items);
+    }
+    return h + tailSecs();
+  }
+  html += renderBelow(CHIPS[PICK].sp || '');
   var page = document.getElementById('page');
   page.innerHTML = html;
 
   /* ---------- focus rows: the top bar, then one row per section ---------- */
   var $ = function(q, root){ return Array.prototype.slice.call((root || document).querySelectorAll(q)); };
-  var secs = $('.sec', page);
-  var rows = [{ items:$('.topnav .item') }].concat(secs.map(function(s){ return { sec:s, key:s.dataset.row, items:$('.item', s) }; }));
-  var R = {}; rows.forEach(function(r, i){ if(r.key) R[r.key] = i; });
+  // what focus can reach: the top bar, then each section's items (rebuilt when a chip changes the rails below)
+  var secs, rows, R, DYNAMIC_END;
+  function buildRows(){
+    secs = $('.sec', page);
+    rows = [{ items:$('.topnav .item') }].concat(secs.map(function(s){ return { sec:s, key:s.dataset.row, items:$('.item', s) }; }));
+    R = {}; rows.forEach(function(r, i){ if(r.key) R[r.key] = i; });
+    // Figma (Sports 2385:14824): every row down to the TV Guide rail keeps the hero (dynamic background); the For You
+    // rails and everything after them are the plain page (static background)
+    DYNAMIC_END = R.guide;
+  }
+  buildRows();
   var NAV_SPORT = rows[0].items.indexOf(document.querySelector('.navtab.active'));
   var cur = { row:R.live, col:rows.map(function(){ return 0; }), from:0 };   // from: the row the top bar was entered from
   cur.col[0] = NAV_SPORT;
-  var DYNAMIC_END = R.ucl;   // rows up to the suggested league keep the hero (dynamic background)
 
   // ---- the hero speaks for the focused rail ----
   var heroEl = document.querySelector('.hero'), heroKey = '';
@@ -457,17 +552,17 @@
   }
   function chMeta(c){ return '<span class="ch"><img src="' + c.logo + '" alt=""' + (c.bg ? ' style="background:' + c.bg + ';object-fit:contain"' : '') + '>Channel ' + c.no + ': ' + esc(c.n.toUpperCase()) + ' ' + c.no + '</span>'; }
   function heroFor(el, rowKey){
-    var k = el && el.dataset.kind, i = el ? +el.dataset.i : 0;
-    if(rowKey === 'live' || rowKey === 'ucl'){
-      var m = (rowKey === 'ucl' ? UCL : LIVE)[k === 'match' ? i : 0];
-      if(k === 'uclava') return { t:'UEFA Champion League', d:document.querySelector('.ucl .text p').textContent, bg:null };
-      return { t:m.t, meta:topBadge(m) + '<span class="badge"><img src="sport-assets/crown.svg" alt="">Premium</span>' + chMeta(m.ch) + '<span class="pill">' + m.time + '</span>', d:m.d || MATCH_DESC, bg:m.bg || m.img };   // bg: a screen picture of its own, else the card's
+    var k = el && el.dataset.kind, i = el ? +el.dataset.i : 0, set = el && el.dataset.set;
+    if(k === 'match'){
+      var m = SETS[set][i];
+      return { t:m.t, meta:topBadge(m) + '<span class="badge"><img src="sport-assets/crown.svg" alt="">Premium</span>' + chMeta(m.ch) + '<span class="pill">' + m.time + '</span>', d:m.d || (sportCur && sportCur !== 'football' ? 'Live ' + SPORT[sportCur].label + ' in full HD with Thai and English commentary, plus the build-up and the analysis after.' : MATCH_DESC), bg:m.bg || m.img };   // bg: a screen picture of its own, else the card's
     }
+    if(k === 'uclava') return { t:BAND.t, d:BAND.d, bg:null };
     if(rowKey === 'chips'){ var c = CHIPS[i]; return { t:c.t, d:c.d, bg:c.img }; }
-    if(rowKey === 'leagues'){ var l = LEAGUES[i]; return { t:l.t, d:'Follow ' + l.t + ' for live matches, fixtures, results and highlights, all in one place.', bg:l.img }; }
-    if(rowKey === 'latest'){
-      var h = LATEST[i];
-      return { t:h.t, meta:'<span class="ch"><img src="sport-assets/channel-aisplay.jpg" alt="">AIS PLAY</span><b>' + h.g + '</b><span>2026</span><span>' + h.dur + '</span><span class="pill">G</span><span class="pill">HD</span>',
+    if(rowKey === 'leagues'){ var l = SHOWN_LEAGUES[i]; return { t:l.t, d:'Follow ' + l.t + ' for live matches, fixtures, results and highlights, all in one place.', bg:l.img }; }
+    if(k === 'vod'){
+      var h = SETS[set][i], g = h.g || ((sportCur ? SPORT[sportCur].label : 'Sport') + ' · Highlights');
+      return { t:h.t, meta:'<span class="ch"><img src="sport-assets/channel-aisplay.jpg" alt="">AIS PLAY</span><b>' + g + '</b><span>2026</span><span>' + h.dur + '</span><span class="pill">G</span><span class="pill">HD</span>',
                d:'The best moments, the goals and the talking points, cut down so you can catch up in minutes.', bg:h.img };
     }
     if(rowKey === 'guide') return { t:'TV Guide', d:'See what’s on now and next across every sports channel, set reminders, and jump straight into a live match.', bg:'posters/tvguide-bg.jpg' };
@@ -508,15 +603,23 @@
     heroEl.style.top = 'auto';
     heroEl.style.bottom = 1080 - (r.sec.offsetTop + y - pageY - HERO_GAP) + 'px';
   }
+  // where a row's cards start in the page (offsets ignore the focus scale)
+  var FIRST_TOP = 659;   // the first screen's match cards' top
+  function pageTop(el){ var y = 0; for(var e = el; e && e !== page; e = e.offsetParent) y += e.offsetTop; return y; }
+  function firstLineTop(r){ return pageTop(r.items[0]); }   // the cards' top (a rail's title sits above, outside the area)
   function layout(ri){
     var r = rows[ri], top = r.sec.offsetTop, y;
     if(ri <= DYNAMIC_END){
       y = top - 600;
       // the first screen ends as Home's and Movie's: the chips' row 942 to 1042, nothing of the next rail showing
       if(r.key === 'live'){ var ch = rows[R.chips].sec; y = ch.offsetTop + ch.offsetHeight - 1042; }
-      if(r.key === 'ucl') y = top + r.sec.querySelector('.row').offsetTop + 8 - 600;   // the cards' pictures at y=608
+      // the card rails (LIVE & Upcoming, Because You Watched, Highlight(s), the band's matches, TV Guide) sit where the first screen's match rail does:
+      // their cards' top at y=659, whatever is above them (a title, the screen text)
+      if(/^(upcoming|because|latest|ucl|highlights|leaguehl|guide)$/.test(r.key)) y = firstLineTop(r) - FIRST_TOP;
     } else {
-      y = Math.min(top - 200, page.offsetHeight - 1080);
+      // past the hero, as Home's: the focused rail (its title and cards) centred in the screen under the top bar's 90px
+      // (y=585), until the page's end is in
+      y = Math.min(top + r.sec.offsetHeight / 2 - 585, page.offsetHeight - 1080);
     }
     pageY = r.key === 'live' ? y : Math.max(0, y);   // the first screen may sit lower than the page's own top
     page.style.transform = 'translateY(' + -pageY + 'px)';
@@ -536,6 +639,8 @@
     curTab.classList.toggle('active', cur.row === 0); curTab.classList.toggle('active-dim', cur.row !== 0);
     var ri = cur.row === 0 ? cur.from : cur.row;   // on the top bar the page stays as it was
     document.body.classList.toggle('on-nav', cur.row === 0);
+    // the top bar, as Home's: gone once focus is past the first rail, back as an overlay (with its scrim) while it has focus
+    document.body.classList.toggle('past-first', ri > R.live);
     layout(ri);
     var r = rows[ri], el = r.items[cur.col[ri]];
     if(cur.row) slide(r, el);
@@ -548,11 +653,32 @@
   function toast(msg){ toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove('on'); }, 1600); }
   // leaving for the player or the TV Guide: their Back lands on the same item here
   function leave(url){ try { sessionStorage.setItem('sportReturn', '1'); } catch(e){} location.href = url; }
+  // back from the player out of the browser's page cache: the channel cards' hearts (and Time Shift) as they are now
+  addEventListener('pageshow', function(e){
+    if(!e.persisted) return;
+    document.querySelectorAll('.epg-card[data-kind="epg"]').forEach(function(el){ el.querySelector('.epg-icons').innerHTML = epgIcons(TV.onNow(TV.byName(EPG[+el.dataset.i].tv))); });
+  });
   // the Live TV player, on a sports channel
   function play(c, title){
     var q = {n:c.n, no:c.no, crown:c.crown || '', logo:c.logo, fit:c.fit || '', bg:c.bg || '', t:title, v:c.v};
     leave('live-tv-player.html?' + Object.keys(q).filter(function(k){ return q[k] !== ''; })
       .map(function(k){ return k + '=' + encodeURIComponent(q[k]); }).join('&'));
+  }
+  // a chip picked (focus on it, or Enter / a click): the rails below show only that sport (All Sport: everything); the chip stays marked
+  function setSport(i, quiet){
+    var sp = CHIPS[i].sp || '', liveCol = cur.col[R.live];
+    $('.chips .chip', page).forEach(function(c, ci){ c.classList.toggle('sel', ci === i); });
+    try { sessionStorage.setItem('sportPick', i); } catch(e){}
+    if(sp !== sportCur){
+      // the rails after the chips are rebuilt for that sport
+      var after = false;
+      $('.sec', page).forEach(function(sec){ if(after) sec.remove(); if(sec.dataset.row === 'chips') after = true; });
+      page.insertAdjacentHTML('beforeend', renderBelow(sp));
+      buildRows();
+    }
+    cur.col = rows.map(function(r, ri){ return ri === 0 ? cur.col[0] : r.key === 'chips' ? i : r.key === 'live' ? liveCol : 0; });
+    cur.row = R.chips;
+    if(!quiet) toast(sp ? 'Showing ' + CHIPS[i].t : 'Showing every sport');
   }
   function select(el){
     var k = el.dataset.kind, i = +el.dataset.i;
@@ -560,23 +686,23 @@
     if(el.dataset.href){ location.href = el.dataset.href; return; }
     if(el === profileEl) return;   // its panel is already open under it
     if(k === 'match'){
-      var m = (el.dataset.set === 'ucl' ? UCL : LIVE)[i];
+      var m = SETS[el.dataset.set][i];
       if(m.live) play(m.ch, m.t); else toast('We’ll remind you when ' + m.t + ' starts');
       return;
     }
-    if(k === 'chip'){ toast('Showing ' + CHIPS[i].t); return; }
+    if(k === 'chip'){ setSport(i); return; }
     if(k === 'league'){
       var on = el.classList.toggle('followed');
-      toast((on ? 'Following ' : 'Unfollowed ') + LEAGUES[i].t);
+      toast((on ? 'Following ' : 'Unfollowed ') + SHOWN_LEAGUES[i].t);
       return;
     }
     if(k === 'guideall'){ leave('tv-guide.html'); return; }
-    if(k === 'epg'){ play(EPG[i].c, EPG[i].now); return; }
-    if(k === 'chan'){ play(CHANNELS[i].c, ''); return; }
+    // channel cards play the channel in the Live TV player via the TV Guide (its programmes and mini EPG), as Home's and Movie's
+    if(k === 'epg'){ leave('tv-guide.html?play=' + encodeURIComponent(EPG[i].tv) + '&from=sport'); return; }
     if(k === 'totop'){ cur.row = R.live; cur.col[R.live] = 0; paint(); return; }
-    if(k === 'latest' || k === 'foryou'){ var list = k === 'latest' ? LATEST : FOR_YOU[+el.dataset.set].items; toast('Now playing: ' + list[i].t); return; }
+    if(k === 'vod'){ toast('Now playing: ' + SETS[el.dataset.set][i].t); return; }
     if(k === 'doc'){ toast('Now playing: ' + DOCS[i].t); return; }
-    if(k === 'uclava'){ toast('UEFA Champions League'); return; }
+    if(k === 'uclava'){ toast(BAND.t); return; }
     if(k === 'short'){ toast(el.dataset.label + ' (demo)'); return; }
     toast(el.dataset.label + ' (demo)');
   }
@@ -606,15 +732,23 @@
     else if(e.key === 'Enter') select(r.items[cur.col[cur.row]]);
     else if(e.key === 'Escape' || e.key === 'Backspace') back();
     else handled = false;
+    // the chips are a single filter: the chip focus lands on is the one picked (only one is ever marked), as Store's tabs
+    if(handled && rows[cur.row].key === 'chips' && !rows[cur.row].items[cur.col[cur.row]].classList.contains('sel')) setSport(cur.col[cur.row], true);
     if(handled){ e.preventDefault(); paint(); }
   });
-  rows.forEach(function(r, ri){ r.items.forEach(function(el, ci){
-    el.addEventListener('click', function(){ if(ri === 0) cur.from = cur.row || cur.from; cur.row = ri; cur.col[ri] = ci; paint(); select(el); });
-  }); });
+  // clicks: the top bar's items, and the page's by delegation (a chip rebuilds the rails below it)
+  function clickItem(el){
+    var ri = -1, ci = -1;
+    rows.forEach(function(x, xi){ var j = x.items.indexOf(el); if(j >= 0){ ri = xi; ci = j; } });
+    if(ri < 0) return;
+    if(ri === 0) cur.from = cur.row || cur.from; cur.row = ri; cur.col[ri] = ci; paint(); select(el);
+  }
+  rows[0].items.forEach(function(el){ el.addEventListener('click', function(){ clickItem(el); }); });
+  page.addEventListener('click', function(e){ var el = e.target.closest('.item'); if(el) clickItem(el); });
 
   // coming back (Back from the player or the TV Guide): the same item again
   try {
-    var saved = sessionStorage.getItem('sportReturn') && JSON.parse(sessionStorage.getItem('sportFocus') || 'null');
+    var saved = RETURNING && JSON.parse(sessionStorage.getItem('sportFocus') || 'null');
     sessionStorage.removeItem('sportReturn');
     if(saved && saved.col && saved.col.length === rows.length){ cur = saved; if(cur.row === 0) cur.row = cur.from || R.live; }
   } catch(e){}

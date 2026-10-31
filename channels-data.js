@@ -7,6 +7,8 @@
     TV.CHANNELS        the channels, lowest number first, each with progs [{t, start, end, img, hot, ts, key, ch}]
     TV.byName(n)       a channel by its name
     TV.onAt(c, when)   the index of the programme on c at a time
+    TV.onNow(c)        the card's now / next programmes, times, progress, Time Shift and favourite
+    TV.isFav(c)        whether c is a favourite (its own, or as changed this session in the TV Guide / player)
 */
 (function(){
   /* ---------- 44 channels: the ones Home shows (TV Guide rail + Hot Channels), Thailand's free-to-air digital channels, four Exclusive ones
@@ -38,6 +40,12 @@
       sched:[['Miss Universe Thailand 2026',120,'posters/miss-universe.jpg',1],['Masterchef Thailand',60,'posters/upcoming/u1.jpg'],['Rock Comedy Hour',60],['Talent Showdown',90],['Late Night Variety',60]]},
     {no:301, n:'CNN',                logo:'icons/epg/cnn.jpg', fit:'cover', tsNow:true, cats:['news'], fav:true, recent:true,
       sched:[['CNN News Central',60],['Anderson Cooper 360°',60,null,1],['The Lead with Jake Tapper',60],['Amanpour',30],['CNN Newsroom',90],['World Sport',30]]},
+    {no:303, n:'CNBC News',          logo:'news-assets/ch-cnbc.png', fit:'cover', cats:['news'],
+      sched:[['Squawk Box Asia',60,null,1],['Street Signs',60],['Capital Connection',60],['Asia Market Wrap',30],['Squawk Box Europe',90]]},
+    {no:304, n:'SKY News',           logo:'news-assets/ch-sky.png', fit:'cover', cats:['news'],
+      sched:[['Sky News Today',60],['The Politics Hub',60,null,1],['Sky News Breakfast',90],['The World',60],['Sunday Morning',60]]},
+    {no:305, n:'FOX News',           logo:'news-assets/ch-fox.png', fit:'cover', cats:['news'],
+      sched:[['FOX & Friends',90,null,1],['America\'s Newsroom',60],['Outnumbered',60],['The Five',60],['Special Report',60]]},
     {no:302, n:'BBC News',           logo:'icons/epg/bbc.jpg', fit:'cover', cats:['news'],
       sched:[['BBC News at Ten',60],['HARDtalk',30],['Newsnight',60,null,1],['World Business Report',30],['BBC World News',60],['Click',30]]},
     {no:902, n:'Asian Games 902',    logo:'tv-features-test/live-stream-assets/channel-asian-games.png', fit:'cover', bg:'#fff', cats:['digital','sports'], tags:['multi','tennis','boxing'], fav:true,
@@ -126,5 +134,20 @@
   });
   function onAt(c, when){ for(var i = 0; i < c.progs.length; i++) if(c.progs[i].end > when) return i; return c.progs.length - 1; }
   function byName(n){ for(var i = 0; i < CHANNELS.length; i++) if(CHANNELS[i].n === n) return CHANNELS[i]; return null; }
-  window.TV = { CHANNELS:CHANNELS, onAt:onAt, byName:byName };
+  // a favourite: the channel's own, unless changed this session in the TV Guide or the player (tvFavs, by name). Read it
+  // fresh each time, so a page coming back from the player shows the heart added there
+  function isFav(c){
+    try { var f = JSON.parse(sessionStorage.getItem('tvFavs') || 'null'); if(f && c.n in f) return !!f[c.n]; } catch(e){}
+    return !!c.fav;
+  }
+  // what a channel card shows (Home's TV Guide rail, Sport's and News' channel rails): the programme on now and the next,
+  // their times ("9:30 PM"), how far in (0-100) and whether the one on now has Time Shift
+  function clock(d){ var h = d.getHours(), m = d.getMinutes(); return (h % 12 || 12) + ':' + (m < 10 ? '0' : '') + m + ' ' + (h < 12 ? 'AM' : 'PM'); }
+  function onNow(c, when){
+    when = when || new Date();
+    var i = onAt(c, when), p = c.progs[i], n = c.progs[i + 1] || p;
+    return { now:p, next:n, pct:Math.max(0, Math.min(100, Math.round((when - p.start) / (p.end - p.start) * 100))),
+             startedAt:clock(p.start), nextAt:clock(n.start), ts:!!p.ts, fav:isFav(c) };
+  }
+  window.TV = { CHANNELS:CHANNELS, onAt:onAt, byName:byName, isFav:isFav, onNow:onNow, clock:clock };
 })();

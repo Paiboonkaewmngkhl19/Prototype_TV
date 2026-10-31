@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="live-ribbon.css">
 <link rel="stylesheet" href="expand-card.css">
 <link rel="stylesheet" href="quick-card.css">
+<link rel="stylesheet" href="tvguide-card.css">
 <link rel="stylesheet" href="top10.css">
 <link rel="stylesheet" href="platform-tag.css">
 <link rel="stylesheet" href="corner-tag.css">
@@ -378,30 +379,7 @@
 
   /* EPG / TV guide */
   .epg-row .rail-track{align-items:stretch;}
-  .epg-countdown{
-    width:180px;height:280px;border-radius:20px;border:0;   /* a rounded rectangle, as the TV Guide cards, focused or not; no stroke */
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;
-    flex:0 0 auto;   /* its default and focused looks: the All Apps tile's (below) */
-  }
-  .epg-countdown b{font-size:28px;font-weight:700;}
-  .epg-countdown span{font-size:22px;font-weight:400;opacity:.9;}
-  .epg-card{width:340px;border-radius:20px;overflow:hidden;flex:0 0 auto;   /* the card glass (chip-theme.css .tv-glass) */
-    display:flex;flex-direction:column;}
-  .epg-now{padding:22px 18px 16px;display:flex;flex-direction:column;gap:12px;position:relative;}
-  .epg-avatar{width:64px;height:64px;object-fit:cover;display:block;}
-  .epg-avatar.round{border-radius:999px;background:rgba(0,0,0,.2);}
-  .epg-avatar.contain{object-fit:contain;}
-  .epg-title{font-size:19px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:1px 1px 2px rgba(0,0,0,.7);}
-  .epg-sub{font-size:15px;opacity:.9;text-shadow:1px 1px 2px rgba(0,0,0,.7);}
-  /* top right: the Time Shift icon (what's on now can be watched from its start) and the favourite heart */
-  .epg-icons{position:absolute;right:18px;top:22px;display:flex;align-items:center;gap:12px;}   /* on the card's own padding: level with the logo's top, in line with the text's right edge */
-  .epg-ts{width:24px;height:24px;display:block;}
-  .epg-heart{display:block;}
-  /* the heart takes the accent colour: the svg is only the shape (a mask), filled with --th-b */
-  .epg-heart img{width:24px;height:24px;display:block;object-position:-9999px 0;
-    background:var(--th-b);-webkit-mask:url('icons/tv-guide/heart-fill.svg') center / contain no-repeat;mask:url('icons/tv-guide/heart-fill.svg') center / contain no-repeat;}   /* filled, as a favourite shows in the TV Guide and the player */
-  .epg-next{background:rgba(255,255,255,.07);padding:20px 18px;   /* what's next: a lighter band of the same glass */
-    display:flex;flex-direction:column;gap:6px;flex:1;}   /* fills the card to its bottom edge (the rail stretches cards to 280px) */
+  /* the TV Guide tile and cards: tvguide-card.css */
 
   /* Clips rail (Figma Home 2002:105733) */
   /* the artwork band (Figma "Short"): 110px above the title, 80px below the cards; then the usual 60px */
@@ -910,10 +888,8 @@
     var nowT = new Date();
     items.forEach(function(it){
       var c = window.TV.byName(it.ch), i = window.TV.onAt(c, nowT);
-      it.prog = c.progs[i]; it.nextProg = c.progs[i + 1]; it.heart = !!c.fav;
+      it.prog = c.progs[i]; it.nextProg = c.progs[i + 1]; it.heart = window.TV.isFav(c);   // its own, or as changed this session in the TV Guide / player
     });
-    // favourites changed this session in the TV Guide or the player (tvFavs, by channel name) win over the built-in hearts
-    try { var FAVS = JSON.parse(sessionStorage.getItem('tvFavs') || 'null'); if(FAVS) items.forEach(function(it){ if(it.ch in FAVS) it.heart = FAVS[it.ch]; }); } catch(e){}
     var epgCards = items.map(function(it,i){
       var p = it.prog, n = it.nextProg, pct = Math.round((nowT - p.start) / (p.end - p.start) * 100);
       // Enter plays the channel in the Live TV player (via the TV Guide, which has its programmes and the mini EPG)
@@ -946,6 +922,17 @@
       });
     }, 3000);
     var countdown = '<div class="epg-countdown tv-chip item" data-title="TV Guide – View All" data-href="tv-guide.html"><b>TV Guide</b><span>View All</span></div>';
+    // back from the player out of the browser's page cache: each card's heart as it is now (a favourite added there)
+    addEventListener('pageshow', function(e){
+      if(!e.persisted) return;
+      document.querySelectorAll('.epg-card').forEach(function(card){
+        var m = /[?&]play=([^&]+)/.exec(card.dataset.href || ''), c = m && window.TV.byName(decodeURIComponent(m[1]));
+        if(!c) return;
+        var icons = card.querySelector('.epg-icons'), h = icons.querySelector('.epg-heart'), on = window.TV.isFav(c);
+        if(on && !h) icons.insertAdjacentHTML('beforeend', '<span class="epg-heart"><img src="icons/epg/heart.svg" alt=""></span>');
+        else if(!on && h) h.remove();
+      });
+    });
     addRow('<div class="row-block epg-row"><div class="rail-viewport"><div class="rail-track">'+countdown+epgCards+'</div></div></div>');
   })();
 

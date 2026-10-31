@@ -96,6 +96,7 @@
   .epg .now{ display:flex; gap:4px; align-items:flex-start; }
   .epg .ava{ width:67px; height:67px; border-radius:50%; flex:0 0 auto; background:#fff center / 75% auto no-repeat; }
   .epg .ava.cover{ background-size:cover; }
+  .epg .ava.txt-ava{ display:flex; align-items:center; justify-content:center; color:#fff; font-size:15px; font-weight:700; }
   .epg .txt{ flex:1; min-width:0; align-self:stretch; display:flex; flex-direction:column; justify-content:center; gap:4px; padding-left:4px; }
   .epg .txt b, .epg .next b{ font-weight:500; font-size:20px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .epg .txt span, .epg .next span{ font-size:14px; line-height:20px; letter-spacing:.1px; }
@@ -119,9 +120,9 @@
   /* ---------- top bar (Home's); News lives under Home, so Home is the current tab ---------- */
   .scrim{ position:absolute; left:0; top:0; width:1920px; height:170px; z-index:4; pointer-events:none; opacity:0; transition:opacity .3s ease;
     background:linear-gradient(180deg, var(--bg-0) 0%, var(--bg-0) 45%, rgba(7,14,22,0) 100%); }
-  body.static.on-nav .scrim{ opacity:1; }
+  body.static.on-nav .scrim, body.past-first.on-nav .scrim{ opacity:1; }
   .topnav{ position:absolute; left:0; top:0; z-index:5; width:1920px; padding:24px 110px 0; display:flex; align-items:center; transition:opacity .3s ease, translate .3s var(--ease); }
-  body.static:not(.on-nav) .topnav{ opacity:0; translate:0 -40px; pointer-events:none; }
+  body.static:not(.on-nav) .topnav, body.past-first:not(.on-nav) .topnav{ opacity:0; translate:0 -40px; pointer-events:none; }
   .profile{ width:60px; height:60px; border-radius:999px; overflow:hidden; flex:0 0 auto; }
   .profile img{ width:100%; height:100%; object-fit:cover; display:block; }
   .center{ display:flex; align-items:center; gap:12px; margin-left:20px; }
@@ -167,6 +168,7 @@
 </div></div>
 
 <script src="profile-panel.js"></script>
+<script src="channels-data.js"></script>
 <script>
 (function(){
   // ---- fit the 1920x1080 screen into the window ----
@@ -185,17 +187,18 @@
   /* ---------- content (Figma's) ----------
      g: the channel's name in the TV Guide, which opens it in the Live TV player (none: a demo toast) */
   var A = 'news-assets/';
+  // the news channels, by the TV Guide's own numbers and names (channels-data.js); g: the TV Guide channel Enter plays
   var CH = {
-    cnn:{n:'CNN', no:'111', logo:A + 'ch-cnn.png', bg:'#cb2026', g:'CNN'},
-    bbc:{n:'BBC News', no:'112', logo:A + 'ch-bbc.png', cover:1, g:'BBC News'},
-    cnbc:{n:'CNBC News', no:'113', logo:A + 'ch-cnbc.png'},
-    sky:{n:'SKY News', no:'114', logo:A + 'ch-sky.png'},
-    fox:{n:'FOX News', no:'115', logo:A + 'ch-fox.png', cover:1},
+    cnn:{n:'CNN', no:'301', logo:A + 'ch-cnn.png', bg:'#cb2026', g:'CNN'},
+    bbc:{n:'BBC News', no:'302', logo:A + 'ch-bbc.png', cover:1, g:'BBC News'},
+    cnbc:{n:'CNBC News', no:'303', logo:A + 'ch-cnbc.png', g:'CNBC News'},
+    sky:{n:'SKY News', no:'304', logo:A + 'ch-sky.png', g:'SKY News'},
+    fox:{n:'FOX News', no:'305', logo:A + 'ch-fox.png', cover:1, g:'FOX News'},
     thaipbs:{n:'Thai PBS', no:'3', logo:A + 'ch-thaipbs.png', g:'Thai PBS'},
-    pptv:{n:'PPTV', no:'36', logo:A + 'ch-pptv.png', cover:1, g:'PPTV HD36'},
+    pptv:{n:'PPTV HD36', no:'36', logo:A + 'ch-pptv.png', cover:1, g:'PPTV HD36'},
     nation:{n:'Nation TV', no:'22', logo:A + 'ch-nation.png', g:'Nation TV'},
-    one:{n:'One News', no:'31', logo:A + 'ch-one.png', cover:1, g:'one31'},
-    khaosod:{n:'ข่าวสด', no:'38', logo:A + 'ch-khaosod.png', cover:1},
+    one:{n:'one31', no:'31', logo:A + 'ch-one.png', cover:1, g:'one31'},
+    tnn:{n:'TNN16', no:'16', txt:'TNN16', bg:'#c62828', g:'TNN16'},   // no picture of its logo: its name on its colour, as in the TV Guide
     ch3:{n:'Ch3 HD', no:'33', logo:A + 'dm-rueng.png', cover:1, g:'Ch3 HD'},
     ch7:{n:'Ch7 HD', no:'35', logo:A + 'dm-sanam7.png', cover:1, g:'Ch7 HD'}
   };
@@ -218,20 +221,11 @@
     {t:'Entertainment', d:'Celebrity news, film, music and culture, from red carpets to premieres.'},
     {t:'IT & Tech', d:'Gadgets, start-ups and the technology shaping tomorrow.'}
   ];
-  // what's on now on each news channel (Figma: the programme at 09:00, the next at 10:00)
-  var INTL = [
-    {c:CH.cnbc, now:'Squawk Box Asia', next:'Street Signs', p:.6, remind:1, heart:1},
-    {c:CH.cnn, now:'CNN Newsroom', next:'Amanpour', p:.4, heart:1},
-    {c:CH.bbc, now:'BBC News at Nine', next:'HARDtalk', p:.7},
-    {c:CH.sky, now:'Sky News Today', next:'The Politics Hub', p:.3},
-    {c:CH.fox, now:'FOX & Friends', next:'America’s Newsroom', p:.5}
-  ];
+  // what's on now on each news channel: the TV Guide's own channels (channels-data.js, `tv`), so the card, the TV Guide
+  // and the player show the same programme, time, Time Shift and favourite
+  var INTL = [{c:CH.cnbc, tv:'CNBC News'}, {c:CH.cnn, tv:'CNN'}, {c:CH.bbc, tv:'BBC News'}, {c:CH.sky, tv:'SKY News'}, {c:CH.fox, tv:'FOX News'}];
   var THAI = [
-    {c:CH.thaipbs, now:'ทันโลก กับ Thai PBS', next:'ข่าวค่ำ', p:.6, remind:1, heart:1},
-    {c:CH.pptv, now:'เปิดโต๊ะข่าว', next:'เข้าข่าวค่ำ', p:.4, heart:1},
-    {c:CH.nation, now:'คมชัดลึก', next:'เนชั่นทันข่าว', p:.7},
-    {c:CH.one, now:'ข่าวเช้าช่องวัน', next:'One Day News', p:.3},
-    {c:CH.khaosod, now:'ข่าวสดออนไลน์', next:'ข่าวสดรอบวัน', p:.5}
+    {c:CH.thaipbs, tv:'Thai PBS'}, {c:CH.pptv, tv:'PPTV HD36'}, {c:CH.nation, tv:'Nation TV'}, {c:CH.one, tv:'one31'}, {c:CH.tnn, tv:'TNN16'}
   ];
   var LOCAL = [
     {t:'ทันโลก กับ Thai PBS', img:A + 'lc-1.png', ch:CH.thaipbs, time:'09:00 – 10:00', d:'สรุปข่าวต่างประเทศรอบวัน เจาะลึกประเด็นที่คนทั้งโลกจับตา'},
@@ -260,13 +254,14 @@
     return '<div class="card item"' + attrs({kind:'live', set:set, i:i}) + '><div class="thumb' + (it.logo ? ' logo' : '') + '" style="background-image:url(\'' + it.img + '\')">' +
       '</div><span class="live-ribbon" data-ring-top="styled">Live</span><div class="t">' + esc(it.t) + '</div></div>';   // Home's Live ribbon
   }
+  function epgIcons(o){ return (o.ts ? '<img src="icons/tv-guide/timeshift.svg" alt="Time Shift">' : '') + (o.fav ? '<img class="fav-ic" src="sport-assets/epg-heart.svg" alt="Favorite">' : ''); }
   function epgCard(e, i, set){
-    var c = e.c, ic = (e.remind ? '<img src="sport-assets/epg-reminder.svg" alt="">' : '') + (e.heart ? '<img src="sport-assets/epg-heart.svg" alt="">' : '');
+    var c = e.c, o = TV.onNow(TV.byName(e.tv)), ic = epgIcons(o);
     return '<div class="epg tv-glass item"' + attrs({kind:'epg', set:set, i:i}) + ' data-ring-art=""><div class="now">' +
-      '<span class="ava' + (c.cover ? ' cover' : '') + '" style="background-image:url(\'' + c.logo + '\')' + (c.bg ? ';background-color:' + c.bg : '') + '"></span>' +
-      '<div class="txt"><b>' + esc(c.n) + '</b><span>09:00</span></div><div class="ic">' + ic + '</div></div>' +
-      '<div class="bar"><i style="width:' + Math.round(e.p * 100) + '%"></i></div>' +
-      '<div class="next"><b>' + esc(e.next) + '</b><span>10:00</span></div></div>';
+      '<span class="ava' + (c.cover ? ' cover' : '') + (c.txt ? ' txt-ava' : '') + '" style="' + (c.logo ? 'background-image:url(\'' + c.logo + '\');' : '') + (c.bg ? 'background-color:' + c.bg : '') + '">' + (c.txt ? esc(c.txt) : '') + '</span>' +
+      '<div class="txt"><b>' + esc(o.now.t) + '</b><span>Started at ' + o.startedAt + '</span></div><div class="ic">' + ic + '</div></div>' +
+      '<div class="bar"><i style="width:' + o.pct + '%"></i></div>' +
+      '<div class="next"><b>' + esc(o.next.t) + '</b><span>Starts at ' + o.nextAt + '</span></div></div>';
   }
   function chanRail(key, title, list){
     return '<section class="sec" data-row="' + key + '"><h2 class="sec-title">' + title + '</h2><div class="rail"><div class="track chan-track">' +
@@ -315,7 +310,7 @@
     picFront = 1 - picFront;
     if(img){ pics[picFront].style.backgroundImage = 'url(\'' + img + '\')'; pics[picFront].classList.add('on'); }
   }
-  function chMeta(c){ return '<span class="ch"><img src="' + c.logo + '" alt=""' + (c.bg ? ' style="background:' + c.bg + '"' : '') + '>Channel ' + c.no + ': ' + esc(c.n) + '</span>'; }
+  function chMeta(c){ return '<span class="ch">' + (c.logo ? '<img src="' + c.logo + '" alt=""' + (c.bg ? ' style="background:' + c.bg + '"' : '') + '>' : '') + 'Channel ' + c.no + ': ' + esc(c.n) + '</span>'; }
   function heroFor(el, rowKey){
     var k = el && el.dataset.kind, i = el ? +el.dataset.i : 0;
     if(k === 'live'){
@@ -326,8 +321,8 @@
     if(k === 'viewall') return { t:rowKey === 'intl' ? 'International News Channel' : 'Thai News Channel',
       d:'See what’s on now and next on every ' + (rowKey === 'intl' ? 'international' : 'Thai') + ' news channel in the TV Guide.', bg:'posters/tvguide-bg.jpg' };
     if(k === 'epg'){
-      var e = (rowKey === 'intl' ? INTL : THAI)[i];
-      return { t:e.now, meta:'<span class="badge live">LIVE</span>' + chMeta(e.c) + '<span class="pill">09:00 – 10:00</span>', d:'Next: ' + e.next + ' at 10:00. ' + NEWS_DESC, bg:'posters/tvguide-bg.jpg' };
+      var e = (rowKey === 'intl' ? INTL : THAI)[i], o = TV.onNow(TV.byName(e.tv));
+      return { t:o.now.t, meta:'<span class="badge live">LIVE</span>' + chMeta(e.c) + '<span class="pill">' + o.startedAt + ' – ' + TV.clock(o.now.end) + '</span>', d:'Next: ' + o.next.t + ' at ' + o.nextAt + '. ' + NEWS_DESC, bg:'posters/tvguide-bg.jpg' };
     }
     if(k === 'ep'){
       var r = EPISODES[+el.dataset.set];
@@ -387,6 +382,8 @@
     homeTab.classList.toggle('active-dim', cur.row !== 0);
     var ri = cur.row === 0 ? cur.from : cur.row;   // on the top bar the page stays as it was
     document.body.classList.toggle('on-nav', cur.row === 0);
+    // the top bar, as Home's: gone once focus is past the first rail, back as an overlay (with its scrim) while it has focus
+    document.body.classList.toggle('past-first', ri > R.dontmiss);
     layout(ri);
     var r = rows[ri], el = r.items[cur.col[ri]];
     if(cur.row) slide(r, el);
@@ -399,6 +396,14 @@
   function toast(msg){ toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove('on'); }, 1600); }
   // leaving for the TV Guide / player: their Back lands on the same item here
   function leave(url){ try { sessionStorage.setItem('newsReturn', '1'); } catch(e){} location.href = url; }
+  // back from the player out of the browser's page cache: the channel cards' hearts (and Time Shift) as they are now
+  addEventListener('pageshow', function(e){
+    if(!e.persisted) return;
+    document.querySelectorAll('.epg[data-kind="epg"]').forEach(function(el){
+      var e2 = (el.dataset.set === 'intl' ? INTL : THAI)[+el.dataset.i];
+      el.querySelector('.ic').innerHTML = epgIcons(TV.onNow(TV.byName(e2.tv)));
+    });
+  });
   // a channel the TV Guide knows opens in the Live TV player through it (its programmes, the mini EPG, Up / Down)
   function watch(c, title){
     if(c.g) leave('tv-guide.html?play=' + encodeURIComponent(c.g) + '&from=news');
@@ -412,7 +417,7 @@
     if(k === 'live'){ var m = (el.dataset.set === 'local' ? LOCAL : DONT_MISS)[i]; watch(m.ch, m.t); return; }
     if(k === 'cat'){ toast('Showing ' + CATS[i].t + ' news'); return; }
     if(k === 'viewall'){ leave('tv-guide.html'); return; }
-    if(k === 'epg'){ var e = (el.dataset.set === 'intl' ? INTL : THAI)[i]; watch(e.c, e.now); return; }
+    if(k === 'epg'){ var e = (el.dataset.set === 'intl' ? INTL : THAI)[i]; leave('tv-guide.html?play=' + encodeURIComponent(e.tv) + '&from=news'); return; }   // as Home's: the player via the TV Guide
     if(k === 'ep'){ toast('Now playing: ' + EPISODES[+el.dataset.set].items[i].t); return; }
     if(k === 'totop'){ cur.row = R.dontmiss; cur.col[R.dontmiss] = 0; paint(); return; }
     toast(el.dataset.label + ' (demo)');

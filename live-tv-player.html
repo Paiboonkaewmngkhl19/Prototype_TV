@@ -38,16 +38,16 @@
 
   /* the controls: scrims top and bottom, then the two bars; they fade out together when idle, except on a free preview,
      where the free-preview chip and Explore Package stay and slide down to the bottom edge (seek bar + buttons + gaps:
-     32 + 32 + 32 + 80 = 176px) */
+     32 + 32 + 90 + 80 = 234px) */
   .ui{ position:absolute; inset:0; }
   .scrim, .top, .seek, .btns{ transition:opacity .35s ease; }
   body.idle .scrim, body.idle .top, body.idle .seek, body.idle .btns, body.idle .no-preview .cta-row{ opacity:0; }
   .cta-row{ transition:transform .35s cubic-bezier(.2,0,0,1), opacity .35s ease; }
-  body.idle .cta-row{ transform:translateY(176px); }
+  body.idle .cta-row{ transform:translateY(234px); }
   /* opened by a channel change: hidden from the very first frame, with no fade (the script below the page makes it idle
      and then drops this) */
   html.quiet-start .scrim, html.quiet-start .top, html.quiet-start .seek, html.quiet-start .btns, html.quiet-start .no-preview .cta-row{ opacity:0; }
-  html.quiet-start .cta-row{ transform:translateY(176px); }
+  html.quiet-start .cta-row{ transform:translateY(234px); }
   html.quiet-start *{ transition:none !important; }
   .ui{ pointer-events:none; }   /* clicks go through to the picture (play / pause), except on the controls */
   .ui .item, .ui .play{ pointer-events:auto; }
@@ -94,7 +94,7 @@
   /* free preview used up: the picture stops and dims behind the controls, which stay up */
   body.preview-over video{ filter:brightness(.4); transition:filter .4s ease; }
 
-  .seek{ height:32px; display:flex; align-items:center; gap:12px; }
+  .seek{ height:32px; display:flex; align-items:center; gap:12px; margin-bottom:58px; }   /* 90px over the buttons: room for a focused button's tooltip */
   .play{ width:40px; height:40px; border-radius:8px; flex:0 0 auto; }
   .play img{ display:block; width:40px; height:40px; }
   .seek .tm{ font:400 24px/28px var(--inter); color:var(--on-surface-variant); white-space:nowrap; }
@@ -123,17 +123,19 @@
     background:#111; box-shadow:0 6px 20px rgba(0,0,0,.5); }
   .thumb video{ width:100%; height:100%; object-fit:cover; display:block; }
   .thumb .t{ margin-top:8px; text-align:center; font:500 24px/28px var(--inter); text-shadow:0 1px 4px rgba(0,0,0,.6); }
-  .thumb .spd{ position:absolute; left:10px; top:10px; padding:4px 10px; border-radius:8px; background:rgba(0,0,0,.65); font:600 20px/24px var(--inter); display:none; }
-  .thumb .spd.on{ display:block; }
 
   .btns{ display:flex; align-items:center; gap:16px; }
-  /* action buttons: an icon at rest; focused, the label opens beside it as in Figma's "TV / Button" focus state
-     (1867:117993), with the page's usual focus look (the shared glass ring, white icon and label) */
-  .btn{ padding:24px; border-radius:9999px; display:flex; align-items:center; transition:background .2s ease; }
+  /* action buttons: round icon buttons, focused or not (the page's usual focus look: the shared glass ring, a frosted
+     fill); the focused one names itself in a tooltip above it, in the room left under the seek bar */
+  .btn{ position:relative; padding:24px; border-radius:9999px; display:flex; align-items:center; transition:background .2s ease; }
   .btn img{ width:32px; height:32px; display:block; }
-  .btn .lbl{ max-width:0; overflow:hidden; white-space:nowrap; font:500 24px/32px var(--inter); color:#fff;
-    transition:max-width .25s cubic-bezier(.2,0,0,1), margin-left .25s cubic-bezier(.2,0,0,1); }
-  .btn.focused .lbl{ max-width:320px; margin-left:16px; }
+  /* the tooltip (design "Tooltip"): a grey rounded box, light medium text, a small arrow just under it, apart from the box */
+  .btn .lbl{ position:absolute; left:50%; bottom:calc(100% + 28px); padding:12px 24px; border-radius:16px; white-space:nowrap; pointer-events:none;
+    font:500 24px/32px var(--inter); color:#e8e8e8; background:rgba(74,74,74,.92); box-shadow:0 4px 12px rgba(0,0,0,.35);
+    opacity:0; transform:translate(-50%, 6px); transition:opacity .18s ease, transform .18s cubic-bezier(.2,0,0,1); }
+  .btn .lbl::after{ content:''; position:absolute; left:50%; top:calc(100% + 4px); margin-left:-9px;
+    border-left:9px solid transparent; border-right:9px solid transparent; border-top:10px solid rgba(74,74,74,.92); }
+  .btn.focused .lbl{ opacity:1; transform:translate(-50%, 0); }
   .btn.focused, .back.focused{ background:rgba(255,255,255,.3);
     backdrop-filter:blur(24px) saturate(1.4); -webkit-backdrop-filter:blur(24px) saturate(1.4); }   /* frosted: lighter fill, the picture blurred behind it */
 
@@ -168,20 +170,19 @@
   .flash img{ width:80px; height:80px; display:block; }
   .flash.go{ animation:flash .7s cubic-bezier(.2,0,0,1); }
   @keyframes flash{ 0%{ opacity:0; transform:scale(.6); } 20%{ opacity:1; transform:scale(1); } 60%{ opacity:1; transform:scale(1.05); } 100%{ opacity:0; transform:scale(1.3); } }
-  /* Time Shift seek, as on YouTube: on the side it moves to, a dark disc with three arrows lighting in turn and how far
-     (-10 / +10, adding up while pressed again: +20, +30) or the hold speed (2x .. 16x) */
-  .seekfx{ position:absolute; top:50%; width:220px; height:220px; margin-top:-110px; border-radius:50%; z-index:20; pointer-events:none;
-    background:rgba(0,0,0,.45); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; color:#fff;
+  /* Time Shift seek, as on YouTube: centred on the scrubbing thumbnail, a dark disc with three arrows lighting in turn
+     (pointing the way it moves) and how far (-10 / +10, adding up while pressed again: +20, +30) or the hold speed (2x .. 16x) */
+  .seekfx{ position:absolute; left:50%; top:50%; width:124px; height:124px; margin:-62px 0 0 -62px; border-radius:50%; z-index:1; pointer-events:none;
+    background:rgba(0,0,0,.5); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:#fff;
     opacity:0; transition:opacity .25s ease; }
   .seekfx.on{ opacity:1; transition:opacity .08s ease; }
-  .seekfx.l{ left:240px; } .seekfx.r{ right:240px; }
   .seekfx .arr{ display:flex; gap:2px; }
-  .seekfx .arr i{ width:0; height:0; border-top:14px solid transparent; border-bottom:14px solid transparent; border-left:22px solid #fff;
+  .seekfx .arr i{ width:0; height:0; border-top:10px solid transparent; border-bottom:10px solid transparent; border-left:16px solid #fff;
     opacity:.25; animation:seekArr .9s linear infinite; }
   .seekfx.l .arr{ transform:scaleX(-1); }
   .seekfx .arr i:nth-child(2){ animation-delay:.15s; } .seekfx .arr i:nth-child(3){ animation-delay:.3s; }
   @keyframes seekArr{ 0%, 100%{ opacity:.25; } 30%{ opacity:1; } }
-  .seekfx .lbl{ font:600 36px/1 var(--inter); }
+  .seekfx .lbl{ font:600 28px/1 var(--inter); }
   @media (prefers-reduced-motion: reduce){ .flash.go{ animation:flashFade .7s linear; } @keyframes flashFade{ 0%, 60%{ opacity:1; } 100%{ opacity:0; } } }
 
   /* ---------- mini EPG (Figma PLAY-epg "Wake mini epg", 3168:169155): Browse Channels, or Left with the controls away.
@@ -309,7 +310,7 @@
         <div class="play" id="playBtn" data-act="play"><img id="playIc" src="icons/player/pause.svg" alt="Pause"></div>
         <div class="tm" id="elapsed"></div>
         <div class="track item" id="track" data-act="play"><div class="base"></div><div class="buf"></div><div class="played"></div><div class="handle"></div>
-          <div class="thumb" id="thumb"><div class="pic"><video id="thumbV" muted playsinline preload="auto"></video><div class="spd" id="spd"></div></div><div class="t" id="thumbT"></div></div></div>
+          <div class="thumb" id="thumb"><div class="pic"><video id="thumbV" muted playsinline preload="auto"></video><div class="seekfx" id="seekfx"><div class="arr"><i></i><i></i><i></i></div><div class="lbl" id="seekLbl"></div></div></div><div class="t" id="thumbT"></div></div></div>
       </div>
       <div class="btns">
         <div class="btn item" data-act="mini-epg"><img src="icons/player/mini-epg.svg" alt=""><span class="lbl">Browse Channels</span></div>
@@ -321,7 +322,6 @@
       </div>
     </div>
   </div>
-  <div class="seekfx" id="seekfx"><div class="arr"><i></i><i></i><i></i></div><div class="lbl" id="seekLbl"></div></div>
   <div class="flash" id="flash"><img id="flashIc" src="icons/player/pause.svg" alt=""></div>
   <div class="mini" id="mini"><div class="mini-in">
     <div class="mini-cats" id="miniCats"></div>
@@ -424,8 +424,8 @@
     byId('thumb').classList.remove('on'); setSpeed(0); paintSeek();
   }
   // holding Left / Right scrubs on its own, faster the longer it is held: 2x, 4x, 8x, 16x
-  function setSpeed(s){ var el = byId('spd'); el.classList.toggle('on', !!s); el.textContent = s < 0 ? '◀◀ ' + -s + 'x' : s + 'x ▶▶'; if(s) seekFx(s < 0 ? -1 : 1, Math.abs(s) + 'x'); }
-  // the YouTube-style side marker: a press shows -10 / +10, more presses in a row add up; a hold shows its speed
+  function setSpeed(s){ if(s) seekFx(s < 0 ? -1 : 1, Math.abs(s) + 'x'); }   // shown on the thumbnail's disc
+  // the YouTube-style marker, on the thumbnail: a press shows -10 / +10, more presses in a row add up; a hold shows its speed
   var seekSum = 0, seekDir = 0, seekT = null;
   function seekFx(dir, label){
     var f = byId('seekfx');

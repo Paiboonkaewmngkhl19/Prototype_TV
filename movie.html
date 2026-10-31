@@ -192,9 +192,9 @@
   /* ---------- top bar (Home's); Movie is the current tab ---------- */
   .scrim{ position:absolute; left:0; top:0; width:1920px; height:170px; z-index:4; pointer-events:none; opacity:0; transition:opacity .3s ease;
     background:linear-gradient(180deg, var(--bg-0) 0%, var(--bg-0) 45%, rgba(7,14,22,0) 100%); }
-  body.static.on-nav .scrim{ opacity:1; }
+  body.static.on-nav .scrim, body.past-first.on-nav .scrim{ opacity:1; }
   .topnav{ position:absolute; left:0; top:0; z-index:5; width:1920px; padding:24px 110px 0; display:flex; align-items:center; transition:opacity .3s ease, translate .3s var(--ease); }
-  body.static:not(.on-nav) .topnav{ opacity:0; translate:0 -40px; pointer-events:none; }
+  body.static:not(.on-nav) .topnav, body.past-first:not(.on-nav) .topnav{ opacity:0; translate:0 -40px; pointer-events:none; }
   .profile{ width:60px; height:60px; border-radius:999px; overflow:hidden; flex:0 0 auto; }
   .profile img{ width:100%; height:100%; object-fit:cover; display:block; }
   .center{ display:flex; align-items:center; gap:12px; margin-left:20px; }
@@ -247,6 +247,7 @@
 
 <script src="profile-panel.js"></script>
 <script src="shorts-data.js"></script>
+<script src="channels-data.js"></script>
 <script src="top10.js"></script>
 <script>
 (function(){
@@ -373,6 +374,25 @@
     {n:'Warner TV', no:230, logo:'icons/channels/wbtv.png', box:[10.88,12.81,80.09,74.91]},
     {n:'MONOMAX 1', no:501, logo:'partners/monomax.png', fit:'contain'}
   ];
+  // the same channels as the TV Guide (channels-data.js): its number, crown and favourite (TV.isFav: its own, or as changed
+  // this session in the TV Guide or the player); only these cards' logo framing is Movie's own
+  function readFavs(){
+    CHANNELS.forEach(function(c){
+      var d = window.TV && TV.byName ? TV.byName(c.n) : null;
+      if(d){ c.no = d.no; c.crown = d.crown; c.fav = TV.isFav(d); }
+    });
+  }
+  readFavs();
+  // back from the player (or the TV Guide) out of the browser's page cache: a favourite added there shows here too
+  addEventListener('pageshow', function(e){
+    if(!e.persisted) return;
+    readFavs();
+    document.querySelectorAll('.ch-card').forEach(function(el){
+      var c = CHANNELS[+el.dataset.i], h = el.querySelector('.fav-ic');
+      if(c.fav && !h) el.querySelector('.ch-meta').insertAdjacentHTML('afterbegin', '<img class="ic20 fav-ic" src="icons/tv-guide/heart-fill.svg" alt="Favorite">');
+      else if(!c.fav && h) h.remove();
+    });
+  });
   var QUICK = [{t:'My Subscription', sub:'4 Subscriptions', ic:'icons/quick/subscription.svg'}, {t:'FAQs', sub:'Billing, devices, how to watch', ic:'icons/quick/faqs.svg'},
                {t:'Customer Support', sub:'Call customer support and Visit support website.', ic:'store-assets/headset.svg'}];
 
@@ -451,7 +471,9 @@
   html += '<section class="sec" data-row="channels"><h2 class="sec-title">Movie Channel</h2><div class="rail"><div class="track chan-track">' + CHANNELS.map(function(c, i){
     return '<div class="ch-card tv-glass item"' + attrs({kind:'chan', i:i}) + ' data-ring-art=""><div class="ch-slot"><div class="ava">' + logoHtml(c) + '</div></div>' +
       '<div class="ch-name">' + esc(c.n) + '</div><div class="ch-meta">' +
-      '<img class="ic20" src="icons/tv-guide/' + (c.fav ? 'heart-fill.svg' : 'heart.svg') + '" alt=""><img class="ic20" src="icons/tv-guide/crown-s.svg" alt="Premium">' +
+      // as the TV Guide's cards: the heart only on a favourite, the crown as the channel has it (gold: not in the package)
+      (c.fav ? '<img class="ic20 fav-ic" src="icons/tv-guide/heart-fill.svg" alt="Favorite">' : '') +
+      (c.crown ? '<img class="ic20" src="icons/tv-guide/' + (c.crown === 'owned' ? 'crown.svg' : 'crown-s.svg') + '" alt="Premium">' : '') +
       '<div class="ch-no">' + c.no + '</div></div></div>';
   }).join('') + '</div></div></section>';
   html += '<section class="sec" data-row="quick"><div class="rail"><div class="track quick-track">' + QUICK.map(function(q, i){
@@ -565,6 +587,8 @@
     dots.forEach(function(d, i){ d.classList.toggle('on', i === cur.slide); });
     var ri = cur.row === 0 ? cur.from : cur.row;   // on the top bar the page stays as it was
     document.body.classList.toggle('on-nav', cur.row === 0);
+    // the top bar, as Home's: gone once focus is past the first rail, back as an overlay (with its scrim) while it has focus
+    document.body.classList.toggle('past-first', ri > R.scene);
     layout(ri);
     var r = rows[ri], el = r.items[cur.col[ri]];
     if(cur.row) slide(r, el);

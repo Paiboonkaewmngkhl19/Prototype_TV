@@ -179,9 +179,9 @@
      away until it gets focus, with the page colour fading in behind it ---------- */
   .scrim{ position:absolute; left:0; top:0; width:1920px; height:170px; z-index:4; pointer-events:none; opacity:0; transition:opacity .3s ease;
     background:linear-gradient(180deg, var(--bg-0) 0%, var(--bg-0) 45%, rgba(7,14,22,0) 100%); }
-  body.static.on-nav .scrim{ opacity:1; }   /* full screen past the hero: no fade over the rails, only behind the top bar when it comes back */
+  body.static.on-nav .scrim, body.past-first.on-nav .scrim{ opacity:1; }   /* full screen past the hero: no fade over the rails, only behind the top bar when it comes back */
   .topnav{ position:absolute; left:0; top:0; z-index:5; width:1920px; padding:24px 110px 0; display:flex; align-items:center; transition:opacity .3s ease, translate .3s var(--ease); }
-  body.static:not(.on-nav) .topnav{ opacity:0; translate:0 -40px; pointer-events:none; }
+  body.static:not(.on-nav) .topnav, body.past-first:not(.on-nav) .topnav{ opacity:0; translate:0 -40px; pointer-events:none; }
   .profile{ width:60px; height:60px; border-radius:999px; overflow:hidden; flex:0 0 auto; }
   .profile img{ width:100%; height:100%; object-fit:cover; display:block; }
   .center{ display:flex; align-items:center; gap:12px; margin-left:20px; }
@@ -508,6 +508,8 @@
     rows.forEach(function(r, ri){ if(r.tabs) r.items.forEach(function(el){ el.classList.toggle('active-dim', el.classList.contains('on') && ri !== cur.row); }); });
     var ri = cur.row === 0 ? cur.from : cur.row;   // on the top bar the page stays as it was
     document.body.classList.toggle('on-nav', cur.row === 0);
+    // the top bar, as Home's: gone once focus is past the first rail, back as an overlay (with its scrim) while it has focus
+    document.body.classList.toggle('past-first', ri > R.foryou);
     layout(ri);
     var r = rows[ri];
     if(cur.row) slide(r, r.items[cur.col[ri]]);
