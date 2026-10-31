@@ -1,0 +1,100 @@
+/*
+  player.css: THE player design, shared by the Live TV player (live-tv-player.html) and the VOD player (player.html:
+  movies, series, shorts). Its source is the Live TV player: the tokens, the scrims, the top (back + title .prog-t over
+  its .meta line), the bottom (seek bar: play, times, the thin bar that thickens with a handle when focused, the
+  thumbnail and seek marker; the round buttons with their tooltip), the chips (.preview glass / .explore light; the
+  VOD's Skip Intro, Next Episode and Watch Credit are the same chips, .pchip), the play / pause flash, the toast and the
+  idle fade. A page adds only what it alone has (Live TV: channel logo, crown, mini EPG, favourites; VOD: the episode
+  rows and grid, the credits countdown, the 9:16 frame). Change the look here, for both.
+*/
+:root{
+  color-scheme:dark;
+  --on-surface-variant:#a8a8a8; --inverse-surface:#e8e8e8; --on-inverse-surface:#101010; --outline:#5a5a5a;
+  --surface-container-highest:#4a4a4a; --avatar:#404045;
+  /* Home's Default theme (home.html, tv-guide.html): frosted grey glass cards and the white glass pill for the selection */
+  --glass-card:linear-gradient(180deg, rgba(161,161,161,.25), rgba(65,65,65,.25));
+  --glass-card-on:linear-gradient(180deg, rgba(230,230,240,.42), rgba(150,150,165,.34));
+  --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%);
+  --pill-hi:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%);
+  --inter:'Inter', system-ui, sans-serif;
+  --noto:'Noto Sans', 'Noto Sans Thai', system-ui, sans-serif;
+}
+html,body{ margin:0; height:100%; background:#000; overflow:hidden; color:#fff; font-family:var(--noto); }
+.scrim, .top, .seek, .btns{ transition:opacity .35s ease; }
+/* idle (no key for a while): the scrims and both bars fade out together */
+body.idle .scrim, body.idle .top, body.idle .seek, body.idle .btns{ opacity:0; }
+.scrim{ position:absolute; inset:0; pointer-events:none;
+  /* lighter than Figma's (black to 21% / 90% to 7%), so the picture still shows behind the controls */
+  background:linear-gradient(0deg, rgba(0,0,0,.75) 0%, rgba(0,0,0,.45) 18%, rgba(0,0,0,0) 36%), linear-gradient(180deg, rgba(0,0,0,.6) 0%, rgba(0,0,0,0) 26%); }
+.top{ position:absolute; left:0; top:0; padding:60px 90px; display:flex; align-items:center; gap:24px; }
+.back{ width:80px; height:80px; border-radius:9999px; flex:0 0 auto; }
+.info{ height:112px; display:flex; flex-direction:column; justify-content:center; gap:24px; min-width:0; }
+.prog-t{ max-width:1500px; font:700 40px/32px Roboto, sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.meta{ display:flex; align-items:center; gap:16px; font:500 24px/1.2 var(--noto); letter-spacing:-.24px; white-space:nowrap; }
+.bottom{ position:absolute; left:0; right:0; bottom:0; padding:60px 90px; display:flex; flex-direction:column; gap:32px; }
+.preview, .pchip{ height:80px; box-sizing:border-box; padding:16px 32px; border-radius:12px; background:rgba(0,0,0,.13);
+  display:flex; align-items:center; font:24px/16px var(--inter); white-space:nowrap; }
+.preview b{ font-weight:600; color:var(--on-surface-variant); }
+.preview span{ position:relative; margin-left:36px; font-weight:500; color:var(--inverse-surface); }
+.preview span::before{ content:'•'; position:absolute; left:-21px; }
+.explore, .pchip.focused, .pchip.solo{ height:84px; box-sizing:border-box; padding:16px 32px; border-radius:12px; background:var(--inverse-surface);
+  box-shadow:0 6px 20px rgba(0,0,0,.35), 0 2px 6px rgba(0,0,0,.25);   /* lifts it off the picture */
+  display:flex; align-items:center; gap:16px; font:500 24px/32px var(--inter); color:var(--on-inverse-surface); white-space:nowrap; }
+.explore img{ width:32px; height:32px; display:block; }
+.preview, .pchip{ background:linear-gradient(rgba(0,0,0,.2), rgba(0,0,0,.2)), rgba(255,255,255,.13);   /* the glass chip, 20% darker */
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);
+  backdrop-filter:blur(24px) saturate(1.4); -webkit-backdrop-filter:blur(24px) saturate(1.4); }
+.seek{ height:32px; display:flex; align-items:center; gap:12px; margin-bottom:58px; }   /* 90px over the buttons: room for a focused button's tooltip */
+.play{ width:40px; height:40px; border-radius:8px; flex:0 0 auto; }
+.seek .tm{ font:400 24px/28px var(--inter); color:var(--on-surface-variant); white-space:nowrap; }
+.track{ --f:0; --r:0px; position:relative; flex:1; height:32px; border-radius:6px; }
+.track .base, .track .buf, .track .played{ position:absolute; left:0; top:12px; height:8px; border-radius:4px;
+  transition:top .2s ease, height .2s ease, border-radius .2s ease, right .2s ease, width .2s ease; }
+.track .buf{ width:calc(var(--b, 0) * (100% - var(--r))); background:var(--on-surface-variant); opacity:.4; }
+.track .played{ width:calc(var(--f) * (100% - var(--r))); }
+.track.on{ --r:10px; }
+.track.on .base, .track.on .buf, .track.on .played{ top:8px; height:16px; border-radius:8px; }   /* 16px (Figma: 12px) */
+.track .played{ background:#ff1f1f; }   /* a strong live red: the Live tag and progress red on every page (--live) */
+.track .handle{ position:absolute; top:4px; left:calc(var(--f) * (100% - var(--r))); width:24px; height:24px; box-sizing:border-box; margin-left:-12px; border-radius:12px;
+  border:4px solid #fff; background:var(--inverse-surface); box-shadow:0 2px 6px rgba(0,0,0,.25);
+  opacity:0; transform:scale(.3); transition:opacity .2s ease, transform .2s ease; }
+.track.on .handle{ opacity:1; transform:none; }
+.thumb{ position:absolute; bottom:48px; left:0; width:320px; margin-left:-160px; pointer-events:none; opacity:0; transition:opacity .15s ease; }
+.btns{ display:flex; align-items:center; gap:16px; }
+.btn{ position:relative; padding:24px; border-radius:9999px; display:flex; align-items:center; transition:background .2s ease; }
+.btn .lbl{ position:absolute; left:50%; bottom:calc(100% + 28px); padding:12px 24px; border-radius:16px; white-space:nowrap; pointer-events:none;
+  font:500 24px/32px var(--inter); color:#e8e8e8; background:rgba(74,74,74,.92); box-shadow:0 4px 12px rgba(0,0,0,.35);
+  opacity:0; transform:translate(-50%, 6px); transition:opacity .18s ease, transform .18s cubic-bezier(.2,0,0,1); }
+.flash{ position:absolute; left:50%; top:50%; width:160px; height:160px; margin:-80px 0 0 -80px; border-radius:50%; z-index:20; pointer-events:none;
+  display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.45);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); opacity:0; }
+.flash img{ width:80px; height:80px; display:block; }
+.flash.go{ animation:flash .7s cubic-bezier(.2,0,0,1); }
+.seekfx{ position:absolute; left:50%; top:50%; width:124px; height:124px; margin:-62px 0 0 -62px; border-radius:50%; z-index:1; pointer-events:none;
+  background:rgba(0,0,0,.5); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:#fff;
+  opacity:0; transition:opacity .25s ease; }
+#toast{ position:absolute; left:50%; top:60px; transform:translateX(-50%); padding:14px 26px; border-radius:999px; z-index:30;
+  background:rgba(20,20,24,.9); font-size:24px; opacity:0; transition:opacity .2s ease; pointer-events:none; white-space:nowrap; }
+#frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:#000; }
+#screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; background:#000; }
+video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.back img{ display:block; width:80px; height:80px; }
+.play img{ display:block; width:40px; height:40px; }
+.track .base{ right:var(--r); background:var(--surface-container-highest); }
+.thumb.on{ opacity:1; }
+.thumb .pic{ position:relative; width:320px; height:180px; box-sizing:border-box; border-radius:12px; overflow:hidden; border:3px solid #fff; background:#111; box-shadow:0 6px 20px rgba(0,0,0,.5); }
+.thumb video{ width:100%; height:100%; object-fit:cover; display:block; }
+.thumb .t{ margin-top:8px; text-align:center; font:500 24px/28px var(--inter); text-shadow:0 1px 4px rgba(0,0,0,.6); }
+.btn img{ width:32px; height:32px; display:block; }
+.btn .lbl::after{ content:''; position:absolute; left:50%; top:calc(100% + 4px); margin-left:-9px; border-left:9px solid transparent; border-right:9px solid transparent; border-top:10px solid rgba(74,74,74,.92); }
+.btn.focused .lbl{ opacity:1; transform:translate(-50%, 0); }
+.btn.focused, .back.focused{ background:rgba(255,255,255,.3); backdrop-filter:blur(24px) saturate(1.4); -webkit-backdrop-filter:blur(24px) saturate(1.4); }
+.seekfx.on{ opacity:1; transition:opacity .08s ease; }
+.seekfx .arr{ display:flex; gap:2px; }
+.seekfx .arr i{ width:0; height:0; border-top:10px solid transparent; border-bottom:10px solid transparent; border-left:16px solid #fff; opacity:.25; animation:seekArr .9s linear infinite; }
+.seekfx.l .arr{ transform:scaleX(-1); }
+.seekfx .arr i:nth-child(2){ animation-delay:.15s; } .seekfx .arr i:nth-child(3){ animation-delay:.3s; }
+.seekfx .lbl{ font:600 28px/1 var(--inter); }
+#toast.on{ opacity:1; }
+@keyframes flash{ 0%{ opacity:0; transform:scale(.6); } 20%{ opacity:1; transform:scale(1); } 60%{ opacity:1; transform:scale(1.05); } 100%{ opacity:0; transform:scale(1.3); } }
+@keyframes seekArr{ 0%, 100%{ opacity:.25; } 30%{ opacity:1; } }

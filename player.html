@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Player</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans:wght@400;500&family=Noto+Sans+Thai:wght@400;500&family=Roboto:wght@700&display=swap" rel="stylesheet">
+<!--
+  The VOD player for movies, series and shorts (player.css shared with live-tv-player.html). Movies (Figma "player Movie default" 2700:17417, "Movie You May Also Like" 2700:17232), opened by Play /
+  Resume / Start Over on movie-detail.html (?k=<title> from content.js, &start=1 from the beginning). The Live TV
+  player's look (live-tv-player.html): back + title on top; the seek bar (play / pause, time played, the bar, the length),
+  Start Over, Subtitle/Audio, Settings and "You may also like" at the bottom; scrims; the controls fade out when idle.
+  Layout per Figma PLAY-player "Player - VOD Movies" (2028:85952): time played on the left, time left on the right.
+  No channel, no live edge: the bar runs over the whole title. The picture is a demo clip, looping, while the time runs
+  over the title's own length. "You may also like" opens a row of other titles; Enter plays one.
+  A series (Figma Movies "Player - VOD Series" 2700:18286; ?k=&s=&e=): "S1 E5 : Episode" over the series name; Start Over,
+  Next Episode, Select Episode (a row of the season's episodes, the one playing marked), Subtitle/Audio, Settings.
+  Skip Intro shows through the intro (1:30), with or without the controls. In the credits (the last 30s) the controls give
+  way to "Next Episode in" (5s, filling up) and Watch Credit; any key stops the countdown and leaves Next Episode /
+  Watch Credit to pick; at the end the next episode plays.
+  A short drama (Figma PLAY-player "player for Short Vertical" 2076:32401, "Vertical Content Player select ep" 2076:31710;
+  ?short=N&ep=E): the 9:16 picture in the middle of a dark screen, the series' buttons; Select Episode opens the season,
+  the 50-episode ranges and a grid of 10 a row (the one playing marked Watching, locked ones with a lock: Enter on one
+  goes to the short's page to unlock it). At the end the next episode plays (a locked one: its unlock).
+  Remote / keyboard: Up / Down between the back button, the seek bar and the buttons; Left / Right on the seek bar go 10s
+  back / on (held: faster), Enter plays / pauses; Esc / Back closes the row, then returns to the detail page.
+-->
+<link rel="stylesheet" href="player.css">
+<style>
+
+  /* the controls (the Live TV player's): scrims, the top and bottom bars; they fade out together when idle */
+  /* top: back and the title (Figma: 40px medium, #d9d9d9, 24px after the back button) */
+  /* a series: the episode, the series name 20px under it (Figma 2700:18288) */
+
+  /* player chips (Figma "player element" / TV / Chip, h84): Skip Intro, Next Episode, Watch Credit. Focused (or the only
+     choice): light; otherwise dark */
+  /* Skip Intro: over the seek bar's right end with the controls, at the bottom without them */
+  /* the Live TV chips (player.css .preview / .explore) as Skip Intro, Next Episode, Watch Credit: clickable, clipping the
+     countdown's fill */
+  .pchip{ position:relative; overflow:hidden; cursor:pointer; }
+  .skip{ position:absolute; right:90px; bottom:294px; transition:bottom .3s var(--ease), opacity .3s ease; }
+  body.idle .skip{ bottom:60px; }
+  .skip[hidden]{ display:none; }
+  /* the credits: the picture dimmed, no controls, the next-episode choice at the bottom right */
+  .nextup{ position:absolute; inset:0; display:flex; align-items:flex-end; justify-content:flex-end; gap:24px; padding:60px 90px; box-sizing:border-box;
+    background:rgba(0,0,0,.5); backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px); opacity:0; pointer-events:none; transition:opacity .3s ease; }
+  body.credits .nextup{ opacity:1; pointer-events:auto; }
+  body.credits .scrim, body.credits .top, body.credits .bottom, body.credits .skip{ opacity:0; pointer-events:none; }
+  /* "Next Episode in": outlined, a light fill sweeping across it over 5s (the text dark where it has passed) */
+  .pchip.count{ background:transparent; box-shadow:inset 0 0 0 2px rgba(74,74,74,.5); backdrop-filter:none; -webkit-backdrop-filter:none; color:var(--on-surface-variant); }
+  .pchip.count .fill{ position:absolute; left:0; top:0; bottom:0; width:0; overflow:hidden; background:#fff; }
+  .pchip.count .fill span{ position:absolute; left:32px; top:0; height:80px; display:flex; align-items:center; color:#101010; }
+  .pchip.count.go .fill{ width:100%; transition:width 5s linear; }
+
+  /* bottom: the seek bar, then the buttons (Start Over, Subtitle/Audio, Settings; You may also like on the right) */
+  .seek .tm.end{ text-align:right; }
+  /* the track (the Live TV player's, Figma VOD look): 12px with its handle, played in white; focused, the ring goes round it */
+  /* scrubbing: a thumbnail of that moment over the handle, its time under it, and the seek marker in its middle */
+
+  /* the buttons (the Live TV player's): round icons with a tooltip; You may also like on the right with its label */
+  .btn.ymal{ margin-left:auto; gap:16px; font:500 24px/32px var(--inter); color:var(--inverse-surface); }   /* the one labelled button: icon, 16px gap, label */
+  .btn.ymal span{ opacity:.8; }
+  /* pause / play: a big mark flashes in the middle */
+
+  /* ---------- You may also like (Figma PLAY-player 2025:102260): the picture under the same scrim, back + title stay on top;
+     at the bottom (90px in, 60px up) a back icon button and the selected "You may also like" chip, then a row of cards ---------- */
+  .ymal-view{ position:absolute; inset:0; opacity:0; pointer-events:none; transition:opacity .3s ease; }
+  body.ymal .ymal-view{ opacity:1; pointer-events:auto; }
+  body.ymal .bottom{ opacity:0; pointer-events:none; }
+  .ymal-view .row-wrap{ position:absolute; left:90px; right:0; bottom:0; padding-bottom:60px; display:flex; flex-direction:column; gap:32px; }
+  .ymal-view .head{ display:flex; align-items:center; }
+  .ymal-view .head .back{ display:block; }
+  .ymal-view .chip{ height:80px; box-sizing:border-box; padding:0 21px; border:3px solid var(--on-surface); border-radius:9999px; display:flex; align-items:center; gap:16px;
+    font:500 24px/32px var(--inter); color:var(--on-surface); white-space:nowrap; }
+  .ymal-view .chip img{ width:32px; height:32px; display:block; }
+  .ymal-view .row{ display:flex; gap:32px; align-items:flex-end; transition:transform .35s var(--ease); }
+  .card{ flex:0 0 auto; box-sizing:border-box; padding:16px; border-radius:24px; background:var(--surface-container); display:flex; flex-direction:column; gap:16px; cursor:pointer;
+    transition:transform .22s var(--ease); }
+  .card .pic{ width:320px; height:180px; border-radius:16px; background:#3a3a3a center / cover no-repeat; }
+  .card .nm{ max-width:320px; font:500 20px/1.5 var(--inter); letter-spacing:-.38px; color:var(--on-surface); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .card .len{ font:500 16px/1.5 var(--inter); letter-spacing:-.3px; color:var(--on-surface); margin-top:-8px; }
+  .card.focused{ transform:scale(1.04); }   /* the ring: focus-ring.js */
+  /* Select Episode: the one playing has the now-playing mark on its picture */
+  .card .pic{ position:relative; }
+  .card .np{ position:absolute; inset:0; border-radius:16px; background:rgba(0,0,0,.55) url('icons/player/now-playing.svg') center / 36px no-repeat; }
+  /* ---------- a short drama: the 9:16 picture centred on #141414 (Figma 2076:32401) ---------- */
+  body.vertical #screen{ background:#141414; }
+  body.vertical #video{ left:50%; top:12px; width:594px; height:1056px; margin-left:-297px; border-radius:16px; }
+  #sub:empty{ display:none; }   /* a movie: its title alone */
+  /* Select Episode (Figma 2076:31754): the player fades, and from 543px down: back + the chip, the season, the ranges,
+     then the episodes 10 a row (148px squares across 1740px). The block slides up to keep the focused row in view. */
+  .grid-view{ position:absolute; inset:0; opacity:0; pointer-events:none; transition:opacity .3s ease; overflow:hidden;
+    background:linear-gradient(180deg, #000 18.43%, rgba(0,0,0,0) 33.33%), linear-gradient(180deg, rgba(0,0,0,0) 64.63%, rgba(0,0,0,.9) 97.02%), rgba(0,0,0,.55); }
+  body.sgrid .grid-view{ opacity:1; pointer-events:auto; }
+  body.sgrid .bottom, body.sgrid .top{ opacity:0; pointer-events:none; }
+  .gblock{ position:absolute; left:90px; top:543px; width:1740px; display:flex; flex-direction:column; gap:40px; transition:transform .35s var(--ease); }
+  .gblock .head{ display:flex; align-items:center; }
+  .gblock .head .back{ display:block; }
+  .gblock .chip{ height:80px; box-sizing:border-box; padding:0 21px; border:3px solid var(--on-surface); border-radius:9999px; display:flex; align-items:center; gap:16px;
+    font:500 24px/32px var(--inter); color:var(--on-surface); white-space:nowrap; }
+  .gblock .chip img{ width:32px; height:32px; display:block; }
+  .gblock .filters{ display:flex; flex-direction:column; gap:20px; }
+  .seasons{ display:flex; gap:32px; }
+  .sea{ height:64px; padding:0 32px; box-sizing:border-box; border-radius:12px; display:flex; align-items:center; font:500 24px/32px var(--inter); color:var(--on-surface-variant);
+    box-shadow:inset 0 0 0 2px rgba(74,74,74,.5); cursor:pointer; transition:transform .22s var(--ease); }
+  .sea.sel{ background:#6a6a6a; color:var(--on-surface); box-shadow:none; }
+  .ranges{ display:flex; gap:16px; }
+  .rng{ height:60px; padding:0 40px; display:flex; align-items:center; font:500 24px/32px var(--inter); color:var(--on-surface-variant); opacity:.8; cursor:pointer; transition:transform .22s var(--ease); }
+  .rng.sel{ color:var(--inverse-surface); opacity:1; text-decoration:underline; text-decoration-thickness:10%; text-underline-offset:6px; }
+  .sea.focused, .rng.focused{ transform:scale(1.06); color:#fff; opacity:1; }
+  .sgrid-eps{ display:grid; grid-template-columns:repeat(10, 148px); justify-content:space-between; row-gap:40px; }
+  .sep{ position:relative; width:148px; height:148px; border-radius:8px; overflow:hidden; background:#474747; display:flex; flex-direction:column; cursor:pointer; transition:transform .22s var(--ease); }
+  .sep b{ flex:1; display:flex; align-items:center; justify-content:center; font:700 28px/16px var(--inter); color:#fff; }
+  .sep.locked b{ color:var(--on-surface-variant); }
+  .sep .lk{ height:32px; background:var(--surface-container); display:flex; align-items:center; justify-content:center; }
+  .sep .lk img{ width:20px; height:20px; display:block; }
+  .sep .watching{ height:26px; background:#59d478; display:flex; align-items:center; justify-content:center; font:500 16px/14px var(--inter); color:#fff; }
+  .sep .bar{ height:6px; background:var(--on-surface-variant); }
+  .sep .bar i{ display:block; height:100%; background:red; }
+  .sep.focused{ transform:scale(1.08); }   /* 8%, as every rail card; the ring: focus-ring.js */
+
+</style>
+</head>
+<body>
+<div id="frame"><div id="screen">
+  <video id="video" muted playsinline loop preload="auto"></video>
+  <div class="scrim"></div>
+  <div class="flash" id="flash"><img id="flashIc" src="icons/player/pause.svg" alt=""></div>
+  <div class="ymal-view" id="ymalView">
+    <div class="row-wrap">
+      <div class="head"><div class="back item" data-act="ymal-back"><img src="icons/player/back.svg" alt="Back"></div>
+        <div class="chip" id="rowChip"><img src="icons/player/you-may-also-like.svg" alt="">You may also like</div></div>
+      <div class="row" id="ymalRow"></div>
+    </div>
+  </div>
+  <div class="grid-view" id="gridView">
+    <div class="gblock" id="gblock">
+      <div class="head"><div class="back item" data-act="grid-back"><img src="icons/player/back.svg" alt="Back"></div>
+        <div class="chip"><img src="icons/player/select-episode.svg" alt="">Select Episode</div></div>
+      <div class="filters"><div class="seasons" id="seasons"></div><div class="ranges" id="ranges"></div></div>
+      <div class="sgrid-eps" id="sgridEps"></div>
+    </div>
+  </div>
+  <div class="top"><div class="back item" data-act="back"><img src="icons/player/back.svg" alt="Back"></div><div class="info"><div class="prog-t" id="title"></div><div class="meta" id="sub"></div></div></div>
+  <div class="bottom">
+    <div class="seek">
+      <div class="play" id="playBtn"><img id="playIc" src="icons/player/pause.svg" alt="Pause"></div>
+      <div class="tm" id="tmNow">0:00:00</div>
+      <div class="track item" id="track" data-act="track"><div class="base"></div><div class="buf"></div><div class="played"></div><div class="handle"></div>
+        <div class="thumb" id="thumb"><div class="pic"><video id="thumbV" muted playsinline preload="auto"></video>
+          <div class="seekfx" id="seekfx"><div class="arr"><i></i><i></i><i></i></div><div class="lbl" id="seekLbl"></div></div></div><div class="t" id="thumbT"></div></div></div>
+      <div class="tm end" id="tmEnd">- 0:00:00</div>
+    </div>
+    <div class="btns" id="btns"></div>
+  </div>
+  <div class="pchip solo skip item" id="skip" data-act="skip" hidden>Skip Intro</div>
+  <div class="nextup" id="nextup"></div>
+  <div id="toast"></div>
+</div></div>
+
+<script src="content.js"></script>
+<script src="tv-screen.js"></script>
+<script>
+(function(){
+  var frame = document.getElementById('frame'), screen = document.getElementById('screen');
+  var $ = function(q, root){ return Array.prototype.slice.call((root || document).querySelectorAll(q)); };
+  var byId = function(id){ return document.getElementById(id); };
+
+  // ---- the title: where it was left (or the start), its length; the picture is a demo clip, looping ----
+  var K = (location.search.match(/[?&]k=([\w-]+)/) || [])[1];
+  // a short drama (?short=N&ep=E): its own titles (content.js), one season of SHORT.EPS episodes, a minute or two each
+  var SI = (location.search.match(/[?&]short=(\d+)/) || [])[1], SHORT_ON = SI !== undefined && !!window.SHORTS;
+  if(SHORT_ON){ SI = Math.min(+SI, SHORTS.length - 1); K = 'd9'; document.body.classList.add('vertical'); }
+  if(!K || !MD.M[K]) K = 'd9';
+  var m = SHORT_ON ? { t:SHORTS[SI].t, w:'posters/shorts/' + SHORTS[SI].img } : MD.M[K];
+  var cw = SHORT_ON ? null : MD.cw(K), SER = SHORT_ON || MD.series(K), FROM_START = /[?&]start=1/.test(location.search);
+  var sat = SHORT_ON ? SHORT.at(SI) : null;
+  // a series plays one episode: ?s=&e=, else the one it was left on, else the first
+  var S = +(location.search.match(/[?&]s=(\d+)/) || [])[1] || (cw && cw.s) || 1,
+      E = +(location.search.match(/[?&]e(?:p)?=(\d+)/) || [])[1] || (cw && cw.e) || (sat && sat.ep) || 1;
+  function shortEp(n){ return n >= 1 && n <= SHORT.EPS ? { s:1, n:n, t:'Episode ' + n, m:Math.ceil(SHORT.secs(n) / 60), sec:SHORT.secs(n) } : null; }
+  var EP = SHORT_ON ? shortEp(E) : SER ? MD.episode(K, S, E) : null, NEXT = SHORT_ON ? shortEp(E + 1) : SER ? MD.next(K, S, E) : null;
+  var here = SHORT_ON ? !!(sat && sat.ep === E) : cw && (!SER || (cw.s === S && cw.e === E));   // the progress belongs to what is playing
+  var LEN = SHORT_ON ? EP.sec : (SER ? EP.m : here ? cw.of : MD.minutes(K)) * 60;
+  var pos = FROM_START || !here ? 0 : SHORT_ON ? Math.min(sat.sec, LEN - 10) : Math.min(cw.w * 60, LEN - 60);   // seconds in
+  var AT = (location.search.match(/[?&]at=(\d+)/) || [])[1];
+  if(AT) pos = Math.min(+AT, LEN - 1);   // &at=<seconds>: start there (demos, e.g. just before the credits)
+  var INTRO = 90, CREDITS = 30;   // a series: the intro's end; the credits' length
+  var CLIP = 'video/hbo.mp4';
+  byId('video').src = byId('thumbV').src = CLIP;
+  if(SHORT_ON) byId('video').poster = m.w;
+  byId('title').textContent = SER ? 'S' + S + ' E' + E + ' : ' + EP.t : m.t;
+  byId('sub').textContent = SER ? m.t : '';
+  document.title = byId('title').textContent + ' · Player';
+  function hms(s){ s = Math.max(0, Math.floor(s)); return Math.floor(s / 3600) + ':' + ('0' + Math.floor(s / 60) % 60).slice(-2) + ':' + ('0' + s % 60).slice(-2); }
+  function vmod(t){ var d = byId('video').duration || 0; return d ? ((t % d) + d) % d : 0; }
+  function mins(n){ return n >= 60 ? Math.floor(n / 60) + 'h ' + n % 60 + 'm' : n + 'm'; }
+
+  // ---- the buttons: a movie's (Figma PLAY-player 2028:85952), a series' (2700:18288) ----
+  function btn(act, ic, lbl){ return '<div class="btn item" data-act="' + act + '"><img src="icons/player/' + ic + '.svg" alt=""><span class="lbl">' + lbl + '</span></div>'; }
+  byId('btns').innerHTML = btn('start-over', 'start-over', 'Start Over') + (SER ? btn('next', 'next-episode', 'Next Episode') + btn('episodes', 'select-episode', 'Select Episode') : '') +
+    btn('sub-audio', 'sub-audio', 'Subtitle/Audio') + btn('settings', 'settings', 'Settings') +
+    (SER ? '' : '<div class="btn ymal item" data-act="ymal"><img src="icons/player/you-may-also-like.svg" alt=""><span>You may also like</span></div>');
+
+  var playing = true, scrub = null, last = Date.now();
+  function paintSeek(){
+    var at = scrub === null ? pos : scrub, tr = byId('track');
+    tr.style.setProperty('--f', at / LEN); tr.style.setProperty('--b', Math.min(1, (pos + 600) / LEN));
+    byId('tmNow').textContent = hms(at); byId('tmEnd').textContent = '- ' + hms(LEN - at);   // what is left (Figma)
+    if(scrub !== null){
+      var w = tr.offsetWidth;
+      byId('thumb').style.left = Math.max(160, Math.min(w - 160, at / LEN * w)) + 'px';
+      byId('thumbT').textContent = hms(at);
+    }
+  }
+  // the clock: the title moves on while playing. A series: Skip Intro through the intro, the next episode in the credits;
+  // at the end the next episode, else back to the detail page
+  var skipped = SHORT_ON || pos >= INTRO, credits = '';   // a short has no intro and no credits   // credits: '' not yet, 'count' counting down, 'stopped' a key stopped it, 'watch' Watch Credit
+  setInterval(function(){
+    var now = Date.now(), dt = (now - last) / 1000; last = now;
+    if(playing && scrub === null){
+      pos = Math.min(LEN, pos + dt);
+      if(pos >= LEN){ if(NEXT) playEp(NEXT); else { save(); history.back(); } return; }
+    }
+    if(SER){
+      var sk = byId('skip'), show = !skipped && pos < INTRO && view === 'player' && !credits;
+      if(sk.hidden === show){ var was = rn(); sk.hidden = !show; row = rowIx(was === 'skip' ? 'track' : was); paint(); }   // focus stays on its row
+      if(!SHORT_ON && NEXT && !credits && pos >= LEN - CREDITS && scrub === null) startCredits();
+    }
+    paintSeek();
+  }, 250);
+  byId('video').addEventListener('loadedmetadata', function(){ this.currentTime = vmod(pos); this.play().catch(function(){}); });
+  var leaving = false;
+  function save(){ if(leaving) return; if(SHORT_ON){ SHORT.setAt(SI, E, pos); return; } MD.setProgress(K, Math.max(1, Math.round(pos / 60)), Math.round(LEN / 60), SER ? S : undefined, SER ? E : undefined); }
+  addEventListener('pagehide', save);
+  function playEp(ep){
+    if(SHORT_ON){   // a short: a locked episode goes to the short's page to unlock it
+      save(); leaving = true;
+      if(!SHORT.open(SI, ep.n)){ location.href = 'short-detail.html?s=' + SI + '&unlock=' + ep.n; return; }
+      SHORT.setAt(SI, ep.n, 0); location.replace('player.html?short=' + SI + '&ep=' + ep.n + '&start=1'); return;
+    }
+    save(); leaving = true; MD.setProgress(K, 1, ep.m, ep.s, ep.n); location.replace('player.html?k=' + K + '&s=' + ep.s + '&e=' + ep.n + '&start=1'); }
+
+  function setPlaying(p, flash){
+    playing = p; var v = byId('video');
+    if(p) v.play().catch(function(){}); else v.pause();
+    byId('playIc').src = p ? 'icons/player/pause.svg' : 'icons/detail-play.svg';
+    if(flash){ var f = byId('flash'); byId('flashIc').src = p ? 'icons/detail-play.svg' : 'icons/player/pause.svg'; f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); }
+  }
+
+  // ---- seeking (the Live TV player's): a press 10s, presses in a row add up; held, faster; the thumbnail shows the moment ----
+  var commitT = null, holdT = null, holdStart = 0, seekSum = 0, seekDir = 0, seekT = null;
+  function seekFx(dir, label){
+    var f = byId('seekfx');
+    if(label === undefined){ seekSum = dir === seekDir && f.classList.contains('on') ? seekSum + 10 : 10; label = (dir < 0 ? '-' : '+') + seekSum; }
+    seekDir = dir; f.classList.toggle('l', dir < 0); f.classList.toggle('r', dir > 0);
+    byId('seekLbl').textContent = label; f.classList.add('on');
+    clearTimeout(seekT); seekT = setTimeout(function(){ f.classList.remove('on'); seekSum = 0; }, 800);
+  }
+  function scrubBy(s){
+    if(scrub === null) scrub = pos;
+    scrub = Math.max(0, Math.min(LEN - 1, scrub + s));
+    var tv = byId('thumbV'); if(tv.readyState) tv.currentTime = vmod(scrub);
+    byId('thumb').classList.add('on'); paintSeek();
+  }
+  function commit(){
+    clearTimeout(commitT); if(scrub === null) return;
+    pos = scrub; scrub = null; byId('video').currentTime = vmod(pos);
+    if(credits && pos < LEN - CREDITS) credits = '';   // seeking back out of the credits: they can come again
+    byId('thumb').classList.remove('on'); paintSeek();
+  }
+  function startHold(dir){
+    holdStart = Date.now();
+    holdT = setInterval(function(){
+      var t = (Date.now() - holdStart) / 1000, sp = t < 1 ? 2 : t < 2 ? 4 : t < 3 ? 8 : 16;
+      seekFx(dir, sp + 'x'); scrubBy(dir * sp * 30);
+    }, 250);
+  }
+  addEventListener('keyup', function(e){
+    if((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && holdT){ clearInterval(holdT); holdT = null; commit(); }
+  });
+
+  // ---- the row over the picture: You may also like (a movie: other titles) / Select Episode (a series: this season) ----
+  if(SER && !SHORT_ON){
+    byId('rowChip').innerHTML = '<img src="icons/player/select-episode.svg" alt="">Select Episode';
+    byId('ymalRow').innerHTML = MD.episodes(K, S).map(function(ep){
+      return '<div class="card item" data-s="' + ep.s + '" data-e="' + ep.n + '" data-ring-art=""><div class="pic" style="background-image:url(\'' + (m.w || m.p) + '\')">' +
+        (ep.n === E ? '<span class="np"></span>' : '') + '</div><div class="nm">E' + ep.n + ' : ' + ep.t.replace(/</g, '&lt;') + '</div><div class="len">' + mins(ep.m) + '</div></div>';
+    }).join('');
+  } else {
+    var others = Object.keys(MD.M).filter(function(k){ return k !== K && MD.M[k].w; }).slice(0, 10);
+    byId('ymalRow').innerHTML = others.map(function(k){
+      var o = MD.M[k];
+      return '<div class="card item" data-k="' + k + '" data-ring-art=""><div class="pic" style="background-image:url(\'' + o.w + '\')"></div>' +
+        '<div class="nm">' + o.t.replace(/</g, '&lt;') + '</div><div class="len">' + o.len + '</div></div>';
+    }).join('');
+  }
+
+  // ---- the credits (a series with a next episode): "Next Episode in" counts 5s down, then the next one plays ----
+  var countT = null;
+  function startCredits(){
+    credits = 'count'; setView('player'); document.body.classList.add('credits');
+    byId('nextup').innerHTML = '<div class="pchip count item" data-act="next"><div class="fill"><span>Next Episode in</span></div>Next Episode in</div>' +
+      '<div class="pchip item" data-act="watch">Watch Credit</div>';
+    var c = byId('nextup').firstChild; void c.offsetWidth; c.classList.add('go');
+    clearTimeout(countT); countT = setTimeout(function(){ if(credits === 'count') playEp(NEXT); }, 5000);
+    paint();
+  }
+  function stopCount(){   // any key: the countdown stops, Next Episode / Watch Credit stay to pick (Figma note)
+    credits = 'stopped'; clearTimeout(countT); ncol = 0;
+    byId('nextup').innerHTML = '<div class="pchip item" data-act="next">Next Episode</div><div class="pchip item" data-act="watch">Watch Credit</div>';
+    paint();
+  }
+  function endCredits(){ credits = 'watch'; clearTimeout(countT); document.body.classList.remove('credits'); row = rowIx('track'); paint(); wake(); }
+
+  // ---- a short's Select Episode: Season 1, the 50-episode ranges (picked as focus lands, one filter), the range's
+  //      episodes 10 a row: the one playing marked Watching with its progress, locked ones grey with a lock ----
+  var RANGE = 50, gRange = Math.floor((E - 1) / RANGE), gcol = { sea:0, rng:gRange, eps:(E - 1) % 10 };
+  function buildGrid(){
+    if(!SHORT_ON) return;
+    byId('seasons').innerHTML = '<div class="sea sel item" data-act="season" data-ring-art="">Season 1</div>';
+    var h = '';
+    for(var a = 1; a <= SHORT.EPS; a += RANGE) h += '<div class="rng item' + ((a - 1) / RANGE === gRange ? ' sel' : '') + '" data-act="range" data-ring-art="">' + a + ' - ' + Math.min(a + RANGE - 1, SHORT.EPS) + '</div>';
+    byId('ranges').innerHTML = h;
+    buildEps();
+  }
+  function buildEps(){
+    var h = '';
+    for(var n = gRange * RANGE + 1; n <= Math.min((gRange + 1) * RANGE, SHORT.EPS); n++){
+      var open = SHORT.open(SI, n);
+      h += '<div class="sep item' + (open ? '' : ' locked') + '" data-ep="' + n + '" data-ring-art=""><b>' + n + '</b>' +
+        (n === E ? '<span class="watching">Watching</span><span class="bar"><i style="width:' + Math.round(pos / LEN * 100) + '%"></i></span>'
+          : open ? '' : '<span class="lk"><img src="icons/short/lock.svg" alt="Locked"></span>') + '</div>';
+    }
+    byId('sgridEps').innerHTML = h;
+    $('#ranges .rng').forEach(function(r, i){ r.classList.toggle('sel', i === gRange); });
+  }
+  buildGrid();
+
+  // ---- focus: named rows. The player: back / Skip Intro (while it shows) / the seek bar / the buttons; the row over the
+  //      picture: back / its back / the cards; the credits: their two chips ----
+  var view = 'player', row = 0, col = 0, ycol = SER ? E - 1 : 0, ncol = 0;
+  function rows(){
+    if(credits === 'count' || credits === 'stopped') return [{ n:'credits', items:$('#nextup .item') }];
+    if(view === 'ymal') return [{ n:'top', items:$('.top .item') }, { n:'head', items:$('.ymal-view .head .item') }, { n:'cards', items:$('#ymalRow .item') }];
+    if(view === 'sgrid'){
+      var g = [{ n:'ghead', items:$('.gblock .head .item') }, { n:'gsea', items:$('#seasons .item') }, { n:'grng', items:$('#ranges .item') }], eps = $('#sgridEps .item');
+      for(var i = 0; i < eps.length; i += 10) g.push({ n:'geps', items:eps.slice(i, i + 10) });
+      return g;
+    }
+    var r = [{ n:'top', items:$('.top .item') }];
+    if(!byId('skip').hidden) r.push({ n:'skip', items:[byId('skip')] });
+    return r.concat([{ n:'track', items:[byId('track')] }, { n:'btns', items:$('#btns .item') }]);
+  }
+  function rowIx(n){ var R = rows(); for(var i = 0; i < R.length; i++) if(R[i].n === n) return i; return 0; }
+  function rn(){ var R = rows(); return (R[Math.max(0, Math.min(R.length - 1, row))] || {}).n; }
+  function curCol(){ var n = rn(); return n === 'cards' ? ycol : n === 'credits' ? ncol : n === 'gsea' ? gcol.sea : n === 'grng' ? gcol.rng : n === 'geps' ? gcol.eps : n === 'ghead' ? 0 : col; }
+  function setCol(c){ var n = rn(); if(n === 'cards') ycol = c; else if(n === 'credits') ncol = c; else if(n === 'gsea') gcol.sea = c; else if(n === 'grng') gcol.rng = c; else if(n === 'geps') gcol.eps = c; else if(n !== 'ghead') col = c; }
+  function paint(){
+    var R = rows(); row = Math.max(0, Math.min(R.length - 1, row));
+    var items = R[row].items, c = Math.max(0, Math.min(items.length - 1, curCol())); setCol(c);
+    if(view === 'sgrid' && R[row].n === 'grng' && c !== gRange){ gRange = c; buildEps(); R = rows(); }   // the range under focus fills the grid
+    if(view === 'sgrid') byId('gblock').style.transform = row > 3 ? 'translateY(' + -(row - 3) * 188 + 'px)' : '';   // the focused episode row in view
+    $('.item.focused').forEach(function(e){ e.classList.remove('focused'); });
+    if(items[c] && credits !== 'count') items[c].classList.add('focused');   // nothing focused while it counts down (Figma)
+    var n = R[row].n;
+    byId('track').classList.toggle('on', n === 'track');
+    byId('skip').classList.toggle('solo', n !== 'skip');   // Skip Intro stays light even when focus is elsewhere (Figma)
+    if(view === 'ymal'){ byId('ymalRow').style.transform = 'translateX(' + -Math.max(0, ycol - 3) * 384 + 'px)'; }
+  }
+  // the controls fade out after 5s without a key (not over the row, nor while paused)
+  var idleT;
+  function wake(){
+    var was = document.body.classList.contains('idle');
+    document.body.classList.remove('idle'); clearTimeout(idleT);
+    idleT = setTimeout(function(){ if(view === 'player' && playing) document.body.classList.add('idle'); }, 5000);
+    return was;
+  }
+  function setView(v){
+    view = v; document.body.classList.toggle('ymal', v === 'ymal'); document.body.classList.toggle('sgrid', v === 'sgrid');
+    if(v === 'ymal'){ row = 2; }
+    else if(v === 'sgrid'){ gRange = Math.floor((E - 1) / RANGE); gcol = { sea:0, rng:gRange, eps:(E - 1) % 10 }; buildEps(); row = 3 + Math.floor(((E - 1) % RANGE) / 10); }   // on the one playing
+    else { row = rowIx('btns'); col = SER ? 2 : 3; }   // back on the button that opened it
+    paint();
+  }
+  var toastEl = byId('toast'), toastT;
+  function toast(msg){ toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove('on'); }, 1600); }
+  function leave(){ save(); if(history.length > 1) history.back(); else location.href = SHORT_ON ? 'short-detail.html?s=' + SI : 'movie-detail.html?k=' + K; }
+  function activate(el){
+    var a = el.dataset.act;
+    if(a === 'ymal-back' || a === 'grid-back'){ setView('player'); return; }
+    if(a === 'season'){ row++; paint(); return; }
+    if(a === 'range'){ row = 3; gcol.eps = 0; paint(); return; }
+    if(el.dataset.ep){ var n = +el.dataset.ep; if(n === E){ setView('player'); return; } playEp(shortEp(n)); return; }
+    if(a === 'back'){ if(view === 'ymal') setView('player'); else leave(); return; }
+    if(a === 'track'){ setPlaying(!playing, true); return; }
+    if(a === 'skip'){ pos = INTRO; skipped = true; byId('video').currentTime = vmod(pos); paintSeek(); return; }
+    if(a === 'start-over'){ pos = 0; skipped = false; credits = ''; byId('video').currentTime = 0; setPlaying(true); toast('Playing from the start'); paintSeek(); return; }
+    if(a === 'next'){ if(NEXT) playEp(NEXT); else toast('This is the last episode'); return; }
+    if(a === 'watch'){ endCredits(); return; }
+    if(a === 'ymal' || a === 'episodes'){ setView(SHORT_ON ? 'sgrid' : 'ymal'); return; }
+    if(el.dataset.e){   // Select Episode: another episode from its start (the one playing: just close the row)
+      if(+el.dataset.e === E && +el.dataset.s === S){ setView('player'); return; }
+      playEp(MD.episode(K, +el.dataset.s, +el.dataset.e)); return;
+    }
+    if(el.dataset.k){ save(); location.replace('player.html?k=' + el.dataset.k); return; }   // play that title instead
+    toast(el.querySelector('.lbl').textContent + ' (demo)');
+  }
+  addEventListener('keydown', function(e){
+    var k = e.key;
+    if(k === 'Escape' || k === 'Backspace'){ e.preventDefault(); if(view !== 'player') setView('player'); else leave(); return; }
+    if(credits === 'count'){ e.preventDefault(); stopCount(); return; }   // any key stops the countdown, nothing else
+    if(credits === 'stopped'){
+      if(k === 'ArrowLeft') ncol--; else if(k === 'ArrowRight') ncol++;
+      else if(k === 'Enter' || k === ' ') activate(rows()[0].items[ncol]);
+      e.preventDefault(); paint(); return;
+    }
+    // the controls hidden: OK on Skip Intro skips at once; any other key first brings the controls back
+    if(document.body.classList.contains('idle') && !byId('skip').hidden && (k === 'Enter' || k === ' ')){ e.preventDefault(); activate(byId('skip')); return; }
+    if(wake() && k !== 'ArrowLeft' && k !== 'ArrowRight') { e.preventDefault(); return; }
+    var R = rows(), n = rn();
+    if(k === 'ArrowUp' && row > 0) row--;
+    else if(k === 'ArrowDown' && row < R.length - 1) row++;
+    else if(n === 'track' && (k === 'ArrowLeft' || k === 'ArrowRight')){
+      var dir = k === 'ArrowRight' ? 1 : -1;
+      if(e.repeat){ if(!holdT) startHold(dir); }
+      else { scrubBy(dir * 10); seekFx(dir); clearTimeout(commitT); commitT = setTimeout(commit, 800); }
+    }
+    else if(k === 'ArrowLeft') setCol(curCol() - 1);
+    else if(k === 'ArrowRight') setCol(curCol() + 1);
+    else if(k === 'Enter' || k === ' ') activate(R[row].items[curCol()]);
+    else return;
+    e.preventDefault(); paint();
+  });
+  screen.addEventListener('click', function(e){
+    wake();
+    var el = e.target.closest('.item, .play');
+    if(!el){ if(view === 'player' && !credits) setPlaying(!playing, true); return; }
+    if(el.id === 'playBtn'){ setPlaying(!playing, true); return; }
+    rows().forEach(function(r, ri){ var c = r.items.indexOf(el); if(c >= 0){ row = ri; setCol(c); } });
+    paint(); activate(el);
+  });
+  // start: on Skip Intro while it shows (Figma), else the seek bar
+  if(SER && pos < INTRO) byId('skip').hidden = false;
+  row = rowIx(byId('skip').hidden ? 'track' : 'skip');
+  paintSeek(); paint(); wake();
+  if(pos > 0) toast('Resuming from ' + hms(pos));
+})();
+</script>
+<script src="focus-ring.js"></script>
+</body>
+</html>

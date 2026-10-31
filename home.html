@@ -702,6 +702,7 @@
 </div>
 
 <script src="channels-data.js"></script>
+<script src="content.js"></script>
 <script src="top10.js"></script>
 <script>
 (function(){
@@ -850,22 +851,15 @@
 
   /* ---------- Row: Jump Right Back In (continue watching, with progress) ---------- */
   (function(){
-    var items = [
-      {t:'Young Sherlock S1:E1', plat:'prime', img:'c1.jpg', d:'A teenage Sherlock Holmes stumbles into his first real mystery at Oxford, long before Baker Street.'},
-      {t:'Avengers: Endgame', plat:'disney', img:'c2.jpg', d:'After Thanos wiped out half of all life, the remaining Avengers assemble once more to undo the snap.'},
-      {t:'Superman', plat:'hbo', img:'c3.jpg', d:'The Man of Steel balances his Kryptonian heritage with his human upbringing as the ultimate protector of Earth.'},
-      {t:'All Or Nothing: Brazil National Team', plat:'netflix', img:'c4.jpg', d:'Unprecedented access to the Seleção on their road to the World Cup, on and off the pitch.'},
-      {t:'Project Hail Mary', plat:'netflix', img:'c5.jpg', d:'A lone astronaut wakes up light-years from home with one mission: save humanity from extinction.'}
-    ];
-    // random point in each title (15–85%) with a random runtime (40–120 min), so "mins left" matches the bar
-    items.forEach(function(it){
-      it.pct = 15 + Math.round(Math.random()*70);
-      it.dur = 40 + Math.round(Math.random()*80);
-      it.s = Math.max(1, Math.round(it.dur * (100 - it.pct) / 100)) + ' mins left';
+    // Continue Watching from content.js: this session's viewing first, each with its real progress (and episode)
+    var items = MD.continueList().map(function(c){
+      var m = MD.M[c.k], left = Math.max(1, c.of - c.w);
+      return {k:c.k, t:m.t + (c.s ? ' S' + c.s + ':E' + c.e : ''), plat:m.plat, img:m.w, d:m.d, pct:Math.round(c.w / c.of * 100), dur:c.of, s:left + ' mins left'};
     });
+    function q(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
     var cards = items.map(function(it,i){
-      return '<div class="card card-content item" data-title="'+it.t+'" data-desc="'+it.d+'">'+
-        '<div class="thumb" style="background-image:url(\'posters/continue/'+it.img+'\');background-size:cover;background-position:center;">'+platformTag(it.plat)+
+      return '<div class="card card-content item" data-k="'+it.k+'" data-title="'+q(it.t)+'" data-desc="'+q(it.d)+'">'+
+        '<div class="thumb" style="background-image:url(\''+it.img+'\');background-size:cover;background-position:center;">'+platformTag(it.plat)+
           '<span class="cw-left corner-tag s">'+it.s+'</span>'+
           '<div class="progress"><i class="play-prog" data-dur="'+it.dur+'" style="width:'+it.pct+'%"></i></div></div>'+
       '</div>';
@@ -1741,7 +1735,11 @@
       if(n !== colByRow[curRow]){ colByRow[curRow] = n; updateFocus(); }
       return true;
     }
-    if(k === 'Enter'){ toast('Detail: ' + rows[curRow].items[colByRow[curRow]].dataset.title); return true; }
+    if(k === 'Enter'){   // the slide's detail page (content.js); a live match has none
+      var sl = rows[curRow].items[colByRow[curRow]];
+      if(sl.dataset.heroLive === '1'){ toast('Detail: ' + sl.dataset.title); return true; }
+      keepPlace(); Content.open(Content.info(sl)); return true;
+    }
     return false;
   }
   heroDetailEl.addEventListener('click', function(){ navFrom = 0; curRow = HERO_ROW_INDEX; heroOnDetail = true; updateFocus(); heroKey('Enter'); });
@@ -1766,6 +1764,7 @@
     curRow = n;
     updateFocus();
   }
+  function keepPlace(){ try { sessionStorage.setItem('homeReturn', JSON.stringify({row:curRow, col:colByRow[curRow]})); } catch(e){} }
   function selectCurrent(){
     var r = rows[curRow];
     var it = r.items[colByRow[curRow]];
@@ -1801,11 +1800,13 @@
     }
     // Skip: the picker goes away and the focus moves on to the rail after it
     if(act === 'genre-skip'){ var at = curRow; finishPicker(); curRow = Math.min(at - 2, rows.length - 1); updateFocus(); toast('You can choose topics any time in Settings'); return; }
-    // cards with a detail page open it (District 9 → movie-detail.html)
-    var href = it.getAttribute('data-href');
+    // cards with a detail page open it: their own link, else the title's page (content.js: a movie or series, a short,
+    // or a title made from the card); the first scene's Play goes straight to the player. Live cards still play live.
+    var href = it.getAttribute('data-href'), ci = Content.info(it);
+    if(!href && ci && it.classList.contains('hero-play') && it.dataset.heroLive !== '1') href = Content.playUrl(ci);
+    else if(!href && ci && it.matches('.card, .rank-wrap, .season-card, .card-karaoke')) href = Content.detailUrl(ci);
     if(href){
-      // Back from there lands on the same card
-      try { sessionStorage.setItem('homeReturn', JSON.stringify({row:curRow, col:colByRow[curRow]})); } catch(e){}
+      keepPlace();   // Back from there lands on the same card
       it.animate([{transform:getComputedStyle(it).transform},{transform:'scale(0.97)'}], {duration:140, easing:'ease-out'}); setTimeout(function(){ window.location.href = href; }, 140); return; }
     it.animate([{transform:getComputedStyle(it).transform},{transform:'scale(0.97)'},{transform:'scale(1.08)'}], {duration:220, easing:'ease-out'});
     toast('Now playing: ' + label);

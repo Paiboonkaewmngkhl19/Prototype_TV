@@ -180,16 +180,10 @@
   <div id="toast"></div>
 </div></div>
 
+<script src="tv-screen.js"></script>
 <script>
 (function(){
   var frame = document.getElementById('frame'), screen = document.getElementById('screen');
-  function fit(){
-    var K = Math.min(innerWidth / 1920, innerHeight / 1080);
-    frame.style.width = 1920 * K + 'px'; frame.style.height = 1080 * K + 'px';
-    frame.style.marginLeft = -960 * K + 'px'; frame.style.marginTop = -540 * K + 'px';
-    screen.style.transform = 'scale(' + K + ')';
-  }
-  addEventListener('resize', fit); fit();
   function byId(id){ return document.getElementById(id); }
   function $(sel, root){ return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
   function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }

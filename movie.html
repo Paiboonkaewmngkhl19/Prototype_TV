@@ -19,7 +19,7 @@
   A 1920x1080 TV screen scaled to the window, built like news.html / sport.html: the same hero, rails, focus model and
   top bar, the shared focus ring (focus-ring.js) and profile panel (profile-panel.js), and the shared themes and cards:
   chip-theme.css (genre chips), button-theme.css (Detail, Play, Back to Top, the top-bar tabs), top10.css + top10.js
-  (Top 10, as Home's), expand-card.css (For You, as Home's AIS Play Exclusive), shorts-data.js (Short, as Home's Shorts), and
+  (Top 10, as Home's), expand-card.css (For You, as Home's AIS Play Exclusive), content.js (Short, as Home's Shorts), and
   Home's Seasonal / Quick Access cards and TV Guide's channel card (Movie Channel).
 
   Flow (Figma "Short cut screen", 2684:62086):
@@ -246,93 +246,21 @@
 </div></div>
 
 <script src="profile-panel.js"></script>
-<script src="shorts-data.js"></script>
+<script src="content.js"></script>
 <script src="channels-data.js"></script>
 <script src="top10.js"></script>
+<script src="tv-screen.js"></script>
 <script>
 (function(){
   // ---- fit the 1920x1080 screen into the window ----
   var frame = document.getElementById('frame'), screen = document.getElementById('screen');
-  function fit(){
-    var k = Math.min(innerWidth / 1920, innerHeight / 1080);
-    frame.style.width = 1920 * k + 'px'; frame.style.height = 1080 * k + 'px';
-    frame.style.marginLeft = -960 * k + 'px'; frame.style.marginTop = -540 * k + 'px';
-    screen.style.transform = 'scale(' + k + ')';
-  }
-  addEventListener('resize', fit); fit();
 
   function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
   function attrs(o){ return Object.keys(o).filter(function(k){ return o[k] != null; }).map(function(k){ return ' data-' + k + '="' + esc(o[k]) + '"'; }).join(''); }
 
   /* ---------- content: the titles behind the project's posters (Figma's placeholders) ----------
      t title, p 2:3 poster, w 16:9 picture, plat platform tag (badges/tag-*.png), g genres, y year, len, age, d synopsis */
-  var PP = 'posters_portrait/', P = 'posters/';
-  var M = {
-    d9:     {t:'District 9', w:P + 'district9.jpg', plat:'monomax', g:['Sci-Fi', 'Action'], y:2009, len:'1h 52m', age:'16+',
-             d:'Aliens stranded over Johannesburg are forced into a slum, until a field agent exposed to their technology starts to become one of them.'},
-    topgun: {t:'Top Gun: Maverick', p:PP + 'topgun_m.jpg', w:P + 'topgun-m.jpg', plat:'hbo', g:['Action', 'Drama'], y:2022, len:'2h 11m', age:'13+',
-             d:'After thirty years, Maverick trains a new generation of Top Gun graduates for a dangerous mission.'},
-    wicked: {t:'Wicked', w:P + 'wicked.jpg', plat:'prime', g:['Musical', 'Fantasy'], y:2024, len:'2h 40m', age:'G',
-             d:'The untold story of the witches of Oz: Elphaba and Glinda, long before Dorothy arrived.'},
-    superman:{t:'Superman', w:P + 'superman.jpg', plat:'hbo', g:['Action', 'Sci-Fi'], y:2025, len:'2h 9m', age:'13+',
-             d:'The Man of Steel balances his Kryptonian heritage with his human upbringing as the ultimate protector of Earth.'},
-    house:  {t:'House of the Dragon', p:PP + 'House.jpg', w:P + 'house-of-the-dragon.jpg', plat:'hbo', g:['Fantasy', 'Drama'], y:2024, len:'2 Seasons', age:'18+',
-             d:'Set 200 years before Game of Thrones, the Targaryen dynasty tears itself apart in a war for the Iron Throne.'},
-    lastofus:{t:'The Last of Us', w:P + 'last-of-us.jpg', plat:'hbo', g:['Drama', 'Thriller'], y:2025, len:'2 Seasons', age:'18+',
-             d:'Joel and Ellie journey across a post-pandemic United States, facing new threats and impossible choices.'},
-    loki:   {t:'Loki', w:P + 'loki.jpg', plat:'disney', g:['Fantasy', 'Adventure'], y:2023, len:'2 Seasons', age:'13+',
-             d:'The God of Mischief must fix a fractured timeline while pursued by the Time Variance Authority.'},
-    dragon: {t:'How to Train Your Dragon', w:P + 'how-to-train.jpg', plat:'prime', g:['Family', 'Adventure'], y:2025, len:'2h 5m', age:'G',
-             d:'A young Viking and an injured dragon form an unlikely friendship that changes their island for ever.'},
-    john:   {t:'John Wick: Chapter 4', p:PP + 'John.jpg', plat:'netflix', g:['Action', 'Thriller'], y:2023, len:'2h 49m', age:'18+',
-             d:'John Wick uncovers a path to defeating the High Table, but must face a powerful new enemy first.'},
-    venom:  {t:'Venom: Let There Be Carnage', p:PP + 'Venom.jpg', plat:'netflix', g:['Action', 'Sci-Fi'], y:2021, len:'1h 37m', age:'13+',
-             d:'Eddie Brock and Venom face Cletus Kasady, a serial killer who becomes host to the symbiote Carnage.'},
-    avatar: {t:'Avatar: Fire and Ash', p:PP + 'avatar.jpg', plat:'disney', g:['Sci-Fi', 'Adventure'], y:2025, len:'3h 17m', age:'13+',
-             d:'Jake and Neytiri\'s family meet the Ash People, a fierce Na\'vi clan, in a new chapter on Pandora.'},
-    f1:     {t:'F1: The Movie', p:PP + 'F1.jpg', w:P + 'f1.jpg', plat:'prime', g:['Action', 'Sport'], y:2025, len:'2h 35m', age:'13+',
-             d:'A once-promising Formula 1 driver returns to mentor a young rookie and chase one last shot at glory.'},
-    debt:   {t:'The Debt Collector', p:PP + 'debt.jpg', plat:'netflix', g:['Action', 'Crime'], y:2026, len:'1h 52m', age:'18+',
-             d:'A debt collector with a violent past takes one last job that drags him back into Bangkok\'s underworld.'},
-    lotr:   {t:'The Lord of the Rings: The Return of the King', p:PP + 'lotr/r1.jpg', plat:'disney', g:['Fantasy', 'Adventure'], y:2003, len:'3h 21m', age:'13+',
-             d:'Gandalf and Aragorn lead the World of Men against Sauron\'s army as Frodo and Sam near Mount Doom.'},
-    hobbit: {t:'The Hobbit: The Battle of the Five Armies', p:PP + 'lotr/r3.jpg', plat:'hbo', g:['Fantasy', 'Adventure'], y:2014, len:'2h 24m', age:'13+',
-             d:'Bilbo and the dwarves face the dragon Smaug\'s fury, and five armies march on the Lonely Mountain.'},
-    lastking:{t:'The Last Kingdom', p:PP + 'lotr/r5.jpg', plat:'netflix', g:['Drama', 'History'], y:2022, len:'5 Seasons', age:'18+',
-             d:'Raised by Vikings, Uhtred of Bebbanburg fights for the birth of England between two worlds.'},
-    vikings:{t:'Vikings', p:PP + 'lotr/r6.jpg', plat:'prime', g:['Drama', 'History'], y:2020, len:'6 Seasons', age:'18+',
-             d:'The legendary Norse hero Ragnar Lothbrok rises from farmer to king, raiding across the seas.'},
-    got:    {t:'Game of Thrones', p:PP + 'lotr/r7.jpg', plat:'hbo', g:['Fantasy', 'Drama'], y:2019, len:'8 Seasons', age:'18+',
-             d:'Nine noble families wage war for control of Westeros, while an ancient enemy returns from the north.'},
-    thailaw:{t:'Thai Lawyer', p:PP + 'legal/l1.jpg', plat:'netflix', g:['Drama', 'Crime'], y:2026, len:'1 Season', age:'16+',
-             d:'A ruthless Bangkok lawyer will defend anyone for the right price, until one case turns personal.'},
-    dollar: {t:'One Dollar Lawyer', p:PP + 'legal/l2.jpg', plat:'disney', g:['Comedy', 'Drama'], y:2022, len:'1 Season', age:'13+',
-             d:'A brilliant lawyer who charges just one dollar takes on the rich and powerful to protect ordinary people.'},
-    judge:  {t:'The Judge from Hell', p:PP + 'legal/l3.jpg', plat:'netflix', g:['Fantasy', 'Drama'], y:2024, len:'1 Season', age:'18+',
-             d:'A demon from hell takes over the body of a judge to punish the killers the courts let walk free.'},
-    bigmouth:{t:'Big Mouth', p:PP + 'legal/l4.jpg', plat:'disney', g:['Thriller', 'Crime'], y:2022, len:'1 Season', age:'16+',
-             d:'A failing lawyer is mistaken for a genius con man and has to survive in a world of the rich and corrupt.'},
-    family: {t:'A Model Family', p:PP + 'legal/l5.jpg', plat:'netflix', g:['Thriller', 'Crime'], y:2022, len:'1 Season', age:'18+',
-             d:'A broke professor stumbles on a car full of drug money and drags his family into a cartel war.'},
-    vincenzo:{t:'Vincenzo', p:PP + 'legal/l6.jpg', plat:'netflix', g:['Comedy', 'Crime'], y:2021, len:'1 Season', age:'16+',
-             d:'A mafia consigliere returns to Seoul and uses his methods to bring down a ruthless conglomerate.'},
-    lawless:{t:'Lawless Lawyer', p:PP + 'legal/l7.jpg', plat:'viu', g:['Action', 'Drama'], y:2018, len:'1 Season', age:'16+',
-             d:'A former gangster turned lawyer takes on a corrupt judge to avenge his mother.'},
-    again:  {t:'Again My Life', p:PP + 'legal/l8.jpg', plat:'viu', g:['Fantasy', 'Drama'], y:2022, len:'1 Season', age:'16+',
-             d:'A prosecutor killed by a corrupt politician gets a second chance at life, and at taking him down.'},
-    sherlock:{t:'Young Sherlock S1:E1', w:P + 'continue/c1.jpg', plat:'prime', g:['Mystery', 'Drama'], y:2026, len:'1 Season', age:'13+',
-             d:'A teenage Sherlock Holmes stumbles into his first real mystery at Oxford, long before Baker Street.'},
-    endgame:{t:'Avengers: Endgame', w:P + 'continue/c2.jpg', plat:'disney', g:['Action', 'Sci-Fi'], y:2019, len:'3h 1m', age:'13+',
-             d:'After Thanos wiped out half of all life, the remaining Avengers assemble once more to undo the snap.'},
-    hailmary:{t:'Project Hail Mary', w:P + 'continue/c5.jpg', plat:'netflix', g:['Sci-Fi', 'Drama'], y:2026, len:'2h 36m', age:'13+',
-             d:'A lone astronaut wakes up light-years from home with one mission: save humanity from extinction.'},
-    spider: {t:'Spider-Man: No Way Home', w:P + 'P10-spiderman.jpg', plat:'disney', g:['Action', 'Adventure'], y:2021, len:'2h 28m', age:'13+',
-             d:'With his identity revealed, Peter Parker asks Doctor Strange for help, and the multiverse breaks open.'},
-    prada:  {t:'The Devil Wears Prada 2', w:P + 'P10-Devil.jpg', plat:'disney', g:['Comedy', 'Drama'], y:2026, len:'1h 59m', age:'13+',
-             d:'Miranda Priestly faces the decline of print, and an old assistant who now holds the purse strings.'},
-    odyssey:{t:'The Odyssey', w:P + 'P10_Odyssey.jpg', plat:'prime', g:['Adventure', 'Fantasy'], y:2026, len:'2h 40m', age:'13+',
-             d:'Odysseus fights his way home across a hostile sea after the fall of Troy, ten years from his family.'}
-  };
+  var PP = MD.PP, P = MD.P, M = MD.M;   // the titles: content.js (shared with movie-detail.html)
   function pic(k){ var m = M[k]; return m.w || m.p; }       // the movie's widest picture (the hero's background)
   function genres(m){ return m.g.join(' · '); }
 
@@ -347,18 +275,17 @@
     {t:'Music', d:'Musicals, concert films and the stories behind the songs.', bg:P + 'wicked.jpg'},
     {t:'Mystery', d:'Whodunnits, detectives and twists you will not see coming.', bg:P + 'continue/c1.jpg'}
   ];
-  var CONTINUE = [{k:'sherlock', w:33, of:58}, {k:'endgame', w:122, of:181}, {k:'superman', w:96, of:129}, {k:'hailmary', w:101, of:156},
-                  {k:'spider', w:41, of:148}, {k:'wicked', w:133, of:160}];
+  var CONTINUE = MD.continueList();   // this session's viewing first (content.js)
   var TOP10 = ['topgun', 'john', 'avatar', 'house', 'venom', 'f1', 'debt', 'got', 'vincenzo', 'lotr'];
   var HOT = [{k:'avatar', b:'NEW'}, {k:'f1', b:'NEW'}, {k:'debt', b:'NEW', tag:1}, {k:'john', b:'NEW'}, {k:'venom', tag:1}, {k:'topgun'}, {k:'hobbit'}];
-  var FOR_YOU = [{k:'d9', price:199}, {k:'avatar', price:249}, {k:'f1', price:199}, {k:'topgun', price:149}, {k:'john', price:149}];
+  var FOR_YOU = MD.FOR_YOU;
   var BECAUSE = ['venom', 'avatar', 'f1', 'hobbit', 'john', 'debt', 'topgun'];
   var DISNEY = ['endgame', 'loki', 'prada', 'spider', 'avatar'];
   var MOVIES = ['topgun', 'john', 'venom', 'avatar', 'f1', 'debt', 'lotr', 'hobbit'];
   var SERIES = ['house', 'got', 'lastking', 'vikings', 'thailaw', 'dollar', 'vincenzo', 'again'];
   var MY_LIST = ['lastofus', 'house', 'superman', 'wicked', 'dragon'];
-  var RENT = [{k:'avatar', b:'Recommend'}, {k:'f1', b:'Best Seller'}, {k:'topgun', b:'Best Seller'}, {k:'john'}, {k:'venom'}, {k:'lotr'}, {k:'hobbit'}];
-  var MY_RENTAL = ['odyssey', 'spider', 'd9', 'f1', 'topgun'];
+  var RENT = MD.RENT;
+  var MY_RENTAL = MD.MY_RENTAL;
   var ACTORS = [{n:'Johnny Depp', img:'movie-assets/actor-johnny-depp.jpg'}, {n:'Tom Cruise'}, {n:'Keanu Reeves'}, {n:'Brad Pitt'}, {n:'Zendaya'},
                 {n:'Tom Hardy'}, {n:'Song Joong-ki'}, {n:'Pedro Pascal'}, {n:'Ariana Grande'}];
   var LEAVING = ['judge', 'bigmouth', 'family', 'lawless', 'lastking', 'vikings', 'debt'];
@@ -426,7 +353,7 @@
     var m = M[c.k], left = c.of - c.w;
     return '<div class="card item"' + attrs({kind:'cw', k:c.k, i:i}) + '><div class="thumb" style="background-image:url(\'' + m.w + '\')">' +
       '<span class="left corner-tag">' + (left >= 60 ? Math.floor(left / 60) + 'h ' + left % 60 + 'm' : left + 'm') + ' left</span>' +
-      '<div class="prog"><i style="width:' + Math.round(c.w / c.of * 100) + '%"></i></div></div><div class="t">' + esc(m.t) + '</div></div>';
+      '<div class="prog"><i style="width:' + Math.round(c.w / c.of * 100) + '%"></i></div></div><div class="t">' + esc(m.t) + (c.s ? ' S' + c.s + ':E' + c.e : '') + '</div></div>';   // a series: its episode
   }).join('') + '</div></div></section>';
   html += Top10.defs();
   html += '<section class="sec top10" data-row="top10"><h2 class="sec-title">Top 10</h2><div class="rail"><div class="track">' + TOP10.map(function(k, i){
@@ -616,14 +543,13 @@
     if(el === movieTab){ toScene(); paint(); return; }   // already here: the focus goes to the first scene's Play
     if(el.dataset.href){ if(cur.row) leave(el.dataset.href); else location.href = el.dataset.href; return; }
     if(el === profileEl) return;   // its panel is already open under it
-    if(el === detailEl){ if(SLIDES[cur.slide] === 'd9') leave('movie-detail.html'); else toast('Detail: ' + M[SLIDES[cur.slide]].t); return; }
-    if(k === 'play'){ toast('Now playing: ' + M[SLIDES[cur.slide]].t); return; }
+    // a title's detail page (movie-detail.html: Resume / Play / View Package + Buy, You May Also Like)
+    if(el === detailEl){ leave('movie-detail.html?k=' + SLIDES[cur.slide]); return; }
+    if(k === 'play'){ leave(Content.playUrl({ k:SLIDES[cur.slide] })); return; }   // the player (content.js)
     if(k === 'cat'){ toast('Showing ' + CATS[i].t); return; }
-    if(k === 'cw'){ toast('Resuming ' + M[CONTINUE[i].k].t); return; }
-    if(k === 'buy'){ var f = FOR_YOU[i]; toast('Buy ' + M[f.k].t + ' for ' + f.price + ' baht (demo)'); return; }
-    if(k === 'title'){ if(el.dataset.k === 'd9') leave('movie-detail.html'); else toast(M[el.dataset.k].t); return; }
+    if(k === 'cw' || k === 'buy' || k === 'title'){ leave('movie-detail.html?k=' + el.dataset.k); return; }
     if(k === 'actor'){ toast('Movies with ' + ACTORS[i].n); return; }
-    if(k === 'season'){ toast(SEASONAL[i].t); return; }
+    if(k === 'season'){ leave(Content.detailUrl(Content.info(el))); return; }
     if(k === 'chan'){ leave('tv-guide.html?play=' + encodeURIComponent(CHANNELS[i].n) + '&from=movie'); return; }
     if(k === 'totop'){ toScene(); paint(); return; }
     toast(el.dataset.label + ' (demo)');

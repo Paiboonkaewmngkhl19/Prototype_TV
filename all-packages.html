@@ -146,17 +146,11 @@
 </div></div>
 
 <script src="profile-panel.js"></script>
+<script src="tv-screen.js"></script>
 <script>
 (function(){
   // ---- fit the 1920x1080 screen into the window ----
   var frame = document.getElementById('frame'), screen = document.getElementById('screen');
-  function fit(){
-    var k = Math.min(innerWidth / 1920, innerHeight / 1080);
-    frame.style.width = 1920 * k + 'px'; frame.style.height = 1080 * k + 'px';
-    frame.style.marginLeft = -960 * k + 'px'; frame.style.marginTop = -540 * k + 'px';
-    screen.style.transform = 'scale(' + k + ')';
-  }
-  addEventListener('resize', fit); fit();
 
   function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
   var $ = function(q, root){ return Array.prototype.slice.call((root || document).querySelectorAll(q)); };

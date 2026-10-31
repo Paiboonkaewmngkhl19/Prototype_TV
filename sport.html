@@ -111,7 +111,6 @@
     font-size:32px; line-height:32px; font-weight:500; color:var(--on-surface-variant); white-space:nowrap;
     transition:background .15s ease, color .15s ease, border-color .15s ease; }
   .chip::before{ content:''; position:absolute; inset:0; border-radius:inherit; border:2px solid var(--outline-variant); opacity:.5; transition:opacity .15s ease; }
-  .chip img{ width:48px; height:48px; border-radius:48px; }
   .chip.focused{ background:var(--focus-fill); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); border-radius:24px; }
   .chip.focused::before{ opacity:0; }
   /* the sport chosen: its chip keeps the focused glass fill (no ring) while focus is elsewhere; the rails below are that sport's */
@@ -251,17 +250,12 @@
 
 <script src="profile-panel.js"></script>
 <script src="channels-data.js"></script>
+<script src="content.js"></script>
+<script src="tv-screen.js"></script>
 <script>
 (function(){
   // ---- fit the 1920x1080 screen into the window ----
   var frame = document.getElementById('frame'), screen = document.getElementById('screen');
-  function fit(){
-    var k = Math.min(innerWidth / 1920, innerHeight / 1080);
-    frame.style.width = 1920 * k + 'px'; frame.style.height = 1080 * k + 'px';
-    frame.style.marginLeft = -960 * k + 'px'; frame.style.marginTop = -540 * k + 'px';
-    screen.style.transform = 'scale(' + k + ')';
-  }
-  addEventListener('resize', fit); fit();
 
   function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
   function attrs(o){ return Object.keys(o).filter(function(k){ return o[k] != null; }).map(function(k){ return ' data-' + k + '="' + esc(o[k]) + '"'; }).join(''); }
@@ -440,7 +434,7 @@
   var html = '';
   html += '<section class="sec" data-row="live"><div class="rail"><div class="track">' + LIVE.map(function(it, i){ return matchCard(it, i, 'live'); }).join('') + '</div></div></section>';
   html += '<section class="sec" data-row="chips"><div class="rail"><div class="chips">' + CHIPS.map(function(c, i){
-    return '<div class="chip item' + (i === PICK ? ' sel' : '') + '"' + attrs({kind:'chip', i:i}) + ' data-ring-art="">' + (i ? '<img src="sport-assets/chip-icon.png" alt="">' : '') + esc(c.t) + '</div>';
+    return '<div class="chip item' + (i === PICK ? ' sel' : '') + '"' + attrs({kind:'chip', i:i}) + ' data-ring-art="">' + (i ? '<img class="chip-ic" src="sport-assets/chip-icon.png" alt="">' : '') + esc(c.t) + '</div>';
   }).join('') + '</div></div></section>';
   // the rails below the chips, for the sport picked ('' = All Sport). SETS: each rail's items by set name, for the screen
   // text and Enter
@@ -700,6 +694,8 @@
     // channel cards play the channel in the Live TV player via the TV Guide (its programmes and mini EPG), as Home's and Movie's
     if(k === 'epg'){ leave('tv-guide.html?play=' + encodeURIComponent(EPG[i].tv) + '&from=sport'); return; }
     if(k === 'totop'){ cur.row = R.live; cur.col[R.live] = 0; paint(); return; }
+    // videos, documentaries and shorts: their detail page (content.js), then the player
+    if(k === 'vod' || k === 'doc' || k === 'short'){ var ci = Content.info(el); if(ci){ ci.t = (k === 'vod' ? SETS[el.dataset.set][i].t : k === 'doc' ? DOCS[i].t : ci.t); ci.g = ['Sport']; leave(Content.detailUrl(ci)); return; } }
     if(k === 'vod'){ toast('Now playing: ' + SETS[el.dataset.set][i].t); return; }
     if(k === 'doc'){ toast('Now playing: ' + DOCS[i].t); return; }
     if(k === 'uclava'){ toast(BAND.t); return; }

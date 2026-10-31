@@ -25,3 +25,8 @@
   focus ring and scale; a page may brighten it). Add the `tv-glass` class to the card.
 */
 .tv-glass{ background:var(--chip-idle-fill); -webkit-backdrop-filter:blur(80px) saturate(1.5); backdrop-filter:blur(80px) saturate(1.5); }
+
+/* a filter chip's picture (Sport's sport chips, News' category chips): a 48px circle 20px before the label; the chip
+   sets display:flex. Every chip but "All" has one. */
+.tv-chip:has(> .chip-ic), .chip:has(> .chip-ic){ gap:20px; }
+.chip-ic{ width:48px; height:48px; border-radius:48px; flex:0 0 auto; object-fit:cover; display:block; }

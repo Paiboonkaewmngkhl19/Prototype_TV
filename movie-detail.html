@@ -3,98 +3,121 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>District 9 · Movie Detail</title>
+<title>Movie Detail</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <!--
-  Movie detail page (Figma "01 / Movie Detail / District 9", node 628:68312), opened from the District 9 card in
-  Home's Top Pick For You rail. A 1920x1080 TV screen scaled to the window, like home.html.
-  Remote / keyboard: arrows move focus (top bar, then the action buttons), Enter selects, Esc / Back returns to Home.
-  The Figma frame's background is a video; this page uses that video's still (Figma only exports stills) with the frame's warm haze over it.
+  Movie detail page (Figma Movies "Movie MD : Scene State" 2698:80456, "You May Also Like" 2698:79798): any title's detail
+  (?k=<title> from content.js; District 9 without one), opened from the Movie page's cards and Home's District 9.
+  The main button follows the title (MD.state): Resume (Continue Watching: its progress, Start Over), Play (rented, in the
+  package, or bought this session), or View Package + Buy (the package view on this page, then package-detail.html's
+  purchase; Buy rents it here). Play / Resume / Start Over open the Live TV player with the title.
+  Down: the "You May Also Like" chip, then a 6-across poster grid (each opens its own detail).
+  A series (Figma "Series MD : Scene State" 2700:17719, "Option select" 2700:17720) adds: Resume S1: Ep.5, Watch Trailer
+  and Remind when it is for sale, "Available until" for a rental, and two tabs, Episodes (season chips over that season's
+  episode cards; Enter plays the episode) and You May Also Like. The tab under focus fills the space below (one filter).
+  Play / Resume / Start Over / an episode open player.html (a series: with its season and episode).
+  Remote / keyboard: arrows move focus, Enter selects, Esc / Back steps back (the package view, the grid) and returns.
 -->
 <link rel="stylesheet" href="package-card.css">
 <link rel="stylesheet" href="button-theme.css">
 <link rel="stylesheet" href="platform-tag.css">
 <style>
-  :root{ color-scheme:dark;
-    /* Home's top bar glass and page navy (also the profile panel's, profile-panel.js) */
-    --bg-0:#070e16; --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%); }
-  html,body{ margin:0; height:100%; background:#000; overflow:hidden; font-family:'Plus Jakarta Sans', system-ui, sans-serif; color:#fff; }
-  #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:#16130f; }
+  :root{ color-scheme:dark; --surface:#101010; --on-surface:#e8e8e8; --on-surface-variant:#a8a8a8; --outline:#5a5a5a; --outline-variant:#4a4a4a;
+    --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%);
+    --ease:cubic-bezier(.2,0,0,1); }
+  html,body{ margin:0; height:100%; background:#000; overflow:hidden; font-family:'Plus Jakarta Sans', system-ui, sans-serif; color:var(--on-surface); }
+  #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:var(--surface); }
   #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; }
 
-  /* background still + the frame's haze: a warm radial glow rising from the bottom, and shade behind the text */
-  .bg{ position:absolute; left:0; right:0; top:-44px; bottom:0; background:url('posters/district9-detail.jpg?v=3') center top / cover no-repeat; }   /* top:-44px hides the black band at the top of the still */   /* the still of the Figma frame's background video */
-  .haze{ position:absolute; left:-412px; top:420px; width:2727px; height:712px;
-    background:radial-gradient(ellipse 3300px 600px at 57% 17%, rgba(180,182,170,0) 21%, #b7a48f 100%); opacity:.92; }
-  .shade{ position:absolute; inset:0;
-    background:linear-gradient(90deg, rgba(20,16,12,.62) 0%, rgba(20,16,12,.34) 34%, rgba(20,16,12,0) 58%),
-               linear-gradient(180deg, rgba(10,8,6,.45) 0%, rgba(10,8,6,0) 18%); }
+  /* the page moves up to the grid (body.grid) and back */
+  #page{ position:absolute; left:0; top:0; width:1920px; transition:transform .45s var(--ease); }
+  body.grid #page{ transform:translateY(-952px); }
 
-  /* top bar (same as Home's) */
-  .topnav{ position:absolute; left:0; top:0; z-index:10; width:1920px; box-sizing:border-box; padding:24px 110px 0; display:flex; align-items:center; }   /* over the page, for the profile panel */
-  .profile{ width:60px; height:60px; border-radius:999px; overflow:hidden; flex:0 0 auto; }
-  .profile img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .center{ display:flex; align-items:center; gap:12px; margin-left:20px; }
-  .navsearch{ width:60px; height:60px; margin:0 8px; border-radius:999px; display:flex; align-items:center; justify-content:center; }
-  .navsearch img{ width:32px; height:32px; display:block; }
-  .navtab{ height:60px; padding:0 20px; border-radius:999px; display:flex; align-items:center; font-size:24px; line-height:1.2;
-    color:#fff; text-shadow:0 0 6px rgba(0,0,0,.4); white-space:nowrap; }
+  /* ---------- the scene (Figma: 952px of the title's picture over the page's #101010, its text 100px from the bottom) ---------- */
+  .scene{ position:relative; height:952px; overflow:hidden; }
+  .bg{ position:absolute; inset:0; background:var(--surface) center 30% / cover no-repeat; }
+  .bg::after{ content:''; position:absolute; inset:0;
+    background:linear-gradient(90deg, rgba(16,16,16,.92) 0%, rgba(16,16,16,.66) 30%, rgba(16,16,16,.12) 60%, transparent 76%),
+      linear-gradient(180deg, transparent 50%, rgba(16,16,16,.6) 76%, var(--surface) 100%); }
+  .hero{ position:absolute; left:110px; bottom:100px; width:1300px; display:flex; flex-direction:column; gap:24px; transition:opacity .3s ease, transform .3s var(--ease); }
+  .hero h1{ margin:0; max-width:900px; font-size:57px; font-weight:700; line-height:1.2; color:var(--on-surface); text-shadow:0 2px 12px rgba(0,0,0,.35);
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  /* Resume: how far in (Figma: a 400px bar, the time 12px after it) */
+  .watched{ display:flex; align-items:center; gap:12px; font-size:20px; }
+  .watched .bar{ position:relative; width:400px; height:8px; border-radius:24px; background:rgba(255,255,255,.3); overflow:hidden; }
+  .watched .bar i{ position:absolute; left:0; top:0; bottom:0; border-radius:24px; background:#fff; }
+  .meta{ display:flex; align-items:center; gap:16px; height:40px; font-size:20px; white-space:nowrap; }
+  .meta strong{ font-size:22px; font-weight:700; color:#fff; }
+  .pill{ height:36px; min-width:80px; box-sizing:border-box; padding:0 12px; border:1px solid var(--outline); border-radius:18px; display:inline-flex; align-items:center; justify-content:center; }
+  .desc{ margin:0; width:700px; font-size:24px; line-height:32px; color:var(--on-surface-variant); text-shadow:0 0 6px rgba(0,0,0,.6);
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .desc .more{ color:#fff; }
 
-  /* hero metadata */
-  .meta{ position:absolute; left:110px; bottom:286px; width:840px; display:flex; flex-direction:column; gap:40px; }
-  .info{ display:flex; flex-direction:column; gap:20px; }
-  h1{ margin:0; font-size:64px; font-weight:700; text-shadow:0 0 4px rgba(0,0,0,.5); }
-  .channel{ display:flex; align-items:center; gap:10px; }
-  /* the platform tag: platform-tag.css (56 x 36) */
-  .chip{ height:38px; box-sizing:border-box; padding:2px 10px; border:1px solid #fff; border-radius:9px; display:flex; align-items:center; font-size:24px; }
-  .chip.plain{ border:0; padding:2px 5px; }
-  .chip.small{ font-size:20px; }
-  .desc{ margin:0; width:645px; font-size:28px; opacity:.8; text-shadow:0 4px 4px rgba(0,0,0,.6); }
+  /* the buttons (button-theme.css): the main one primary, Buy secondary, then 90px round icon buttons with a tooltip */
+  .ctas{ display:flex; align-items:center; gap:16px; height:100px; }
+  .ctas .tv-btn{ --btn-h:91px; font-size:31px; font-weight:500; }
+  .ctas .main{ --btn-w:auto; min-width:300px; padding:0 40px; gap:16px; }
+  .ctas .buy{ --btn-w:300px; }
+  .ctas .ic{ --btn-w:90px; --btn-h:90px; padding:0; position:relative; }
+  .ic-play{ -webkit-mask:url('icons/hero/play.svg') center / contain no-repeat; mask:url('icons/hero/play.svg') center / contain no-repeat; }
+  .ic-pkg{ -webkit-mask:url('icons/hero/info.svg') center / contain no-repeat; mask:url('icons/hero/info.svg') center / contain no-repeat; }
+  .ctas .ic img{ width:40px; height:40px; display:block; }
+  .ctas .ic.on{ background:rgba(232,232,232,.9); box-shadow:none; }
+  .ctas .ic.on img{ filter:brightness(0); }
+  .ctas .tv-btn.focused{ transform:scale(1.08); }   /* 8%, as on every page; the ring: focus-ring.js */
+  .tip{ position:absolute; left:50%; bottom:calc(100% + 28px); padding:12px 24px; border-radius:16px; white-space:nowrap; pointer-events:none;
+    font:500 24px/32px 'Plus Jakarta Sans', system-ui, sans-serif; color:#e8e8e8; background:rgba(74,74,74,.92); box-shadow:0 4px 12px rgba(0,0,0,.35);
+    opacity:0; transform:translate(-50%, 6px); transition:opacity .18s ease, transform .18s var(--ease); }
+  .tip::after{ content:''; position:absolute; left:50%; top:calc(100% + 4px); margin-left:-9px; border-left:9px solid transparent; border-right:9px solid transparent; border-top:10px solid rgba(74,74,74,.92); }
+  .ic.focused .tip{ opacity:1; transform:translate(-50%, 0); }   /* the player's tooltip */
 
-  /* action buttons: frosted warm glass */
-  .actions{ display:flex; align-items:center; gap:32px; height:100px; }
-  .btn{ position:relative; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#fff;
-    /* frosted glass: a strong blur of the picture behind, lifted with a light wash and a brighter highlight */
-    background:radial-gradient(ellipse 120% 160% at 12% 90%, rgba(255,255,255,.04) 6%, rgba(255,255,255,.34) 100%), rgba(255,255,255,.18);
-    backdrop-filter:blur(24px) saturate(1.3) brightness(1.15); -webkit-backdrop-filter:blur(24px) saturate(1.3) brightness(1.15);
-    box-shadow:inset -1px 3px 17px rgba(255,255,255,.28), inset 0 1px 0 rgba(255,255,255,.45);
-    transition:transform .22s cubic-bezier(.2,0,0,1), box-shadow .22s ease; }
-  .btn.package{ height:100px; padding:0 32px; gap:10px; border-radius:9999px; border:3px solid rgba(255,255,255,.8); box-sizing:border-box; }
-  .btn.package img{ width:40px; height:40px; }
-  .btn.package .pk-play{ display:none; }
-  body.subscribed .btn.package .pk-play{ display:block; }   /* subscribed: the main button is Play */
-  .btn.package span{ font-size:36px; font-weight:600; text-shadow:0 4px 4px rgba(0,0,0,.25); }
-  .btn.icon{ width:85px; height:85px; border-radius:12px; border:1px solid rgba(255,255,255,.8); box-sizing:border-box; }
-  .btn.icon img{ width:45px; height:45px; }
-  .btn.icon.on{ background:rgba(255,255,255,.85); }
-  .btn.icon.on img{ filter:brightness(0); }
-  /* focused: a small lift; the ring around it is Home's gliding glass ring (focus-ring.js) */
-  .btn.focused{ transform:scale(1.08); }   /* 8%, as on every page */
-  /* tooltip over a focused icon button */
-  .btn .tip{ position:absolute; left:50%; bottom:calc(100% + 18px); transform:translate(-50%, 6px); padding:10px 18px; border-radius:12px;
-    background:rgba(20,20,24,.86); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); font-size:22px; font-weight:600; white-space:nowrap;
-    opacity:0; pointer-events:none; transition:opacity .18s ease, transform .18s cubic-bezier(.2,0,0,1); }
-  .btn .tip::after{ content:''; position:absolute; left:50%; top:100%; transform:translateX(-50%); border:8px solid transparent; border-top-color:rgba(20,20,24,.86); }
-  .btn.focused .tip{ opacity:1; transform:translate(-50%, 0); }
-  /* focused top-bar item: Home's frosted glass pill, grown 6% */
-  .topnav .item{ cursor:pointer; transition:transform .22s cubic-bezier(.2,0,0,1), background .15s ease, box-shadow .15s ease; }
-  .topnav .item.focused{ transform:scale(1.06); }
-  .topnav .item.focused:not(.tv-tab){ background:var(--th-pill); backdrop-filter:blur(12px) saturate(1.4); }   /* the tabs: button-theme.css */
+  /* a rental's last day (Figma "Package Available until"): the label, then the date | time on a dark pill */
+  .until{ display:flex; align-items:center; gap:16px; font-size:20px; font-weight:600; color:#fff; }
+  .until .when{ min-height:40px; padding:0 16px; border-radius:54px; background:var(--surface); display:flex; align-items:center; gap:8px; letter-spacing:-.2px; }
+  .until .when i{ width:1px; height:32px; background:#fff; }
 
+  /* ---------- You May Also Like (Figma 2698:79798): the menu chip, a divider, then posters 6 across ----------
+     A series has two tabs (Figma 2698:80740): the one whose content shows is filled (active-dim) while focus is below */
+  .menu{ height:128px; box-sizing:border-box; padding:24px 110px; display:flex; align-items:center; gap:32px; border-bottom:1px solid rgba(255,255,255,.18); }
+  .menu .tab.active-dim{ background:#6a6a6a; color:#e8e8e8; }
+  body.tab-eps .ymal, body:not(.tab-eps) .eps{ display:none; }
+
+  /* ---------- Episodes (Figma 2698:80740): season chips, then the season's 16:9 episode cards ---------- */
+  .seasons{ display:flex; gap:32px; padding:32px 110px 28px; }
+  .season{ height:80px; padding:0 40px; border-radius:24px; display:flex; align-items:center; font-size:32px; font-weight:500; color:var(--on-surface-variant); opacity:.8;
+    transition:transform .22s var(--ease); cursor:pointer; }
+  .season.sel{ color:#fff; opacity:1; text-decoration:underline; text-decoration-thickness:10%; text-underline-offset:6px; }
+  .season.focused{ opacity:1; color:#fff; transform:scale(1.06); }
+  .eprow{ padding:0 110px; height:520px; }
+  .eptrack{ display:flex; gap:40px; align-items:flex-start; transition:transform .35s var(--ease); }
+  .ep{ flex:0 0 auto; width:440px; display:flex; flex-direction:column; gap:8px; cursor:pointer; transform-origin:center top; transition:transform .22s var(--ease); }
+  .ep .pic{ position:relative; height:256px; border-radius:12px; overflow:hidden; background:#3a3a3a center / cover no-repeat; }
+  .ep .len{ position:absolute; right:12px; bottom:12px; height:24px; padding:0 12px; border-radius:9999px; background:#3a3a3a; display:flex; align-items:center; font-size:20px; font-weight:500; }
+  .ep .prog{ position:absolute; left:0; right:0; bottom:0; height:6px; background:rgba(255,255,255,.3); }
+  .ep .prog i{ position:absolute; left:0; top:0; bottom:0; background:#fff; }
+  .ep .t{ font-size:20px; font-weight:500; color:var(--on-surface); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .ep .d{ display:none; font-size:16px; color:var(--on-surface-variant); -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .ep.focused{ transform:scale(1.08); }   /* 8%, as every rail card; the ring: focus-ring.js */
+  .ep.focused .t{ white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+  .ep.focused .d{ display:-webkit-box; }   /* the focused episode shows its synopsis */
+  .menu .tab{ --btn-w:auto; --btn-h:80px; padding:0 40px; border-radius:15px; font-size:30px; font-weight:500; }
+  .menu .tab.focused{ transform:scale(1.04); }
+  .ymal{ display:grid; grid-template-columns:repeat(6, 220px); column-gap:44px; row-gap:82px; padding:93px 190px 120px; }
+  .ymal .pst{ width:220px; height:330px; border-radius:12px; background:#2a2a2a center / cover no-repeat; transition:transform .22s var(--ease); }
+  .ymal .pst.focused{ transform:scale(1.08); }
 
   /* ---------- Package selection (Figma "02 / Package Selection / District 9", 628:69703) ----------
      Same page: View Package swaps the details for this view (body.pkg); Esc / Back swaps back. */
   .bgpkg{ position:absolute; inset:0; background:url('icons/pkg/bg.jpg') center / cover no-repeat; opacity:0; transition:opacity .35s ease; }
   .bgpkg::after{ content:''; position:absolute; inset:0; background:rgba(0,0,0,.7); }
-  .meta, .pkgview{ transition:opacity .3s ease, transform .3s cubic-bezier(.2,0,0,1); }
+  .hero, .pkgview{ transition:opacity .3s ease, transform .3s cubic-bezier(.2,0,0,1); }
   .pkgview{ position:absolute; inset:0; opacity:0; pointer-events:none; transform:translateX(40px); }
   body.pkg .bgpkg{ opacity:1; }
-  body.pkg .meta{ opacity:0; pointer-events:none; transform:translateX(-40px); }
+  body.pkg .hero, body.pkg .ctas{ opacity:0; pointer-events:none; transform:translateX(-40px); }
   body.pkg .pkgview{ opacity:1; pointer-events:auto; transform:none; }
-  body.pkg .haze{ opacity:.35; }
-
+  
   .pkgleft{ position:absolute; left:108px; top:183px; width:667px; height:745px; display:flex; flex-direction:column; justify-content:space-between; opacity:.9; }
   .pkgleft .head{ display:flex; flex-direction:column; gap:20px; }
   .pkgleft .kicker{ font-size:36px; font-weight:600; text-shadow:0 0 4px rgba(0,0,0,.5); }
@@ -122,59 +145,31 @@
   .pcard:nth-child(3){ height:752.6px; }
   .seeall{ position:absolute; left:1123px; top:968px; width:350px; height:86px; border-radius:9999px; display:flex; align-items:center; justify-content:center; cursor:pointer;
     background:rgba(28,28,28,.8); color:rgba(232,232,232,.85); font-size:31px; font-weight:500; transition:transform .22s cubic-bezier(.2,0,0,1), box-shadow .22s ease; }
-  #toast{ position:absolute; left:50%; bottom:80px; transform:translateX(-50%); padding:14px 26px; border-radius:999px;
+  body.pkg .bg{ opacity:0; }
+  #toast{ position:absolute; left:50%; bottom:80px; z-index:20; transform:translateX(-50%); padding:14px 26px; border-radius:999px;
     background:rgba(20,20,24,.85); font-size:24px; opacity:0; transition:opacity .2s ease; pointer-events:none; }
   #toast.on{ opacity:1; }
 </style>
 </head>
 <body>
 <div id="frame"><div id="screen">
-  <div class="bg"></div>
   <div class="bgpkg"></div>
-  <div class="haze"></div>
-  <div class="shade"></div>
-
-  <nav class="topnav">
-    <div class="profile item" data-label="Profile"><img src="icons/profile-tv.png" alt="Profile"></div>
-    <div class="center">
-      <div class="navsearch item" data-label="Search"><img src="icons/nav-search.svg" alt="Search"></div>
-      <div class="navtab tv-tab item active" data-label="Home" data-href="home.html">Home</div>
-      <div class="navtab tv-tab item" data-label="Live TV">Live TV</div>
-      <div class="navtab tv-tab item" data-label="Movie" data-href="movie.html">Movie</div>
-      <div class="navtab tv-tab item" data-label="Sport" data-href="sport.html">Sport</div>
-      <div class="navtab tv-tab item" data-label="My List">My List</div>
-      <div class="navtab tv-tab item" data-label="Store" data-href="store.html">Store</div>
+  <div id="page">
+    <div class="scene">
+      <div class="bg" id="bg"></div>
+      <section class="hero" id="hero"><h1 id="title"></h1><div class="watched" id="watched" hidden></div><div class="meta" id="meta"></div><p class="desc" id="desc"></p>
+        <div class="until" id="until" hidden></div><div class="ctas" id="ctas"></div></section>
     </div>
-  </nav>
-
-  <section class="meta">
-    <div class="info">
-      <h1>District 9</h1>
-      <div class="channel">
-        <img class="logo ptag" src="badges/tag-monomax.png" alt="Monomax">
-        <span class="chip plain">1 hr. 52 min</span>
-        <span class="chip">Sci-Fi</span>
-        <span class="chip">16+</span>
-        <span class="chip small">4K</span>
-        <span class="chip">Movie</span>
-      </div>
-      <p class="desc">An extraterrestrial race forced to live in slum-like conditions on Earth suddenly finds a kindred spirit in a government agent who is exposed to their biotechnology.</p>
-    </div>
-    <div class="actions">
-      <div class="btn package item" data-label="View Package"><img class="pk-play" src="icons/detail-play.svg" alt=""><span>View Package</span></div>
-      <div class="btn icon item" data-label="My List" data-tip="Add to My List" data-tip-on="Remove from My List" data-toggle="Added to My List|Removed from My List"><img src="icons/detail-plus.svg" alt="Add to My List"><span class="tip"></span></div>
-      <div class="btn icon item" data-label="Like" data-tip="I like this" data-tip-on="Remove like" data-toggle="You liked this|Like removed" data-pair="dislike"><img src="icons/detail-like.svg" alt="Like"><span class="tip"></span></div>
-      <div class="btn icon item" data-label="Dislike" data-tip="Not for me" data-tip-on="Remove dislike" data-toggle="You disliked this|Dislike removed" data-pair="like"><img src="icons/detail-dislike.svg" alt="Dislike"><span class="tip"></span></div>
-    </div>
-  </section>
-
-
+    <div class="menu" id="menu"><div class="tv-btn tv-btn--secondary tab item" id="ymalTab" data-tab="ymal" data-ring-art="">You May Also Like</div></div>
+    <section class="eps" id="eps"><div class="seasons" id="seasons"></div><div class="eprow"><div class="eptrack" id="eptrack"></div></div></section>
+    <div class="ymal" id="ymal"></div>
+  </div>
   <section class="pkgview" aria-label="Packages">
     <div class="pkgleft">
       <div class="head">
         <div class="kicker">Get Access to</div>
-        <h1>District 9</h1>
-        <div class="channel">
+        <h1 id="pkgTitle">District 9</h1>
+        <div class="channel" id="pkgMeta">
           <img class="logo ptag" src="badges/tag-monomax.png" alt="Monomax">
           <span class="chip plain">1 hr. 52 min</span><span class="chip">Sci-Fi</span><span class="chip">16+</span><span class="chip small">4K</span><span class="chip">Movie</span>
         </div>
@@ -190,107 +185,193 @@
   <div id="toast"></div>
 </div></div>
 
-<script src="profile-panel.js"></script>
+<script src="content.js"></script>
+<script src="tv-screen.js"></script>
 <script>
 (function(){
   // ---- fit the 1920x1080 screen into the window ----
   var frame = document.getElementById('frame'), screen = document.getElementById('screen');
-  function fit(){
-    var k = Math.min(innerWidth / 1920, innerHeight / 1080);
-    frame.style.width = 1920 * k + 'px'; frame.style.height = 1080 * k + 'px';
-    frame.style.marginLeft = -960 * k + 'px'; frame.style.marginTop = -540 * k + 'px';
-    screen.style.transform = 'scale(' + k + ')';
-  }
-  addEventListener('resize', fit); fit();
+  var $ = function(q, root){ return Array.prototype.slice.call((root || document).querySelectorAll(q)); };
+  function esc(t){ return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
 
-  // ---- focus rows. Details view: the top bar and the action buttons (starts on View Package).
-  //      Package view (same page, body.pkg): top bar, then Bring Me To Monomax + the 3 package cards, then See all Packages.
-  var $ = function(q){ return Array.prototype.slice.call(document.querySelectorAll(q)); };
-  var nav = $('.topnav .item');
-  // the profile panel under the top bar's photo, as on Home (profile-panel.js)
-  var profileEl = document.querySelector('.topnav .profile'), prof = ProfilePanel(profileEl, { paint:paint, toast:toast });
-  var VIEWS = {
-    detail: { rows: [nav, $('.actions .item')], start: { row: 1, col: [2, 0] } },
-    pkg:    { rows: [nav, $('.pkgleft .item').concat($('.pcard')), $('.seeall')], start: { row: 1, col: [2, 1, 0] } }
-  };
-  var view = 'detail', rows = VIEWS.detail.rows, cur = { row: 1, col: [2, 0] };
+  // ---- the title: ?k=, else the one this page last showed (back from the purchase), else District 9 ----
+  var K = (location.search.match(/[?&]k=([\w-]+)/) || [])[1];
+  try { if(!K) K = sessionStorage.getItem('mdKey'); } catch(e){}
+  if(!K || !MD.M[K]) K = 'd9';
+  try { sessionStorage.setItem('mdKey', K); } catch(e){}
+  var m = MD.M[K], SER = MD.series(K);
+  // straight back from a finished purchase (package-detail.html → ?subscribed=1): the title is now playable
+  var JUST_BOUGHT = /subscribed=1/.test(location.search);
+  if(JUST_BOUGHT){ MD.own(K); history.replaceState(null, '', 'movie-detail.html?k=' + K); }
+  document.title = m.t + (SER ? ' · Series Detail' : ' · Movie Detail');
+  // the package view names this title
+  document.getElementById('pkgTitle').textContent = m.t;
+  document.getElementById('pkgMeta').innerHTML = '<img class="logo ptag" src="badges/tag-' + m.plat + '.png" alt="">' +
+    '<span class="chip plain">' + (SER ? m.len : m.len.replace(/(\d+)h/, '$1 hr.').replace(/(\d+)m/, '$1 min')) + '</span><span class="chip">' + m.g[0] + '</span><span class="chip">' + m.age + '</span><span class="chip small">4K</span><span class="chip">' + (SER ? 'Series' : 'Movie') + '</span>';
+
+  // ---- the scene: picture, title, how far in, meta row, synopsis ----
+  if(m.w || m.p) document.getElementById('bg').style.backgroundImage = "url('" + (m.w || m.p) + "')";   // a title made from a placeholder card has none
+  document.getElementById('title').textContent = m.t;
+  document.getElementById('meta').innerHTML = '<img class="ptag" src="badges/tag-' + m.plat + '.png" alt="">' +
+    '<strong>' + esc(m.g.join(' · ')) + '</strong><span>' + m.y + '</span><span>' + m.len + '</span><span class="pill">' + m.age + '</span><span class="pill">HD</span>';
+  document.getElementById('desc').innerHTML = esc(m.d) + ' <span class="more">More</span>';
+  var ctasEl = document.getElementById('ctas'), state, cw = MD.cw(K);
+  function icon(label, img, tip, tipOn, toggle){
+    return '<div class="tv-btn tv-btn--secondary ic item" data-label="' + label + '"' + (toggle ? ' data-toggle="' + toggle + '"' : '') + ' data-tip="' + tip + '" data-tip-on="' + (tipOn || tip) + '" data-ring-art="">' +
+      '<img src="' + img + '" alt=""><span class="tip"></span></div>';
+  }
+  var LIKE = icon('Like', 'icons/detail-like.svg', 'I like this', 'Remove like', 'You liked this|Like removed') +
+             icon('Dislike', 'icons/detail-dislike.svg', 'Not for me', 'Remove dislike', 'You disliked this|Dislike removed');
+  function render(){
+    state = MD.state(K);
+    var w = document.getElementById('watched');
+    w.hidden = state !== 'resume';
+    if(state === 'resume') w.innerHTML = '<span class="bar"><i style="width:' + Math.round(cw.w / cw.of * 100) + '%"></i></span>' + cw.w + 'm of ' + cw.of + 'm';
+    var u = MD.until(K), ue = document.getElementById('until');
+    ue.hidden = !u;
+    if(u) ue.innerHTML = 'Available until:<span class="when">' + u.d + '<i></i>' + u.t + '</span>';
+    var resumeLbl = SER && cw ? 'Resume S' + cw.s + ': Ep.' + cw.e : 'Resume';
+    var main = state === 'resume' ? '<div class="tv-btn tv-btn--primary main item" data-label="Resume" data-ring-art=""><i class="ic-play"></i>' + resumeLbl + '</div>'
+      : state === 'play' ? '<div class="tv-btn tv-btn--primary main item" data-label="Play" data-ring-art=""><i class="ic-play"></i>Play</div>'
+      : '<div class="tv-btn tv-btn--primary main item" data-label="View Package" data-ring-art=""><i class="ic-pkg"></i>View Package</div>' +
+        '<div class="tv-btn tv-btn--secondary buy item" data-label="Buy" data-ring-art="">Buy ' + MD.price(K) + ' ฿</div>';
+    var REMIND = icon('Remind', 'icons/tv-guide/bell.svg', 'Remind me', 'Stop reminding', SER ? 'We’ll remind you of new episodes|Reminder off' : 'We’ll remind you of new titles like this|Reminder off'),
+        MYLIST = icon('My List', 'icons/detail-plus.svg', 'Add to My List', 'Remove from My List', 'Added to My List|Removed from My List');
+    ctasEl.innerHTML = main + (state === 'resume' ? icon('Start Over', 'icons/player/start-over.svg', 'Start Over') + REMIND + LIKE
+      : SER && state === 'buy' ? icon('Watch Trailer', 'icons/player/start-over.svg', 'Watch Trailer') + MYLIST + REMIND + LIKE   // Figma "Series MD: First scene"
+      : MYLIST + LIKE);
+    if(SER) renderEps();
+  }
+  render();
+
+  // ---- You May Also Like: other titles, 2:3 posters (a title with only a 16:9 picture shows its centre) ----
+  var others = Object.keys(MD.M).filter(function(k){ return k !== K && MD.M[k].p; });
+  document.getElementById('ymal').innerHTML = others.slice(0, 18).map(function(k){
+    return '<div class="pst item" data-k="' + k + '" data-ring-art="" style="background-image:url(\'' + MD.M[k].p + '\')"></div>';
+  }).join('');
+
+  // ---- a series: the Episodes tab first; season chips over that season's episode cards ----
+  var tab = SER ? 'eps' : 'ymal', season = cw && cw.s || 1;
+  if(SER) document.getElementById('menu').insertAdjacentHTML('afterbegin', '<div class="tv-btn tv-btn--secondary tab item" id="epsTab" data-tab="eps" data-ring-art="">Episodes</div>');
+  function renderEps(){
+    var sn = MD.seasons(K), html = '';
+    for(var i = 1; i <= sn; i++) html += '<div class="season item' + (i === season ? ' sel' : '') + '" data-season="' + i + '" data-ring-art="">Season ' + i + '</div>';
+    document.getElementById('seasons').innerHTML = html;
+    document.getElementById('eptrack').innerHTML = MD.episodes(K, season).map(function(ep){
+      var here = cw && cw.s === ep.s && cw.e === ep.n;   // where the viewer left off: its progress on the picture
+      return '<div class="ep item" data-s="' + ep.s + '" data-e="' + ep.n + '" data-ring-art=""><div class="pic" style="background-image:url(\'' + (m.w || m.p) + '\')">' +
+        (here ? '<div class="prog"><i style="width:' + Math.round(cw.w / cw.of * 100) + '%"></i></div>' : '') +
+        '<span class="len">' + (ep.m >= 60 ? Math.floor(ep.m / 60) + 'h ' + ep.m % 60 + 'm' : ep.m + 'm') + '</span></div>' +
+        '<div class="t">Ep.' + ep.n + ' ' + esc(ep.t) + '</div><div class="d">' + esc(ep.d) + '</div></div>';
+    }).join('');
+  }
+  if(SER) renderEps();
+
+  // ---- focus: the scene's buttons, the tabs, then the tab's content (Episodes: seasons, episodes; the grid 6 across);
+  //      the package view has its own rows ----
+  var COLS = 6, view = 'detail', cur = { row:0, col:0 };
+  function detailRows(){
+    var r = [$('#ctas .item'), $('#menu .item')];
+    if(tab === 'eps') return r.concat([$('#seasons .item'), $('#eptrack .item')]);
+    var posters = $('#ymal .item');
+    for(var i = 0; i < posters.length; i += COLS) r.push(posters.slice(i, i + COLS));
+    return r;
+  }
+  function pkgRows(){ return [$('.pkgleft .item').concat($('.pcard')), $('.seeall')]; }
+  function rows(){ return view === 'pkg' ? pkgRows() : detailRows(); }
   function setView(v){
-    view = v; rows = VIEWS[v].rows;
-    cur = { row: VIEWS[v].start.row, col: VIEWS[v].start.col.slice() };
+    view = v; cur = v === 'pkg' ? { row:0, col:1 } : { row:0, col:0 };   // the package view starts on PLAY ULTIMATE, as before
     document.body.classList.toggle('pkg', v === 'pkg');
-    document.querySelectorAll('.item.focused').forEach(function(e){ e.classList.remove('focused'); });
     paint();
   }
   function paint(){
-    var inProf = prof.paint(cur.row === 0 && rows[0][cur.col[0]] === profileEl);   // focus is in the profile panel
-    rows.forEach(function(r, ri){ r.forEach(function(el, ci){ el.classList.toggle('focused', !inProf && ri === cur.row && ci === cur.col[ri]); }); });
-    // top-bar tab states (button-theme.css): the current page's tab is Active while the D-pad is on the bar, Active dim in the content
-    var curTab = document.querySelector('.topnav .navtab.active, .topnav .navtab.active-dim');
-    curTab.classList.toggle('active', cur.row === 0); curTab.classList.toggle('active-dim', cur.row !== 0);
-    // tooltips say what the button does now (add / remove)
-    document.querySelectorAll('.btn[data-tip]').forEach(function(b){ b.querySelector('.tip').textContent = b.classList.contains('on') ? b.dataset.tipOn : b.dataset.tip; });
-    // My List: + becomes a check mark once added
-    var ml = document.querySelector('.btn[data-label="My List"] img');
+    var R = rows();
+    cur.row = Math.max(0, Math.min(R.length - 1, cur.row));
+    cur.col = Math.max(0, Math.min(R[cur.row].length - 1, cur.col));
+    $('.item.focused').forEach(function(e){ e.classList.remove('focused'); });
+    R[cur.row][cur.col].classList.add('focused');
+    // the tabs: the focused one's content shows below (one filter); filled while focus is below them
+    if(view === 'detail' && cur.row === 1 && R[1][cur.col].dataset.tab !== tab){ tab = R[1][cur.col].dataset.tab; }
+    document.body.classList.toggle('tab-eps', tab === 'eps');
+    $('#menu .tab').forEach(function(t){ t.classList.toggle('active-dim', view === 'detail' && cur.row > 1 && t.dataset.tab === tab); });
+    var et = document.getElementById('eptrack'), ei = view === 'detail' && tab === 'eps' && cur.row === 3 ? cur.col : 0;
+    et.style.transform = ei ? 'translateX(' + -ei * 480 + 'px)' : '';   // the focused episode leads the row, as on every rail
+    document.body.classList.toggle('grid', view === 'detail' && cur.row >= 1);
+    // the grid scrolls a row at a time once past its first two
+    var g = document.getElementById('ymal');
+    g.style.transform = view === 'detail' && tab === 'ymal' && cur.row > 3 ? 'translateY(' + -(cur.row - 3) * 412 + 'px)' : '';
+    g.style.transition = 'transform .35s cubic-bezier(.2,0,0,1)';
+    $('#ctas [data-tip]').forEach(function(b){ b.querySelector('.tip').textContent = b.classList.contains('on') ? b.dataset.tipOn : b.dataset.tip; });
+    var ml = document.querySelector('#ctas [data-label="My List"] img');
     if(ml) ml.src = ml.parentElement.classList.contains('on') ? 'icons/detail-check.svg' : 'icons/detail-plus.svg';
   }
   var toastEl = document.getElementById('toast'), toastT;
-  function toast(msg){ toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove('on'); }, 1600); }
+  function toast(msg){ toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove('on'); }, 1800); }
   function back(){
-    try { if(document.referrer && /(home|movie)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
-    location.href = 'home.html';
+    if(view === 'pkg'){ setView('detail'); return; }
+    if(cur.row > 0){ cur.row = 0; cur.col = 0; paint(); return; }
+    try { if(document.referrer && /(home|movie|store|sport|news|movie-detail|short-detail)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    location.href = 'movie.html';
+  }
+  // Play / Resume / Start Over: the movie player (player.html), from where it was left or the start
+  addEventListener('pageshow', function(e){ if(e.persisted) location.reload(); });   // back from the player: show the new progress
+  function play(fromStart, s, e){
+    if(SER && !s){ s = cw ? cw.s : 1; e = cw ? cw.e : 1; }   // a series: the episode it was left on, else the first
+    location.href = 'player.html?k=' + K + (s ? '&s=' + s + '&e=' + e : '') + (fromStart ? '&start=1' : '');
   }
   function select(el){
-    if(el === profileEl) return;   // its panel is already open under it
-    if(el.dataset.label === 'Play'){ toast('Now playing: District 9'); return; }
-    if(el.dataset.label === 'View Package'){ setView('pkg'); return; }
-    // See all Packages: the All Packages page; its Back comes back to the packages here
-    if(el.dataset.label === 'See all Packages'){ history.replaceState(null, '', 'movie-detail.html#packages'); location.href = 'all-packages.html'; return; }
-    if(el.classList.contains('pcard')){
-      // Subscribe on PLAY ULTIMATE opens its package detail page; remember to come back to the packages
-      if(el.dataset.label === 'PLAY ULTIMATE Monthly Package'){ history.replaceState(null, '', 'movie-detail.html#packages'); location.href = 'package-detail.html'; return; }
-      toast('Subscribe to ' + el.dataset.label + ' (demo)'); return;
+    var L = el.dataset.label;
+    if(L === 'Play' || L === 'Resume'){ play(false); return; }
+    if(L === 'Start Over'){ play(true); return; }
+    if(L === 'View Package'){ setView('pkg'); return; }
+    if(L === 'Buy'){ MD.own(K); render(); cur = { row:0, col:0 }; paint(); toast('Bought ' + m.t + ' for ' + MD.price(K) + ' baht. Enjoy!'); return; }   // the title is now playable
+    if(el.dataset.k){ location.href = 'movie-detail.html?k=' + el.dataset.k; return; }
+    if(el.dataset.tab){ cur.row = 2; cur.col = el.dataset.tab === 'eps' ? season - 1 : 0; paint(); return; }
+    if(el.dataset.season){ season = +el.dataset.season; renderEps(); cur.row = 3; cur.col = 0; paint(); return; }
+    if(el.dataset.e){
+      if(state === 'buy'){ cur = { row:0, col:0 }; paint(); toast('Get a package or buy ' + m.t + ' to watch'); return; }   // not yet playable
+      var s = +el.dataset.s, e = +el.dataset.e;
+      play(!(cw && cw.s === s && cw.e === e), s, e); return;   // the episode left part-way resumes; any other starts
     }
-    if(el.dataset.href){ location.href = el.dataset.href; return; }
+    if(L === 'Watch Trailer'){ toast('Trailer: ' + m.t + ' (demo)'); return; }
+    // the package view: as before (package-detail.html returns here with ?subscribed=1)
+    if(L === 'See all Packages'){ history.replaceState(null, '', 'movie-detail.html?k=' + K + '#packages'); location.href = 'all-packages.html'; return; }
+    if(el.classList.contains('pcard')){
+      if(L === 'PLAY ULTIMATE Monthly Package'){ history.replaceState(null, '', 'movie-detail.html?k=' + K + '#packages'); location.href = 'package-detail.html'; return; }
+      toast('Subscribe to ' + L + ' (demo)'); return;
+    }
     if(el.dataset.toggle){
       var msgs = el.dataset.toggle.split('|'), on = !el.classList.contains('on');
       el.classList.toggle('on', on);
-      // like and dislike can't both be on
-      if(on && el.dataset.pair){ var other = document.querySelector('.btn[data-label="' + (el.dataset.pair === 'like' ? 'Like' : 'Dislike') + '"]'); if(other) other.classList.remove('on'); }
+      if(on && (L === 'Like' || L === 'Dislike')){ var other = document.querySelector('#ctas [data-label="' + (L === 'Like' ? 'Dislike' : 'Like') + '"]'); if(other) other.classList.remove('on'); }
       toast(on ? msgs[0] : msgs[1]); paint(); return;
     }
-    toast(el.dataset.label + ' (demo)');
+    toast(L + ' (demo)');
+  }
+  // moving between rows: the buttons from the first, the tabs on the one showing, Episodes' chips on the season showing
+  function landRow(){
+    if(cur.row === 0) cur.col = 0;
+    else if(cur.row === 1) cur.col = Math.max(0, $('#menu .item').map(function(t){ return t.dataset.tab; }).indexOf(tab));
+    else if(tab === 'eps') cur.col = cur.row === 2 ? season - 1 : 0;
   }
   addEventListener('keydown', function(e){
-    if(prof.key(e.key)){ e.preventDefault(); return; }   // the profile photo / its panel
-    var r = rows[cur.row], handled = true;
-    if(e.key === 'ArrowRight') cur.col[cur.row] = Math.min(r.length - 1, cur.col[cur.row] + 1);
-    // Left on a row's first item jumps up to the top nav bar (its Home tab), like on Home
-    else if(e.key === 'ArrowLeft'){
-      if(cur.row > 0 && cur.col[cur.row] === 0){ cur.row = 0; cur.col[0] = 2; }
-      else cur.col[cur.row] = Math.max(0, cur.col[cur.row] - 1);
-    }
-    else if(e.key === 'ArrowUp') cur.row = Math.max(0, cur.row - 1);
-    else if(e.key === 'ArrowDown') cur.row = Math.min(rows.length - 1, cur.row + 1);
-    else if(e.key === 'Enter' || e.key === ' ') select(r[cur.col[cur.row]]);
-    else if(e.key === 'Escape' || e.key === 'Backspace'){ if(view === 'pkg') setView('detail'); else back(); }
+    var R = rows(), handled = true;
+    if(e.key === 'ArrowRight') cur.col++;
+    else if(e.key === 'ArrowLeft') cur.col--;
+    else if(e.key === 'ArrowUp'){ if(cur.row > 0){ cur.row--; if(view === 'detail') landRow(); } }
+    else if(e.key === 'ArrowDown'){ if(cur.row < R.length - 1){ cur.row++; if(view === 'detail') landRow(); } }
+    else if(e.key === 'Enter' || e.key === ' ') select(R[cur.row][cur.col]);
+    else if(e.key === 'Escape' || e.key === 'Backspace') back();
     else handled = false;
     if(handled){ e.preventDefault(); paint(); }
   });
-  Object.keys(VIEWS).forEach(function(v){ VIEWS[v].rows.forEach(function(r, ri){ r.forEach(function(el, ci){
-    el.addEventListener('click', function(){ if(view !== v) return; cur.row = ri; cur.col[ri] = ci; paint(); select(el); });
-  }); }); });
-  // straight after subscribing (package-detail.html → success) the main button is Play, for that visit only:
-  // a reload or a fresh visit shows View Package again
-  try { localStorage.removeItem('d9-subscribed'); } catch(e){}
-  var subscribed = /subscribed=1/.test(location.search);
-  if(subscribed){
-    document.body.classList.add('subscribed');
-    var mainBtn = document.querySelector('.btn.package');
-    mainBtn.dataset.label = 'Play'; mainBtn.querySelector('span').textContent = 'Play';
-    history.replaceState(null, '', 'movie-detail.html');   // so a reload drops back to View Package
-    setTimeout(function(){ toast('PLAY ULTIMATE is active. Enjoy District 9!'); }, 300);
-  }
-  if(location.hash === '#packages' && !subscribed) setView('pkg');   // coming back from the package detail page
+  document.getElementById('screen').addEventListener('click', function(e){
+    var el = e.target.closest('.item'); if(!el) return;
+    rows().forEach(function(r, ri){ var c = r.indexOf(el); if(c >= 0){ cur.row = ri; cur.col = c; } });
+    paint(); select(el);
+  });
+  if(JUST_BOUGHT) setTimeout(function(){ toast('PLAY ULTIMATE is active. Enjoy ' + m.t + '!'); }, 300);
+  if(location.hash === '#packages' && !JUST_BOUGHT) setView('pkg');   // coming back from the package detail page
   paint();
 })();
 </script>

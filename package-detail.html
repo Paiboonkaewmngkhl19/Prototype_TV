@@ -333,17 +333,11 @@
   <div id="toast"></div>
 </div></div>
 
-<script src="shorts-data.js"></script>
+<script src="content.js"></script>
+<script src="tv-screen.js"></script>
 <script>
 (function(){
   var frame = document.getElementById('frame'), screen = document.getElementById('screen');
-  function fit(){
-    var k = Math.min(innerWidth / 1920, innerHeight / 1080);
-    frame.style.width = 1920 * k + 'px'; frame.style.height = 1080 * k + 'px';
-    frame.style.marginLeft = -960 * k + 'px'; frame.style.marginTop = -540 * k + 'px';
-    screen.style.transform = 'scale(' + k + ')';
-  }
-  addEventListener('resize', fit); fit();
 
   var $ = function(q){ return Array.prototype.slice.call(document.querySelectorAll(q)); };
 

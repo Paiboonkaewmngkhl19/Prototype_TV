@@ -238,17 +238,12 @@
 </div></div>
 
 <script src="profile-panel.js"></script>
+<script src="content.js"></script>
+<script src="tv-screen.js"></script>
 <script>
 (function(){
   // ---- fit the 1920x1080 screen into the window ----
   var frame = document.getElementById('frame'), screen = document.getElementById('screen');
-  function fit(){
-    var k = Math.min(innerWidth / 1920, innerHeight / 1080);
-    frame.style.width = 1920 * k + 'px'; frame.style.height = 1080 * k + 'px';
-    frame.style.marginLeft = -960 * k + 'px'; frame.style.marginTop = -540 * k + 'px';
-    screen.style.transform = 'scale(' + k + ')';
-  }
-  addEventListener('resize', fit); fit();
 
   function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
   function attrs(o){ return Object.keys(o).filter(function(k){ return o[k] != null; }).map(function(k){ return ' data-' + k + '="' + esc(o[k]) + '"'; }).join(''); }
@@ -549,6 +544,14 @@
     if(k === 'tab') return;
     // View All: the All Packages page, on the matching tab (For You, Sports, Movies, Short Drama)
     if(k === 'viewall'){ var tab = { sports:'sports', movies:'movies', short:'shorts' }[el.dataset.set]; leave('all-packages.html' + (tab ? '?tab=' + tab : '')); return; }
+    // an event or a rental opens its detail page (content.js) with its price, so Buy works there; a live event still plays live
+    var ci = (k === 'event' || k === 'rent') && Content.info(el);
+    if(ci){   // the cards are placeholders still: a title and synopsis of their own, until their art arrives
+      ci.price = (k === 'event' ? EVENTS : RENTALS)[i].price;
+      ci.t = k === 'event' ? EVENTS[i].t + ' ' + (i + 1) : 'Rent or Buy ' + (i + 1);
+      ci.d = k === 'event' ? EVENT_SYN : 'Rent it for 48 hours, or buy it to keep.';
+      leave(Content.detailUrl(ci)); return;
+    }
     if(k === 'event'){ var e = EVENTS[i]; toast(e.kind === 'live' ? 'Buy this event to watch it live (demo)' : e.kind === 'upcoming' ? 'Buy now and watch at ' + e.when.replace('Today ', '') + ' (demo)' : e.kind ? 'Buy this event (demo)' : 'Event (demo)'); return; }
     if(k === 'rent'){ toast('Rent or buy from ' + RENTALS[i].price + ' baht (demo)'); return; }
     if(k === 'banner'){ if(BANNERS[bannerAt].pkg) leave('package-detail.html'); else toast(BANNERS[bannerAt].t + ' (demo)'); return; }
