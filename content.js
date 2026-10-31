@@ -61,7 +61,7 @@
              d:'The legendary Norse hero Ragnar Lothbrok rises from farmer to king, raiding across the seas.'},
     got:    {t:'Game of Thrones', p:PP + 'lotr/r7.jpg', plat:'hbo', g:['Fantasy', 'Drama'], y:2019, len:'8 Seasons', age:'18+',
              d:'Nine noble families wage war for control of Westeros, while an ancient enemy returns from the north.'},
-    thailaw:{t:'Thai Lawyer', p:PP + 'legal/l1.jpg', plat:'netflix', g:['Drama', 'Crime'], y:2026, len:'1 Season', age:'16+',
+    thailaw:{t:'The Evil Lawyer', p:PP + 'legal/l1.jpg', plat:'netflix', g:['Drama', 'Crime'], y:2026, len:'1 Season', age:'16+',
              d:'A ruthless Bangkok lawyer will defend anyone for the right price, until one case turns personal.'},
     dollar: {t:'One Dollar Lawyer', p:PP + 'legal/l2.jpg', plat:'disney', g:['Comedy', 'Drama'], y:2022, len:'1 Season', age:'13+',
              d:'A brilliant lawyer who charges just one dollar takes on the rich and powerful to protect ordinary people.'},
@@ -85,6 +85,10 @@
              d:'After Thanos wiped out half of all life, the remaining Avengers assemble once more to undo the snap.'},
     hailmary:{t:'Project Hail Mary', w:P + 'continue/c5.jpg', plat:'netflix', g:['Sci-Fi', 'Drama'], y:2026, len:'2h 36m', age:'13+',
              d:'A lone astronaut wakes up light-years from home with one mission: save humanity from extinction.'},
+    encanto:{t:'Encanto', w:P + 'hero/encanto.jpg', plat:'disney', g:['Animation', 'Family'], y:2021, len:'1h 42m', age:'G',
+             d:'The Madrigals live in a magical house in the mountains of Colombia, where every child has a gift, except Mirabel.'},
+    stranger:{t:'Stranger Things', w:P + 'hero/stranger-things.jpg', plat:'netflix', g:['Sci-Fi', 'Horror'], y:2016, len:'1 Season', age:'16+',
+             d:'When a young boy vanishes, a small town uncovers secret experiments, terrifying forces and one strange little girl.'},
     spider: {t:'Spider-Man: No Way Home', w:P + 'P10-spiderman.jpg', plat:'disney', g:['Action', 'Adventure'], y:2021, len:'2h 28m', age:'13+',
              d:'With his identity revealed, Peter Parker asks Doctor Strange for help, and the multiverse breaks open.'},
     prada:  {t:'The Devil Wears Prada 2', w:P + 'P10-Devil.jpg', plat:'disney', g:['Comedy', 'Drama'], y:2026, len:'1h 59m', age:'13+',
@@ -94,8 +98,8 @@
   };
   // titles made from a card that had no data of its own (Content.open): back into the catalogue on every page
   try { var ADHOC = JSON.parse(sessionStorage.getItem('contentAdhoc') || '{}'); for(var ak in ADHOC) if(!M[ak]) M[ak] = ADHOC[ak]; } catch(e){}
-  var CONTINUE = [{k:'sherlock', s:1, e:5, w:31, of:58}, {k:'endgame', w:122, of:181}, {k:'superman', w:96, of:129}, {k:'brazil', s:1, e:2, w:20, of:55}, {k:'hailmary', w:101, of:156},
-                  {k:'spider', w:41, of:148}, {k:'wicked', w:133, of:160}];
+  var CONTINUE = [{k:'sherlock', s:1, e:5, w:31, of:58}, {k:'endgame', w:122, of:181}, {k:'encanto', w:61, of:102}, {k:'brazil', s:1, e:2, w:20, of:55}, {k:'hailmary', w:101, of:156},
+                  {k:'spider', w:41, of:148}, {k:'stranger', s:1, e:3, w:34, of:50}];
   var FOR_YOU = [{k:'d9', price:199}, {k:'avatar', price:249}, {k:'f1', price:199}, {k:'topgun', price:149}, {k:'john', price:149}];
   var RENT = [{k:'avatar', b:'Recommend'}, {k:'f1', b:'Best Seller'}, {k:'topgun', b:'Best Seller'}, {k:'john'}, {k:'venom'}, {k:'lotr'}, {k:'hobbit'}];
   var MY_RENTAL = ['odyssey', 'spider', 'd9', 'f1', 'topgun', 'lastofus', 'vikings'];

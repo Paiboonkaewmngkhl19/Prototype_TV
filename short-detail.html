@@ -33,37 +33,33 @@
 <style>
   :root{
     color-scheme:dark;
-    /* Store's tokens (Home's page: dark navy, Open Sans) */
-    --bg-0:#070e16;
+    /* Movie Detail's tokens (movie-detail.html: #101010, Plus Jakarta Sans) */
+    --bg-0:#101010;
     --on-surface:#e8e8e8; --on-surface-variant:#a8a8a8; --surface-container:#2a2a2a; --surface-container-high:#3a3a3a; --outline:#5a5a5a; --outline-variant:#4a4a4a;
     --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%);
     --focus-fill:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%), var(--th-pill);
     --idle-fill:rgba(255,255,255,.16); --idle-fill-on:rgba(255,255,255,.26);
     --ease:cubic-bezier(.2,0,0,1);
-    --inter:'Open Sans', system-ui, sans-serif;
+    --inter:'Plus Jakarta Sans', system-ui, sans-serif;
   }
   html,body{ margin:0; height:100%; background:#000; overflow:hidden; color:var(--on-surface); font-family:var(--inter); -webkit-font-smoothing:antialiased; }
   *{ box-sizing:border-box; }
   #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:var(--bg-0); }
-  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; overflow:hidden;
-    background:radial-gradient(1400px 900px at 85% 110%, rgba(214,222,240,.12), transparent 70%), var(--bg-0); }   /* Home's page colour and glow */
+  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; overflow:hidden; background:var(--bg-0); }   /* Movie Detail's page colour */
 
-  /* ---------- the page: the top (952px), the tabs bar (128), then the picked tab; it moves up as a whole ---------- */
+  /* ---------- the page: the top (936px), the tabs bar (144), then the picked tab; it moves up as a whole (Movie Detail's) ---------- */
   #page{ position:absolute; left:0; top:0; width:1920px; transition:transform .45s var(--ease); }
   .item{ cursor:pointer; }
 
-  /* the top: the picture as Home's hero */
-  /* the picture reaches on under the tabs bar and fades out there, so the top, the bar and the page share one background */
-  .top{ position:relative; height:952px; }
-  .top .pic{ position:absolute; left:0; right:0; top:0; bottom:-128px; background:center 25% / cover no-repeat;
-    -webkit-mask-image:linear-gradient(180deg, #000 0%, #000 58%, transparent 100%); mask-image:linear-gradient(180deg, #000 0%, #000 58%, transparent 100%); }
+  /* the top: Movie Detail's scene (936px of the picture, shaded on the left and fading into the page at the bottom; the
+     144px tabs bar under it ends the screen, the tabs 32px above its bottom edge) */
+  .top{ position:relative; height:936px; overflow:hidden; }
+  .top .pic{ position:absolute; inset:0; background:var(--bg-0) center 30% / cover no-repeat; -webkit-mask-image:linear-gradient(180deg, #000 86%, transparent 96%); mask-image:linear-gradient(180deg, #000 86%, transparent 96%); }   /* the picture itself fades out before the edge: scaled to the window, none of it can show there as a line */
   .top .pic::after{ content:''; position:absolute; inset:0;
-    background:linear-gradient(90deg, rgba(7,14,22,.92) 0%, rgba(7,14,22,.7) 32%, rgba(7,14,22,.15) 62%, transparent 80%),
-      linear-gradient(180deg, rgba(7,14,22,.35) 0%, transparent 22%); }
-  .tabsbar{ position:relative; }   /* over the picture's fade */
-  .top .playhint{ position:absolute; left:920px; top:444px; width:80px; height:80px; opacity:.85; }   /* Figma's play mark over the picture */
-  .hero{ position:absolute; left:110px; bottom:100px; width:760px; display:flex; flex-direction:column; gap:24px; }
-  .hero h1{ margin:0; width:700px; font-size:57px; font-weight:700; line-height:1.15; color:var(--on-surface); text-shadow:0 2px 12px rgba(0,0,0,.4);
+    background:linear-gradient(90deg, rgba(16,16,16,.92) 0%, rgba(16,16,16,.66) 30%, rgba(16,16,16,.12) 60%, transparent 76%),
+      linear-gradient(180deg, transparent 50%, rgba(16,16,16,.6) 76%, var(--bg-0) 96%); }   /* solid before the edge: scaled to the window, no sliver of the picture shows as a line under it */
+  .hero{ position:absolute; left:110px; bottom:100px; width:1300px; display:flex; flex-direction:column; gap:24px; }
+  .hero h1{ margin:0; max-width:900px; font-size:57px; font-weight:700; line-height:1.2; color:var(--on-surface); text-shadow:0 2px 12px rgba(0,0,0,.35);
     display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
   .metarow{ height:40px; display:flex; align-items:center; gap:16px; white-space:nowrap; }
   /* AIS PLAY's platform tag: platform-tag.css (.ptag.ais, 56 x 36) */
@@ -71,25 +67,27 @@
   .metarow .gen i{ width:4px; height:4px; border-radius:50%; background:#fff; }
   .metarow span{ font-size:20px; }
   .metarow .pill{ height:36px; min-width:80px; padding:0 12px; border:1px solid var(--outline); border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:20px; }
-  .syn{ margin:0; width:700px; font-size:24px; line-height:32px; color:var(--on-surface-variant); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .syn{ margin:0; width:700px; font-size:24px; line-height:32px; color:var(--on-surface-variant); text-shadow:0 0 6px rgba(0,0,0,.6); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
   .syn b{ font-weight:400; color:#fff; }
 
-  /* action buttons: Movie Detail's frosted glass (Figma: a 300 x 91 Play pill, 90px round icon buttons) */
+  /* the buttons: Movie Detail's (button-theme.css): Play primary, then 90px round icon buttons with a tooltip */
   .actions{ display:flex; align-items:center; gap:24px; height:100px; }   /* 24px: room for a focused button's 8% growth and ring */
-  .btn{ position:relative; display:flex; align-items:center; justify-content:center; color:#fff;
-    background:radial-gradient(ellipse 120% 160% at 12% 90%, rgba(255,255,255,.04) 6%, rgba(255,255,255,.34) 100%), rgba(255,255,255,.18);
-    backdrop-filter:blur(24px) saturate(1.3) brightness(1.15); -webkit-backdrop-filter:blur(24px) saturate(1.3) brightness(1.15);
-    box-shadow:inset -1px 3px 17px rgba(255,255,255,.28), inset 0 1px 0 rgba(255,255,255,.45); }
-  .btn.play{ width:300px; height:91px; gap:16px; border-radius:9999px; border:3px solid rgba(255,255,255,.8); }
-  .btn.play img{ width:40px; height:40px; }
-  .btn.play span{ font-size:31px; font-weight:600; text-shadow:0 4px 4px rgba(0,0,0,.25); }
-  .btn.icon{ width:90px; height:90px; border-radius:50%; border:1px solid rgba(255,255,255,.8); }
-  .btn.icon img{ width:45px; height:45px; }
-  .btn.icon.on{ background:rgba(255,255,255,.85); }
-  .btn.icon.on img{ filter:brightness(0); }
+  .actions .tv-btn{ --btn-h:91px; font-size:31px; font-weight:500; }
+  .actions .main{ --btn-w:auto; min-width:300px; padding:0 40px; gap:16px; }
+  .actions .ic{ --btn-w:90px; --btn-h:90px; padding:0; position:relative; }
+  .ic-play{ -webkit-mask:url('icons/hero/play.svg') center / contain no-repeat; mask:url('icons/hero/play.svg') center / contain no-repeat; }
+  .actions .ic img{ width:40px; height:40px; display:block; }
+  .actions .ic.on{ background:rgba(232,232,232,.9); box-shadow:none; }
+  .actions .ic.on img{ filter:brightness(0); }
+  .tip{ position:absolute; left:50%; bottom:calc(100% + 28px); padding:12px 24px; border-radius:16px; white-space:nowrap; pointer-events:none;
+    font:500 24px/32px var(--inter); color:#e8e8e8; background:rgba(74,74,74,.92); box-shadow:0 4px 12px rgba(0,0,0,.35);
+    opacity:0; transform:translate(-50%, 6px); transition:opacity .18s ease, transform .18s var(--ease); }
+  .tip::after{ content:''; position:absolute; left:50%; top:calc(100% + 4px); margin-left:-9px; border-left:9px solid transparent; border-right:9px solid transparent; border-top:10px solid rgba(74,74,74,.92); }
+  .ic.focused .tip{ opacity:1; transform:translate(-50%, 0); }   /* the player's tooltip */
 
   /* the tabs bar (ContentDetail_Menu): picked = brighter glass, focused = the glass pill */
-  .tabsbar{ height:128px; display:flex; align-items:center; gap:32px; padding:0 110px; border-bottom:1px solid rgba(255,255,255,.18); }
+  .tabsbar{ height:144px; display:flex; align-items:center; gap:32px; padding:32px 110px; border-bottom:1px solid rgba(255,255,255,.18); transition:border-color .3s ease; }
+  body:not(.below) .tabsbar{ border-bottom-color:transparent; }   /* the first scene shows no divider: only once the page moves up to the tabs */
   .ttab{ height:80px; padding:0 40px; border-radius:15px; display:flex; align-items:center; font-weight:500; font-size:30px; line-height:40px; white-space:nowrap; color:var(--on-surface-variant);
     background:var(--idle-fill); -webkit-backdrop-filter:blur(80px) saturate(1.5); backdrop-filter:blur(80px) saturate(1.5); }
   .ttab.on{ background:var(--idle-fill-on); color:#fff; }
@@ -102,13 +100,13 @@
   .panel{ display:none; }
   .panel.on{ display:block; }
   /* Episodes: the ranges (quickmenu), then 10 episodes a row */
-  .ranges{ display:flex; align-items:center; gap:32px; padding:32px 110px; }
+  .ranges{ display:flex; align-items:center; gap:32px; padding:40px 110px; }   /* Movie Detail's season row */
   /* the tabs bar and the ranges stay pinned; only the grid scrolls, in a window under them that fades it out softly as
      it passes beneath (the TV Guide's fade). The window starts at the grid's 28px top padding, so the focused row's
      card and ring (6px growth + 4px gap) sit below the 14px fade. You May Also Like: the same under the tabs bar. */
   .gwin{ overflow:hidden; -webkit-mask-image:linear-gradient(180deg, transparent 0, #000 14px); mask-image:linear-gradient(180deg, transparent 0, #000 14px); }
-  .gwin.ep-win{ height:807px; }      /* 1080 - tabs bar 129 - ranges 144 */
-  .gwin.like-win{ height:951px;      /* 1080 - tabs bar 129; the row above ends 12px into it, so the fade covers 0-40px */
+  .gwin.ep-win{ height:776px; }      /* 1080 - tabs bar 144 - ranges 160 */
+  .gwin.like-win{ height:936px;      /* 1080 - tabs bar 144; the row above ends 12px into it, so the fade covers 0-40px */
     -webkit-mask-image:linear-gradient(180deg, transparent 0, transparent 14px, #000 40px); mask-image:linear-gradient(180deg, transparent 0, transparent 14px, #000 40px); }
   .eps, .likes{ transition:transform .35s var(--ease); }
   /* the ranges: the TV Guide's sub-categories. Plain text, the picked one underlined; focus is only the ring (no fill),
@@ -137,7 +135,7 @@
 
   /* ---------- top bar (Home's): shown over the top part; below it, away until it gets focus (as Store's) ---------- */
   .scrim{ position:absolute; left:0; top:0; width:1920px; height:170px; z-index:4; pointer-events:none; opacity:0; transition:opacity .3s ease;
-    background:linear-gradient(180deg, var(--bg-0) 0%, var(--bg-0) 45%, rgba(7,14,22,0) 100%); }
+    background:linear-gradient(180deg, var(--bg-0) 0%, var(--bg-0) 45%, rgba(16,16,16,0) 100%); }
   body.below.on-nav .scrim{ opacity:1; }
   .topnav{ position:absolute; left:0; top:0; z-index:5; width:1920px; padding:24px 110px 0; display:flex; align-items:center; transition:opacity .3s ease, translate .3s var(--ease); }
   body.below:not(.on-nav) .topnav{ opacity:0; translate:0 -40px; pointer-events:none; }
@@ -151,7 +149,7 @@
   .topnav .item.focused:not(.tv-tab){ background:var(--th-pill); backdrop-filter:blur(12px) saturate(1.4); }   /* the tabs: button-theme.css */
 
   /* ---------- Unlock Episode (Figma "Modal Dialog (TV)", 800 wide) over the blurred page ---------- */
-  .mscrim{ position:absolute; inset:0; z-index:20; background:rgba(7,14,22,.6); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); opacity:0; pointer-events:none; transition:opacity .2s ease; }
+  .mscrim{ position:absolute; inset:0; z-index:20; background:rgba(16,16,16,.6); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); opacity:0; pointer-events:none; transition:opacity .2s ease; }
   .modal{ position:absolute; left:560px; top:156px; z-index:21; width:800px; padding:60px; border-radius:36px; background:#1e1e1e; border:1px solid var(--surface-container-high);
     display:flex; flex-direction:column; align-items:center; gap:40px; opacity:0; transform:translateY(12px); pointer-events:none; transition:opacity .2s ease, transform .2s var(--ease); }
   body.unlock .mscrim, body.unlock .modal{ opacity:1; pointer-events:auto; }
@@ -161,16 +159,23 @@
   .modal h2{ margin:0; font-weight:400; font-size:40px; line-height:48px; color:#fff; }
   .modal p{ margin:0; width:420px; font-size:32px; line-height:40px; color:var(--on-surface); }
   .opts{ min-width:429px; display:flex;   /* Figma's 429, wider when the label needs it (Open Sans runs wider than Roboto) */ flex-direction:column; gap:16px; }
-  .opt{ display:flex; align-items:center; gap:16px; padding:12px; border:3px solid var(--outline); border-radius:8px; font-weight:500; font-size:24px; line-height:32px; color:var(--on-surface-variant); white-space:nowrap; }
-  .opt .rd{ width:48px; height:48px; flex:0 0 auto; border-radius:50%; border:3px solid var(--outline); opacity:.8; background:center / 48px no-repeat; }
-  .opt.sel .rd{ border:0; opacity:1; background-image:url('icons/short/radio-on.svg'); }
-  .opt.sel, .opt.focused{ color:var(--on-surface); }
+  /* the options: three clear states.
+     idle: a grey outline, grey text, an empty grey radio;
+     active (the picked one): a white outline, white text, the radio a white ring with its dot;
+     focused: the glass pill (the tabs' and buttons' focus fill) with the ring, white text, the radio white (dotted if picked) */
+  .opt{ display:flex; align-items:center; gap:16px; padding:12px; border:3px solid var(--outline); border-radius:12px; font-weight:500; font-size:24px; line-height:32px; color:var(--on-surface-variant); white-space:nowrap;
+    transition:background .15s ease, border-color .15s ease, color .15s ease, transform .22s var(--ease); }
+  .opt .rd{ position:relative; width:48px; height:48px; flex:0 0 auto; border-radius:50%; border:3px solid var(--outline); transition:border-color .15s ease; }
+  .opt .rd::after{ content:''; position:absolute; left:50%; top:50%; width:22px; height:22px; margin:-11px 0 0 -11px; border-radius:50%; background:#fff; transform:scale(0); transition:transform .18s var(--ease); }
+  .opt.sel{ border-color:#e8e8e8; color:#fff; background:rgba(255,255,255,.06); }
+  .opt.sel .rd{ border-color:#fff; }
+  .opt.sel .rd::after{ transform:scale(1); }
+  .opt.focused{ border-color:transparent; background:var(--focus-fill); -webkit-backdrop-filter:blur(50px) saturate(1.4); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+  .opt.focused .rd{ border-color:#fff; box-shadow:0 1px 4px rgba(0,0,0,.25); }
   .opt.off{ opacity:.4; }
-  .opt.focused{ background:rgba(255,255,255,.08); }
   .mbtns{ width:100%; display:flex; gap:40px; }
-  .mbtn{ flex:1; height:80px; border-radius:9999px; display:flex; align-items:center; justify-content:center; font-weight:500; font-size:24px; line-height:32px; color:var(--on-surface);
-    border:3px solid rgba(74,74,74,.4); }
-  .mbtn.focused{ background:var(--focus-fill); border-color:transparent; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+  /* the popup's buttons: button-theme.css (Close secondary, Confirm primary), sharing the row; states from the theme */
+  .mbtn{ --btn-w:auto; --btn-h:80px; flex:1; font-size:24px; }
   #screen .modal .item.focused{ transform:scale(1.04); }   /* the popup's rows and buttons: a small lift */
 
   /* the ad (Watch Ads to unlock): full screen, a countdown, then the episode is unlocked */
@@ -190,16 +195,15 @@
   <div id="page">
     <section class="top">
       <div class="pic"></div>
-      <img class="playhint" src="icons/detail-play.svg" alt="">
       <div class="hero">
         <h1></h1>
         <div class="metarow"><span class="plat ptag ais" aria-label="AIS PLAY"></span><span class="gen"></span><span class="yr"></span><span class="len"></span><span class="pill rate"></span><span class="pill">HD</span></div>
         <p class="syn"></p>
         <div class="actions">
-          <div class="btn play item" data-act="play"><img src="icons/detail-play.svg" alt=""><span>Play Ep.1</span></div>
-          <div class="btn icon item" data-act="toggle" data-toggle="Added to My List|Removed from My List"><img src="icons/detail-plus.svg" alt="My List"></div>
-          <div class="btn icon item" data-act="toggle" data-toggle="You liked this|Like removed" data-pair="1"><img src="icons/detail-like.svg" alt="Like"></div>
-          <div class="btn icon item" data-act="toggle" data-toggle="You disliked this|Dislike removed" data-pair="2"><img src="icons/detail-dislike.svg" alt="Dislike"></div>
+          <div class="tv-btn tv-btn--primary main item" data-act="play" data-ring-art=""><i class="ic-play"></i><span>Play Ep.1</span></div>
+          <div class="tv-btn tv-btn--secondary ic item" data-act="toggle" data-label="My List" data-toggle="Added to My List|Removed from My List" data-tip="Add to My List" data-tip-on="Remove from My List" data-ring-art=""><img src="icons/detail-plus.svg" alt="My List"><span class="tip"></span></div>
+          <div class="tv-btn tv-btn--secondary ic item" data-act="toggle" data-toggle="You liked this|Like removed" data-pair="1" data-tip="I like this" data-tip-on="Remove like" data-ring-art=""><img src="icons/detail-like.svg" alt="Like"><span class="tip"></span></div>
+          <div class="tv-btn tv-btn--secondary ic item" data-act="toggle" data-toggle="You disliked this|Dislike removed" data-pair="2" data-tip="Not for me" data-tip-on="Remove dislike" data-ring-art=""><img src="icons/detail-dislike.svg" alt="Dislike"><span class="tip"></span></div>
         </div>
       </div>
     </section>
@@ -233,7 +237,7 @@
       <div class="opt item" data-o="buy" data-ring-art=""><span class="rd"></span>Buy this episode</div>
       <div class="opt item" data-o="ads" data-ring-art=""><span class="rd"></span><span class="adtxt">Watch Ads to unlock(4/5)</span></div>
     </div>
-    <div class="mbtns"><div class="mbtn item" data-m="close" data-ring-art="">Close</div><div class="mbtn item" data-m="confirm" data-ring-art="">Confirm</div></div>
+    <div class="mbtns"><div class="tv-btn tv-btn--secondary mbtn item" data-m="close" data-ring-art="">Close</div><div class="tv-btn tv-btn--primary mbtn item" data-m="confirm" data-ring-art="">Confirm</div></div>
   </div>
   <div class="ad"><span class="tag">Ad</span><span class="count"></span></div>
   <div id="toast"></div>
@@ -273,7 +277,7 @@
   $('.syn')[0].innerHTML = esc(S.d) + ' <b>More</b>';
   // Play: the episode the player left off on (SHORT.at), else Ep.1
   var playEp = (window.SHORT && SHORT.at(si) || {}).ep || 1;
-  $('.actions .play span')[0].textContent = 'Play Ep.' + playEp;
+  $('.actions .main span')[0].textContent = 'Play Ep.' + playEp;
 
   // You May Also Like: the other shorts, then Home's portrait posters
   var MORE = ['House.jpg', 'Venom.jpg', 'John.jpg', 'F1.jpg', 'avatar.jpg', 'debt.jpg', 'topgun_m.jpg', 'ex1.jpg', 'ex2.jpg', 'ex3.jpg', 'ex4.jpg', 'ex5.jpg'];
@@ -354,7 +358,7 @@
     var tabsRow = rowOf('tabs');
     $('.ttab').forEach(function(el){ el.classList.toggle('active-dim', el.classList.contains('on') && cur.row > tabsRow); });
     var at = cur.row === 0 ? rows[Math.max(1, rowOf(cur.from))] : rows[cur.row];
-    var below = at.key !== 'actions', y = below ? 952 : 0, isEp = at.key.indexOf('ep') === 0;
+    var below = at.key !== 'actions', y = below ? 936 : 0, isEp = at.key.indexOf('ep') === 0;
     page.style.transform = 'translateY(' + -y + 'px)';
     // the grid slides only when it runs past its window (the focused row to the first row's place, no further than its
     // last row needs, 40px kept under it); a grid that fits stays put
@@ -365,6 +369,10 @@
     if(isEp){ slide(epsEl, 188); likesEl.style.transform = ''; } else { slide(likesEl, 412); epsEl.style.transform = ''; }
     document.body.classList.toggle('below', below);
     document.body.classList.toggle('on-nav', cur.row === 0);
+    // the icon buttons' tooltips and My List's tick, as on Movie Detail
+    $('.actions [data-tip]').forEach(function(b){ b.querySelector('.tip').textContent = b.classList.contains('on') ? b.dataset.tipOn : b.dataset.tip; });
+    var ml = document.querySelector('.actions [data-label="My List"] img');
+    ml.src = ml.parentElement.classList.contains('on') ? 'icons/detail-check.svg' : 'icons/detail-plus.svg';
     paintModal();
   }
 

@@ -359,7 +359,7 @@
   /* top10 rank card: top10.css (and top10.js) */
 
   /* karaoke card */
-  .card-karaoke{width:280px;border-radius:10px;overflow:hidden;}   /* its song strip: the card glass (chip-theme.css .tv-glass) */
+  .card-karaoke{width:280px;flex:0 0 auto;border-radius:10px;overflow:hidden;}   /* never squeezed to fit the row: the rail scrolls */   /* its song strip: the card glass (chip-theme.css .tv-glass) */
   .karaoke-track{gap:30px;}
   .card-karaoke .art{width:280px;height:280px;object-fit:cover;display:block;}
   .card-karaoke .meta{padding:16px 20px;display:flex;flex-direction:column;gap:4px;line-height:1.2;}
@@ -797,28 +797,28 @@
       {img:'liver-ben.jpg', badge:'Live', plat:'monomax',
         hero:{title:'Liverpool vs Brentford', logo:'MONOMAX', channel:'Channel 501: Monomax1', live:true,
           desc:"Liverpool host Brentford at Anfield in a big Premier League clash. Follow every moment live, from kick-off to the final whistle."}},
-      {img:'loki.jpg', plat:'disney',
+      {img:'loki.jpg', bg:'hero/loki.jpg', plat:'disney',
         hero:{title:'Loki', logo:'DISNEY+', channel:'Marvel Studios · Season 2', live:false,
           desc:'Loki, the God of Mischief, must fix a fractured timeline as he is relentlessly pursued by the Time Variance Authority.'}},
-      {img:'last-of-us.jpg', plat:'hbo',
+      {img:'last-of-us.jpg', bg:'hero/last-of-us.jpg', plat:'hbo',
         hero:{title:'The Last of Us', logo:'HBO MAX', channel:'HBO Original · Season 2', live:false,
           desc:'Joel and Ellie journey across a post-pandemic United States, facing new threats and impossible choices together.'}},
-      {img:'wicked.jpg', plat:'netflix',
+      {img:'wicked.jpg', bg:'hero/wicked.jpg', plat:'netflix',
         hero:{title:'Wicked', logo:'NETFLIX', channel:'Movie · 2 hr 40 min', live:false,
           desc:'The untold story of the witches of Oz: Elphaba and Glinda, long before Dorothy ever arrived in the Land of Oz.'}},
-      {img:'superman.jpg', plat:'hbo',
+      {img:'superman.jpg', bg:'hero/superman.jpg', plat:'hbo',
         hero:{title:'Superman', logo:'HBO MAX', channel:'Movie · 2 hr 9 min', live:false,
           desc:'The Man of Steel balances his Kryptonian heritage with his human upbringing as the ultimate protector of Earth.'}},
-      {img:'topgun-m.jpg', plat:'prime',
+      {img:'topgun-m.jpg', bg:'hero/topgun-m.jpg', plat:'prime',
         hero:{title:'Top Gun: Maverick', logo:'PRIME VIDEO', channel:'Movie · 2 hr 11 min', live:false,
           desc:'After thirty years of service, Pete "Maverick" Mitchell must confront the past while training a new generation of elite pilots.'}},
-      {img:'how-to-train.jpg', plat:'netflix',
+      {img:'how-to-train.jpg', bg:'hero/how-to-train.jpg', plat:'netflix',
         hero:{title:'How to Train Your Dragon', logo:'NETFLIX', channel:'Movie · 1 hr 44 min', live:false,
           desc:"A young Viking forms an unlikely friendship with a dragon, challenging his tribe's deep-rooted fear of the creatures."}},
-      {img:'arsenal.jpg', badge:'Live', plat:'monomax',
+      {img:'arsenal.jpg', bg:'hero/arsenal.jpg', badge:'Live', plat:'monomax',
         hero:{title:'Arsenal vs Chelsea', logo:'MONOMAX', channel:'Channel 502: Monomax2', live:true,
           desc:'A fierce London derby as Arsenal host Chelsea in a top-of-the-table Premier League showdown.'}},
-      {img:'f1.jpg', plat:'prime',
+      {img:'f1.jpg', bg:'hero/f1.jpg', plat:'prime',
         hero:{title:'F1: The Movie', logo:'PRIME VIDEO', channel:'Movie · 2 hr 35 min', live:false,
           desc:'A once-promising Formula 1 driver returns to mentor a young rookie and chase one last shot at glory.'}}
     ];
@@ -827,7 +827,7 @@
     var slides = items.map(function(it){
       return '<div class="hero-btn hero-play tv-btn tv-btn--primary item" data-title="'+attr(it.hero.title)+'" data-ring-art=""'+
         ' data-hero-title="'+attr(it.hero.title)+'" data-hero-logo="'+attr(it.hero.logo)+'" data-hero-channel="'+attr(it.hero.channel)+'"'+
-        ' data-hero-live="'+(it.hero.live?'1':'0')+'" data-hero-desc="'+attr(it.hero.desc)+'" data-hero-img="posters/'+it.img+'">'+
+        ' data-hero-live="'+(it.hero.live?'1':'0')+'" data-hero-desc="'+attr(it.hero.desc)+'" data-hero-img="posters/'+(it.bg || it.img)+'">'+
         '<i class="ic-play"></i>Play</div>';
     }).join('');
     addRow('<div class="row-block hero-row">'+
@@ -852,13 +852,17 @@
   /* ---------- Row: Jump Right Back In (continue watching, with progress) ---------- */
   (function(){
     // Continue Watching from content.js: this session's viewing first, each with its real progress (and episode)
-    var items = MD.continueList().map(function(c){
+    // full-screen art for the screen background while a card is focused (the card keeps its own thumbnail);
+    // only titles with this art are shown in the rail
+    var HERO_BG = {sherlock:'young-sherlock', endgame:'endgame', hailmary:'hailmary', spider:'spiderman', encanto:'encanto', stranger:'stranger-things'};
+    var items = MD.continueList().filter(function(c){ return HERO_BG[c.k]; }).map(function(c){
       var m = MD.M[c.k], left = Math.max(1, c.of - c.w);
       return {k:c.k, t:m.t + (c.s ? ' S' + c.s + ':E' + c.e : ''), plat:m.plat, img:m.w, d:m.d, pct:Math.round(c.w / c.of * 100), dur:c.of, s:left + ' mins left'};
     });
     function q(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
     var cards = items.map(function(it,i){
-      return '<div class="card card-content item" data-k="'+it.k+'" data-title="'+q(it.t)+'" data-desc="'+q(it.d)+'">'+
+      var bg = HERO_BG[it.k] ? ' data-hero-bg="posters/hero/'+HERO_BG[it.k]+'.jpg"' : '';
+      return '<div class="card card-content item" data-k="'+it.k+'" data-title="'+q(it.t)+'" data-desc="'+q(it.d)+'"'+bg+'>'+
         '<div class="thumb" style="background-image:url(\''+it.img+'\');background-size:cover;background-position:center;">'+platformTag(it.plat)+
           '<span class="cw-left corner-tag s">'+it.s+'</span>'+
           '<div class="progress"><i class="play-prog" data-dur="'+it.dur+'" style="width:'+it.pct+'%"></i></div></div>'+
@@ -1006,19 +1010,26 @@
     var plats = ['netflix','disney','netflix','disney','netflix','prime','hbo','viu','netflix','disney'];
     // #8 to #10: fixed titles (the pool supplies the rest); the pool still advances for #1-#9 so later rows keep their posters
     var TOP10_ART = {
-      7:{t:'Thai Lawyer', img:'posters_portrait/legal/l1.jpg', plat:'netflix', d:'A ruthless Bangkok lawyer will defend anyone for the right price, until one case turns personal.'},
-      8:{t:'The Lord of the Rings: The Return of the King', img:'posters_portrait/lotr/r1.jpg', plat:'disney', d:'Gandalf and Aragorn lead the World of Men against Sauron\'s army as Frodo and Sam near Mount Doom.'},
-      9:{t:'One Dollar Lawyer', img:'posters_portrait/legal/l2.jpg', plat:'disney', d:'A brilliant lawyer who charges just one dollar takes on the rich and powerful to protect ordinary people.'}
+      7:{t:'The Evil Lawyer', img:'posters_portrait/legal/l1.jpg', bg:'evil-lawyer', plat:'netflix', d:'A ruthless Bangkok lawyer will defend anyone for the right price, until one case turns personal.'},
+      8:{t:'The Lord of the Rings: The Return of the King', img:'posters_portrait/lotr/r1.jpg', bg:'lotr', plat:'disney', d:'Gandalf and Aragorn lead the World of Men against Sauron\'s army as Frodo and Sam near Mount Doom.'},
+      9:{t:'One Dollar Lawyer', img:'posters_portrait/legal/l2.jpg', bg:'one-dollar-lawyer', plat:'disney', d:'A brilliant lawyer who charges just one dollar takes on the rich and powerful to protect ordinary people.'}
     };
+    // full-screen art for the screen background while a pool poster is focused (by its file)
+    var POOL_BG = {'House.jpg':'house-of-the-dragon', 'John.jpg':'john-wick', 'Venom.jpg':'venom', 'topgun_m.jpg':'topgun-m', 'F1.jpg':'f1'};
+    function heroBgAttr(i, style){
+      var bg = TOP10_ART[i] ? TOP10_ART[i].bg : POOL_BG[(style.match(/([^\/']+)'\)/) || [])[1]];
+      return bg ? ' data-hero-bg="posters/hero/'+bg+'.jpg"' : '';
+    }
     function rankArt(i){
       var a = TOP10_ART[i], pool = i < 9 ? posterStylePortrait() : '';   // #10 came later: it leaves the pool alone
       return a ? "background-image:url('"+a.img+"');background-size:cover;background-position:center;" : pool;
     }
     var cards = titles.map(function(t,i){
       if(TOP10_ART[i]) t = TOP10_ART[i].t;
+      var style = rankArt(i);
       return '<div class="rank-wrap item" data-title="#'+(i+1)+' '+t+'">'+
         Top10.numeral(i+1)+   // top10.js
-        '<div class="card card-poster rank-poster" style="'+rankArt(i)+'"'+(TOP10_ART[i] ? ' data-desc="'+TOP10_ART[i].d+'"' : '')+'>'+platformPill(TOP10_ART[i] ? TOP10_ART[i].plat : plats[i])+'</div>'+
+        '<div class="card card-poster rank-poster" style="'+style+'"'+heroBgAttr(i, style)+(TOP10_ART[i] ? ' data-desc="'+TOP10_ART[i].d+'"' : '')+'>'+platformPill(TOP10_ART[i] ? TOP10_ART[i].plat : plats[i])+'</div>'+
       '</div>';
     }).join('');
     addRow('<div class="row-block">'+
@@ -1111,19 +1122,19 @@
       {t:'Miss Universe Thailand 2026', portrait:'posters/miss-universe.jpg', ppos:'30% center', wide:'posters/miss-universe.jpg', pos:'center',
         badges:['#1 in thailand'], chips:['1 hr. 55 min','Pageant, Live Event','G'],
         d:'The Miss Universe Thailand 2026 pageant is underway with provincial preliminaries and delegate selections, highlighted by Tharina Botes winning Miss Universe Krung Thep Maha Nakhon (Bangkok).'},
-      {t:'Happy Boss Day: The Sophomores – D-Day', portrait:'posters_portrait/ex1.jpg', wide:'posters_portrait/ex1.jpg', pos:'center 62%',
+      {t:'Happy Boss Day: The Sophomores – D-Day', portrait:'posters_portrait/ex1.jpg', wide:'posters/hero/ex-sophomores.jpg', pos:'center',
         badges:['Rerun'], chips:['2 hr. 30 min','Concert','G'],
         d:'Relive The Sophomores\' sold-out D-Day concert, exclusively on AIS PLAY. Rerun from 1 February to 30 April 2026.'},
-      {t:'BossCKM: Dream Warrior Concert', portrait:'posters_portrait/ex2.jpg', wide:'posters_portrait/ex2.jpg', pos:'center 35%',
+      {t:'BossCKM: Dream Warrior Concert', portrait:'posters_portrait/ex2.jpg', wide:'posters/hero/ex-bossckm.jpg', pos:'center',
         badges:['New Arrival'], chips:['2 hr. 05 min','Concert, Music','G'],
         d:'BossCKM takes the stage for Dream Warrior, a night of rock anthems, fan favourites and a few surprises.'},
       {t:'Man City vs Arsenal', portrait:'posters_portrait/ex3.jpg', wide:'posters_portrait/ex3.jpg', pos:'center 40%',
         badges:['Premier League'], chips:['Sun 22:30','Football','G'],
         d:'Haaland\'s Manchester City host Arsenal at the Etihad in a title clash that could decide the Premier League race.'},
-      {t:'Match Day: Man Utd vs Chelsea', portrait:'posters_portrait/ex4.jpg', wide:'posters_portrait/ex4.jpg', pos:'center 45%',
+      {t:'Match Day: Man Utd vs Chelsea', portrait:'posters_portrait/ex4.jpg', wide:'posters/hero/ex-mufc-chelsea.jpg', pos:'center',
         badges:['Emirates FA Cup'], chips:['Sat 19:30','Football','G'],
         d:'Manchester United welcome Chelsea at Old Trafford for a place in the next round of the Emirates FA Cup.'},
-      {t:'Match Day: Man Utd vs Arsenal', portrait:'posters_portrait/ex5.jpg', wide:'posters_portrait/ex5.jpg', pos:'center 40%',
+      {t:'Match Day: Man Utd vs Arsenal', portrait:'posters_portrait/ex5.jpg', wide:'posters/hero/ex-mufc-arsenal.jpg', pos:'center',
         badges:['Premier League'], chips:['Sat 23:00','Football','G'],
         d:'Manchester United face Arsenal under the Old Trafford lights in one of the Premier League\'s fiercest rivalries.'}
     ];
@@ -1154,7 +1165,8 @@
     var songs = [
       ['Sabai Sabi','Thongchai McIntyre'], ['Mae','Loso'],
       ['Do You Want Me to Stay With You','Asanee-Wasan'], ['Let It Be','The Beatles'],
-      ['Take Me Home, Country Roads','John Denver'], ['Wanipok','Carabao']
+      ['Take Me Home, Country Roads','John Denver'], ['Wanipok','Carabao'],
+      ['First Love','Nont Tanont'], ['Polaroid','Unknown Artist'], ['Recently Deleted','Atom']
     ];
     var cards = songs.map(function(s,i){
       return '<div class="card-karaoke tv-glass item" data-title="'+s[0]+' – '+s[1]+'">'+
@@ -1245,9 +1257,11 @@
   (function(){
     var P = {
       h1:{t:'Honda LPGA Thailand 2024', img:'h1.jpg'}, h2:{t:'BGC Betagro Match Play', img:'h2.jpg'},
-      h3:{t:'The Champion', img:'h3.jpg'}, h4:{t:'LPGA Lotte Championship', img:'h4.jpg'}
+      h3:{t:'The Champion', img:'h3.jpg'}, h4:{t:'LPGA Lotte Championship', img:'h4.jpg'},
+      h5:{t:'DP World Tour: Career Grand Slam', img:'h5.jpg'}, h6:{t:'Masters Tournament', img:'h6.jpg'},
+      h7:{t:'Masters Tournament: Round Highlights', img:'h7.jpg'}
     };
-    var list = [['h1'], ['h2','Top 10'], ['h1'], ['h3','New'], ['h4'], ['h3','New'], ['h2','Top 10']];
+    var list = [['h1'], ['h2','Top 10'], ['h5'], ['h3','New'], ['h4'], ['h6','New'], ['h7','Top 10']];
     var cards = list.map(function(x){
       var it = P[x[0]];
       return '<div class="card card-poster item" data-title="'+it.t+'" style="background-image:url(\'posters/highlight/'+it.img+'\');background-size:cover;background-position:center;">'+
@@ -1278,9 +1292,9 @@
   /* ---------- Row: Seasonal / Collection ---------- */
   (function(){
     var sets = [
-      {t:'Summer Blockbusters', img:'posters_portrait/avatar.jpg'}, {t:'Halloween Night', img:'posters_portrait/Venom.jpg'},
-      {t:'Fantasy Worlds', img:'posters_portrait/House.jpg'}, {t:'Action Collection', img:'posters_portrait/John.jpg'},
-      {t:'Speed & Racing', img:'posters_portrait/F1.jpg'}
+      {t:'Summer Blockbusters', img:'posters_portrait/collection/summer.jpg'}, {t:'Halloween Night', img:'posters_portrait/collection/halloween.jpg'},
+      {t:'Fantasy Worlds', img:'posters_portrait/collection/fantasy.jpg'}, {t:'Action Collection', img:'posters_portrait/collection/action.jpg'},
+      {t:'Speed & Racing', img:'posters_portrait/collection/racing.jpg'}
     ];
     addRow('<div class="row-block seasonal-row"><div class="rail-viewport"><div class="rail-track">'+sets.map(function(c){
       return '<div class="season-card item" data-title="'+c.t+'" style="background-image:url(\''+c.img+'\');"><span>'+c.t+'</span></div>';
@@ -1548,7 +1562,8 @@
     }
     // All Apps rail: the apps backdrop; the "All Apps" tile introduces the apps, a logo tile names its app
     if(el.closest('.partner-row, .recapps-row')){
-      setHeroBg('allapps', "url('posters/allapps-bg.jpg?v=2')");
+      if(el.closest('.recapps-row')) setHeroBg('googleapps', "url('posters/hero/google-apps.jpg')");   // Recommended Apps: Google's own backdrop
+      else setHeroBg('allapps', "url('posters/allapps-bg.jpg?v=2')");
       var isApps = el.classList.contains('partner-allapps');
       heroTitleEl.textContent = isApps ? 'All Apps' : el.dataset.title;
       heroLogoEl.style.display = 'none';
@@ -1563,7 +1578,8 @@
     if(!el.classList.contains('card')) return;
     var art = artOf(el);
     if(!art) return;
-    setHeroBg(art, art);
+    if(el.dataset.heroBg) setHeroBg(el.dataset.heroBg, "url('" + el.dataset.heroBg + "')");
+    else setHeroBg(art, art);
     var info = ART_INFO[(art.match(/([^\/'"]+)['"]?\)$/) || [])[1]] || {};
     var ownTitle = (el.dataset.title || (el.parentElement && el.parentElement.dataset.title) || '').replace(/^#\d+\s+/, '');
     var t = el.dataset.desc ? ownTitle : (info.t || ownTitle);
@@ -1802,9 +1818,10 @@
     if(act === 'genre-skip'){ var at = curRow; finishPicker(); curRow = Math.min(at - 2, rows.length - 1); updateFocus(); toast('You can choose topics any time in Settings'); return; }
     // cards with a detail page open it: their own link, else the title's page (content.js: a movie or series, a short,
     // or a title made from the card); the first scene's Play goes straight to the player. Live cards still play live.
+    // Grab The Mic! (karaoke) and Seasonal / Collection cards have no page: a mockup, OK only presses them.
     var href = it.getAttribute('data-href'), ci = Content.info(it);
     if(!href && ci && it.classList.contains('hero-play') && it.dataset.heroLive !== '1') href = Content.playUrl(ci);
-    else if(!href && ci && it.matches('.card, .rank-wrap, .season-card, .card-karaoke')) href = Content.detailUrl(ci);
+    else if(!href && ci && it.matches('.card, .rank-wrap')) href = Content.detailUrl(ci);
     if(href){
       keepPlace();   // Back from there lands on the same card
       it.animate([{transform:getComputedStyle(it).transform},{transform:'scale(0.97)'}], {duration:140, easing:'ease-out'}); setTimeout(function(){ window.location.href = href; }, 140); return; }
