@@ -202,8 +202,8 @@
         <div class="actions">
           <div class="tv-btn tv-btn--primary main item" data-act="play" data-ring-art=""><i class="ic-play"></i><span>Play Ep.1</span></div>
           <div class="tv-btn tv-btn--secondary ic item" data-act="toggle" data-label="My List" data-toggle="Added to My List|Removed from My List" data-tip="Add to My List" data-tip-on="Remove from My List" data-ring-art=""><img src="icons/detail-plus.svg" alt="My List"><span class="tip"></span></div>
-          <div class="tv-btn tv-btn--secondary ic item" data-act="toggle" data-toggle="You liked this|Like removed" data-pair="1" data-tip="I like this" data-tip-on="Remove like" data-ring-art=""><img src="icons/detail-like.svg" alt="Like"><span class="tip"></span></div>
-          <div class="tv-btn tv-btn--secondary ic item" data-act="toggle" data-toggle="You disliked this|Dislike removed" data-pair="2" data-tip="Not for me" data-tip-on="Remove dislike" data-ring-art=""><img src="icons/detail-dislike.svg" alt="Dislike"><span class="tip"></span></div>
+          <div class="tv-btn tv-btn--secondary ic item" data-act="toggle" data-label="Like" data-toggle="You liked this|Like removed" data-pair="1" data-tip="I like this" data-tip-on="Remove like" data-ring-art=""><img src="icons/detail-like.svg" alt="Like"><span class="tip"></span></div>
+          <div class="tv-btn tv-btn--secondary ic item" data-act="toggle" data-label="Dislike" data-toggle="You disliked this|Dislike removed" data-pair="2" data-tip="Not for me" data-tip-on="Remove dislike" data-ring-art=""><img src="icons/detail-dislike.svg" alt="Dislike"><span class="tip"></span></div>
         </div>
       </div>
     </section>
@@ -246,6 +246,7 @@
 <script src="profile-panel.js"></script>
 <script src="content.js"></script>
 <script src="tv-screen.js"></script>
+<script src="icon-toggle.js"></script>
 <script>
 (function(){
   // ---- fit the 1920x1080 screen into the window ----
@@ -369,10 +370,9 @@
     if(isEp){ slide(epsEl, 188); likesEl.style.transform = ''; } else { slide(likesEl, 412); epsEl.style.transform = ''; }
     document.body.classList.toggle('below', below);
     document.body.classList.toggle('on-nav', cur.row === 0);
-    // the icon buttons' tooltips and My List's tick, as on Movie Detail
+    // the icon buttons' tooltips, and their icons filled while on (icon-toggle.js), as on Movie Detail
     $('.actions [data-tip]').forEach(function(b){ b.querySelector('.tip').textContent = b.classList.contains('on') ? b.dataset.tipOn : b.dataset.tip; });
-    var ml = document.querySelector('.actions [data-label="My List"] img');
-    ml.src = ml.parentElement.classList.contains('on') ? 'icons/detail-check.svg' : 'icons/detail-plus.svg';
+    $('.actions [data-toggle]').forEach(IconToggle.paint);
     paintModal();
   }
 
@@ -448,8 +448,8 @@
     if(el.dataset.act === 'play'){ location.href = 'player.html?short=' + si + '&ep=' + playEp; return; }   // the vertical player
     if(el.dataset.act === 'toggle'){
       var msgs = el.dataset.toggle.split('|'), on = !el.classList.contains('on');
-      el.classList.toggle('on', on);
-      if(on && el.dataset.pair){ var other = $('.actions .item')[el.dataset.pair === '1' ? 3 : 2]; other.classList.remove('on'); }   // like and dislike can't both be on
+      el.classList.toggle('on', on); IconToggle.pop(el, on);
+      if(on && el.dataset.pair){ var other = $('.actions .item')[el.dataset.pair === '1' ? 3 : 2]; other.classList.remove('on'); IconToggle.paint(other); }   // like and dislike can't both be on
       toast(on ? msgs[0] : msgs[1]); return;
     }
     if(el.classList.contains('ep')){

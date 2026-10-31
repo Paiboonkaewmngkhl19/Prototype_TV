@@ -72,3 +72,17 @@
   box-shadow:none;
 }
 .tv-tab.disabled, .tv-tab[aria-disabled="true"]{ opacity:.55; background:transparent; box-shadow:none; }
+
+/* A toggle icon button changing (icon-toggle.js): the Live TV player's favourite animation. On: the icon pops and a
+   ring and eight sparks burst out of the button; off: the icon dips. */
+.tv-btn img.pop{ animation:iconPop .55s cubic-bezier(.2,1.6,.4,1); }
+.tv-btn img.unpop{ animation:iconUnpop .3s ease; }
+@keyframes iconPop{ 0%{ transform:scale(0); } 60%{ transform:scale(1.45); } 100%{ transform:scale(1); } }
+@keyframes iconUnpop{ 0%{ transform:scale(1); } 45%{ transform:scale(.6); } 100%{ transform:scale(1); } }
+.icon-burst{ position:absolute; left:50%; top:50%; width:0; height:0; z-index:2; pointer-events:none; }
+.icon-burst .ring{ position:absolute; left:-45px; top:-45px; width:90px; height:90px; border-radius:50%; box-sizing:border-box;
+  border:3px solid #fff; animation:iconRing .5s ease-out forwards; }
+.icon-burst i{ position:absolute; left:-4px; top:-4px; width:8px; height:8px; border-radius:50%; background:#fff;
+  animation:iconSpark .6s cubic-bezier(.2,.8,.3,1) forwards; }
+@keyframes iconRing{ 0%{ transform:scale(.4); opacity:1; } 100%{ transform:scale(1.5); opacity:0; border-width:0; } }
+@keyframes iconSpark{ 0%{ transform:rotate(var(--a)) translateY(0) scale(1); opacity:1; } 100%{ transform:rotate(var(--a)) translateY(-70px) scale(.2); opacity:0; } }

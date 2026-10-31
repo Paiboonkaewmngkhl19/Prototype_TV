@@ -342,7 +342,7 @@
   var $ = function(q, el){ return Array.prototype.slice.call((el || document).querySelectorAll(q)); };
   function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
 
-  var CHANNELS = window.TV.CHANNELS;   // the 44 channels and their programmes: channels-data.js (lowest number first)
+  var CHANNELS = window.TV.CHANNELS;   // the channels and their programmes: channels-data.js (lowest number first)
   // favourites set anywhere this session (here, in the player, shown on Home) override the built-in ones
   try { var FAVS = JSON.parse(sessionStorage.getItem('tvFavs') || 'null'); if(FAVS) CHANNELS.forEach(function(c){ if(c.n in FAVS) c.fav = FAVS[c.n]; }); } catch(e){}
   function saveFav(c){ try { var f = JSON.parse(sessionStorage.getItem('tvFavs') || '{}'); f[c.n] = c.fav; sessionStorage.setItem('tvFavs', JSON.stringify(f)); } catch(e){} }
@@ -408,8 +408,8 @@
   /* ---------- rendering ---------- */
   function logoHtml(c){
     if(!c.logo) return '<div class="logo txt' + ((c.txt || c.n).length > 8 ? ' long' : '') + '" style="background:' + c.bg + ';color:' + (c.fg || '#fff') + '"><span>' + esc(c.txt || c.n) + '</span></div>';
-    var b = c.box, img = b ? '<img src="' + c.logo + '" alt="" style="left:' + b[0] + '%;top:' + b[1] + '%;width:' + b[2] + '%;height:' + b[3] + '%;object-fit:contain;">'
-                          : '<img class="' + (c.fit || 'cover') + '" src="' + c.logo + '" alt="">';
+    var b = c.box, img = b ? '<img src="' + c.logo + '"' + TV.logoAttrs(c) + ' style="left:' + b[0] + '%;top:' + b[1] + '%;width:' + b[2] + '%;height:' + b[3] + '%;object-fit:contain;">'
+                          : '<img class="' + (c.fit || 'cover') + '" src="' + c.logo + '"' + TV.logoAttrs(c) + '>';
     return '<div class="logo" style="' + (c.bg ? 'background:' + c.bg : '') + '">' + img + '</div>';
   }
   // favourite: the heart filled white; hold Enter on a channel card to add or remove it
@@ -474,7 +474,7 @@
         if(j === 0 && !later){
           var art = p.img ? '<div class="art" style="background-image:url(\'' + p.img + '\')"></div>'
                           : !c.logo ? '<div class="art logo-art"><span class="txt-art' + ((c.txt || c.n).length > 8 ? ' long' : '') + '" style="background:' + c.bg + ';color:' + (c.fg || '#fff') + '">' + esc(c.txt || c.n) + '</span></div>'
-                          : '<div class="art logo-art"><img src="' + c.logo + '" alt="" style="background:' + (c.bg || 'transparent') + '"></div>';
+                          : '<div class="art logo-art"><img src="' + c.logo + '"' + TV.logoAttrs(c) + ' style="background:' + (c.bg || 'transparent') + '"></div>';
           bigHtml = '<div class="prog prog-big item" data-key="' + p.key + '">' + art + '<div class="shade"></div>' +
             '<div class="t clip">' + esc(p.t) + '</div><div class="row"><div class="tm clip">' + tm + '</div>' + tsHtml(p) + tagsFor(p, true, when) + '</div></div>';
         } else {
@@ -787,7 +787,8 @@
     if(has('movies')) return V + 'spiderman.mp4';
     return V + 'vall.mp4';
   }
-  function openPlayer(c, replace, loud){
+  // title: a live event's own name (a LIVE card elsewhere: Home), shown in place of the programme's
+  function openPlayer(c, replace, loud, title){
     var p = c.progs[onAt(c, new Date())];
     try { sessionStorage.setItem('tvGuideBack', JSON.stringify({view:S.view, cat:S.cat, sub:S.sub, no:c.no})); } catch(e){}
     // the channel numbers there are, so the player can say "not available" for a typed number without leaving
@@ -805,7 +806,7 @@
       }));
     } catch(e){}
     var q = {n:c.n, no:c.excl ? '' : c.no, crown:c.crown || '', fav:c.fav ? 1 : '', logo:c.logo || '', fit:c.fit || '', box:c.box ? c.box.join(',') : '',
-             bg:c.bg || '', txt:c.txt || '', fg:c.fg || '', t:p.t, s:p.start.getTime(), e:p.end.getTime(), v:videoFor(c),
+             bg:c.bg || '', txt:c.txt || '', fg:c.fg || '', t:title || p.t, s:p.start.getTime(), e:p.end.getTime(), v:videoFor(c),
              ts:p.ts ? 1 : '', quiet:replace && !loud ? 1 : ''};   // Time Shift: what's on now has the Time Shift icon; quiet: a channel change (see the player)
     var url = 'live-tv-player.html?' + Object.keys(q).filter(function(k){ return q[k] !== ''; })
       .map(function(k){ return k + '=' + encodeURIComponent(q[k]); }).join('&');
@@ -939,11 +940,11 @@
   // ?zap=1 / -1 & cur=<name>: Down / Up in the player, the next / previous channel by number (wrapping round; the
   // Exclusive channels have no number, so they are left out)
   // ?play=<name>: a channel picked in the player's mini EPG (by name: Exclusive channels have no number), or a channel
-  // card on Home (&from=home: opened with the controls showing, and Back returns to Home)
+  // card on Home (&from=home: opened with the controls showing, and Back returns to Home; &t=: a LIVE card's event name)
   var pick = /[?&]play=([^&]*)/.exec(location.search);
   if(pick){
     var pc = CHANNELS.filter(function(c){ return c.n === decodeURIComponent(pick[1]); })[0];
-    if(pc){ document.body.style.visibility = 'hidden'; openPlayer(pc, true, /[?&]from=home/.test(location.search)); return; }
+    if(pc){ document.body.style.visibility = 'hidden'; openPlayer(pc, true, /[?&]from=home/.test(location.search), decodeURIComponent((/[?&]t=([^&]*)/.exec(location.search) || [])[1] || '')); return; }
   }
   var zap = /[?&]zap=(-?1)/.exec(location.search);
   if(zap){

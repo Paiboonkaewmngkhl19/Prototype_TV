@@ -285,6 +285,18 @@
   /* channel / provider logo, inline before the channel name */
   .hero-logo{width:var(--ptag-w);height:var(--ptag-h);object-fit:contain;border-radius:8px;display:block;flex:0 0 auto;margin-right:-8px;}   /* 8px to its channel name (Figma) */   /* the provider's tag logo, same as the rail cards' */
   .hero-channel{font-size:20px;color:#e8e8e8;}
+  /* a channel's programme (Live and Upcoming): the channel's own round logo (TV.logoHtml), where a title shows its OTT tag */
+  .hero-logo.ais{background:#000;border-radius:6px;padding:6px 10px;box-sizing:border-box;}   /* AIS PLAY's own: its mark on black (platform-tag.css .ptag.ais) */
+  .hero-chlogo{display:flex;margin-right:-8px;}
+  .hero-chlogo .ch-logo{width:36px;height:36px;border-radius:50%;}
+  /* a channel's programme says what its detail page's meta row says (movie-detail.html .mbadge / .pill): Upcoming,
+     Premium, the channel, the time on air (content.js LIVE.premium / LIVE.range) */
+  .hero-mbadge{height:36px;box-sizing:border-box;padding:0 12px;border-radius:9999px;display:inline-flex;align-items:center;gap:4px;flex:0 0 auto;
+    font-size:20px;font-weight:500;white-space:nowrap;background:#3a3a3a;color:#e8e8e8;}
+  .hero-mbadge.prem{color:#fff;}
+  .hero-mbadge.prem img{width:20px;height:20px;display:block;}
+  .hero-range{height:36px;min-width:80px;box-sizing:border-box;padding:0 12px;border:1px solid #5c5c5c;border-radius:18px;
+    display:inline-flex;align-items:center;justify-content:center;font-size:20px;color:#e8e8e8;white-space:nowrap;}
   .badge-live{
     display:inline-flex;align-items:center;gap:8px;
     background:var(--live);color:#fff;border-radius:18px;
@@ -336,7 +348,7 @@
   /* a card whose Live ribbon hangs past its edge: unclip it and round the thumb and strip themselves instead */
   .card-content.has-ribbon{overflow:visible;}
 
-  .card-content .strip{padding:8px 0 0;display:flex;flex-direction:column;gap:4px;}   /* Figma: the title sits 8px under the picture */
+  .card-content .strip{padding:16px 12px;display:flex;flex-direction:column;gap:4px;}   /* the title 16px under the picture, 16px over the card's bottom, 12px in from its sides */
   /* focused card: its grey info areas turn ~30% darker so the focused card stands apart */
   .epg-card, .card-karaoke{ transition:background-color .22s cubic-bezier(.2,0,0,1); }
   /* the cards' glass (chip-theme.css .tv-glass) brightens a little when focused */
@@ -441,8 +453,7 @@
   .exclusive-card img{width:100%;height:100%;object-fit:cover;display:block;}
 
   /* Hot Channel Program (Figma 3256:172436): 16:9 programme cards, a gold crown on premium ones */
-  .hcp-crown{position:absolute;left:12px;bottom:12px;width:36px;height:36px;padding:7px;box-sizing:border-box;border-radius:50%;display:block;
-    background:rgba(40,40,40,.85);box-shadow:0 2px 8px rgba(0,0,0,.4);}   /* the crown on a grey circle, so it shows on light pictures too */
+  /* the premium crown: corner-tag.css .crown-tag */
 
   /* Recommended Apps (Figma 3256:172467): 250 x 140 app tiles, then All Apps */
   .recapps-row .rail-track{align-items:center;}
@@ -678,8 +689,12 @@
       <div class="hero-watched" style="display:none"></div>
       <div class="hero-meta-row">
         <span class="badge-live"><span class="dot"></span>Live</span>
-        <img class="hero-logo" src="badges/tag-monomax.png" alt="MONOMAX">
-        <span class="hero-channel">Channel 501: Monomax1</span>
+        <span class="hero-mbadge up" style="display:none">Upcoming</span>
+        <span class="hero-mbadge prem" style="display:none"><img src="icons/crown-gold.svg" alt="">Premium</span>
+        <img class="hero-logo" src="badges/tag-monomax.png" alt="MONOMAX" style="display:none">
+        <span class="hero-chlogo"></span>
+        <span class="hero-channel">Channel 501: MONOMAX 1</span>
+        <span class="hero-range" style="display:none"></span>
       </div>
       <p class="hero-desc">Liverpool host Brentford at Anfield in a big Premier League clash. Follow every moment live, from kick-off to the final whistle.</p>
     </div>
@@ -795,7 +810,7 @@
   (function(){
     var items = [
       {img:'liver-ben.jpg', badge:'Live', plat:'monomax',
-        hero:{title:'Liverpool vs Brentford', logo:'MONOMAX', channel:'Channel 501: Monomax1', live:true,
+        hero:{title:'Liverpool vs Brentford', logo:'MONOMAX', channel:'Channel 501: MONOMAX 1', live:true, tv:'MONOMAX 1',
           desc:"Liverpool host Brentford at Anfield in a big Premier League clash. Follow every moment live, from kick-off to the final whistle."}},
       {img:'loki.jpg', bg:'hero/loki.jpg', plat:'disney',
         hero:{title:'Loki', logo:'DISNEY+', channel:'Marvel Studios · Season 2', live:false,
@@ -816,7 +831,7 @@
         hero:{title:'How to Train Your Dragon', logo:'NETFLIX', channel:'Movie · 1 hr 44 min', live:false,
           desc:"A young Viking forms an unlikely friendship with a dragon, challenging his tribe's deep-rooted fear of the creatures."}},
       {img:'arsenal.jpg', bg:'hero/arsenal.jpg', badge:'Live', plat:'monomax',
-        hero:{title:'Arsenal vs Chelsea', logo:'MONOMAX', channel:'Channel 502: Monomax2', live:true,
+        hero:{title:'Arsenal vs Chelsea', logo:'MONOMAX', channel:'Channel 29: MONOMAX SPORTS', live:true, tv:'MONOMAX SPORTS',
           desc:'A fierce London derby as Arsenal host Chelsea in a top-of-the-table Premier League showdown.'}},
       {img:'f1.jpg', bg:'hero/f1.jpg', plat:'prime',
         hero:{title:'F1: The Movie', logo:'PRIME VIDEO', channel:'Movie · 2 hr 35 min', live:false,
@@ -824,10 +839,18 @@
     ];
     // one Play button per hero slide (stacked; the current one shows), carrying the slide's hero data as the cards did
     function attr(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }   // e.g. Pete "Maverick" Mitchell
+    // a live slide's words are its programme's (content.js LIVE): the detail page it opens says the same
+    items.forEach(function(it){ var p = it.hero.tv && LIVE.find(it.hero.title); if(p) it.hero.desc = p.d; });
+    // a title's slide: its words, OTT tag, genres / year / length and picture are its detail page's (content.js)
+    items.forEach(function(it){
+      if(it.hero.tv) return;
+      var h = Content.hero({t:it.hero.title, img:'posters/' + it.img});
+      it.hero.title = h.t; it.hero.desc = h.d; it.hero.logo = h.plat; it.hero.channel = h.meta; it.bg = h.bg.replace(/^posters\//, '');
+    });
     var slides = items.map(function(it){
       return '<div class="hero-btn hero-play tv-btn tv-btn--primary item" data-title="'+attr(it.hero.title)+'" data-ring-art=""'+
         ' data-hero-title="'+attr(it.hero.title)+'" data-hero-logo="'+attr(it.hero.logo)+'" data-hero-channel="'+attr(it.hero.channel)+'"'+
-        ' data-hero-live="'+(it.hero.live?'1':'0')+'" data-hero-desc="'+attr(it.hero.desc)+'" data-hero-img="posters/'+(it.bg || it.img)+'">'+
+        ' data-hero-live="'+(it.hero.live?'1':'0')+'"'+(it.hero.tv?' data-hero-tv="'+attr(it.hero.tv)+'"':'')+' data-hero-desc="'+attr(it.hero.desc)+'" data-hero-img="posters/'+(it.bg || it.img)+'">'+
         '<i class="ic-play"></i>Play</div>';
     }).join('');
     addRow('<div class="row-block hero-row">'+
@@ -877,23 +900,21 @@
     // Figma "TV guide": channel logo, programme now (with progress) and next, read from the TV Guide's own schedule
     // (channels-data.js), so the card, the hero text and the player (Enter) show the same programme at the same time.
     // MUTV and CNN have Time Shift on what's on now: the Time Shift icon next to the heart.
-    var items = [
-      {ch:'MUTV', logo:'mutv.png', round:true}, {ch:'CNN', logo:'cnn.jpg', round:true}, {ch:'Real Madrid TV', logo:'realmadrid.png'},
-      {ch:'BBC News', logo:'bbc.jpg', round:true}, {ch:'W-Sport', logo:'wsport.png', contain:true}
-    ];
+    // the logos are the TV Guide's (channels-data.js), on their discs' colours
+    var items = [{ch:'MUTV'}, {ch:'CNN'}, {ch:'Real Madrid TV'}, {ch:'BBC News'}, {ch:'W-Sports'}];
     function clock(d){ var h = d.getHours(), m = d.getMinutes(); return (h % 12 || 12) + ':' + (m < 10 ? '0' : '') + m + ' ' + (h < 12 ? 'AM' : 'PM'); }
     function attrQ(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
     var nowT = new Date();
     items.forEach(function(it){
       var c = window.TV.byName(it.ch), i = window.TV.onAt(c, nowT);
-      it.prog = c.progs[i]; it.nextProg = c.progs[i + 1]; it.heart = window.TV.isFav(c);   // its own, or as changed this session in the TV Guide / player
+      it.prog = c.progs[i]; it.nextProg = c.progs[i + 1]; it.heart = window.TV.isFav(c); it.c = c;   // its own, or as changed this session in the TV Guide / player
     });
     var epgCards = items.map(function(it,i){
       var p = it.prog, n = it.nextProg, pct = Math.round((nowT - p.start) / (p.end - p.start) * 100);
       // Enter plays the channel in the Live TV player (via the TV Guide, which has its programmes and the mini EPG)
       return '<div class="epg-card tv-glass item" data-title="'+attrQ(p.t)+'" data-href="tv-guide.html?play='+encodeURIComponent(it.ch)+'&from=home">'+
         '<div class="epg-now">'+
-          '<img class="epg-avatar'+(it.round?' round':'')+(it.contain?' contain':'')+'" src="icons/epg/'+it.logo+'" alt="">'+
+          window.TV.logoHtml(it.c, 'epg-avatar round')+
           '<div class="epg-prog-data"><div class="epg-title">'+p.t+'</div><div class="epg-sub">Started at '+clock(p.start)+'</div></div>'+
           '<span class="epg-icons">'+(p.ts?'<img class="epg-ts" src="icons/tv-guide/timeshift.svg" alt="Time Shift">':'')+
             (it.heart?'<span class="epg-heart"><img src="icons/epg/heart.svg" alt=""></span>':'')+'</span>'+
@@ -979,28 +1000,21 @@
 
   /* ---------- Row: Live and Upcoming ---------- */
   (function(){
-    var big = {t:'Liverpool vs Brentford', badge:'Live', desc:null};
-    var items = [
-      {t:'Masterchef Thailand', time:'Start in 58:12', img:'u1.jpg', d:'Thailand\'s best home cooks battle it out in the kitchen for the title of MasterChef. Season 7 premieres soon.'},
-      {t:'Leipzig vs Gladbach', time:'Today 20:30 PM', img:'u2.jpg', d:'RB Leipzig welcome Borussia Mönchengladbach in a Bundesliga clash with European places on the line.'},
-      {t:'Dortmund vs Hamburg', time:'Today 20:30 PM', img:'u3.jpg', d:'The Yellow Wall awaits as Borussia Dortmund host Hamburger SV at Signal Iduna Park.'},
-      {t:'CT14 Eala vs Jovic (R1)', time:'Tomorrow 6:00 PM', img:'u4.png', d:'Alex Eala takes on Iva Jovic in the first round, live from the WTA tour.'}
-    ];
-    // the live match: same size and layout as the rest of the rail, with a Live badge
-    var bigCard = '<div class="card card-content has-ribbon item" data-title="'+big.t+'" data-tag="tag-monomax.png" data-meta="Channel 501: Monomax1"'+
-        ' data-desc="Liverpool host Brentford at Anfield in a big Premier League clash. Follow every moment live, from kick-off to the final whistle.">'+
-        '<div class="thumb" style="background-image:url(\'posters/upcoming/live.jpg\');background-size:cover;background-position:center;"></div>'+
-        '<div class="strip"><div class="t">'+big.t+'</div></div>'+
-        '<span class="live-ribbon">Live</span>'+
-      '</div>';
-    var rest = items.map(function(it,i){
-      return '<div class="card card-content item" data-title="'+it.t+'" data-desc="'+it.d+'">'+
-        '<div class="thumb" style="background-image:url(\'posters/upcoming/'+it.img+'\');background-size:cover;background-position:center;">'+
-          '<span class="time-pill top-tag">'+it.time+'</span></div>'+
-        '<div class="strip"><div class="t">'+it.t+'</div></div>'+
+    // the programmes: content.js (LIVE.list). A card on a Movie or Sport channel opens its detail page; any other plays
+    // its channel in the Live TV player (via the TV Guide, which has its programmes and the mini EPG)
+    function q(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
+    var cards = LIVE.list.filter(function(p){ return !p.heroOnly; }).map(function(p){
+      var tv = window.TV.byName(p.tv), meta = tv ? 'Channel '+tv.no+': '+tv.n : '';
+      return '<div class="card card-content item'+(p.live ? ' has-ribbon' : '')+'" data-title="'+q(p.t)+'" data-href="'+q(LIVE.href(p, 'home'))+'"'+
+          (tv ? ' data-ch="'+q(tv.n)+'" data-meta="'+q(meta)+'"' : '')+(p.bg ? ' data-hero-bg="'+q(p.bg)+'"' : '')+' data-desc="'+q(p.d)+'">'+   // hero-bg: its detail page's picture
+        '<div class="thumb" style="background-image:url(\''+p.img+'\');background-size:cover;background-position:center;">'+
+          (p.live ? '' : '<span class="time-pill top-tag">'+p.when+'</span>')+
+          (tv && (tv.crown === 'gold' || tv.crown === 'owned') ? '<img class="crown-tag" src="icons/crown-gold.svg" alt="Premium">' : '')+'</div>'+
+        '<div class="strip"><div class="t">'+p.t+'</div></div>'+
+        (p.live ? '<span class="live-ribbon">Live</span>' : '')+
       '</div>';
     }).join('');
-    addRow('<div class="row-block"><div class="row-title">Live and Upcoming</div><div class="rail-viewport"><div class="rail-track">'+bigCard+rest+'</div></div></div>');
+    addRow('<div class="row-block"><div class="row-title">Live and Upcoming</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
     _posterCursor += 16;   // this row used to take 16 pool posters (8 cards + 8 mobile); keep later rows' posters unchanged
   })();
 
@@ -1139,7 +1153,11 @@
         d:'Manchester United face Arsenal under the Old Trafford lights in one of the Premier League\'s fiercest rivalries.'}
     ];
     var cards = picks.map(function(it){
-      return '<div class="card xcard item" data-title="'+it.t+'" data-ring-art="url(&quot;'+it.wide+'&quot;)">'+
+      // its detail page (content.js) says what the card says: AIS PLAY's own, its length, genres, rating, synopsis and picture
+      var len = /(\d+) hr\. (\d+) min/.exec(it.chips[0]);
+      return '<div class="card xcard item" data-title="'+it.t+'" data-ring-art="url(&quot;'+it.wide+'&quot;)" data-plat="ais"'+
+        ' data-g="'+it.chips[1].split(/,\s*/).join(',')+'" data-age="'+it.chips[2]+'"'+(len ? ' data-len="'+len[1]+'h '+(+len[2])+'m"' : '')+
+        ' data-desc="'+it.d.replace(/"/g, '&quot;')+'" data-hero-bg="'+it.wide+'">'+
         '<div class="xc-portrait" style="background-image:url(\''+it.portrait+'\');'+(it.ppos?'background-position:'+it.ppos+';':'')+'"></div>'+
         '<div class="xc-wide" style="background-image:url(\''+it.wide+'\');background-position:'+it.pos+';"></div>'+
         '<div class="xc-scrim"></div>'+
@@ -1214,27 +1232,31 @@
   (function(){
     var N = 'news-assets/';
     var progs = [
-      {t:'CNN News', img:'dm-cnn.png', logo:1, ch:'Channel 111: CNN', pr:true,
+      {t:'CNN News', img:'dm-cnn.png', logo:1, ch:'Channel 603: CNN',
        d:'CNN Primetime brings the day\u2019s biggest stories from around the world, with live reports from CNN\u2019s correspondents and in-depth analysis.'},
-      {t:'Morning Stories', img:'dm-rueng.png', ch:'Channel 33: Ch3 HD',
+      {t:'Morning Stories', img:'dm-rueng.png', ch:'Channel 33: 3 HD',
        d:'The morning news that tells the stories around you, with every hot topic from the crack of dawn.'},
-      {t:'BBC News', img:'dm-bbc.png', ch:'Channel 112: BBC News', pr:true,
+      {t:'BBC News', img:'dm-bbc.png', ch:'Channel 604: BBC News',
        d:'The latest from BBC News: the stories that matter in the UK and around the world, live.'},
-      {t:'Channel 7 News Insight', img:'dm-sanam7.png', ch:'Channel 35: Ch7 HD',
+      {t:'Channel 7 News Insight', img:'dm-sanam7.png', ch:'Channel 35: CH7 HD',
        d:'Follow every move in the day\u2019s biggest stories, live every day on Channel 7.'},
-      {t:'World Update with Thai PBS', img:'lc-1.png', ch:'Channel 3: Thai PBS',
+      {t:'World Update with Thai PBS', img:'lc-1.png', ch:'Channel 3: TPBS',
        d:'The day\u2019s international news in one round-up, digging into the stories the whole world is watching.'},
-      {t:'Open News Desk', img:'lc-2.png', ch:'Channel 36: PPTV',
+      {t:'Open News Desk', img:'lc-2.png', ch:'Channel 36: PPTV HD',
        d:'The PPTV news team opens the desk on every hot topic of the day.'},
-      {t:'Komchadluek', img:'lc-4.png', ch:'Channel 22: Nation TV', pr:true,
+      {t:'Komchadluek', img:'lc-4.png', ch:'Channel 22: Nation TV',
        d:'Komchadluek goes straight to the heart of Thai politics and society, with frank, in-depth interviews.'}
     ];
     function attrQ(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
     var cards = progs.map(function(p){
       var pic = "background-image:url('"+N+p.img+"');background-position:center;" +
         (p.logo ? 'background-size:67% auto;background-repeat:no-repeat;background-color:#fff;' : 'background-size:cover;');   // CNN: its logo on white, as on News
-      return '<div class="card card-landscape item" data-title="'+attrQ(p.t)+'" data-meta="'+attrQ(p.ch)+'" data-desc="'+attrQ(p.d)+'" style="'+pic+'">'+
-        (p.pr ? '<img class="hcp-crown" src="icons/crown-gold.svg" alt="Premium">' : '')+'</div>';
+      // its channel (TV Guide's): number, name, round logo and Premium; Enter as any channel's programme (content.js
+      // LIVE.href: a Movie / Sport channel's detail page, else the channel in the Live TV player)
+      var chName = p.ch.replace(/^Channel \d+: /, ''), tv = window.TV.byName(chName), prog = {t:p.t, img:N + p.img, tv:chName, live:true, d:p.d};
+      return '<div class="card card-landscape item" data-title="'+attrQ(p.t)+'" data-live="1" data-href="'+attrQ(LIVE.href(prog, 'home'))+'"'+
+        (tv ? ' data-ch="'+attrQ(tv.n)+'" data-meta="'+attrQ('Channel '+tv.no+': '+tv.n)+'"' : ' data-meta="'+attrQ(p.ch)+'"')+' data-desc="'+attrQ(p.d)+'" style="'+pic+'">'+
+        (LIVE.premium(chName) ? '<img class="crown-tag" src="icons/crown-gold.svg" alt="Premium">' : '')+'</div>';
     }).join('');
     _posterCursor += progs.length;   // the pool pictures these cards used to take: later rails keep theirs
     addRow('<div class="row-block"><div class="row-title">Hot Channel Program</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
@@ -1468,7 +1490,16 @@
   var heroTitleEl = document.querySelector('.hero-title');
   var heroLogoEl = document.querySelector('.hero-logo');
   var heroChannelEl = document.querySelector('.hero-channel');
+  var heroChLogoEl = document.querySelector('.hero-chlogo');   // a channel card's round logo (else hidden)
   var heroDescEl = document.querySelector('.hero-desc');
+  var heroUpEl = document.querySelector('.hero-mbadge.up'), heroPremEl = document.querySelector('.hero-mbadge.prem'), heroRangeEl = document.querySelector('.hero-range');
+  // a channel's programme (content.js LIVE, else null): Upcoming, Premium and its time on air, as its detail page's meta row
+  function showHeroProg(p){
+    heroUpEl.style.display = p && !p.live ? '' : 'none';
+    heroPremEl.style.display = p && LIVE.premium(p.tv) ? '' : 'none';
+    heroRangeEl.style.display = p ? '' : 'none';
+    if(p) heroRangeEl.textContent = LIVE.range(p);
+  }
   var heroWatchedEl = document.querySelector('.hero-watched');
   // a Jump Right Back In card in the hero: its bar and "33m of 58m" under the title (null: none shown)
   function showHeroWatched(el){
@@ -1543,6 +1574,8 @@
   // Top 10): its own picture becomes the screen background and its title the screen title (no channel/description)
   function updateHeroFromCard(el){
     if(curRow <= HERO_ROW_INDEX || curRow > HERO_ZONE_LAST_ROW || !el) return;
+    heroChLogoEl.style.display = 'none';   // (a channel's programme shows it again below)
+    showHeroProg(null);
     if(el.classList.contains('rank-wrap')) el = el.querySelector('.card') || el;
     showHeroWatched(el.classList.contains('card') ? el : null);
     // TV Guide rail: its own dark backdrop; the "View All" tile introduces the guide, a programme card shows what's on
@@ -1578,6 +1611,21 @@
     if(!el.classList.contains('card')) return;
     var art = artOf(el);
     if(!art) return;
+    // a title (movie, series, short, AIS PLAY's own): word for word what its detail page shows (content.js Content.hero)
+    var ci = !el.dataset.ch && Content.info(el.closest('.rank-wrap') || el), h = ci && Content.hero(ci);
+    if(h){
+      if(h.bg) setHeroBg(h.bg, "url('" + h.bg + "')");
+      heroTitleEl.textContent = h.t;
+      heroLogoEl.classList.toggle('ais', h.plat === 'ais');
+      heroLogoEl.src = h.plat === 'ais' ? 'icons/aisplay-mark.png' : 'badges/' + heroTagFile(h.plat);
+      heroLogoEl.style.display = '';
+      heroChannelEl.textContent = el.querySelector('.play-prog[data-dur]') ? '' : h.meta;   // the bar above says how far in
+      heroLiveEl.style.display = 'none';
+      heroChannelEl.parentElement.style.display = '';
+      heroDescEl.textContent = h.d; heroDescEl.style.display = '';
+      heroSection.classList.add('card-mode');
+      return;
+    }
     if(el.dataset.heroBg) setHeroBg(el.dataset.heroBg, "url('" + el.dataset.heroBg + "')");
     else setHeroBg(art, art);
     var info = ART_INFO[(art.match(/([^\/'"]+)['"]?\)$/) || [])[1]] || {};
@@ -1587,13 +1635,20 @@
     // tag: the card's provider tag logo (or a data-tag); info line: data-meta, else the card's "mins left" / time
     var tagImg = el.querySelector('img[src*="badges/tag-"]');
     var tag = el.dataset.tag ? 'badges/' + el.dataset.tag : (tagImg ? tagImg.getAttribute('src') : '');
+    // a channel's programme (data-ch): the channel's round logo in place of an OTT's square tag
+    var chc = el.dataset.ch && window.TV.byName(el.dataset.ch);
+    if(chc){ tag = ''; heroChLogoEl.innerHTML = window.TV.logoHtml(chc); }
+    heroChLogoEl.style.display = chc ? '' : 'none';
+    // its programme: the Live and Upcoming rail's (content.js LIVE), else what's on now (Hot Channel Program: data-live)
+    var prog = chc && (LIVE.find(ownTitle) || (el.dataset.live ? {t:ownTitle, tv:chc.n, live:true} : null));
+    showHeroProg(prog);
     heroLogoEl.style.display = tag ? '' : 'none';
     if(tag) heroLogoEl.src = tag;
     var sub = el.querySelector('.s, .time-pill');
     heroChannelEl.textContent = el.dataset.meta || (sub ? sub.textContent : '');
     if(el.querySelector('.play-prog[data-dur]')) heroChannelEl.textContent = '';   // the bar above says how far in: no "mins left" again
-    heroLiveEl.style.display = el.querySelector('.live-ribbon') ? '' : 'none';
-    heroChannelEl.parentElement.style.display = tag || heroChannelEl.textContent || heroLiveEl.style.display === '' ? '' : 'none';   // nothing to say: no empty line
+    heroLiveEl.style.display = el.querySelector('.live-ribbon') || (prog && prog.live) ? '' : 'none';
+    heroChannelEl.parentElement.style.display = tag || chc || heroChannelEl.textContent || heroLiveEl.style.display === '' ? '' : 'none';   // nothing to say: no empty line
     var desc = el.dataset.desc || info.d || '';
     heroDescEl.textContent = desc;
     heroDescEl.style.display = desc ? '' : 'none';
@@ -1601,6 +1656,8 @@
   }
   function updateHeroFromItem(item){
     if(!item || !item.dataset || !item.dataset.heroTitle) return;
+    heroChLogoEl.style.display = 'none';
+    showHeroProg(null);
     showHeroWatched(null);
     var img = item.dataset.heroImg;
     if(img) setHeroBg(img, "url('" + img + "')");
@@ -1609,10 +1666,18 @@
     if(heroDescEl) heroDescEl.style.display = '';
     if(heroChannelEl) heroChannelEl.parentElement.style.display = '';
     if(heroTitleEl) heroTitleEl.textContent = item.dataset.heroTitle;
-    if(heroLogoEl){ heroLogoEl.src = 'badges/' + heroTagFile(item.dataset.heroLogo); heroLogoEl.alt = item.dataset.heroLogo; }
+    if(heroLogoEl){ heroLogoEl.classList.remove('ais'); heroLogoEl.src = 'badges/' + heroTagFile(item.dataset.heroLogo); heroLogoEl.alt = item.dataset.heroLogo; }
     if(heroChannelEl) heroChannelEl.textContent = item.dataset.heroChannel;
     if(heroDescEl) heroDescEl.textContent = item.dataset.heroDesc;
     if(heroLiveEl) heroLiveEl.style.display = (item.dataset.heroLive === '1') ? '' : 'none';
+    // a live slide is a channel's programme: the channel's round logo and its TV Guide number and name, not an OTT tag
+    var tvc = item.dataset.heroTv && window.TV.byName(item.dataset.heroTv);
+    if(tvc){
+      heroLogoEl.style.display = 'none';
+      heroChLogoEl.innerHTML = window.TV.logoHtml(tvc); heroChLogoEl.style.display = '';
+      heroChannelEl.textContent = 'Channel ' + tvc.no + ': ' + tvc.n;
+      showHeroProg(LIVE.find(item.dataset.heroTitle));
+    }
   }
 
   function updateFocus(prevRow){
@@ -1751,9 +1816,13 @@
       if(n !== colByRow[curRow]){ colByRow[curRow] = n; updateFocus(); }
       return true;
     }
-    if(k === 'Enter'){   // the slide's detail page (content.js); a live match has none
+    if(k === 'Enter'){   // the slide's detail page (content.js); a live match: its LIVE detail page (content.js LIVE)
       var sl = rows[curRow].items[colByRow[curRow]];
-      if(sl.dataset.heroLive === '1'){ toast('Detail: ' + sl.dataset.title); return true; }
+      if(sl.dataset.heroLive === '1'){
+        var lp = LIVE.find(sl.dataset.title);
+        if(lp){ keepPlace(); location.href = LIVE.href(lp, 'home'); } else toast('Detail: ' + sl.dataset.title);
+        return true;
+      }
       keepPlace(); Content.open(Content.info(sl)); return true;
     }
     return false;
@@ -1820,7 +1889,8 @@
     // or a title made from the card); the first scene's Play goes straight to the player. Live cards still play live.
     // Grab The Mic! (karaoke) and Seasonal / Collection cards have no page: a mockup, OK only presses them.
     var href = it.getAttribute('data-href'), ci = Content.info(it);
-    if(!href && ci && it.classList.contains('hero-play') && it.dataset.heroLive !== '1') href = Content.playUrl(ci);
+    if(!href && it.classList.contains('hero-play') && it.dataset.heroTv) href = 'tv-guide.html?play=' + encodeURIComponent(it.dataset.heroTv) + '&from=home&t=' + encodeURIComponent(it.dataset.title);   // a LIVE slide: its channel, live
+    else if(!href && ci && it.classList.contains('hero-play') && it.dataset.heroLive !== '1') href = Content.playUrl(ci);
     else if(!href && ci && it.matches('.card, .rank-wrap')) href = Content.detailUrl(ci);
     if(href){
       keepPlace();   // Back from there lands on the same card

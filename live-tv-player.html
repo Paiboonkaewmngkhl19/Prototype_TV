@@ -60,6 +60,9 @@
      handle (1895:174905), the bar stopping 10px short of the end for it. --f (0..1) is how far the playhead is */
   /* no Time Shift on this programme: the bar stays full at live, with no handle, no play / pause and no Start Over */
   .no-ts .track .handle, .no-ts .play, .no-ts .btn[data-act="start-over"]{ display:none; }
+  /* Time Shift on a premium channel not in the viewer's package: shown, but locked until a package is bought (no
+     lock marks; a locked control says why when pressed). The seek bar has no handle: nothing to move */
+  .ts-locked .track .handle{ display:none; }
 
   /* Time Shift scrubbing: a thumbnail of that moment over the handle, its time under it, and the speed while held */
 
@@ -154,11 +157,15 @@
   .mtime{ display:flex; align-items:center; gap:16px; height:28px; margin-top:4px; font:500 20px/1.2 var(--noto); letter-spacing:-.24px; color:#d6d6d6; white-space:nowrap; }
   .mtags{ display:flex; align-items:center; gap:8px; }
   .mtags > img{ width:24px; height:24px; display:block; }
+  /* Watching: the TV Guide's tag (tv-guide.html .tag.watch): live red, sound bars before the word */
   .mtag{ height:26px; box-sizing:border-box; padding:4px; border-radius:4px; display:flex; align-items:center; gap:4px; border:1px solid var(--inverse-surface);
-    font:500 16px/1.2 var(--noto); letter-spacing:-.24px; color:rgba(255,255,255,.8); }
-  .mtag.watch{ background:#59d478; }
-  .mtag.plain{ border-color:#5d5d5d; background:rgba(255,255,255,.16); font-weight:400; }   /* the TV Guide's On Air / Don't Miss tag */
-  .mtag img{ width:16px; height:16px; display:block; }
+    font:400 16px/1.2 var(--noto); letter-spacing:-.24px; white-space:nowrap; }
+  .mtag.watch{ background:#ff1f1f; color:#fff; }
+  .mtag .eq{ width:14px; height:14px; display:flex; align-items:flex-end; justify-content:space-between; }
+  .mtag .eq b{ width:3px; height:100%; border-radius:1px; background:currentColor; transform-origin:bottom; animation:eq .9s ease-in-out infinite; }
+  .mtag .eq b:nth-child(2){ animation-delay:-.3s; animation-duration:.7s; }
+  .mtag .eq b:nth-child(3){ animation-delay:-.6s; animation-duration:1.1s; }
+  @keyframes eq{ 0%, 100%{ transform:scaleY(.3); } 50%{ transform:scaleY(1); } }
   /* Up Next: folded away on a default card, it folds open and fades in on the focused one (same 200ms) */
   .mnext{ display:flex; gap:4px; max-height:0; opacity:0; padding:0 16px 0 122px; border-top:1px solid transparent; font:500 24px/1.2 var(--noto); letter-spacing:-.24px;
     color:rgba(255,255,255,.7); white-space:nowrap; overflow:hidden;
@@ -267,14 +274,24 @@
   // 10s, hold to scrub faster (with a thumbnail) and Start Over; without it the player stays live
   var TS = q.ts === '1';
   if(!TS) byId('bottom').classList.add('no-ts');
+  // a package bought this session (All Packages, from Explore Package): premium channels play in full, Time Shift too
+  var SUBSCRIBED = false; try { SUBSCRIBED = sessionStorage.getItem('tvSubscribed') === '1'; } catch(e){}
+  // Time Shift on a premium channel not in the package (gold crown): its icon still shows (TV Guide, mini EPG), but
+  // play / pause, back / forward, the hold speeds and Start Over stay locked until a package is bought
+  var TS_LOCK = TS && C.crown === 'gold' && !SUBSCRIBED;
+  if(TS_LOCK) byId('bottom').classList.add('ts-locked');
+  // back from All Packages out of the browser's page cache: start again, so a package bought there takes effect
+  addEventListener('pageshow', function(e){ if(e.persisted) location.reload(); });
 
+  // a logo that fails to load turns into the placeholder: the channel's name on its disc (the .txt avatar)
+  function logoAttrs(c){ return ' alt="' + esc(c.n) + '" onerror="var a=this.parentNode;a.classList.add(\'txt\');a.style.background=\'#2a2a2a\';a.textContent=this.alt"'; }
   var ava = byId('ava');
   if(!C.logo){ ava.className = 'ava txt'; ava.style.background = C.bg || ''; ava.style.color = C.fg || '#fff'; ava.textContent = C.txt || C.n; }
   else {
     if(C.bg) ava.style.background = C.bg;
     var b = C.box && C.box.split(',');
-    ava.innerHTML = b ? '<img src="' + esc(C.logo) + '" alt="" style="left:' + b[0] + '%;top:' + b[1] + '%;width:' + b[2] + '%;height:' + b[3] + '%;object-fit:contain;">'
-                      : '<img class="' + (C.fit || 'cover') + '" src="' + esc(C.logo) + '" alt="">';
+    ava.innerHTML = b ? '<img src="' + esc(C.logo) + '"' + logoAttrs(C) + ' style="left:' + b[0] + '%;top:' + b[1] + '%;width:' + b[2] + '%;height:' + b[3] + '%;object-fit:contain;">'
+                      : '<img class="' + (C.fit || 'cover') + '" src="' + esc(C.logo) + '"' + logoAttrs(C) + '>';
   }
   byId('progT').textContent = P.t;
   byId('chName').textContent = C.n;
@@ -286,7 +303,7 @@
   // free preview + Explore Package: a premium channel not in the viewer's package (gold crown, not 'owned')
   // (an owned premium channel, crown 'owned', plays in full). The 3 minutes count only while playing and are kept per
   // channel for this browser session, so leaving and coming back doesn't start them over
-  var preview = C.crown === 'gold', PKEY = 'freePreview:' + C.n, previewLeft = 180;
+  var preview = C.crown === 'gold' && !SUBSCRIBED, PKEY = 'freePreview:' + C.n, previewLeft = 180;
   try { var kept = sessionStorage.getItem(PKEY); if(kept !== null) previewLeft = +kept; } catch(e){}
   if(!preview) byId('bottom').classList.add('no-preview');
   function previewText(){ byId('previewLeft').textContent = previewLeft ? Math.floor(previewLeft / 60) + ':' + pad(previewLeft % 60) + ' minutes left' : 'Ended'; }
@@ -419,8 +436,15 @@
     try { if(document.referrer && /(tv-guide|sport|home|news|movie)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
     location.href = 'tv-guide.html';
   }
+  // a locked Time Shift control: say why, and put focus on Explore Package (the way to unlock it)
+  function tsLocked(){
+    toast('Time Shift is part of the package. Get it to pause, rewind and fast-forward');
+    var r = rows(); for(var i = 0; i < r.length; i++) if(r[i][0].dataset.act === 'explore'){ row = i; col = 0; }
+    paint();
+  }
   function activate(el){
     var v = byId('video');
+    if(TS_LOCK && (el.dataset.act === 'play' || el.dataset.act === 'start-over')){ tsLocked(); return; }
     switch(el.dataset.act){
       case 'back': back(); break;
       case 'play':
@@ -440,7 +464,7 @@
         try { var tf = JSON.parse(sessionStorage.getItem('tvFavs') || '{}'); tf[C.n] = C.fav; sessionStorage.setItem('tvFavs', JSON.stringify(tf)); } catch(e){}
         toast(C.fav ? 'Added to Favorite: ' + C.n : 'Removed from Favorite: ' + C.n); break;
       case 'guide': openGuide(); break;
-      case 'explore': toast('Explore Package'); break;
+      case 'explore': location.href = 'all-packages.html'; break;   // subscribing there unlocks the channel and its Time Shift; Back comes here
       case 'mini-epg': openMini(true); break;
       case 'sub-audio': toast('Subtitle / Audio'); break;
       case 'settings': toast('Settings'); break;
@@ -500,8 +524,8 @@
   }
   function miniAva(c){
     if(!c.logo) return '<div class="mava txt" style="background:' + esc(c.bg) + ';color:' + esc(c.fg || '#fff') + '">' + esc(c.txt || c.n) + '</div>';
-    var b = c.box, img = b ? '<img src="' + esc(c.logo) + '" alt="" style="left:' + b[0] + '%;top:' + b[1] + '%;width:' + b[2] + '%;height:' + b[3] + '%;object-fit:contain;">'
-                          : '<img class="' + (c.fit || 'cover') + '" src="' + esc(c.logo) + '" alt="">';
+    var b = c.box, img = b ? '<img src="' + esc(c.logo) + '"' + logoAttrs(c) + ' style="left:' + b[0] + '%;top:' + b[1] + '%;width:' + b[2] + '%;height:' + b[3] + '%;object-fit:contain;">'
+                          : '<img class="' + (c.fit || 'cover') + '" src="' + esc(c.logo) + '"' + logoAttrs(c) + '>';
     return '<div class="mava"' + (c.bg ? ' style="background:' + esc(c.bg) + '"' : '') + '>' + img + '</div>';
   }
   function miniCard(c){
@@ -518,9 +542,8 @@
         '<div class="mprog">' + esc(p[0]) + '</div>' +
         '<div class="mtime">' + hm2(p[1]) + ' - ' + hm2(p[2]) + '<span class="mtags">' +
           (p[3] ? '<img src="icons/tv-guide/timeshift.svg" alt="Time Shift">' : '') +
-          // no Live / On Air here (everything listed is on now); Watching for this channel, and the TV Guide's Don't Miss
-          (watching ? '<span class="mtag watch">Watching</span>' : '') +
-          (p[4] ? '<span class="mtag plain"><img src="icons/tv-guide/fire.svg" alt="">Don\'t Miss</span>' : '') + '</span></div>' +
+          // no Live / On Air / Don't Miss here (everything listed is on now): only Watching, on this channel
+          (watching ? '<span class="mtag watch"><i class="eq"><b></b><b></b><b></b></i>Watching</span>' : '') + '</span></div>' +
       '</div></div>' +
       (nx ? '<div class="mnext"><b>Up Next :</b><span>' + esc(nx[0]) + '</span></div>' : '') +
     '</div>';
@@ -541,7 +564,7 @@
     $('.mcat', byId('miniCats')).forEach(function(el){ el.classList.toggle('sel', el.dataset.cat === cat); });
   }
   function miniPaint(){
-    // remembered for the session (miniMem): reopening the mini EPG comes back to this category, channel and side
+    // remembered for the session (miniMem): reopening the mini EPG comes back to this category (on the channel playing)
     try { sessionStorage.setItem('miniMem', JSON.stringify({cat:mini.cat, n:mini.list[mini.i] ? mini.list[mini.i].n : '', zone:mini.zone, ci:mini.ci, ciUsed:!!mini.ciUsed})); } catch(e){}
     // one focused card at most: with focus on the category bar every card is at its default size; mini.i stays as it
     // was, so Right comes back to the same channel
@@ -592,14 +615,12 @@
     if(!data){ toast('Open the player from the TV Guide to browse channels'); return; }
     mini = {data:data, zone:'list', ci:0, fromButton:fromButton};
     miniRenderCats();
-    // back to the previous focus: the category, channel and side (list / category bar) it was left on; the first
-    // time, All Channels on the channel playing
+    // it always opens with focus on the channel playing: in the category it was last left on when that channel is
+    // in it, else in All Channels
     var mem = null; try { mem = JSON.parse(sessionStorage.getItem('miniMem')); } catch(e){}
-    if(mem && data.cats.some(function(k){ return k.id === mem.cat; })){
-      miniSetCat(mem.cat, mem.n);
-      mini.ci = mem.ci || 0; mini.ciUsed = !!mem.ciUsed;
-      if(mem.zone === 'cats' || !mini.list.length){ mini.zone = 'cats'; mini.ci = mem.zone === 'cats' ? mem.ci : $('.mcat', byId('miniCats')).map(function(c){ return c.dataset.cat; }).indexOf(mem.cat); }
-    } else miniSetCat('all');
+    var cat = mem && data.cats.some(function(k){ return k.id === mem.cat; }) ? mem.cat : 'all';
+    miniSetCat(cat, C.n);
+    if(cat !== 'all' && !mini.list.some(function(c){ return c.n === C.n; })) miniSetCat('all', C.n);
     clearTimeout(idleT); document.body.classList.add('mini-on');
     $('.item').forEach(function(el){ el.classList.remove('focused', 'on'); });
     miniPaint();
@@ -693,6 +714,7 @@
       // on the seek bar: a press goes 10s back / forward (not past live); held, it scrubs faster
       var dir = k === 'ArrowRight' ? 1 : -1;
       if(!TS) toast('Time Shift is not available for this programme');
+      else if(TS_LOCK){ if(!e.repeat) tsLocked(); }
       else if(e.repeat){ if(!holdT) startHold(dir); }
       else { scrubBy(dir * STEP); seekFx(dir); commitT = setTimeout(commit, 800); }
     }

@@ -3,7 +3,8 @@
     window.MD       movies and series (the Movie page's catalogue, details, prices, progress), below
     window.SHORTS   the short dramas, window.SHORT their episodes, locks and progress, below
     window.Content  the router: any card → its detail page (movie-detail.html for a movie or series, short-detail.html
-                    for a short), and a title's player (player.html). See the end of the file.
+                    for a short), and a title's player (player.html); Content.hero(info) what the card's screen text
+                    shows, word for word what that detail page shows. See the end of the file.
 */
 /*
   MD: the Movie page's titles and lists, shared by movie.html and movie-detail.html (the detail page of any title).
@@ -21,6 +22,7 @@
   Series (a title whose length reads "N Seasons"): MD.series(k), MD.seasons(k) (up to 3), MD.episodes(k, s) (8 a season:
     n, t, m minutes, d), MD.episode(k, s, e), MD.next(k, s, e) (the one after, or null); MD.cw(k) also gives s / e.
     MD.until(k) the rental's last day ({d, t}) for a rented title, else null.
+    MD.bg(k)    the title's full-screen picture (its b, else w, else p): every page's screen text and its detail page
 */
 (function(){
   var PP = 'posters_portrait/', P = 'posters/';
@@ -96,6 +98,12 @@
     odyssey:{t:'The Odyssey', w:P + 'P10_Odyssey.jpg', plat:'prime', g:['Adventure', 'Fantasy'], y:2026, len:'2h 40m', age:'13+',
              d:'Odysseus fights his way home across a hostile sea after the fall of Troy, ten years from his family.'}
   };
+  // b: the full-screen picture (posters/hero/) a title shows behind the screen text on Home, the Movie page and its
+  // detail page alike (Content.hero / MD.bg); a title without one uses its 16:9 picture, else its poster
+  var B = { topgun:'topgun-m', wicked:'wicked', superman:'superman', house:'house-of-the-dragon', lastofus:'last-of-us', loki:'loki',
+            dragon:'how-to-train', john:'john-wick', venom:'venom', f1:'f1', lotr:'lotr', thailaw:'evil-lawyer', dollar:'one-dollar-lawyer',
+            sherlock:'young-sherlock', endgame:'endgame', hailmary:'hailmary', encanto:'encanto', stranger:'stranger-things', spider:'spiderman' };
+  for(var bk in B) M[bk].b = P + 'hero/' + B[bk] + '.jpg';
   // titles made from a card that had no data of its own (Content.open): back into the catalogue on every page
   try { var ADHOC = JSON.parse(sessionStorage.getItem('contentAdhoc') || '{}'); for(var ak in ADHOC) if(!M[ak]) M[ak] = ADHOC[ak]; } catch(e){}
   var CONTINUE = [{k:'sherlock', s:1, e:5, w:31, of:58}, {k:'endgame', w:122, of:181}, {k:'encanto', w:61, of:102}, {k:'brazil', s:1, e:2, w:20, of:55}, {k:'hailmary', w:101, of:156},
@@ -155,7 +163,8 @@
     return price(k) ? 'buy' : 'play';
   }
   window.MD = { P:P, PP:PP, M:M, CONTINUE:CONTINUE, FOR_YOU:FOR_YOU, RENT:RENT, MY_RENTAL:MY_RENTAL, state:state, price:price, own:own, cw:cw, setProgress:setProgress, minutes:minutes,
-    continueList:continueList, series:series, seasons:seasons, episodes:episodes, episode:episode, next:next, until:until };
+    continueList:continueList, series:series, seasons:seasons, episodes:episodes, episode:episode, next:next, until:until,
+    bg:function(k){ var m = M[k]; return m ? m.b || m.w || m.p : ''; } };
 })();
 
 /*
@@ -214,7 +223,7 @@ window.Content = (function(){
   function base(src){ return String(src || '').split('/').pop().split('?')[0].toLowerCase(); }
   function norm(t){ return String(t || '').toLowerCase().replace(/\s+s\d+\s*:\s*e\d+$/, '').replace(/[^a-z0-9]/g, ''); }
   function find(info){
-    if(!info) return null;
+    if(!info || info.own) return null;   // own: a page's own video (Sport's highlights, News's episodes), never a catalogue title that shares its picture
     if(info.k && window.MD.M[info.k]) return { k:info.k };
     if(info.s !== undefined && info.s !== '' && window.SHORTS[+info.s]) return { s:+info.s };
     var b = base(info.img), n = norm(info.t), k;
@@ -228,17 +237,17 @@ window.Content = (function(){
   }
   // a card the catalogue doesn't know: a movie made from what it shows
   function adhoc(info){
-    var t = info.t || 'Untitled', id = t + '|' + base(info.img);   // title + picture: cards that share a placeholder title stay apart
+    var t = info.t || 'Untitled', id = t + '|' + base(info.img) + '|' + (info.len || '');   // title + picture + length: cards that share a placeholder title stay apart
     var k = 'x' + Math.abs(id.split('').reduce(function(h, c){ return (h * 31 + c.charCodeAt(0)) | 0; }, 7)).toString(36);
-    if(!window.MD.M[k]){
-      var portrait = /portrait|shorts\//.test(info.img || '');
-      var m = { t:t, plat:info.plat || 'monomax', g:info.g || ['Featured'], y:2026, len:info.len || '1h 45m', age:'13+', adhoc:1,
-        d:info.d || t + ': watch it now on AIS PLAY.' };
-      if(info.img){ if(portrait) m.p = info.img; else m.w = info.img; }
-      if(info.price) m.price = +info.price;
-      window.MD.M[k] = m;
-      try { var a = JSON.parse(sessionStorage.getItem('contentAdhoc') || '{}'); a[k] = m; sessionStorage.setItem('contentAdhoc', JSON.stringify(a)); } catch(e){}
-    }
+    // made again each time from what the card shows, so it never keeps words the card no longer has
+    var portrait = /portrait|shorts\//.test(info.img || '');
+    var m = { t:t, plat:info.plat || 'monomax', g:info.g || ['Featured'], y:info.y || 2026, len:info.len || '1h 45m', age:info.age || '13+', adhoc:1,
+      d:info.d || t + ': watch it now on AIS PLAY.' };
+    if(info.img){ if(portrait) m.p = info.img; else m.w = info.img; }
+    if(info.bg) m.b = info.bg;
+    if(info.price) m.price = +info.price;
+    window.MD.M[k] = m;
+    try { var a = JSON.parse(sessionStorage.getItem('contentAdhoc') || '{}'); a[k] = m; sessionStorage.setItem('contentAdhoc', JSON.stringify(a)); } catch(e){}
     return { k:k };
   }
   function target(info){ return find(info) || adhoc(info || {}); }
@@ -252,8 +261,123 @@ window.Content = (function(){
       if(bg && bg !== 'none') img = bg.replace(/^url\(["']?/, '').replace(/["']?\)$/, '');
       else if(n[i].tagName === 'IMG' && !/badge|logo|tag|icon/.test(n[i].className + n[i].src)) img = n[i].getAttribute('src');
     }
-    return { k:d.k, s:d.s, t:d.heroTitle || d.title || d.label || (el.textContent || '').trim().split('\n')[0], img:d.heroImg || img, d:d.heroDesc || d.desc, price:d.price };
+    var o = { k:d.k, s:d.s, t:(d.heroTitle || d.title || d.label || (el.textContent || '').trim().split('\n')[0]).replace(/^#\d+\s+/, ''),   // (a Top 10 card's "#3 ")
+              img:d.heroImg || img, d:d.heroDesc || d.desc, price:d.price };
+    var inner = el.querySelector('[data-hero-bg], [data-desc]');   // a Top 10 card: its poster carries them
+    if(!o.d && inner) o.d = inner.dataset.desc;
+    var heroBg = d.heroBg || (inner && inner.dataset.heroBg);
+    // what else the card says about itself (Home's My List: data-tag / data-meta; AIS PLAY's own: data-plat="ais" ...)
+    var tag = el.querySelector('img[src*="badges/tag-"]'), pm = /tag-([a-z]+)\./.exec(d.tag || (tag ? tag.getAttribute('src') : ''));
+    if(d.plat || pm) o.plat = d.plat || pm[1];
+    if(heroBg) o.bg = heroBg;
+    if(d.meta) meta(o, d.meta);
+    if(d.g) o.g = d.g.split(',');
+    if(d.y) o.y = +d.y;
+    if(d.len) o.len = d.len;
+    if(d.age) o.age = d.age;
+    return o;
   }
-  return { find:find, info:info, detailUrl:detailUrl, playUrl:playUrl,
+  // "Documentary · Sport · 2021 · 1h 52m" → its genres, year and length
+  function meta(o, line){
+    var g = [];
+    String(line).split(/\s*·\s*/).forEach(function(p){
+      if(/^\d{4}$/.test(p)) o.y = +p;
+      else if(/^\d+h|^\d+m|Seasons?$/.test(p)) o.len = p;
+      else if(p && !/^(Series|Movie)$/.test(p)) g.push(p);
+    });
+    if(g.length) o.g = g;
+  }
+  // what a card's screen text shows, the same as the detail page it opens: {t, d, plat, meta, bg, s (a short)}
+  function hero(info){
+    if(!info) return null;
+    var f = target(info);
+    if(f.s !== undefined){ var sh = window.SHORTS[f.s];
+      return { t:sh.t, d:sh.d, plat:'ais', meta:sh.gen.join(' · ') + ' · ' + sh.rate, bg:'posters/shorts/' + sh.img, s:f.s }; }
+    var m = window.MD.M[f.k];
+    return { t:m.t, d:m.d, plat:m.plat, meta:m.g.join(' · ') + ' · ' + m.y + ' · ' + m.len + ' · ' + m.age, bg:window.MD.bg(f.k), k:f.k };
+  }
+  return { find:find, info:info, hero:hero, detailUrl:detailUrl, playUrl:playUrl,
     open:function(i){ location.href = detailUrl(i); }, play:function(i){ location.href = playUrl(i); } };
+})();
+
+/*
+  LIVE and Upcoming programmes on the TV channels (Home's Live and Upcoming rail, Sport's matches, and the related rails on
+  their detail pages). A programme on a Movie or Sport channel has a detail page (movie-detail.html?prog=, Figma "MD LIVE
+  State" / "Upcoming Has Access (MD)"), opened only from a picture card; the TV Guide and the EPGs always play the channel.
+    LIVE.list          the programmes: t, img, tv (the TV Guide channel), live, or in (minutes from when the page opened,
+                       so the demo's upcoming ones are always upcoming), d; heroOnly: shown in Home's first scene, not its rail
+    LIVE.start(p)      when an upcoming programme starts (ms): from in, or a label ("Start in 16:12", "Today 20:30 PM",
+                       "Tomorrow 02:30 AM"; a time today that has gone by is taken as tomorrow's)
+    LIVE.label(p)      its card's label: "Start in 58:12" in the last hour, else "Today 20:30" / "Tomorrow 18:00" / "2 Nov 20:30"
+    LIVE.hasMD(tv)     whether the channel's programmes have a detail page: a Sports channel, or a Movies one that isn't Digital
+                       TV (channels-data.js)
+    LIVE.href(p, from) the card's link: its detail page, else the channel in the Live TV player (via the TV Guide)
+    LIVE.premium(tv), LIVE.range(p), LIVE.find(title)   Premium, its time on air, a programme by its title (Home's
+                       screen text and the detail page's meta row say the same)
+*/
+window.LIVE = (function(){
+  var U = 'posters/upcoming/';
+  var list = [
+    {t:'Liverpool vs Brentford', img:U + 'live.jpg', bg:'posters/liver-ben.jpg', tv:'MONOMAX 1', live:true,   // bg: Home's first scene and the detail page
+     d:'Liverpool host Brentford at Anfield in a big Premier League clash. Follow every moment live, from kick-off to the final whistle.'},
+    {t:'Arsenal vs Chelsea', img:'posters/arsenal.jpg', bg:'posters/hero/arsenal.jpg', tv:'MONOMAX SPORTS', live:true, heroOnly:true,   // Home's first scene only
+     d:'A fierce London derby as Arsenal host Chelsea in a top-of-the-table Premier League showdown.'},
+    {t:'Masterchef Thailand', img:U + 'u1.jpg', tv:'CH7 HD', in:58.2,
+     d:'Thailand\'s best home cooks battle it out in the kitchen for the title of MasterChef. Season 7 premieres soon.'},
+    {t:'Leipzig vs Gladbach', img:U + 'u2.jpg', tv:'PLAY SPORTS (Football)', in:150,
+     d:'RB Leipzig welcome Borussia Mönchengladbach in a Bundesliga clash with European places on the line.'},
+    {t:'Dortmund vs Hamburg', img:U + 'u3.jpg', tv:'PLAY SPORTS (Football)', in:180,
+     d:'The Yellow Wall awaits as Borussia Dortmund host Hamburger SV at Signal Iduna Park.'},
+    {t:'CT14 Eala vs Jovic (R1)', img:U + 'u4.png', tv:'FutureChannel Tennis', in:1260,
+     d:'Alex Eala takes on Iva Jovic in the first round, live from the WTA tour.'}
+  ];
+  var LOADED = Date.now();   // "Start in" counts from when the page was opened, as the card's label does
+  function start(p){
+    if(p.start) return +p.start;
+    if(p.in) return LOADED + p.in * 60000;
+    var w = p.when || '', m = /Start in (\d+):(\d+)/i.exec(w);
+    if(m) return LOADED + (+m[1] * 60 + +m[2]) * 1000;
+    m = /(Today|Tomorrow)\s+(\d{1,2}):(\d{2})\s*(AM|PM)?/i.exec(w);
+    if(!m) return LOADED + 3600000;
+    var d = new Date(), h = +m[2];
+    if(m[4] && /PM/i.test(m[4]) && h < 12) h += 12;
+    if(m[4] && /AM/i.test(m[4]) && h === 12) h = 0;
+    d.setHours(h, +m[3], 0, 0);
+    if(/Tomorrow/i.test(m[1]) || d.getTime() <= Date.now()) d.setDate(d.getDate() + 1);
+    return d.getTime();
+  }
+  function hm(t){ var d = new Date(t); return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
+  function label(p){
+    var t = start(p), left = t - Date.now();
+    if(left < 3600000){ var s = Math.max(0, Math.floor(left / 1000)); return 'Start in ' + Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + s % 60; }
+    var a = new Date(t), b = new Date(); a.setHours(0, 0, 0, 0); b.setHours(0, 0, 0, 0);
+    var dd = Math.round((a - b) / 864e5), d = new Date(t);
+    return (dd === 0 ? 'Today ' : dd === 1 ? 'Tomorrow ' : d.getDate() + ' ' + 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ')[d.getMonth()] + ' ') + hm(t);
+  }
+  // a Sports channel, or a Movies one that isn't a free-to-air Digital TV channel (those carry Movies & Series among
+  // everything else: CH7 HD's Masterchef plays the channel)
+  function hasMD(tv){ var c = window.TV && TV.byName(tv), has = function(k){ return c.cats.indexOf(k) >= 0; };
+    return !!c && (has('sports') || (has('movies') && !has('digital'))); }
+  function href(p, from){
+    if(hasMD(p.tv)){
+      var o = {t:p.t, img:p.img, tv:p.tv, d:p.d || ''};
+      if(p.bg) o.bg = p.bg;
+      if(p.live) o.live = 1; else o.start = start(p);
+      if(p.range) o.range = p.range;
+      return 'movie-detail.html?prog=' + encodeURIComponent(JSON.stringify(o));
+    }
+    return 'tv-guide.html?play=' + encodeURIComponent(p.tv) + '&from=' + (from || 'home') + (p.live ? '&t=' + encodeURIComponent(p.t) : '');
+  }
+  list.forEach(function(p){ if(!p.live) p.when = label(p); });   // the card's label, as the page opens
+  // the same meta on Home's screen text and the detail page: Premium (the channel is premium) and the time on air (a LIVE
+  // one: what the channel's TV Guide has on now; an Upcoming one: from its start, 2h15m)
+  function premium(tv){ var c = window.TV && TV.byName(tv); return !!c && (c.crown === 'gold' || c.crown === 'owned'); }
+  function range(p){
+    if(p.range) return p.range;
+    var c = window.TV && TV.byName(p.tv);
+    if(p.live && c){ var o = TV.onNow(c); return hm(o.now.start) + ' – ' + hm(o.now.end); }
+    var t = start(p); return hm(t) + ' – ' + hm(t + 135 * 60000);
+  }
+  function find(t){ return list.filter(function(p){ return p.t === t; })[0] || null; }
+  return { list:list, start:start, label:label, hasMD:hasMD, href:href, premium:premium, range:range, find:find };
 })();

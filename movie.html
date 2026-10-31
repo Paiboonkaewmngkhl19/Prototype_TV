@@ -113,7 +113,7 @@
   /* 16:9 card (TV / Card): 320x180 picture; Continue Watching adds the time left, a progress line and the title */
   .card{ position:relative; width:320px; flex:0 0 auto; display:flex; flex-direction:column; gap:8px; border-radius:12px; }
   .thumb{ position:relative; width:320px; height:180px; border-radius:12px; overflow:hidden; background:var(--surface-container-high) center / cover no-repeat; }
-  .card .t{ font-size:20px; font-weight:500; color:var(--on-surface); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .card .t{ padding:8px 12px 0; margin-bottom:16px;   /* with the card's 8px gap: 16px under the picture, 16px below, 12px from the sides */ font-size:20px; font-weight:500; color:var(--on-surface); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   /* time left: the corner tag (corner-tag.css) */
   .thumb .prog{ position:absolute; left:0; right:0; bottom:0; height:6px; background:rgba(74,74,74,.9); }
   .thumb .prog i{ position:absolute; left:0; top:0; bottom:0; background:var(--live); }
@@ -261,7 +261,7 @@
   /* ---------- content: the titles behind the project's posters (Figma's placeholders) ----------
      t title, p 2:3 poster, w 16:9 picture, plat platform tag (badges/tag-*.png), g genres, y year, len, age, d synopsis */
   var PP = MD.PP, P = MD.P, M = MD.M;   // the titles: content.js (shared with movie-detail.html)
-  function pic(k){ var m = M[k]; return m.w || m.p; }       // the movie's widest picture (the hero's background)
+  function pic(k){ return MD.bg(k); }       // the title's full-screen picture (the hero's background, as its detail page)
   function genres(m){ return m.g.join(' · '); }
 
   var SLIDES = ['d9', 'topgun', 'wicked', 'superman', 'house', 'lastofus', 'loki', 'dragon'];   // the first scene (8 dots, as Figma)
@@ -291,22 +291,14 @@
   var LEAVING = ['judge', 'bigmouth', 'family', 'lawless', 'lastking', 'vikings', 'debt'];
   var SEASONAL = [{t:'Movies Halloween', img:PP + 'Venom.jpg'}, {t:'Seasonal Collection', img:PP + 'lotr/r1.jpg'}, {t:'Netflix (4K)', img:PP + 'John.jpg'},
                   {t:'Award Winners', img:PP + 'topgun_m.jpg'}, {t:'K-Drama Collection', img:PP + 'legal/l6.jpg'}];
-  // the movie channels (TV Guide's: its names open them in the Live TV player)
-  var CHANNELS = [
-    {n:'HBO', no:251, logo:'icons/channels/hbo.png', fit:'cover', fav:1},
-    {n:'HBO Hits', no:252, logo:'icons/channels/hbohits.png', box:[0,17.28,95.67,65.54], fav:1},
-    {n:'HBO Family', no:253, logo:'icons/channels/hbofamily.png', box:[-0.11,22.3,108.43,66.07]},
-    {n:'HBO Signature', no:254, logo:'icons/channels/hbosignature.png', box:[-17.36,23.71,114.25,52.53]},
-    {n:'Cinemax', no:255, logo:'icons/channels/cinemax.png', box:[5.54,25.24,88.79,50]},
-    {n:'Warner TV', no:230, logo:'icons/channels/wbtv.png', box:[10.88,12.81,80.09,74.91]},
-    {n:'MONOMAX 1', no:501, logo:'partners/monomax.png', fit:'contain'}
-  ];
-  // the same channels as the TV Guide (channels-data.js): its number, crown and favourite (TV.isFav: its own, or as changed
-  // this session in the TV Guide or the player); only these cards' logo framing is Movie's own
+  // the movie channels, lowest number first (TV Guide's: its names open them in the Live TV player)
+  var CHANNELS = ['Warner', 'HBO', 'HBO Sinature', 'HBO Hits', 'HBO Family', 'CINEMAX', 'MONOMAX 1'].map(function(n){ return {n:n}; });
+  // the same channels as the TV Guide (channels-data.js): its number, logo, crown and favourite (TV.isFav: its own, or as
+  // changed this session in the TV Guide or the player)
   function readFavs(){
     CHANNELS.forEach(function(c){
       var d = window.TV && TV.byName ? TV.byName(c.n) : null;
-      if(d){ c.no = d.no; c.crown = d.crown; c.fav = TV.isFav(d); }
+      if(d){ c.no = d.no; c.crown = d.crown; c.fav = TV.isFav(d); c.logo = TV.logoSrc(d); c.fit = d.logo ? d.fit : 'cover'; c.box = d.box; c.bg = d.bg; }
     });
   }
   readFavs();
@@ -324,7 +316,7 @@
                {t:'Customer Support', sub:'Call customer support and Visit support website.', ic:'store-assets/headset.svg'}];
 
   /* ---------- markup ---------- */
-  function ptag(m){ return '<img class="ptag" src="badges/tag-' + m.plat + '.png" alt="">'; }
+  function ptag(m){ return m.plat === 'ais' ? '<span class="ptag ais"></span>' : '<img class="ptag" src="badges/tag-' + m.plat + '.png" alt="">'; }
   function metaRow(m){
     return ptag(m) + '<strong>' + esc(genres(m)) + '</strong><span>' + m.y + '</span><span>' + m.len + '</span><span class="pill">' + m.age + '</span><span class="pill">HD</span>';
   }
@@ -341,9 +333,9 @@
       '<div class="rail"><div class="track">' + body + '</div></div></section>';
   }
   function logoHtml(c){
-    var b = c.box, img = b ? '<img src="' + c.logo + '" alt="" style="left:' + b[0] + '%;top:' + b[1] + '%;width:' + b[2] + '%;height:' + b[3] + '%;object-fit:contain;">'
-                          : '<img class="' + (c.fit || 'cover') + '" src="' + c.logo + '" alt="">';
-    return '<div class="logo">' + img + '</div>';
+    var b = c.box, img = b ? '<img src="' + c.logo + '"' + TV.logoAttrs(c) + ' style="left:' + b[0] + '%;top:' + b[1] + '%;width:' + b[2] + '%;height:' + b[3] + '%;object-fit:contain;">'
+                          : '<img class="' + (c.fit || 'cover') + '" src="' + c.logo + '"' + TV.logoAttrs(c) + '>';
+    return '<div class="logo"' + (c.bg ? ' style="background:' + c.bg + '"' : '') + '>' + img + '</div>';
   }
   var html = '';
   html += '<section class="sec" data-row="cats"><div class="rail"><div class="chips">' + CATS.map(function(c, i){

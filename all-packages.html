@@ -335,13 +335,15 @@
   // Back: up to the tabs first, then where the page was opened from (its Back lands on View All / See all Packages).
   // That page is remembered for the session, so it still holds after a trip through the package detail page.
   // (a short drama page: its address, so Back returns to the same short)
+  // (the Live TV player, from Explore Package: its address, so Back returns to the same channel and programme)
   var ref = document.referrer || '', OPENER = /movie-detail\.html/.test(ref) ? 'movie-detail.html#packages' : /store\.html/.test(ref) ? 'store.html' :
-    /short-detail\.html/.test(ref) ? 'short-detail.html' + (ref.match(/\?s=\d+/) || [''])[0] : '';
+    /short-detail\.html/.test(ref) ? 'short-detail.html' + (ref.match(/\?s=\d+/) || [''])[0] :
+    /live-tv-player\.html/.test(ref) ? 'live-tv-player.html' + (ref.match(/\?[^#]*/) || [''])[0] : '';
   try { if(OPENER) sessionStorage.setItem('apOpener', OPENER); else OPENER = sessionStorage.getItem('apOpener') || 'store.html'; } catch(e){ OPENER = OPENER || 'store.html'; }
   if(!/\.html/.test(OPENER)) OPENER = OPENER === 'movie-detail' ? 'movie-detail.html#packages' : 'store.html';   // (saved by an earlier version)
   function back(){
     if(cur.row > 1){ cur.row = 1; paint(); return; }
-    try { if(document.referrer && /(store|movie-detail|short-detail)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    try { if(document.referrer && /(store|movie-detail|short-detail|live-tv-player)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
     location.href = OPENER;
   }
   // leaving for the package detail page: coming back lands on the same tab, filters and card
@@ -387,7 +389,7 @@
   cur.col.tabs = tabAt;
   if(subscribed){
     history.replaceState(null, '', 'all-packages.html'); toast('You\'re now subscribed to PLAY ULTIMATE');
-    try { sessionStorage.setItem('shortsSubscribed', '1'); } catch(e){}   // short dramas: every episode is open now
+    try { sessionStorage.setItem('shortsSubscribed', '1'); sessionStorage.setItem('tvSubscribed', '1'); } catch(e){}   // short dramas: every episode open; TV: premium channels and their Time Shift
   }
   page.style.transition = 'none';
   paint();

@@ -1,0 +1,84 @@
+﻿Premium,ChannelName,ChannelNumber,Category,Sub-Category
+FALSE,NBT 2 HD,2,"Digital TV,News",null
+FALSE,TPBS,3,"Digital TV,News",null
+FALSE,ALTV4,4,"Digital TV,Education",null
+FALSE,CH5 HD,5,"Digital TV,News",null
+FALSE,T Sports 7,7,"Digital TV,News,Sports",Multi-Sports
+FALSE,Parliament,10,"Digital TV,News",null
+FALSE,TNN,16,"Digital TV,News",null
+FALSE,JKN 18,18,"Digital TV,News",null
+FALSE,Nation TV,22,"Digital TV,News",null
+FALSE,Workpoint TV,23,"Digital TV,Variety",null
+FALSE,True 4 U,24,"Digital TV,Movies & Series,Variety",null
+FALSE,GMM25,25,"Digital TV,Movies & Series,Variety,News",null
+FALSE,CH 8,27,"Digital TV,Movies & Series,Variety,News",null
+FALSE,MONOMAX SPORTS,29,"Digital TV,Sports",Multi-Sports
+FALSE,MCOT HD,30,"Digital TV,Movies & Series,Variety,News",null
+FALSE,ONE 31 HD,31,"Digital TV,Movies & Series,Variety,News",null
+FALSE,Thairath TV HD,32,"Digital TV,Variety,News",null
+FALSE,3 HD,33,"Digital TV,Movies & Series,Variety,News",null
+FALSE,AmarinTV HD,34,"Digital TV,Movies & Series,Variety,News",null
+FALSE,CH7 HD,35,"Digital TV,Movies & Series,Variety,News",null
+FALSE,PPTV HD,36,"Digital TV,Movies & Series,Variety,News,Sports",Multi-Sports
+TRUE,FOX News,51,News,null
+TRUE,Asian Hits,101,Movies & Series,null
+TRUE,Warner,106,Movies & Series,null
+TRUE,Mono 29 Plus,109,Movies & Series,null
+TRUE,HBO,116,Movies & Series,null
+TRUE,HBO Sinature,117,Movies & Series,null
+TRUE,HBO Hits,118,Movies & Series,null
+TRUE,HBO Family,119,Movies & Series,null
+TRUE,CINEMAX,120,Movies & Series,null
+TRUE,Bloomberg,167,News,null
+TRUE,Rock Entertainment,200,Movies & Series,null
+TRUE,Rock Action,201,Movies & Series,null
+TRUE,Mono29 Music Station,202,Variety,null
+TRUE,Food Network,205,Variety,null
+TRUE,Asian Food Network,206,Variety,null
+TRUE,TLC,207,Variety,null
+TRUE,Khong Dee Thailand,210,Variety,null
+TRUE,Thainess,211,Variety,null
+TRUE,TV5 Monde Asie,255,Variety,null
+TRUE,MVTV,260,Others,Shopping
+TRUE,Golf+,300,Sports,Golf
+TRUE,FutureChannel,301,Sports,Tennis
+TRUE,Eurosport,311,Sports,Multi-Sports
+TRUE,FutureChannel,312,Sports,Boxing
+TRUE,Real Madrid TV,313,Sports,"Football,Basketball"
+TRUE,Cartoonito,401,Cartoons,null
+TRUE,Cartoon Networks,402,Cartoons,null
+TRUE,Nickelodeon,403,Cartoons,null
+TRUE,Nick Jr.,404,Cartoons,null
+TRUE,Boomerang,450,Cartoons,null
+TRUE,Mango Mojito,453,Cartoons,null
+TRUE,Discovery,503,Others,Documentary
+TRUE,Samrujlok,505,Others,Documentary
+TRUE,Mysci,506,Others,Documentary
+TRUE,Animal Show,507,Others,Documentary
+TRUE,NHK World Japan,550,News,null
+TRUE,RT Documentary,551,Others,Documentary
+TRUE,CNN,603,News,null
+TRUE,BBC News,604,News,null
+TRUE,CCTV 4,640,News,null
+TRUE,CGTN,641,News,null
+TRUE,CNA,650,News,null
+TRUE,Euro News,651,News,null
+TRUE,DW,652,News,null
+TRUE,France 24,653,News,null
+TRUE,Arirang,654,Variety,null
+TRUE,News 1,655,News,null
+TRUE,FOX Business,656,News,null
+TRUE,Aljazeera,657,News,null
+TRUE,Top News,658,News,null
+TRUE,RT Channel,659,News,null
+TRUE,TVBS,660,News,null
+TRUE,ETV,716,Others,Education
+TRUE,W-Sports,991,Sports,Woman Sport
+TRUE,FutureChannel,992,Sports,Rugby
+TRUE,FutureChannel,993,Sports,Motorsport
+TRUE,PLAY SPORTS (Football),994,Sports,Football
+TRUE,PLAY SPORTS (NBA),995,Sports,Basketball
+TRUE,Premier Sports,996,Sports,Multi-Sports
+TRUE,PLAY SPORTS (PGA),997,Sports,Golf
+TRUE,MUTV,998,Sports,Football
+TRUE,PLAY SPORTS (NFL),999,Sports,American Football

@@ -36,3 +36,8 @@
 .epg-card .progress > i{ display:block; height:100%; background:var(--live, #ff1f1f); border-radius:2px; }
 /* what's next: a lighter band of the same glass, to the card's bottom edge */
 .epg-next{ background:rgba(255,255,255,.07); padding:20px 18px; display:flex; flex-direction:column; gap:6px; flex:1; }
+
+/* a channel's logo disc (channels-data.js TV.logoHtml): the picture placed on the disc's colour, sized from its content */
+.ch-logo{ position:relative; display:block; flex:0 0 auto; overflow:hidden; }
+.ch-logo img{ position:absolute; display:block; object-fit:contain; }
+.ch-logo img.cover{ left:0; top:0; width:100%; height:100%; object-fit:cover; }
