@@ -109,7 +109,7 @@
     DONT_MISS.map(function(it, i){ return liveCard(it, i, 'dontmiss'); }).join('') + '</div></div></section>';
   html += '<section class="sec" data-row="cats"><div class="rail"><div class="chips">' + CATS.map(function(c, i){
     return '<div class="chip tv-chip item' + (i === PICK ? ' sel' : '') + '"' + attrs({kind:'cat', i:i}) + ' data-ring-art="">' +
-      (i ? '<img class="chip-ic" src="sport-assets/chip-icon.png" alt="">' : '') + esc(c.t) + '</div>';   // Sport's filter chip: its picture, then the label (chip-theme.css)
+      (c.cat ? '<img class="chip-ic" src="icons/chips/' + c.cat + '.svg" alt="">' : '') + esc(c.t) + '</div>';   // Sport's filter chip: its icon (icons/chips/), then the label (chip-theme.css)
   }).join('') + '</div></div></section>';
   html += chanRail('intl', 'International News Channel', INTL);
   html += chanRail('thai', 'Thai News Channel', THAI);

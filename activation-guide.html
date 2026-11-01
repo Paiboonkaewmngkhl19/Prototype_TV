@@ -16,24 +16,30 @@
   them), Down to Back to Home; Enter on it, or Back, returns to Home.
 -->
 <link rel="stylesheet" href="button-theme.css">
+<link rel="stylesheet" href="chip-theme.css">
 <style>
+  /* Home's default theme (home.css): the navy page and its glow, panels frosted over it; the apps and arrows are
+     chip-theme.css's chips (picked: the focused chip's glass pill, Active dim, as the Store's and All Packages' tabs) */
   :root{ color-scheme:dark; --on:#e8e8e8; --muted:#a8a8a8; --ease:cubic-bezier(.2,0,0,1);
+    --bg-0:#070e16; --th-glow:rgba(214,222,240,.12);
+    --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%);
+    --focus-fill:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%), var(--th-pill);
     --roboto:'Roboto', 'Noto Sans Thai', system-ui, sans-serif; --inter:'Inter', 'Noto Sans Thai', system-ui, sans-serif; }
   html,body{ margin:0; height:100%; background:#000; overflow:hidden; font-family:var(--roboto); color:#fff; -webkit-font-smoothing:antialiased; }
-  #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:#3b3b3b; }
-  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; }
+  #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:var(--bg-0); }
+  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left;
+    background:radial-gradient(1400px 900px at 85% 110%, var(--th-glow), transparent 70%), var(--bg-0); }   /* Home's page colour and glow */
 
   /* ---------- left: the apps and the myAIS QR ---------- */
-  .side{ position:absolute; left:0; top:0; width:550px; height:1080px; background:#161616; border-right:2px solid #4a4a4a; box-sizing:border-box; }
+  .side{ position:absolute; left:0; top:0; width:550px; height:1080px; background:rgba(0,0,0,.25); border-right:1px solid rgba(255,255,255,.1); box-sizing:border-box; }   /* a darker panel over the navy */
   .side h1{ position:absolute; left:110px; top:60px; margin:0; font:500 32px/40px var(--roboto); color:var(--on); }
   .apps{ position:absolute; left:100px; top:122px; width:400px; height:520px; overflow:hidden; padding:10px;
     -webkit-mask-image:linear-gradient(180deg, #000 88%, transparent 100%); mask-image:linear-gradient(180deg, #000 88%, transparent 100%); }
   .apps .list{ display:flex; flex-direction:column; gap:24px; transition:transform .3s var(--ease); }
   .app{ width:380px; height:70px; box-sizing:border-box; padding:0 32px; border-radius:12px; display:flex; align-items:center;
     font:400 32px/1 var(--roboto); color:var(--on); position:relative; flex:0 0 auto; }
-  .app::before{ content:''; position:absolute; inset:0; border-radius:inherit; border:2px solid #6a6a6a; }
-  .app.on{ background:#e8e8e8; color:#1c1c1c; padding-left:42px; }
-  .app.on::before{ border:0; }
+  /* (a tv-chip: the chip glass; focused, the glass pill and the ring) the picked app keeps the pill while focus is elsewhere */
+  .app.on:not(.focused){ background:var(--focus-fill); -webkit-backdrop-filter:blur(50px) saturate(1.4); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
   .myais{ position:absolute; left:110px; top:664px; width:379px; text-align:center; }
   .myais .or{ font:400 24px/32px var(--roboto); color:var(--on); }
   .myais .t{ margin-top:16px; font:400 28px/36px var(--roboto); color:var(--on); }
@@ -52,16 +58,14 @@
   .stepc p{ margin:0; width:209px; font:400 22px/28px var(--roboto); color:var(--on); }
   .nav{ position:absolute; left:60px; top:796px; width:1250px; height:40px; }
   .dots{ position:absolute; left:50%; top:12px; transform:translateX(-50%); display:flex; gap:12px; }
-  .dots i{ width:16px; height:16px; border-radius:8px; background:#8a8a8a; transition:width .25s var(--ease), background .25s; }
+  .dots i{ width:16px; height:16px; border-radius:8px; background:rgba(232,232,232,.35); transition:width .25s var(--ease), background .25s; }
   .dots i.on{ width:40px; background:#e8e8e8; }
   .arrows{ position:absolute; right:0; top:0; display:flex; gap:10px; }
-  .arw{ width:40px; height:40px; border-radius:50%; background:#4a4a4a; display:flex; align-items:center; justify-content:center; opacity:.6; }
+  .arw{ width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; opacity:.4; }   /* tv-chip: the chip glass, focused the glass pill */
   .arw.can{ opacity:1; }
-  .arw.focused{ background:#e8e8e8; }
-  .arw.focused svg path{ stroke:#1c1c1c; }
 
   /* ---------- footer ---------- */
-  .foot{ position:absolute; left:550px; top:949px; width:1370px; height:131px; background:#2a2a2a; }
+  .foot{ position:absolute; left:550px; top:949px; width:1370px; height:131px; background:rgba(255,255,255,.06); border-top:1px solid rgba(255,255,255,.08); }   /* frosted over the navy */
   .foot .info{ position:absolute; left:60px; top:48px; display:flex; gap:12px; align-items:center; font:400 24px/32px var(--roboto); color:var(--on); }
   .foot .info b{ font-weight:500; }
   .foot .tv-btn{ position:absolute; right:60px; top:24px; --btn-w:279px; --btn-h:83px; font-size:30px; }
@@ -82,8 +86,8 @@
     <div class="win"><div class="track"></div></div>
     <div class="nav"><div class="dots"></div>
       <div class="arrows">
-        <div class="arw" data-dir="-1"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M12.5 4 6.5 10l6 6" fill="none" stroke="#e8e8e8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        <div class="arw" data-dir="1"><svg width="20" height="20" viewBox="0 0 20 20"><path d="m7.5 4 6 6-6 6" fill="none" stroke="#e8e8e8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="arw tv-chip" data-dir="-1"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M12.5 4 6.5 10l6 6" fill="none" stroke="#e8e8e8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="arw tv-chip" data-dir="1"><svg width="20" height="20" viewBox="0 0 20 20"><path d="m7.5 4 6 6-6 6" fill="none" stroke="#e8e8e8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       </div>
     </div>
   </section>
@@ -119,7 +123,7 @@
 
   var list = document.querySelector('.apps .list'), track = document.querySelector('.track'), win = document.querySelector('.win');
   var dots = document.querySelector('.dots'), arws = [].slice.call(document.querySelectorAll('.arw')), home = document.querySelector('.home');
-  list.innerHTML = APPS.map(function(a){ return '<div class="app">' + a.n + '</div>'; }).join('');
+  list.innerHTML = APPS.map(function(a){ return '<div class="app tv-chip">' + a.n + '</div>'; }).join('');
   var appEls = [].slice.call(list.children);
   var want = (location.search.match(/[?&]app=(\w+)/) || [])[1];
   var cur = { area:'apps', app:Math.max(0, APPS.map(function(a){ return a.id; }).indexOf(want)), page:0, arw:1 };

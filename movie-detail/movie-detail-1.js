@@ -165,7 +165,7 @@
 
   // ---- a series: the Episodes tab first; season chips over that season's episode cards ----
   var tab = SER ? 'eps' : 'ymal', season = cw && cw.s || 1;
-  if(SER) document.getElementById('menu').insertAdjacentHTML('afterbegin', '<div class="tab item" id="epsTab" data-tab="eps" data-ring-art="">Episodes</div>');
+  if(SER) document.getElementById('menu').insertAdjacentHTML('afterbegin', '<div class="tab tv-btn tv-btn--secondary item" id="epsTab" data-tab="eps" data-ring-art="">Episodes</div>');
   function renderEps(){
     var sn = MD.seasons(K), html = '';
     for(var i = 1; i <= sn; i++) html += '<div class="season item' + (i === season ? ' sel' : '') + '" data-season="' + i + '" data-ring-art="">Season ' + i + '</div>';
@@ -246,7 +246,12 @@
     // the tabs: the focused one's content shows below (one filter); filled while focus is below them
     if(cur.row === 1 && R[1][cur.col].dataset.tab !== tab){ tab = R[1][cur.col].dataset.tab; }
     document.body.classList.toggle('tab-eps', tab === 'eps');
-    $('#menu .tab').forEach(function(t){ t.classList.toggle('on', t.dataset.tab === tab); t.classList.toggle('active-dim', cur.row > 1 && t.dataset.tab === tab); });
+    // (a Secondary button at rest; focused: the Primary focus pill; the picked one Active dim while focus is below them)
+    $('#menu .tab').forEach(function(t){
+      var f = t.classList.contains('focused');
+      t.classList.toggle('tv-btn--primary', f); t.classList.toggle('tv-btn--secondary', !f);
+      t.classList.toggle('active-dim', !nav && cur.row > 1 && t.dataset.tab === tab);
+    });
     var et = document.getElementById('eptrack'), ei = tab === 'eps' && cur.row === 3 ? cur.col : 0;
     et.style.transform = railX(et, ei) ? 'translateX(' + railX(et, ei) + 'px)' : '';
     document.body.classList.toggle('grid', cur.row >= 1 && !(PROG && !PROG.live));   // Upcoming's cards are in its scene

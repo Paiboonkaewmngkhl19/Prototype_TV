@@ -291,7 +291,7 @@
     if(k === 'cat'){ toast('Showing ' + CATS[i].t); return; }
     if(k === 'cw' || k === 'buy' || k === 'title'){ leave('movie-detail.html?k=' + el.dataset.k); return; }
     if(k === 'actor'){ toast('Movies with ' + ACTORS[i].n); return; }
-    if(k === 'season'){ leave(Content.detailUrl(Content.info(el))); return; }
+    if(k === 'season'){ toast(SEASONAL[i].t + ' (demo)'); return; }   // a collection: a mockup with no page (as Home's), OK only presses it
     if(k === 'chan'){ leave('tv-guide.html?play=' + encodeURIComponent(CHANNELS[i].n) + '&from=movie'); return; }
     if(k === 'totop'){ toScene(); paint(); return; }
     toast(el.dataset.label + ' (demo)');

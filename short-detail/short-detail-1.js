@@ -123,7 +123,12 @@
     curTab.classList.toggle('active', cur.row === 0); curTab.classList.toggle('active-dim', cur.row !== 0);
     // Store's Active dim: only once focus has gone below the tabs bar (its ranges, grid or posters), not on the buttons above
     var tabsRow = rowOf('tabs');
-    $('.ttab').forEach(function(el){ el.classList.toggle('active-dim', el.classList.contains('on') && cur.row > tabsRow); });
+    // (button-theme.css: Secondary at rest, the Primary focus pill when focused, as Movie Detail's tabs)
+    $('.ttab').forEach(function(el){
+      var f = el.classList.contains('focused');
+      el.classList.toggle('tv-btn--primary', f); el.classList.toggle('tv-btn--secondary', !f);
+      el.classList.toggle('active-dim', el.classList.contains('on') && cur.row > tabsRow);
+    });
     var at = cur.row === 0 ? rows[Math.max(1, rowOf(cur.from))] : rows[cur.row];
     var below = at.key !== 'actions', y = below ? 936 : 0, isEp = at.key.indexOf('ep') === 0;
     page.style.transform = 'translateY(' + -y + 'px)';

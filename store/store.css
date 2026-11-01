@@ -145,6 +145,8 @@
   /* Rent or Buy: 2:3 posters, as Home's poster rails (no price, as in Figma) */
   .pst{ position:relative; width:220px; height:330px; flex:0 0 auto; border-radius:12px; }   /* Home's / Movie's poster: 220 x 330, focus grows it 8% */
   .pst .pic{ position:absolute; inset:0; border-radius:12px; overflow:hidden; }
+  .pst .pic{ background:var(--surface-container-high) center / cover no-repeat; }   /* the title's poster (content.js) */
+  .pst .ptag{ position:absolute; right:12px; top:12px; }   /* its app's tag (platform-tag.css: 56 x 36), top right (its badge: top left) */
   .rent .viewall{ height:330px; align-self:auto; }
 
   /* banner carousel */
@@ -214,3 +216,12 @@
   #screen .topnav .item.focused{ transform:scale(1.06); }
   #screen .xcard.focused{ transform:scale(1.05); }   /* as Home's AIS Play Exclusive */
   #screen .banner.focused{ transform:none; }
+
+  /* ---------- the banner's QR Code (Figma Store 5215:273578): dialog-theme.css's popup, 840 wide, 60 / 40 padding, 32px
+     apart: the title (48 / 56), the line (24 / 32), the 296px QR on white, Close (button-theme.css, 300 wide) ---------- */
+  .qr-pop{ width:840px; padding:60px 40px; display:flex; flex-direction:column; align-items:center; gap:32px; text-align:center; }
+  .qr-pop h2{ margin:0; font:500 48px/56px var(--roboto); color:var(--on-surface); }
+  .qr-pop p{ margin:0; font:400 24px/32px var(--roboto); color:var(--on-surface); }
+  .qr-img{ width:296px; height:296px; background:#fff; }
+  .qr-img img{ width:100%; height:100%; display:block; object-fit:cover; }
+  .qr-close{ --btn-w:300px; --btn-h:90px; cursor:pointer; }

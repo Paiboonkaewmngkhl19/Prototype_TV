@@ -1,24 +1,24 @@
 
-  :root{ color-scheme:dark; --surface:#101010; --on-surface:#e8e8e8; --on-surface-variant:#a8a8a8; --outline:#5a5a5a; --outline-variant:#4a4a4a;
+  :root{ color-scheme:dark; --surface:#070e16; --on-surface:#e8e8e8; --on-surface-variant:#a8a8a8; --outline:#5a5a5a; --outline-variant:#4a4a4a;
     --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%);
     --focus-fill:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%), var(--th-pill);
-    --idle-fill:rgba(255,255,255,.16); --idle-fill-on:rgba(255,255,255,.26);
-    --ease:cubic-bezier(.2,0,0,1); --bg-0:#101010; --inter:'Plus Jakarta Sans', system-ui, sans-serif; }
+    --ease:cubic-bezier(.2,0,0,1); --bg-0:#070e16; --th-glow:rgba(214,222,240,.12); --wash:10,8,24;   /* Home's default theme (home.css): the navy page, its glow and wash */ --inter:'Plus Jakarta Sans', system-ui, sans-serif; }
   html,body{ margin:0; height:100%; background:#000; overflow:hidden; font-family:'Plus Jakarta Sans', system-ui, sans-serif; color:var(--on-surface); }
   #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:var(--surface); }
-  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; }
+  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left;
+    background:radial-gradient(1400px 900px at 85% 110%, var(--th-glow), transparent 70%), var(--bg-0); }   /* Home's page colour and glow */
 
   /* the page moves up to the grid (body.grid) and back */
   #page{ position:absolute; left:0; top:0; width:1920px; transition:transform .45s var(--ease); }
   body.grid #page{ transform:translateY(-936px); }
 
-  /* ---------- the scene (Figma: 952px of the title's picture over the page's #101010, its text 100px from the bottom; here 936px, so the
+  /* ---------- the scene (Figma: 952px of the title's picture over the page's navy (Home's), its text 100px from the bottom; here 936px, so the
      144px tabs bar fits under it and the tabs end 32px above the screen's bottom edge, as below them) ---------- */
   .scene{ position:relative; height:936px; overflow:hidden; }
   .bg{ position:absolute; inset:0; background:var(--surface) center 30% / cover no-repeat; -webkit-mask-image:linear-gradient(180deg, #000 86%, transparent 96%); mask-image:linear-gradient(180deg, #000 86%, transparent 96%); }   /* the picture itself fades out before the edge: scaled to the window, none of it can show there as a line */
   .bg::after{ content:''; position:absolute; inset:0;
-    background:linear-gradient(90deg, rgba(16,16,16,.92) 0%, rgba(16,16,16,.66) 30%, rgba(16,16,16,.12) 60%, transparent 76%),
-      linear-gradient(180deg, transparent 50%, rgba(16,16,16,.6) 76%, var(--surface) 96%); }   /* solid before the edge: scaled to the window, no sliver of the picture shows as a line under it */
+    background:linear-gradient(90deg, rgba(var(--wash),.92) 0%, rgba(var(--wash),.66) 30%, rgba(var(--wash),.12) 60%, transparent 76%),
+      linear-gradient(180deg, transparent 50%, rgba(var(--wash),.6) 76%, var(--surface) 96%); }   /* solid before the edge: scaled to the window, no sliver of the picture shows as a line under it */
   .hero{ position:absolute; left:110px; bottom:100px; width:1300px; display:flex; flex-direction:column; gap:24px; transition:opacity .3s ease, transform .3s var(--ease); }
   .hero h1{ margin:0; max-width:900px; font-size:57px; font-weight:700; line-height:1.2; color:var(--on-surface); text-shadow:0 2px 12px rgba(0,0,0,.35);
     display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
@@ -43,14 +43,8 @@
   /* View Package: the crown (the player's Explore Package icon), the site's premium mark */
   .ic-pkg{ -webkit-mask:url('../icons/player/crown-dark.svg') center / contain no-repeat; mask:url('../icons/player/crown-dark.svg') center / contain no-repeat; }
   .ctas .ic img{ width:40px; height:40px; display:block; }
-  .ctas .ic.on{ background:rgba(232,232,232,.9); box-shadow:none; }
-  .ctas .ic.on img{ filter:brightness(0); }
   .ctas .tv-btn.focused{ transform:scale(1.08); }   /* 8%, as on every page; the ring: focus-ring.js */
-  .tip{ position:absolute; left:50%; bottom:calc(100% + 28px); padding:12px 24px; border-radius:16px; white-space:nowrap; pointer-events:none;
-    font:500 24px/32px 'Plus Jakarta Sans', system-ui, sans-serif; color:#e8e8e8; background:rgba(74,74,74,.92); box-shadow:0 4px 12px rgba(0,0,0,.35);
-    opacity:0; transform:translate(-50%, 6px); transition:opacity .18s ease, transform .18s var(--ease); }
-  .tip::after{ content:''; position:absolute; left:50%; top:calc(100% + 4px); margin-left:-9px; border-left:9px solid transparent; border-right:9px solid transparent; border-top:10px solid rgba(74,74,74,.92); }
-  .ic.focused .tip{ opacity:1; transform:translate(-50%, 0); }   /* the player's tooltip */
+  /* (the toggles' on look and tooltip: button-theme.css .tv-btn.ic) */
 
   /* a rental's last day (Figma "Package Available until"): the label, then the date | time on a dark pill */
   .until{ display:flex; align-items:center; gap:16px; font-size:20px; font-weight:600; color:#fff; }
@@ -61,15 +55,10 @@
      A series has two tabs (Figma 2698:80740): the one whose content shows is filled (active-dim) while focus is below */
   .menu{ height:144px; box-sizing:border-box; padding:32px 110px; display:flex; align-items:center; gap:32px; border-bottom:1px solid rgba(255,255,255,.18); transition:border-color .3s ease; }
   body:not(.grid) .menu{ border-bottom-color:transparent; }   /* the first scene shows no divider: only once the page moves up to the tabs */
-  /* the tabs: Short Drama detail's (short-detail.html .ttab): idle glass, the picked one brighter; picked while focus is
-     below them (seasons, episodes, posters): Store's Active dim, the focused tab's glass pill without the ring */
-  .menu .tab{ height:80px; padding:0 40px; border-radius:15px; display:flex; align-items:center; font-weight:500; font-size:30px; line-height:40px; white-space:nowrap; color:var(--on-surface-variant);
-    background:var(--idle-fill); -webkit-backdrop-filter:blur(80px) saturate(1.5); backdrop-filter:blur(80px) saturate(1.5); cursor:pointer;
-    transition:transform .22s var(--ease), background .15s ease, color .15s ease; }
-  .menu .tab.on{ background:var(--idle-fill-on); color:#fff; }
-  .menu .tab.on.active-dim:not(.focused){ background:var(--focus-fill); -webkit-backdrop-filter:blur(50px) saturate(1.4); backdrop-filter:blur(50px) saturate(1.4);
-    color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
-  .menu .tab.focused{ background:var(--focus-fill); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); transform:scale(1.08); }
+  /* the tabs: button-theme.css's buttons, 80 high: Secondary at rest (outline), the Primary focus pill when focused
+     (movie-detail-1.js swaps the class), the picked one Active dim while focus is below them (seasons, episodes, posters) */
+  .menu .tab{ --btn-w:auto; --btn-h:80px; padding:0 40px; border-radius:15px; font-size:30px; line-height:40px; cursor:pointer; }   /* its own 15px corners, not the pill */
+  .menu .tab.focused{ transform:scale(1.08); }
   body.tab-eps .ywin, body:not(.tab-eps) .eps{ display:none; }
 
   /* ---------- Episodes (Figma 2698:80740): season chips, then the season's 16:9 episode cards ---------- */
@@ -143,7 +132,7 @@
      (body.grid), away until it gets focus (Up from the buttons, Left from a row's first item) ---------- */
   #screen .topnav .item.focused{ transform:scale(1.06); }
   .scrim{ position:absolute; left:0; top:0; width:1920px; height:170px; z-index:4; pointer-events:none; opacity:0; transition:opacity .3s ease;
-    background:linear-gradient(180deg, var(--bg-0) 0%, var(--bg-0) 45%, rgba(16,16,16,0) 100%); }
+    background:linear-gradient(180deg, var(--bg-0) 0%, var(--bg-0) 45%, rgba(7,14,22,0) 100%); }
   body.grid.on-nav .scrim{ opacity:1; }
   .topnav{ position:absolute; left:0; top:0; z-index:5; width:1920px; box-sizing:border-box; padding:24px 110px 0; display:flex; align-items:center; transition:opacity .3s ease, translate .3s var(--ease); }
   body.grid:not(.on-nav) .topnav{ opacity:0; translate:0 -40px; pointer-events:none; }

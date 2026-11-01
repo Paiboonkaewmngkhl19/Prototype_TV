@@ -1,0 +1,25 @@
+/*
+  Toast and snackbar (Figma PLAY epg - mini epg 908:94043, "Toast and snackbar" 2296:174441), on every page but the
+  players: toast.js shows each message the page puts in its own #toast as one of these, bottom right, and the page's
+  #toast itself stays hidden.
+    a toast    #1c1c1c (surface-container-low), 12px corners, 14 / 20px padding, a soft shadow: the 4 x 22 accent bar
+               (inverse-surface #e8e8e8, aligned to the first line) and the message (Inter 22 / 30, 90%); Figma's,
+               made smaller: as wide as its message, up to 520px
+    the stack  at most 3, the newest on top; older ones dimmer (opacity only, no scaling); inside the TV safe area:
+               90px from the screen's right, its bottom 60px from the screen's bottom (it grows upward), the toasts'
+               right edges aligned. Never focusable.
+  The players (player.html, live-tv-player.html) show no toast: player.css hides it and they don't load this.
+*/
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400&display=swap');
+html #toast{ display:none !important; }
+.toasts{ position:absolute; right:90px; bottom:60px; max-width:520px; z-index:500; display:flex; flex-direction:column; align-items:flex-end; gap:12px; pointer-events:none; }
+.toast-i{ box-sizing:border-box; max-width:100%; padding:14px 20px; border-radius:12px; display:flex; gap:12px; align-items:flex-start;
+  background:var(--surface-container-low-toast, #1c1c1c); box-shadow:0 4px 12px rgba(0,0,0,.3); overflow:hidden;
+  opacity:0; transform:translateX(32px); transition:opacity .25s ease, transform .25s cubic-bezier(.2,0,0,1); }
+.toast-i.in{ opacity:1; transform:none; }
+.toast-i.p2{ opacity:.7; } .toast-i.p3{ opacity:.45; }   /* older: dimmer */
+.toast-i.out{ opacity:0; transform:translateX(32px); }
+.toast-i i{ width:4px; height:22px; margin-top:4px; border-radius:3px; background:#e8e8e8; flex:0 0 auto; }
+.toast-i p{ flex:1; min-width:0; margin:0; font:400 22px/30px 'Inter', 'Noto Sans Thai', system-ui, sans-serif; color:#e8e8e8; opacity:.9;
+  text-align:left; white-space:normal; word-break:break-word; }
+@media (prefers-reduced-motion: reduce){ .toast-i{ transition:opacity .2s ease; transform:none; } .toast-i.out{ transform:none; } }

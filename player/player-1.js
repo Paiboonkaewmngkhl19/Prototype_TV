@@ -28,9 +28,8 @@
   byId('video').src = byId('thumbV').src = CLIP;
   if(SHORT_ON) byId('video').poster = m.w;
   byId('title').textContent = SER ? 'S' + S + ' E' + E + ' : ' + EP.t : m.t;
-  // the header's crown, as the Live TV player's (content.js: gold, a premium title not the viewer's; owned), then the series
-  byId('sub').innerHTML = Content.crownIcon(SHORT_ON ? {s:SI} : {k:K}, 32);
-  byId('sub').appendChild(document.createTextNode(SER ? m.t : ''));
+  // no line under the title in the VOD player (no crown, no series' or short's name): only the Live TV player has one
+  byId('sub').innerHTML = '';
   document.title = byId('title').textContent + ' · Player';
   function hms(s){ s = Math.max(0, Math.floor(s)); return Math.floor(s / 3600) + ':' + ('0' + Math.floor(s / 60) % 60).slice(-2) + ':' + ('0' + s % 60).slice(-2); }
   function vmod(t){ var d = byId('video').duration || 0; return d ? ((t % d) + d) % d : 0; }
@@ -77,7 +76,15 @@
     if(SHORT_ON){   // a short: a locked episode goes to the short's page to unlock it
       save(); leaving = true;
       if(!SHORT.open(SI, ep.n)){ location.href = 'short-detail.html?s=' + SI + '&unlock=' + ep.n; return; }
-      SHORT.setAt(SI, ep.n, 0); location.replace('player.html?short=' + SI + '&ep=' + ep.n + '&start=1'); return;
+      SHORT.setAt(SI, ep.n, 0);
+      // as TikTok: this episode slides away and the next comes in from below (the one before: from above); the page
+      // that opens finishes the slide (&sw=)
+      var dir = ep.n > E ? 'up' : 'down', url = 'player.html?short=' + SI + '&ep=' + ep.n + '&start=1&sw=' + dir;
+      var g = document.createElement('div'); g.className = 'sw-ghost from-' + dir; g.style.backgroundImage = "url('" + m.w + "')";
+      byId('video').parentNode.insertBefore(g, byId('video').nextSibling);
+      void g.offsetWidth; document.body.classList.add('sw-' + dir);
+      setTimeout(function(){ location.replace(url); }, 380);
+      return;
     }
     save(); leaving = true; MD.setProgress(K, 1, ep.m, ep.s, ep.n); location.replace('player.html?k=' + K + '&s=' + ep.s + '&e=' + ep.n + '&start=1'); }
 
@@ -125,7 +132,7 @@
     byId('rowChip').innerHTML = '<img src="icons/player/select-episode.svg" alt="">Select Episode';
     byId('ymalRow').innerHTML = MD.episodes(K, S).map(function(ep){
       return '<div class="card item" data-s="' + ep.s + '" data-e="' + ep.n + '" data-ring-art=""><div class="pic" style="background-image:url(\'' + (m.w || m.p) + '\')">' +
-        (ep.n === E ? '<span class="np"></span>' : '') + '</div><div class="nm">E' + ep.n + ' : ' + ep.t.replace(/</g, '&lt;') + '</div><div class="len">' + mins(ep.m) + '</div></div>';
+        (ep.n === E ? '<span class="np"><i class="eq"><b></b><b></b><b></b></i></span>' : '') + '</div><div class="nm">E' + ep.n + ' : ' + ep.t.replace(/</g, '&lt;') + '</div><div class="len">' + mins(ep.m) + '</div></div>';
     }).join('');
   } else {
     // You may also like: the same type only (a movie: movies; a short: shorts), content.js Content.related
@@ -172,7 +179,7 @@
     for(var n = gRange * RANGE + 1; n <= Math.min((gRange + 1) * RANGE, SHORT.EPS); n++){
       var open = SHORT.open(SI, n);
       h += '<div class="sep item' + (open ? '' : ' locked') + '" data-ep="' + n + '" data-ring-art=""><b>' + n + '</b>' +
-        (n === E ? '<span class="watching">Watching</span><span class="bar"><i style="width:' + Math.round(pos / LEN * 100) + '%"></i></span>'
+        (n === E ? '<span class="watching"><i class="eq"><b></b><b></b><b></b></i>Watching</span><span class="bar"><i style="width:' + Math.round(pos / LEN * 100) + '%"></i></span>'
           : open ? '' : '<span class="lk"><img src="icons/short/lock.svg" alt="Locked"></span>') + '</div>';
     }
     byId('sgridEps').innerHTML = h;
@@ -203,22 +210,29 @@
     var R = rows(); row = Math.max(0, Math.min(R.length - 1, row));
     var items = R[row].items, c = Math.max(0, Math.min(items.length - 1, curCol())); setCol(c);
     if(view === 'sgrid' && R[row].n === 'grng' && c !== gRange){ gRange = c; buildEps(); R = rows(); }   // the range under focus fills the grid
-    if(view === 'sgrid') byId('gblock').style.transform = row > 3 ? 'translateY(' + -(row - 3) * 188 + 'px)' : '';   // the focused episode row in view
+    if(view === 'sgrid') byId('sgridEps').style.transform = row > 5 ? 'translateY(' + -(row - 5) * 188 + 'px)' : '';   // the header stays; the grid scrolls, the focused row at most the 3rd
     $('.item.focused').forEach(function(e){ e.classList.remove('focused'); });
     var n = R[row].n;
     // nothing focused while it counts down (Figma); the seek bar shows focus itself (taller, with the handle), so it
     // takes .on, not .focused: focus-ring.js only rings .focused (as the Live TV player)
-    if(items[c] && credits !== 'count' && n !== 'track') items[c].classList.add('focused');
-    byId('track').classList.toggle('on', n === 'track');
+    // (controls away: focus is put away too and comes back on wake, as the Live TV player)
+    var away = document.body.classList.contains('idle');
+    if(items[c] && !away && credits !== 'count' && n !== 'track') items[c].classList.add('focused');
+    byId('track').classList.toggle('on', !away && n === 'track');
     byId('skip').classList.toggle('solo', n !== 'skip');   // Skip Intro stays light even when focus is elsewhere (Figma)
     if(view === 'ymal'){ byId('ymalRow').style.transform = 'translateX(' + -Math.max(0, ycol - 3) * 384 + 'px)'; }
   }
-  // the controls fade out after 5s without a key (not over the row, nor while paused)
+  // ---- idle, as the Live TV player (live-tv-player-2.js goIdle / wake): the controls fade out after 5s without a key
+  // and focus is put away with them; the first key (or a real mouse move, or a click on the picture) only brings them
+  // back. Not over a row (You may also like / Select Episode) nor during the credits' countdown ----
   var idleT;
+  function canIdle(){ return view === 'player' && (credits === '' || credits === 'watch'); }
+  function goIdle(){ clearTimeout(idleT); document.body.classList.add('idle'); paint(); }
   function wake(){
     var was = document.body.classList.contains('idle');
     document.body.classList.remove('idle'); clearTimeout(idleT);
-    idleT = setTimeout(function(){ if(view === 'player' && playing) document.body.classList.add('idle'); }, 5000);
+    idleT = setTimeout(function(){ if(canIdle()) goIdle(); }, 5000);
+    if(was) paint();
     return was;
   }
   function setView(v){
@@ -254,16 +268,31 @@
   }
   addEventListener('keydown', function(e){
     var k = e.key;
-    if(k === 'Escape' || k === 'Backspace'){ e.preventDefault(); if(view !== 'player') setView('player'); else leave(); return; }
+    // Back: a row closes first; with the controls up it only puts them away; with them away it leaves the player
+    if(k === 'Escape' || k === 'Backspace'){
+      e.preventDefault();
+      if(view !== 'player'){ setView('player'); wake(); }
+      else if(document.body.classList.contains('idle') || !canIdle()) leave();
+      else goIdle();
+      return;
+    }
     if(credits === 'count'){ e.preventDefault(); stopCount(); return; }   // any key stops the countdown, nothing else
     if(credits === 'stopped'){
       if(k === 'ArrowLeft') ncol--; else if(k === 'ArrowRight') ncol++;
       else if(k === 'Enter' || k === ' ') activate(rows()[0].items[ncol]);
       e.preventDefault(); paint(); return;
     }
+    // a short with the controls hidden: Down the next episode, Up the one before (as TikTok; the Live TV player's
+    // channel change with its controls away)
+    if(SHORT_ON && view === 'player' && document.body.classList.contains('idle') && (k === 'ArrowUp' || k === 'ArrowDown')){
+      e.preventDefault(); if(e.repeat || leaving) return;
+      var to = shortEp(E + (k === 'ArrowDown' ? 1 : -1));
+      if(to) playEp(to); else toast(k === 'ArrowDown' ? 'This is the last episode' : 'This is the first episode');
+      return;
+    }
     // the controls hidden: OK on Skip Intro skips at once; any other key first brings the controls back
     if(document.body.classList.contains('idle') && !byId('skip').hidden && (k === 'Enter' || k === ' ')){ e.preventDefault(); activate(byId('skip')); return; }
-    if(wake() && k !== 'ArrowLeft' && k !== 'ArrowRight') { e.preventDefault(); return; }
+    if(wake()){ e.preventDefault(); return; }   // with the controls away, any key (OK too) only brings them back
     var R = rows(), n = rn();
     if(k === 'ArrowUp' && row > 0) row--;
     else if(k === 'ArrowDown' && row < R.length - 1) row++;
@@ -279,8 +308,8 @@
     e.preventDefault(); paint();
   });
   screen.addEventListener('click', function(e){
-    wake();
     var el = e.target.closest('.item, .play');
+    if(wake() && !el) return;   // a click on the picture: the first wakes the controls, then it plays / pauses
     if(!el){ if(view === 'player' && !credits) setPlaying(!playing, true); return; }
     if(el.id === 'playBtn'){ setPlaying(!playing, true); return; }
     rows().forEach(function(r, ri){ var c = r.items.indexOf(el); if(c >= 0){ row = ri; setCol(c); } });
@@ -289,6 +318,16 @@
   // start: on Skip Intro while it shows (Figma), else the seek bar
   if(SER && pos < INTRO) byId('skip').hidden = false;
   row = rowIx(byId('skip').hidden ? 'track' : 'skip');
-  paintSeek(); paint(); wake();
+  // only a real move of the mouse (Chrome also sends one with no movement as a page loads under a resting pointer)
+  addEventListener('mousemove', function(e){ if(e.movementX || e.movementY) wake(); });
+  // arrived by a swipe (&sw=up / down): the episode slides in, the controls stay away (Up / Down go on swiping) and a
+  // toast says which episode it is
+  var SW = (location.search.match(/[?&]sw=(up|down)/) || [])[1];
+  paintSeek(); paint();
+  if(SW){
+    document.body.classList.add('sw-in-' + SW); goIdle(); toast('Episode ' + E);
+    setTimeout(function(){ document.body.classList.remove('sw-in-' + SW); }, 450);
+    try { history.replaceState(null, '', location.pathname + location.search.replace(/&sw=(up|down)/, '')); } catch(e){}
+  } else wake();
   if(pos > 0) toast('Resuming from ' + hms(pos));
 })();

@@ -139,11 +139,7 @@
   .mtag{ height:26px; box-sizing:border-box; padding:4px; border-radius:4px; display:flex; align-items:center; gap:4px; border:1px solid var(--inverse-surface);
     font:400 16px/1.2 var(--noto); letter-spacing:-.24px; white-space:nowrap; }
   .mtag.watch{ background:#ff1f1f; color:#fff; }
-  .mtag .eq{ width:14px; height:14px; display:flex; align-items:flex-end; justify-content:space-between; }
-  .mtag .eq b{ width:3px; height:100%; border-radius:1px; background:currentColor; transform-origin:bottom; animation:eq .9s ease-in-out infinite; }
-  .mtag .eq b:nth-child(2){ animation-delay:-.3s; animation-duration:.7s; }
-  .mtag .eq b:nth-child(3){ animation-delay:-.6s; animation-duration:1.1s; }
-  @keyframes eq{ 0%, 100%{ transform:scaleY(.3); } 50%{ transform:scaleY(1); } }
+  /* (its sound bars: player.css .eq) */
   /* Up Next: folded away on a default card, it folds open and fades in on the focused one (same 200ms) */
   .mnext{ display:flex; gap:4px; max-height:0; opacity:0; padding:0 16px 0 122px; border-top:1px solid transparent; font:500 24px/1.2 var(--noto); letter-spacing:-.24px;
     color:rgba(255,255,255,.7); white-space:nowrap; overflow:hidden;

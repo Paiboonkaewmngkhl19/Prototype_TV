@@ -40,7 +40,7 @@
     document.body.classList.add('short');   // (the Title Details layout)
     document.body.classList.toggle('no-note', KIND === 'buy');   // Figma "Buy": no viewing-period note
     document.title = TV.t;
-    document.querySelector('.left > h1').textContent = 'Title Details';
+    // (the heading stays "Package Details" (package-detail.html) in every mode)
     document.querySelector('.tdetails .poster').style.backgroundImage = "url('" + TV.pic + "')";
     document.querySelector('.tdetails .nm').textContent = TV.t;
     document.querySelector('.tdetails .meta').innerHTML = TV.meta;   // content.js: as its own detail page
@@ -177,6 +177,7 @@
     if(el.classList.contains('price')){ $('.price').forEach(function(p){ p.classList.toggle('selected', p === el); }); toast(el.dataset.label + ' plan selected'); return; }
     if(!document.querySelector('.price.selected')){ cur.r = 0; paint(); toast('Choose an option first'); return; }   // (short mode: none picked yet, as in Figma)
     if(el.dataset.label === 'Charge to AIS Bill'){ openOtp(); return; }
+    if(el.dataset.label === 'QR PromptPay'){ openQr(); return; }
     var plan = document.querySelector('.price.selected .amt').textContent;
     toast(el.dataset.label + ' · ' + plan + ' (demo)');
   }
@@ -204,11 +205,15 @@
     otpKeys.forEach(function(k, i){ k.classList.toggle('focused', oF.area === 'keys' && i === oF.k); });
     oBtns.forEach(function(b, i){ b.classList.toggle('focused', oF.area === 'btns' && i === oF.b); });
   }
-  function openOtp(){
+  // the amount (VAT included) and how it is charged: the OTP and QR popups' heading
+  function amountText(){
     var sel = picked(), per = sel.dataset.period, vat = sel.querySelector('.vat').textContent.replace('VAT Included: ', '').replace(/ (฿|baht)$/, '');
-    document.querySelector('.o-amt').textContent = vat + ' baht';
-    document.querySelector('.o-how').textContent = KIND === 'buy' ? 'Charged once for ' + TV.t : TITLE || per === '7d' ? 'Charged once for the ' + sel.dataset.label
-      : 'Renews every ' + (per === 'year' ? 'year' : 'month') + ' until you cancel';
+    $('.o-amt').forEach(function(e){ e.textContent = vat + ' baht'; });
+    $('.o-how').forEach(function(e){ e.textContent = KIND === 'buy' ? 'Charged once for ' + TV.t : TITLE || per === '7d' ? 'Charged once for the ' + sel.dataset.label
+      : 'Renews every ' + (per === 'year' ? 'year' : 'month') + ' until you cancel'; });
+  }
+  function openOtp(){
+    amountText();
     code = ''; paying = false; oF = { area:'keys', k:0, b:0 };
     document.body.classList.add('otp'); otpPaint();
   }
@@ -247,6 +252,7 @@
   }
   // the receipt the Purchase complete page shows: its name (and the option, when there was a choice), picture, price,
   // its period (a package's dates, a rental's or pass's hours, a purchase's date) and Watch Now (a title or short)
+  var payVia = '';   // QR PromptPay: the receipt's payment method (else the AIS bill, purchase.html's own)
   function pay(){
     var sel = picked(), lbl = sel.dataset.label, d0 = new Date(), d1 = null, dl, dur;
     var f = function(d){ return d.getDate() + ' ' + d.toLocaleString('en-GB', { month:'short' }) + ' ' + d.getFullYear(); };
@@ -262,10 +268,34 @@
       dl = 'Package duration'; dur = f(d0) + ' | 00:00:00 - ' + f(d1) + ' | 23:59:59';
     }
     var name = TITLE ? TV.t + ' · ' + lbl : PK.t + (PK.plans.length > 1 ? ' · ' + lbl : '');
-    var rc = { t:name, pic:TITLE ? TV.pic : BUNDLE ? BUNDLE.logo : '', amt:sel.querySelector('.amt').textContent.replace(/\s+/g, ' ').trim(),
-      vat:sel.querySelector('.vat').textContent, dl:dl, dur:dur, watch:TITLE ? (SH ? 'player.html?short=' + SHORT + '&ep=' + (EP || 1) : 'player.html?k=' + TK) : '' };
+    // its price as the receipt says it: "999 baht / Month" (a plan's per: Monthly → Month, Yearly → Year)
+    var ab = sel.querySelector('.amt b'), ap = sel.querySelector('.amt span');
+    var amt = ab ? ab.textContent + (ap ? ' / ' + ap.textContent.replace(/^\/\s*/, '').replace(/^(Month|Year)ly$/, '$1') : '') : sel.querySelector('.amt').textContent.replace(/\s+/g, ' ').trim();
+    var rc = { t:name, pic:TITLE ? TV.pic : BUNDLE ? BUNDLE.logo : '', logo:!TITLE && !!BUNDLE, amt:amt,
+      vat:sel.querySelector('.vat').textContent, dl:dl, dur:dur, pm:payVia, watch:TITLE ? (SH ? 'player.html?short=' + SHORT + '&ep=' + (EP || 1) : 'player.html?k=' + TK) : '' };
     location.href = 'purchase.html?' + (OB ? 'ott=' + OK + '&p=' + OI + '&' : '') + 'rc=' + encodeURIComponent(JSON.stringify(rc)) + '&next=' + encodeURIComponent(dest());
   }
+  // ---- Scan QR PromptPay (Figma Store 5510:189647): QR PromptPay opens it; the QR counts down from 5:00 (its disabled
+  // button); this demo's payment arrives 5 s in: the purchase is kept, then the Purchase complete page, as the OTP's.
+  // Cancel (or Back) closes it ----
+  var qrPay = 0, qrTick = 0, QR_PAID_MS = 5000;
+  function openQr(){
+    amountText();
+    var end = Date.now() + 5 * 60e3, left = document.querySelector('.q-left');
+    function show(){ var s = Math.max(0, Math.ceil((end - Date.now()) / 1000)); left.textContent = 'QR expires in ' + Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2); }
+    show(); clearInterval(qrTick); qrTick = setInterval(show, 1000);
+    clearTimeout(qrPay); qrPay = setTimeout(function(){ payVia = 'QR PromptPay'; pay(); }, QR_PAID_MS);
+    document.querySelector('.qbtn.back').classList.add('focused');   // Cancel: its only focus stop (the countdown is disabled)
+    document.body.classList.add('qrpay');
+  }
+  function closeQr(){ clearTimeout(qrPay); clearInterval(qrTick); document.querySelector('.qbtn.back').classList.remove('focused'); document.body.classList.remove('qrpay'); paint(); }
+  addEventListener('keydown', function(e){
+    if(!document.body.classList.contains('qrpay')) return;
+    if(e.key === 'Enter' || e.key === ' ' || e.key === 'Escape' || e.key === 'Backspace') closeQr();
+    e.preventDefault(); e.stopImmediatePropagation();
+  }, true);
+  document.querySelector('.qbtn.back').addEventListener('click', closeQr);
+
   addEventListener('keydown', function(e){
     if(!document.body.classList.contains('otp')) return;
     if(/^[0-9]$/.test(e.key)) typeKey(e.key);
@@ -288,7 +318,7 @@
   }, true);
   otpKeys.forEach(function(k, i){ k.addEventListener('click', function(){ oF = { area:'keys', k:i, b:0 }; typeKey(k.dataset.k); }); });
   oBtns.forEach(function(bt, i){ bt.addEventListener('click', function(){ oF = { area:'btns', k:0, b:i }; otpPaint(); otpAct(bt.dataset.o); }); });
-  document.querySelector('.scrim').addEventListener('click', function(){ if(document.body.classList.contains('otp')) closeOtp(); });
+  document.querySelector('.scrim').addEventListener('click', function(){ if(document.body.classList.contains('otp')) closeOtp(); if(document.body.classList.contains('qrpay')) closeQr(); });
 
   addEventListener('keydown', function(e){
     var h = true;

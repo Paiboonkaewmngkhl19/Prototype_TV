@@ -163,12 +163,22 @@
   // premium: the titles sold on their own or in a package (For You, Rent or Buy, the series sold one by one, District 9's
   // package, the rentals) and AIS PLAY Exclusive; Content.crown(info) their crown (Premium on the detail page)
   ['d9', 'avatar', 'f1', 'topgun', 'john', 'venom', 'lotr', 'hobbit', 'house', 'got', 'loki', 'odyssey', 'spider', 'lastofus', 'vikings',
-   'missuni', 'sophomores', 'bossckm', 'cityars', 'mufcche', 'mufcars']
+   'missuni', 'sophomores', 'bossckm', 'cityars', 'mufcche', 'mufcars',
+   // more of the Movie page's titles premium, so most of what it shows is for sale (a gold crown), not free
+   'debt', 'khemjira', 'medium', 'prada', 'superman', 'wicked', 'dragon', 'vincenzo', 'thailaw', 'dollar', 'judge', 'lawless', 'lastking', 'again']
     .forEach(function(k){ M[k].premium = true; });
   // the titles with their own options, so a detail page has 1, 2 or 3 buttons (View Package, Buy N ฿, Rent N ฿); pkg 0:
   // no package has it (Content.packageFor: none)
-  var OFFERS = { avatar:{ pkg:1, buy:399, rent:229 }, f1:{ pkg:1, buy:199 }, topgun:{ pkg:1, rent:149 }, john:{ pkg:0, buy:149, rent:99 },
-                 venom:{ pkg:1 }, lotr:{ pkg:0, buy:299 }, hobbit:{ pkg:0, rent:99 },
+  // Most premium titles are sold on their own only (pkg 0: Buy and / or Rent, no View Package); fewer come with a package
+  var OFFERS = { avatar:{ pkg:1, buy:399, rent:229 }, f1:{ pkg:1, buy:199 }, topgun:{ pkg:0, rent:149 }, john:{ pkg:0, buy:149, rent:99 },
+                 venom:{ pkg:0, buy:129, rent:79 }, lotr:{ pkg:0, buy:299 }, hobbit:{ pkg:0, rent:99 }, loki:{ pkg:0, buy:199 },
+                 // movies sold on their own
+                 debt:{ pkg:0, buy:149, rent:79 }, khemjira:{ pkg:0, rent:99 }, medium:{ pkg:0, buy:129, rent:69 }, prada:{ pkg:0, buy:299, rent:149 },
+                 superman:{ pkg:0, buy:349, rent:199 }, wicked:{ pkg:0, buy:299, rent:149 }, dragon:{ pkg:0, rent:129 },
+                 // series sold one by one (Buy: the whole series)
+                 vincenzo:{ pkg:0, buy:279 }, thailaw:{ pkg:0, buy:199 }, dollar:{ pkg:0, buy:199 }, judge:{ pkg:0, buy:199 }, lawless:{ pkg:0, buy:199 },
+                 // series in their app's package (View Package: Netflix, Viu)
+                 lastking:{ pkg:1 }, again:{ pkg:1 },
                  // AIS PLAY Exclusive (Home's rail): premium, bought on its own like a PPV event (the Store's price), or with PLAY ULTIMATE
                  // (ev: an event, bought as an Event Pass: package-detail.html, Figma "PPV Event")
                  missuni:{ pkg:1, buy:199, ev:1 }, sophomores:{ pkg:1, buy:199, ev:1 }, bossckm:{ pkg:1, buy:199, ev:1 }, cityars:{ pkg:1, buy:199, ev:1 },

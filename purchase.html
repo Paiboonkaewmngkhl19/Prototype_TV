@@ -22,6 +22,7 @@
 <link rel="stylesheet" href="platform-tag.css">
 <link rel="stylesheet" href="league-disc.css">
 <link rel="stylesheet" href="purchase/purchase.css">
+<link rel="stylesheet" href="toast.css">
 </head>
 <body data-step="confirm">
 <div id="frame"><div id="screen">
@@ -82,12 +83,19 @@
         </div>
         <div class="qr"><div class="qrbox"><img src="store-assets/qr-myais-big.png" alt="myAIS QR code"><img class="app" src="store-assets/myais-app.png" alt=""></div>Activate on your phone</div>
       </div>
+      <!-- a package of AIS PLAY's (PLAY ULTIMATE / PLAY ALL, paid on package-detail.html): its activation card, no QR -->
+      <div class="actcard">
+        <h2><img src="store-assets/pc-sms.svg" alt="">Activate your package to start watching</h2>
+        <p class="dim">Check your SMS and follow the activation link to activate your package.</p>
+        <p>Expect the activation SMS within 15 minutes.</p>
+      </div>
       <div class="receipt">
         <div class="hero"><div class="pic d-pic"></div><div><div class="nm d-nm"></div><div class="pr"><b class="d-amt"></b><span class="d-vat"></span></div></div></div>
         <div class="row"><span class="l"><img src="store-assets/pc-cal.svg" alt="">Package duration</span><span class="d-dur"></span></div>
-        <div class="row"><span class="l"><img src="store-assets/pc-wallet.svg" alt="">Payment method</span><span>Charge to AIS Bill: 8801234456</span></div>
+        <div class="row"><span class="l"><img src="store-assets/pc-wallet.svg" alt="">Payment method</span><span class="d-pm">Charge to AIS Bill: 8801234456</span></div>
       </div>
       <div class="done-acts">
+        <div class="tv-btn tv-btn--primary doneb" data-act="mypkg">View My Package</div>
         <div class="tv-btn tv-btn--secondary doneb" data-act="store">Back to Store</div>
         <div class="tv-btn tv-btn--primary doneb" data-act="guide">Activation Guide</div>
         <div class="tv-btn tv-btn--primary doneb" data-act="watch">Watch Now</div>
@@ -102,5 +110,6 @@
 <script src="tv-screen.js"></script>
 <script src="purchase/purchase-1.js"></script>
 <script src="focus-ring.js"></script>
+<script src="toast.js"></script>
 </body>
 </html>

@@ -10,6 +10,8 @@
     .active-dim         Active dim    switched on while focus is elsewhere on the page: a dimmer fill, grey text
     .disabled           Disabled      40% opacity; keeps its resting look even when focus lands on it
                         (or aria-disabled="true")
+    .tv-btn--lit        primary only: always the Focus look, without the .focused class the focus ring follows
+                        (a button shown only inside a focused item, e.g. a package card's Subscribe)
   The page sets the size with --btn-w / --btn-h (400 x 86 by default) and draws any icon in an <i> (40px,
   painted in the text colour, so a mask image follows each state).
 */
@@ -33,7 +35,7 @@
 .tv-btn.active-dim{ background:rgba(232,232,232,.2); box-shadow:none; color:#a8a8a8; }
 
 /* Focus / Active focus */
-.tv-btn--primary.focused{
+.tv-btn--primary.focused, .tv-btn--primary.tv-btn--lit{
   background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%), var(--btn-focus-pill);
   -webkit-backdrop-filter:blur(50px) saturate(1.4); backdrop-filter:blur(50px) saturate(1.4);
   box-shadow:inset -1px 3px 17px rgba(255,255,255,.2); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35);
@@ -72,6 +74,18 @@
   box-shadow:none;
 }
 .tv-tab.disabled, .tv-tab[aria-disabled="true"]{ opacity:.55; background:transparent; box-shadow:none; }
+
+/* A round toggle icon button (detail pages' My List / Favorite / Remind / Like / Dislike, a league's Follow): add `ic`
+   with its <img>; while on (`on`) a light fill and the icon dark. Its tooltip: a <span class="tip"> inside, shown while
+   focused (the player's) */
+.tv-btn.ic{ position:relative; }
+.tv-btn.ic.on{ background:rgba(232,232,232,.9); box-shadow:none; }
+.tv-btn.ic.on img{ filter:brightness(0); }
+.tv-btn .tip{ position:absolute; left:50%; bottom:calc(100% + 28px); padding:12px 24px; border-radius:16px; white-space:nowrap; pointer-events:none;
+  font:500 24px/32px 'Plus Jakarta Sans', system-ui, sans-serif; color:#e8e8e8; background:rgba(74,74,74,.92); box-shadow:0 4px 12px rgba(0,0,0,.35);
+  opacity:0; transform:translate(-50%, 6px); transition:opacity .18s ease, transform .18s cubic-bezier(.2,0,0,1); }
+.tv-btn .tip::after{ content:''; position:absolute; left:50%; top:calc(100% + 4px); margin-left:-9px; border-left:9px solid transparent; border-right:9px solid transparent; border-top:10px solid rgba(74,74,74,.92); }
+.tv-btn.ic.focused .tip{ opacity:1; transform:translate(-50%, 0); }
 
 /* A toggle icon button changing (icon-toggle.js): the Live TV player's favourite animation. On: the icon pops and a
    ring and eight sparks burst out of the button; off: the icon dips. */

@@ -338,7 +338,7 @@
   .card-content{width:320px;display:flex;flex-direction:column;border-radius:12px;overflow:visible;}
   .card-content .thumb{height:180px;position:relative;border-radius:12px;overflow:hidden;}
   /* a card whose Live ribbon hangs past its edge: unclip it and round the thumb and strip themselves instead */
-  .card-content.has-ribbon{overflow:visible;}
+  .card-content.has-ribbon, .card-landscape.has-ribbon{overflow:visible;}   /* (a landscape card's picture is its own background: still rounded) */
 
   .card-content .strip{padding:16px 12px;display:flex;flex-direction:column;gap:4px;}   /* the title 16px under the picture, 16px over the card's bottom, 12px in from its sides */
   /* focused card: its grey info areas turn ~30% darker so the focused card stands apart */
