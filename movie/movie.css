@@ -57,6 +57,8 @@
   .scene-btns .tv-btn i{ width:40px; height:40px; }
   .ic-info{ -webkit-mask:url('../icons/hero/info.svg') center / contain no-repeat; mask:url('../icons/hero/info.svg') center / contain no-repeat; }
   .ic-play{ -webkit-mask:url('../icons/hero/play.svg') center / contain no-repeat; mask:url('../icons/hero/play.svg') center / contain no-repeat; }
+  /* View Package (a premium movie not the viewer's): Movie Detail's icon, the crown */
+  .ic-pkg{ -webkit-mask:url('../icons/player/crown-dark.svg') center / contain no-repeat; mask:url('../icons/player/crown-dark.svg') center / contain no-repeat; }
   /* Home's page dots */
   .dots{ position:absolute; left:0; right:0; top:878px;   /* Home's page dots */
     z-index:3; display:flex; justify-content:center; gap:8px; transition:opacity .3s ease; }

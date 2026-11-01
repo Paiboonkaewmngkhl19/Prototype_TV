@@ -4,70 +4,80 @@
   #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:#101010; }
   #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; }
 
-  /* ---------- left: package details ---------- */
-  .left{ position:absolute; left:0; top:0; width:1093px; height:1080px; box-sizing:border-box; padding:60px 80px 60px 110px; display:flex; flex-direction:column; gap:24px; }
-  h1{ margin:0; font-size:32px; font-weight:600; color:var(--on); }
-  .content{ display:flex; flex-direction:column; gap:32px; }
-  .switcher{ align-self:flex-start; display:flex; padding:5px; border-radius:18px; background:#202020; border:1px solid rgba(255,255,255,.18); }
-  .tab{ padding:14px 36px; border-radius:13.5px; font-size:24px; color:#adadad; border:2px solid transparent; cursor:pointer; transition:background .15s ease, box-shadow .15s ease; }
-  .tab.active{ color:#fff; border-color:rgba(255,255,255,.8);
-    background:radial-gradient(ellipse 120% 160% at 12% 90%, rgba(255,255,255,0) 6%, rgba(255,255,255,.3) 100%), rgba(255,255,255,.2); }
-  /* focus: the shared gliding glass ring (focus-ring.js), as on Home; focused buttons keep their glass fill inside it */
-  .tab.disabled{ color:#5c5c5c; cursor:default; }   /* Terms & Conditions: switched off for now */
-
-  .card{ position:relative; box-sizing:border-box; padding:28px; border-radius:36px; border:1px solid rgba(255,255,255,.13); background:#3d3d3d; display:flex; flex-direction:column; gap:40px; min-height:770px; }
-  .hero{ display:flex; align-items:center; gap:24px; }
-  .hero .lg{ width:110px; height:110px; border-radius:8px; background:#000; overflow:hidden; flex:0 0 auto; }
-  .hero .lg img{ width:100%; height:100%; object-fit:contain; display:block; }
-  .hero b{ font-size:24px; font-weight:600; }
-  .services{ display:grid; grid-template-columns:repeat(4, 181.75px); column-gap:40px; row-gap:24px; }
-  .svc{ display:flex; gap:8px; align-items:flex-start; }
-  .svc .ic{ width:48px; height:48px; border-radius:8px; overflow:hidden; flex:0 0 auto; background:#000; }
+  /* ---------- left: Package Details (Figma Store "AIS PLAY Bundle", 5191:220671): #1c1c1c, 1093px, 60 / 80 / 60 / 110 ---------- */
+  .left{ position:absolute; left:0; top:0; width:1093px; height:1080px; box-sizing:border-box; padding:60px 80px 60px 110px; background:#1c1c1c; display:flex; flex-direction:column; gap:24px; }
+  h1{ margin:0; font-size:32px; font-weight:500; line-height:40px; color:var(--on); }
+  /* the package: its logo (80px) and name, the two chips (focus: the shared ring), its description or terms */
+  .phead{ display:flex; gap:16px; padding:8px 24px 8px 8px; border-radius:12px; background:#3a3a3a; }
+  .phead .lg{ width:80px; height:80px; border-radius:8px; background:#000; overflow:hidden; flex:0 0 auto; align-self:center; }
+  .phead .lg img{ width:100%; height:100%; object-fit:contain; display:block; }
+  .phead .lg.white{ background:#fff; }
+  .phead .lg.cover img{ object-fit:cover; }
+  .pinfo{ flex:1; min-width:0; display:flex; flex-direction:column; gap:8px; padding:8px 0; }
+  .pnm{ font-size:24px; font-weight:500; line-height:32px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .switcher{ display:flex; gap:8px; }
+  .tab{ height:28px; box-sizing:border-box; padding:0 8px; border-radius:9999px; background:#2a2a2a; display:flex; align-items:center; font-size:14px; font-weight:500; color:var(--on); cursor:pointer;
+    transition:background .15s ease, color .15s ease; }
+  .tab.active{ background:#e8e8e8; color:#2a2a2a; }
+  .fine{ margin:0; font-size:16px; line-height:24px; letter-spacing:.25px; color:var(--muted); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .terms{ display:none; margin:0; padding-left:22px; font-size:16px; line-height:24px; letter-spacing:.25px; color:var(--muted); }
+  body.show-terms .fine, body.show-terms .services, body.show-terms .note4k, body.show-terms .groups{ display:none; }
+  body.show-terms .terms{ display:block; }
+  /* its apps, 3 across (274px, 40px apart): the logo (48px; no logo: its name on a box), name, screens, quality, Dolby */
+  .services{ display:grid; grid-template-columns:repeat(3, 274px); column-gap:40px; row-gap:24px; }
+  .svc{ display:flex; gap:8px; align-items:center; height:49px; }
+  .svc .ic{ width:48px; height:48px; border-radius:7.6px; overflow:hidden; flex:0 0 auto; background:#000; display:flex; align-items:center; justify-content:center; }
   .svc .ic img{ width:100%; height:100%; object-fit:contain; display:block; }
   .svc .ic.cover img{ object-fit:cover; }
   .svc .ic.white{ background:#fff; }
-  .svc .info{ display:flex; flex-direction:column; gap:4px; font-size:16px; }
-  .svc .tags{ display:flex; align-items:center; gap:6px; }
+  .svc .ic.txt{ background:#3a3a3a; font-size:11px; font-weight:700; line-height:1.1; text-align:center; color:#e8e8e8; padding:2px; box-sizing:border-box; }   /* no logo yet */
+  .svc .info{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .svc .info b{ font-size:16px; font-weight:500; line-height:24px; letter-spacing:.15px; color:#fff; white-space:nowrap; }
+  .svc .tags{ display:flex; align-items:center; gap:8px; height:21px; font-size:16px; letter-spacing:.25px; color:var(--muted); white-space:nowrap; }
+  .svc .q{ height:21px; box-sizing:border-box; padding:0 8px; border:1px solid #5a5a5a; border-radius:14px; display:flex; align-items:center; font-size:14px; font-weight:500; color:var(--on); }
   .svc .tags img{ height:20px; display:block; }
-  .svc .tags .fhd{ height:18px; box-sizing:border-box; padding:0 5px; border:1.5px solid #fff; border-radius:4px; font-size:11px; line-height:15px; font-weight:600; }
-  .groups{ display:flex; flex-direction:column; gap:24px; }
+  .note4k{ margin:-8px 0 0; font-size:16px; line-height:24px; letter-spacing:.25px; color:var(--on); }
+  /* Sports, Free & Premium Channels, Available on (a group only when the package has it) */
+  .groups{ display:flex; flex-direction:column; gap:40px; margin-top:16px; }
   .group{ display:flex; flex-direction:column; gap:8px; }
-  .group h3{ margin:0; font-size:20px; font-weight:500; }
-  .logos{ display:flex; gap:16px; }
+  .group h3{ margin:0; font-size:20px; font-weight:400; color:#fff; }
+  .logos{ display:flex; gap:16px; padding:0 8px; }
   .logos .sq{ width:40px; height:40px; border-radius:4px; background:#fff; overflow:hidden; display:flex; align-items:center; justify-content:center; }
   .logos .sq img{ width:100%; height:100%; object-fit:contain; display:block; }
   .logos .sq.pad img{ width:84%; height:84%; }
-  .logos .sq.more{ background:#c9c9c9; font-size:12px; color:#fff; }
-  .logos.devices{ gap:12px; }
-  .logos.devices img{ width:32px; height:32px; }
-  .fine{ margin:0; font-size:16px; line-height:1.4; color:var(--muted); }
-  .terms{ display:none; font-size:20px; line-height:1.6; color:#d8d8d8; }
-  .terms ol{ margin:0; padding-left:26px; }
-  body.show-terms .card > :not(.terms){ display:none; }
-  body.show-terms .terms{ display:block; }
+  .logos .sq.more{ background:#d9d9d9; font-size:12px; color:#2a2a2a; }
+  .logos.devices{ gap:16px; }
+  .dev{ display:flex; flex-direction:column; align-items:center; gap:4px; min-width:40px; font-size:12px; line-height:16px; letter-spacing:.4px; color:#c6c6c6; }
+  .dev img{ width:24px; height:24px; display:block; }
 
-  /* ---------- right: price + payment ---------- */
-  .right{ position:absolute; left:1093px; top:0; width:827px; height:1080px; box-sizing:border-box; padding:64px 110px; background:#242424; display:flex; flex-direction:column; }
-  .rhead{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:24px; }
-  .rhead span{ font-size:14px; color:var(--muted); }
+  /* ---------- right: Package Options + Choose how to pay (#383838, padding 80px; the options at the top, the payment at the bottom) ---------- */
+  .right{ position:absolute; left:1093px; top:0; width:827px; height:1080px; box-sizing:border-box; padding:80px; background:#383838; display:flex; flex-direction:column; justify-content:space-between; }
+  .opts{ display:flex; flex-direction:column; gap:32px; }
+  .rh{ font-size:32px; font-weight:500; line-height:40px; color:#fff; }
   .prices{ display:flex; flex-direction:column; gap:24px; }
-  .price{ position:relative; height:113px; box-sizing:border-box; border-radius:20px; background:#404040; padding:18px; display:flex; align-items:center; justify-content:space-between; cursor:pointer;
-    border:2.5px solid transparent; transition:background .15s ease, box-shadow .15s ease; }
-  .price .amt{ font-size:30px; font-weight:600; }
-  .price .vat{ font-size:16px; margin-top:8px; }
-  .price .pill{ align-self:flex-start; height:36px; padding:0 12px; border-radius:9999px; background:#3a3a3a; display:flex; align-items:center; font-size:20px; }
-  .price.selected{ background:#707070; border-color:rgba(255,255,255,.8); }
-  .pay{ margin-top:auto; display:flex; flex-direction:column; }
-  .pay h2{ margin:0 0 24px; font-size:32px; font-weight:600; }
-  .paybtn{ position:relative; height:80px; box-sizing:border-box; border-radius:9999px; padding:0 40px; display:flex; align-items:center; gap:16px; font-size:24px; cursor:pointer;
-    background:#252525; margin-bottom:24px; transition:background .15s ease, box-shadow .15s ease; }
-  .paybtn img{ width:32px; height:32px; }
-  .paybtn span{ flex:1; }
-  /* focused: Figma's inner glass pill, filling the button (the ring goes around it) */
-  .paybtn.focused::before{ content:''; position:absolute; inset:0; border-radius:9999px;
-    background:radial-gradient(ellipse 120% 160% at 12% 90%, rgba(255,255,255,0) 6%, rgba(255,255,255,.4) 100%), rgba(255,255,255,.2); box-shadow:inset -1px 3px 17px rgba(255,255,255,.16); }
-  .paybtn > *{ position:relative; }
-  .note{ margin:0; text-align:center; font-size:16px; color:var(--on); }
+  /* a plan: the radio (checked when picked), its name and Auto renews, its price per period and the VAT-included price */
+  .price{ position:relative; box-sizing:border-box; padding:24px 16px; border-radius:16px; background:#3a3a3a; border:3px solid transparent; display:flex; align-items:center; gap:16px; cursor:pointer;
+    transition:background .15s ease, border-color .15s ease; }
+  .price.selected{ background:#4a4a4a; border-color:var(--muted); }
+  .price .rd{ width:32px; height:32px; flex:0 0 auto; background:url('../icons/short/radio-off.svg') center / 32px no-repeat; }
+  .price.selected .rd{ background-image:url('../icons/short/radio-on.svg'); }
+  .price .pn{ flex:1; min-width:0; display:flex; align-items:center; gap:4px; }
+  .price .pn b{ font-size:28px; font-weight:500; line-height:36px; color:#f0f0f0; white-space:nowrap; }
+  .price .chip{ height:28px; box-sizing:border-box; padding:0 8px; border-radius:9999px; background:#3a3a3a; display:flex; align-items:center; font-size:14px; font-weight:500; color:var(--on); white-space:nowrap; }
+  .price.selected .chip{ background:#2a2a2a; }
+  .price .cost{ display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
+  .price .amt{ display:flex; align-items:baseline; gap:4px; white-space:nowrap; color:#fff; }
+  .price .amt b{ font-size:24px; font-weight:500; line-height:32px; }
+  .price .amt span{ font-size:16px; letter-spacing:.15px; }
+  .price .vat{ font-size:16px; line-height:24px; letter-spacing:.25px; color:var(--on); white-space:nowrap; }
+  .pay{ display:flex; flex-direction:column; gap:24px; }
+  .pay h2{ margin:0 0 8px; font-size:32px; font-weight:500; line-height:40px; }
+  /* Figma's pay buttons: a faint outline; focused, a light fill inside a 3px rim (and the shared ring) with dark text */
+  .paybtn{ position:relative; height:80px; box-sizing:border-box; border-radius:9999px; padding:0 40px; display:flex; align-items:center; justify-content:space-between; font-size:24px; font-weight:500; cursor:pointer;
+    border:3px solid rgba(74,74,74,.4); color:rgba(232,232,232,.8); transition:background .15s ease, color .15s ease, box-shadow .15s ease; }
+  .paybtn i{ width:32px; height:32px; flex:0 0 auto; background:currentColor; -webkit-mask:url('../icons/pkg/ichev.svg') center / contain no-repeat; mask:url('../icons/pkg/ichev.svg') center / contain no-repeat; }
+  .paybtn.focused{ border-color:#e8e8e8; background:#e8e8e8; box-shadow:inset 0 0 0 3px #383838; color:#2a2a2a; }
+  .note{ margin:0; text-align:center; font-size:22px; line-height:28px; color:#fff; }
 
   /* ---------- Confirm Subscribe popup (Figma 654:77295 before scrolling, 654:77363 ready to confirm) ---------- */
   .scrim{ position:absolute; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:3; }
@@ -161,9 +171,10 @@
 
   /* ---------- short drama mode (Figma "Details Short pay"): Title Details + viewing passes ---------- */
   .tdetails, .opthead, .passes{ display:none; }
-  body.short .switcher, body.short .card, body.short .rhead, body.short .prices{ display:none; }
-  body.short .left{ width:1075px; background:#1c1c1c; }
-  body.short .right{ left:1075px; width:845px; padding:80px; background:#383838; }
+  body.short .phead, body.short .services, body.short .note4k, body.short .groups, body.short .rh, body.short .prices{ display:none; }
+  body.short .left{ width:1075px; }
+  body.short .right{ left:1075px; width:845px; }
+  body.short .opts{ gap:0; }
   body.short .tdetails{ display:flex; gap:40px; }
   .tdetails .poster{ width:220px; height:330px; border-radius:16px; flex:0 0 auto; background:#3a3a3a center / cover no-repeat; }
   .tdetails .info{ flex:1; min-width:0; display:flex; flex-direction:column; gap:32px; }
@@ -181,7 +192,8 @@
   .opthead h1{ font-size:32px; line-height:40px; color:#fff; }
   .opthead p{ margin:0; font-size:16px; line-height:24px; letter-spacing:.25px; color:var(--on); }
   body.short .passes{ display:flex; flex-direction:column; gap:16px; }
-  .pass{ height:auto; padding:24px 16px; gap:16px; border-radius:16px; background:#4a4a4a; justify-content:flex-start; }
+  .pass{ height:auto; padding:24px 16px; gap:16px; border-radius:16px; background:#4a4a4a; justify-content:flex-start; border-color:transparent; }
+  .pass.selected{ border-color:var(--muted); }
   .pass .rd{ width:32px; height:32px; flex:0 0 auto; background:url('../icons/short/radio-off.svg') center / 32px no-repeat; }
   .pass.selected{ background:#4a4a4a; }
   .pass.selected .rd{ background-image:url('../icons/short/radio-on.svg'); }

@@ -10,13 +10,12 @@
   var PROG = null;
   try { var pm = /[?&]prog=([^&#]*)/.exec(location.search); if(pm) PROG = JSON.parse(decodeURIComponent(pm[1])); } catch(e){}
   try { if(!PROG && !/[?&]k=/.test(location.search)){ var sp = JSON.parse(sessionStorage.getItem('mdProg') || 'null'); if(sp && sessionStorage.getItem('mdKey') === sp.key) PROG = sp; } } catch(e){}
-  var PCH = PROG && TV.byName(PROG.tv), SUBSCRIBED = false;
-  try { SUBSCRIBED = sessionStorage.getItem('tvSubscribed') === '1'; } catch(e){}
+  var PCH = PROG && TV.byName(PROG.tv);
   if(PROG){
     PROG.key = 'prog-' + Math.abs((PROG.tv + '|' + PROG.t).split('').reduce(function(h, c){ return (h * 31 + c.charCodeAt(0)) | 0; }, 7)).toString(36);
     MD.M[PROG.key] = { t:PROG.t, plat:PCH && /^MONOMAX/.test(PCH.n) ? 'monomax' : 'prime', g:[PCH && PCH.cats.indexOf('sports') >= 0 ? 'Sports' : 'Movies'], y:2026, len:'2h 15m', age:'13+',
       d:PROG.d || PROG.t, w:PROG.bg || PROG.img,   // the picture Home's first scene shows for it
-      price:PROG.live && PCH && PCH.crown === 'gold' && !SUBSCRIBED ? 299 : 0 };   // a premium channel not in the package: View Package / Buy 299 ฿
+      price:PROG.live && Content.crown({tv:PROG.tv}) === 'gold' ? 299 : 0 };   // a premium channel not in the package: View Package / Buy 299 ฿
     try { sessionStorage.setItem('mdProg', JSON.stringify(PROG)); } catch(e){}
   }
   // ---- the title: ?k=, else the one this page last showed (back from the purchase), else District 9 ----
@@ -25,32 +24,32 @@
   if(!K || !MD.M[K]) K = 'd9';
   try { sessionStorage.setItem('mdKey', K); } catch(e){}
   var m = MD.M[K], SER = MD.series(K);
-  // straight back from a finished purchase (package-detail.html → ?subscribed=1): the title is now playable
+  // what the crown and View Package go by (content.js): a programme its channel, else the title
+  var CI = PROG ? {tv:PROG.tv} : {k:K};
+  var HERE = PROG ? 'movie-detail.html?prog=' + encodeURIComponent(JSON.stringify(PROG)) : 'movie-detail.html?k=' + K;
+  // straight back from a finished purchase (package-detail.html / purchase.html → ?subscribed=1): the package bought
+  // there is already kept (premium channels, its platform); the title is the viewer's too, so its crown is owned
   var JUST_BOUGHT = /subscribed=1/.test(location.search);
   if(JUST_BOUGHT){
-    MD.own(K); try { sessionStorage.setItem('tvSubscribed', '1'); } catch(e){}   // the package: premium channels too
-    history.replaceState(null, '', PROG ? 'movie-detail.html?prog=' + encodeURIComponent(JSON.stringify(PROG)) : 'movie-detail.html?k=' + K);
+    if(!PROG) MD.own(K);
+    history.replaceState(null, '', HERE);
   }
   document.title = m.t + (SER ? ' · Series Detail' : ' · Movie Detail');
-  // the package view names this title
-  document.getElementById('pkgTitle').textContent = m.t;
-  // the OTT's tag (platform-tag.css); AIS PLAY's own titles: its mark
-  function ptag(cls){ return m.plat === 'ais' ? '<span class="' + cls + ' ais"></span>' : '<img class="' + cls + '" src="badges/tag-' + m.plat + '.png" alt="">'; }
-  document.getElementById('pkgMeta').innerHTML = ptag('logo ptag') +
-    '<span class="chip plain">' + (SER ? m.len : m.len.replace(/(\d+)h/, '$1 hr.').replace(/(\d+)m/, '$1 min')) + '</span><span class="chip">' + m.g[0] + '</span><span class="chip">' + m.age + '</span><span class="chip small">4K</span><span class="chip">' + (SER ? 'Series' : 'Movie') + '</span>';
 
   // ---- the scene: picture, title, how far in, meta row, synopsis ----
   var bgPic = m.b || m.w || m.p;   // MD.bg: the picture Home's and the Movie page's screen text show for it
   if(bgPic) document.getElementById('bg').style.backgroundImage = "url('" + bgPic + "')";   // a title made from a placeholder card has none
   document.getElementById('title').textContent = m.t;
-  document.getElementById('meta').innerHTML = ptag('ptag') + (m.ppv ? '<span class="mbadge prem"><img src="icons/crown-gold.svg" alt="">Premium</span>' : '') +
-    MD.metaHtml(m);   // content.js: Home's and the Movie page's screen text show the same
+  // Premium: the title's crown, gold (not the viewer's yet) or owned (content.js)
+  function premBadge(){ return Content.crown(CI) ? '<span class="mbadge prem">' + Content.crownIcon(CI) + 'Premium</span>' : ''; }
+  document.getElementById('meta').innerHTML = Content.metaHtml({k:K}, true);   // content.js (tag, Premium, meta): Home's and the Movie page's screen text show the same
   document.getElementById('desc').innerHTML = esc(m.d) + ' <span class="more">More</span>';
   var ctasEl = document.getElementById('ctas'), state, cw = MD.cw(K);
   function icon(label, img, tip, tipOn, toggle){
     return '<div class="tv-btn tv-btn--secondary ic item" data-label="' + label + '"' + (toggle ? ' data-toggle="' + toggle + '"' : '') + ' data-tip="' + tip + '" data-tip-on="' + (tipOn || tip) + '" data-ring-art="">' +
       '<img src="' + img + '" alt=""><span class="tip"></span></div>';
   }
+  var VIEW_PACKAGE = '<div class="tv-btn tv-btn--primary main item" data-label="View Package" data-ring-art=""><i class="ic-pkg"></i>View Package</div>';
   var LIKE = icon('Like', 'icons/detail-like.svg', 'I like this', 'Remove like', 'You liked this|Like removed') +
              icon('Dislike', 'icons/detail-dislike.svg', 'Not for me', 'Remove dislike', 'You disliked this|Dislike removed');
   function render(){
@@ -63,11 +62,10 @@
     ue.hidden = !u;
     if(u) ue.innerHTML = 'Available until:<span class="when">' + u.d + '<i></i>' + u.t + '</span>';
     var resumeLbl = SER && cw ? 'Resume S' + cw.s + ': Ep.' + cw.e : 'Resume';
-    var main = m.ppv && state === 'buy' ? '<div class="tv-btn tv-btn--primary buy item" data-label="Buy" data-ring-art="">Buy ' + MD.price(K) + ' ฿</div>'   // a PPV event: bought on its own
+    // gold (premium, not the viewer's): View Package (the package that has it) and Buy; owned or free: Play / Resume
+    var main = Content.crown(CI) === 'gold' && state !== 'soon' ? VIEW_PACKAGE + '<div class="tv-btn tv-btn--secondary buy item" data-label="Buy" data-ring-art="">Buy ' + MD.price(K) + ' ฿</div>'
       : state === 'resume' ? '<div class="tv-btn tv-btn--primary main item" data-label="Resume" data-ring-art=""><i class="ic-play"></i>' + resumeLbl + '</div>'
-      : state === 'play' ? '<div class="tv-btn tv-btn--primary main item" data-label="Play" data-ring-art=""><i class="ic-play"></i>Play</div>'
-      : '<div class="tv-btn tv-btn--primary main item" data-label="View Package" data-ring-art=""><i class="ic-pkg"></i>View Package</div>' +
-        '<div class="tv-btn tv-btn--secondary buy item" data-label="Buy" data-ring-art="">Buy ' + MD.price(K) + ' ฿</div>';
+      : '<div class="tv-btn tv-btn--primary main item" data-label="Play" data-ring-art=""><i class="ic-play"></i>Play</div>';
     var MYLIST = icon('My List', 'icons/detail-plus.svg', 'Add to My List', 'Remove from My List', 'Added to My List|Removed from My List');
     // the icon buttons, by scenario (the same for a movie, a series and a short): coming soon: My List, Remind, Like,
     // Dislike; watching: Start Over, My List, Like, Dislike; else (first time): My List, Like, Dislike
@@ -88,12 +86,12 @@
   function startsLabel(){ return LIVE.label({start:PROG.start}).replace(/^Start in/, 'Starting in'); }
   function progRange(){ return LIVE.range(PROG); }   // content.js: Home's screen text says the same
   // the LIVE / Upcoming cards: the other programmes (content.js LIVE), each to its own detail page or its channel
-  // a premium channel's programme: Premium on its page (the meta row) and on its card (the crown tag), always together
-  function premium(tv){ return LIVE.premium(tv); }
+  // a premium channel's programme: Premium on its page (the meta row) and on its card (the crown tag), always together,
+  // each with the channel's crown (content.js Content.crown: gold or owned)
   // the card tags every rail uses: LIVE is Home's Live ribbon (live-ribbon.css), a start time the top tag (corner-tag.css)
   function lcard(p){
     return '<div class="lcard item" data-href="' + esc(LIVE.href(p, 'detail')) + '" data-ring-art=""><div class="pic" style="background-image:url(\'' + p.img + '\')">' +
-      (p.live ? '' : '<span class="top-tag">' + esc(p.when || '') + '</span>') + (premium(p.tv) ? '<img class="crown-tag" src="icons/crown-gold.svg" alt="Premium">' : '') + '</div>' +
+      (p.live ? '' : '<span class="top-tag">' + esc(p.when || '') + '</span>') + Content.crownIcon({tv:p.tv}, 0, 'crown-tag') + '</div>' +
       (p.live ? '<span class="live-ribbon" data-ring-top="styled">Live</span>' : '') +
       '<div class="t">' + esc(p.t) + '</div></div>';
   }
@@ -106,11 +104,11 @@
   }
   var tick = null;
   function renderProg(){
-    var up = !PROG.live, prem = premium(PROG.tv);
+    var up = !PROG.live, gold = Content.crown(CI) === 'gold';
     document.body.classList.toggle('prog-up', up); document.body.classList.toggle('prog-live', !up);
     document.title = PROG.t + ' · ' + (up ? 'Upcoming' : 'LIVE');
     document.getElementById('meta').innerHTML = (up ? '<span class="mbadge">Upcoming</span>' : '<span class="mbadge live"><i></i>Live</span>') +
-      (prem ? '<span class="mbadge prem"><img src="icons/crown-gold.svg" alt="">Premium</span>' : '') +
+      premBadge() +
       (PCH ? '<span class="chan">' + TV.logoHtml(PCH) + 'Channel ' + PCH.no + ': ' + esc(PCH.n) + '</span>' : '') +
       '<span class="pill">' + progRange() + '</span>';
     var old = document.querySelector('.uposter'); if(old) old.remove();
@@ -119,8 +117,10 @@
     if(up){
       state = 'up';
       var REMIND = icon('Remind', 'icons/tv-guide/bell.svg', 'Remind me', 'Stop reminding', 'We’ll remind you when ' + PROG.t + ' starts|Reminder off');
+      // gold: View Package beside its start, then Remind me (all the 880px scene has room for before the cards on its
+      // right); owned or free: Favorite, Remind me, Like, Dislike
       ctasEl.innerHTML = '<div class="tv-btn tv-btn--primary main wait disabled" aria-disabled="true"><i class="ic-clock"></i><span id="starts">' + startsLabel() + '</span></div>' +
-        FAVORITE() + REMIND + LIKE;
+        (gold ? VIEW_PACKAGE + REMIND : FAVORITE() + REMIND + LIKE);
       document.getElementById('urow').hidden = false;
       document.getElementById('utrack').innerHTML = others.filter(function(p){ return p.live; }).concat(others.filter(function(p){ return !p.live; })).map(lcard).join('');
       clearInterval(tick);
@@ -130,9 +130,8 @@
       }, 1000);
     } else {
       state = MD.state(K);
-      ctasEl.innerHTML = (state === 'buy'
-        ? '<div class="tv-btn tv-btn--primary main item" data-label="View Package" data-ring-art=""><i class="ic-pkg"></i>View Package</div>' +
-          '<div class="tv-btn tv-btn--secondary buy item" data-label="Buy" data-ring-art="">Buy ' + MD.price(K) + ' ฿</div>'
+      ctasEl.innerHTML = (gold
+        ? VIEW_PACKAGE + '<div class="tv-btn tv-btn--secondary buy item" data-label="Buy" data-ring-art="">Buy ' + MD.price(K) + ' ฿</div>'
         : '<div class="tv-btn tv-btn--primary main item" data-label="Play" data-ring-art=""><i class="ic-play"></i>Play</div>') + FAVORITE() + LIKE;
       document.getElementById('urow').hidden = true;
       document.getElementById('ymal').innerHTML = '<div class="lrow"><div class="ltrack" id="ltrack">' + others.map(lcard).join('') + '</div></div>';
@@ -164,9 +163,28 @@
   }
   if(SER) renderEps();
 
-  // ---- focus: the scene's buttons, the tabs, then the tab's content (Episodes: seasons, episodes; the grid 6 across);
-  //      the package view has its own rows ----
-  var COLS = 6, view = 'detail', cur = { row:0, col:0 };
+  // ---- focus: the scene's buttons, the tabs, then the tab's content (Episodes: seasons, episodes; the grid 6 across) ----
+  var COLS = 6, cur = { row:0, col:0 };
+  // the top bar (Short Drama detail's, Home's): Up from the buttons or Left from a row's first item; Down / Back leave it.
+  // Its tab: Movie for a movie or series, Sport / Live TV for a channel's programme. The photo opens the profile panel
+  var navItems = $('.topnav .item'), profileEl = document.querySelector('.topnav .profile'), nav = null;   // nav: {col} while the bar has focus
+  var tabEl = document.querySelector('.topnav .navtab[data-label="' + (PROG ? (PCH && PCH.cats.indexOf('sports') >= 0 ? 'Sport' : 'Live TV') : 'Movie') + '"]');
+  var NAV_TAB = navItems.indexOf(tabEl);
+  var prof = ProfilePanel(profileEl, { paint:function(){ paint(); }, toast:function(m){ toast(m); } });
+  function toNav(){ nav = { col:NAV_TAB }; }
+  function selectNav(el){
+    if(el === profileEl) return;   // its panel is already open under it
+    if(el.dataset.href){ location.href = el.dataset.href; return; }
+    toast(el.dataset.label + ' (demo)');
+  }
+  function navKey(k){
+    if(k === 'ArrowRight') nav.col = Math.min(navItems.length - 1, nav.col + 1);
+    else if(k === 'ArrowLeft') nav.col = Math.max(0, nav.col - 1);
+    else if(k === 'ArrowDown' || k === 'Escape' || k === 'Backspace') nav = null;
+    else if(k === 'Enter' || k === ' ') selectNav(navItems[nav.col]);
+    else return false;
+    return true;
+  }
   function detailRows(){
     // a programme: LIVE its buttons, the tab, the cards under it; Upcoming its buttons, then the cards on its right
     if(PROG) return PROG.live ? [$('#ctas .item'), $('#menu .item'), $('#ltrack .item')] : [$('#ctas .item'), $('#utrack .item')];
@@ -176,13 +194,7 @@
     for(var i = 0; i < posters.length; i += COLS) r.push(posters.slice(i, i + COLS));
     return r;
   }
-  function pkgRows(){ return [$('.pkgleft .item').concat($('.pcard')), $('.seeall')]; }
-  function rows(){ return view === 'pkg' ? pkgRows() : detailRows(); }
-  function setView(v){
-    view = v; cur = v === 'pkg' ? { row:0, col:1 } : { row:0, col:0 };   // the package view starts on PLAY ULTIMATE, as before
-    document.body.classList.toggle('pkg', v === 'pkg');
-    paint();
-  }
+  function rows(){ return detailRows(); }
   // Home's rails' "fixed focus": the focused episode sits in the first one's slot and the row slides under it, until
   // the last episode ends as far from the right edge as the first starts from the left (with its 8% growth and ring);
   // past that the focus moves on alone to the last episodes. A short row never slides.
@@ -208,25 +220,29 @@
     $('[data-ring-rect]').forEach(function(e){ delete e.dataset.ringRect; });
     cur.row = Math.max(0, Math.min(R.length - 1, cur.row));
     cur.col = Math.max(0, Math.min(R[cur.row].length - 1, cur.col));
+    var inProf = prof.paint(!!nav && navItems[nav.col] === profileEl);
     $('.item.focused').forEach(function(e){ e.classList.remove('focused'); });
-    R[cur.row][cur.col].classList.add('focused');
+    if(nav){ if(!inProf) navItems[nav.col].classList.add('focused'); } else R[cur.row][cur.col].classList.add('focused');
+    // the bar shows over the first scene; below it, only while it has focus (body.on-nav); its tab Active there, else Active dim
+    document.body.classList.toggle('on-nav', !!nav);
+    tabEl.classList.toggle('active', !!nav); tabEl.classList.toggle('active-dim', !nav);
     // the tabs: the focused one's content shows below (one filter); filled while focus is below them
-    if(view === 'detail' && cur.row === 1 && R[1][cur.col].dataset.tab !== tab){ tab = R[1][cur.col].dataset.tab; }
+    if(cur.row === 1 && R[1][cur.col].dataset.tab !== tab){ tab = R[1][cur.col].dataset.tab; }
     document.body.classList.toggle('tab-eps', tab === 'eps');
-    $('#menu .tab').forEach(function(t){ t.classList.toggle('on', t.dataset.tab === tab); t.classList.toggle('active-dim', view === 'detail' && cur.row > 1 && t.dataset.tab === tab); });
-    var et = document.getElementById('eptrack'), ei = view === 'detail' && tab === 'eps' && cur.row === 3 ? cur.col : 0;
+    $('#menu .tab').forEach(function(t){ t.classList.toggle('on', t.dataset.tab === tab); t.classList.toggle('active-dim', cur.row > 1 && t.dataset.tab === tab); });
+    var et = document.getElementById('eptrack'), ei = tab === 'eps' && cur.row === 3 ? cur.col : 0;
     et.style.transform = railX(et, ei) ? 'translateX(' + railX(et, ei) + 'px)' : '';
-    document.body.classList.toggle('grid', view === 'detail' && cur.row >= 1 && !(PROG && !PROG.live));   // Upcoming's cards are in its scene
+    document.body.classList.toggle('grid', cur.row >= 1 && !(PROG && !PROG.live));   // Upcoming's cards are in its scene
     var pageTy = document.body.classList.contains('grid') ? -936 : 0;
-    if(view === 'detail' && tab === 'eps' && cur.row === 3) ringTo(R[3][cur.col], railX(et, ei), pageTy, true);
+    if(tab === 'eps' && cur.row === 3) ringTo(R[3][cur.col], railX(et, ei), pageTy, true);
     if(PROG){
-      var lt = document.getElementById(PROG.live ? 'ltrack' : 'utrack'), li = view === 'detail' && cur.row === (PROG.live ? 2 : 1) ? cur.col : 0;
+      var lt = document.getElementById(PROG.live ? 'ltrack' : 'utrack'), li = cur.row === (PROG.live ? 2 : 1) ? cur.col : 0;
       if(lt) lt.style.transform = railX(lt, li) ? 'translateX(' + railX(lt, li) + 'px)' : '';
-      if(lt && view === 'detail' && cur.row === (PROG.live ? 2 : 1)) ringTo(R[cur.row][cur.col], railX(lt, li), pageTy, false);
+      if(lt && cur.row === (PROG.live ? 2 : 1)) ringTo(R[cur.row][cur.col], railX(lt, li), pageTy, false);
     }
     // the grid scrolls a row at a time once past its first two
     var g = document.getElementById('ymal');
-    g.style.transform = view === 'detail' && tab === 'ymal' && cur.row > 3 ? 'translateY(' + -(cur.row - 3) * 412 + 'px)' : '';
+    g.style.transform = tab === 'ymal' && cur.row > 3 ? 'translateY(' + -(cur.row - 3) * 412 + 'px)' : '';
     g.style.transition = 'transform .35s cubic-bezier(.2,0,0,1)';
     $('#ctas [data-tip]').forEach(function(b){ b.querySelector('.tip').textContent = b.classList.contains('on') ? b.dataset.tipOn : b.dataset.tip; });
     $('#ctas [data-toggle]').forEach(IconToggle.paint);   // the toggles' icons filled while on (icon-toggle.js)
@@ -234,7 +250,6 @@
   var toastEl = document.getElementById('toast'), toastT;
   function toast(msg){ toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove('on'); }, 1800); }
   function back(){
-    if(view === 'pkg'){ setView('detail'); return; }
     if(cur.row > 0){ cur.row = 0; cur.col = 0; paint(); return; }
     try { if(document.referrer && /(home|movie|store|sport|news|movie-detail|short-detail)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
     location.href = 'movie.html';
@@ -252,24 +267,18 @@
     if(el.classList.contains('lcard')){ location.href = el.dataset.href; return; }
     if(L === 'Play' || L === 'Resume'){ play(false); return; }
     if(L === 'Start Over'){ play(true); return; }
-    if(L === 'View Package'){ setView('pkg'); return; }
+    if(L === 'View Package'){ location.href = Content.packageUrl(PROG ? { tv:PROG.tv, prog:PROG } : CI, HERE); return; }   // the package that has it; bought, it comes back here (?subscribed=1)
     if(L === 'Buy'){ location.href = 'purchase.html?k=' + K; return; }   // Confirm, OTP, Purchase complete; back here it plays
     if(el.dataset.k){ Content.open({k:el.dataset.k}); return; }
     if(el.dataset.tab){ cur.row = 2; cur.col = el.dataset.tab === 'eps' ? season - 1 : 0; paint(); return; }
     if(el.dataset.season){ season = +el.dataset.season; renderEps(); cur.row = 3; cur.col = 0; paint(); return; }
     if(el.dataset.e){
-      if(state === 'buy'){ cur = { row:0, col:0 }; paint(); toast('Get a package or buy ' + m.t + ' to watch'); return; }   // not yet playable
+      if(Content.crown(CI) === 'gold'){ cur = { row:0, col:0 }; paint(); toast('Get a package or buy ' + m.t + ' to watch'); return; }   // not yet playable
       if(state === 'soon'){ toast(m.t + ' isn’t out yet: Remind me to hear when it is'); return; }
       var s = +el.dataset.s, e = +el.dataset.e;
       play(!(cw && cw.s === s && cw.e === e), s, e); return;   // the episode left part-way resumes; any other starts
     }
     if(L === 'Watch Trailer'){ toast('Trailer: ' + m.t + ' (demo)'); return; }
-    // the package view: as before (package-detail.html returns here with ?subscribed=1)
-    if(L === 'See all Packages'){ history.replaceState(null, '', 'movie-detail.html?k=' + K + '#packages'); location.href = 'all-packages.html'; return; }
-    if(el.classList.contains('pcard')){
-      if(L === 'PLAY ULTIMATE Monthly Package'){ history.replaceState(null, '', 'movie-detail.html?k=' + K + '#packages'); location.href = 'package-detail.html'; return; }
-      toast('Subscribe to ' + L + ' (demo)'); return;
-    }
     if(el.dataset.toggle){
       var msgs = el.dataset.toggle.split('|'), on = !el.classList.contains('on');
       el.classList.toggle('on', on); IconToggle.pop(el, on);
@@ -286,14 +295,16 @@
     else if(tab === 'eps') cur.col = cur.row === 2 ? season - 1 : 0;
   }
   addEventListener('keydown', function(e){
+    if(prof.key(e.key)){ e.preventDefault(); return; }   // the profile photo / its panel
+    if(nav){ if(navKey(e.key)){ e.preventDefault(); paint(); } return; }
     var R = rows(), handled = true;
-    var upRail = PROG && !PROG.live && view === 'detail';   // Upcoming: its cards sit to the right of its buttons
+    var upRail = PROG && !PROG.live;   // Upcoming: its cards sit to the right of its buttons
     if(e.key === 'ArrowRight' && upRail && cur.row === 0 && cur.col >= R[0].length - 1 && R[1] && R[1].length){ cur.row = 1; cur.col = 0; }
     else if(e.key === 'ArrowLeft' && upRail && cur.row === 1 && cur.col === 0){ cur.row = 0; cur.col = R[0].length - 1; }
     else if(e.key === 'ArrowRight') cur.col++;
-    else if(e.key === 'ArrowLeft') cur.col--;
-    else if(e.key === 'ArrowUp'){ if(cur.row > 0){ cur.row--; if(view === 'detail') landRow(); } }
-    else if(e.key === 'ArrowDown'){ if(cur.row < R.length - 1){ cur.row++; if(view === 'detail') landRow(); } }
+    else if(e.key === 'ArrowLeft'){ if(cur.col === 0) toNav(); else cur.col--; }   // a row's first item: up to the top bar
+    else if(e.key === 'ArrowUp'){ if(cur.row > 0){ cur.row--; landRow(); } else toNav(); }
+    else if(e.key === 'ArrowDown'){ if(cur.row < R.length - 1){ cur.row++; landRow(); } }
     else if(e.key === 'Enter' || e.key === ' ') select(R[cur.row][cur.col]);
     else if(e.key === 'Escape' || e.key === 'Backspace') back();
     else handled = false;
@@ -301,11 +312,13 @@
   });
   document.getElementById('screen').addEventListener('click', function(e){
     var el = e.target.closest('.item'); if(!el) return;
+    if(navItems.indexOf(el) >= 0){ nav = { col:navItems.indexOf(el) }; paint(); selectNav(el); return; }
+    nav = null;
     rows().forEach(function(r, ri){ var c = r.indexOf(el); if(c >= 0){ cur.row = ri; cur.col = c; } });
     paint(); select(el);
   });
-  if(JUST_BOUGHT) setTimeout(function(){ toast('PLAY ULTIMATE is active. Enjoy ' + m.t + '!'); }, 300);
-  if(location.hash === '#packages' && !JUST_BOUGHT) setView('pkg');   // coming back from the package detail page
+  if(JUST_BOUGHT) setTimeout(function(){ var pn = Content.packageFor(CI).n; toast((pn === 'All Packages' ? 'Your package' : pn) + ' is active. Enjoy ' + m.t + '!'); }, 300);
+  if(location.hash === '#packages') history.replaceState(null, '', HERE);   // (an older link to the package view: now package-suggest.html, View Package's)
   if(PROG && !PROG.live) cur = { row:1, col:0 };   // Upcoming opens on its first LIVE card (Figma); its start button can't be focused
   paint();
 })();

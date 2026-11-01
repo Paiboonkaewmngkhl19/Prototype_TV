@@ -12,7 +12,7 @@
   function pic(k){ return MD.bg(k); }       // the title's full-screen picture (the hero's background, as its detail page)
   function genres(m){ return m.g.join(' · '); }
 
-  var SLIDES = ['d9', 'topgun', 'wicked', 'superman', 'house', 'lastofus', 'loki', 'dragon'];   // the first scene (8 dots, as Figma)
+  var SLIDES = ['wicked', 'd9', 'topgun', 'superman', 'house', 'lastofus', 'loki', 'dragon'];   // the first scene (8 dots, as Figma)
   var CATS = [
     {t:'All', d:'Every movie and series in one place: new releases, blockbusters and the titles everyone is talking about.', bg:P + 'district9.jpg'},
     {t:'Action', d:'Car chases, heists and heroes: the films that never sit still.', bg:P + 'topgun-m.jpg'},
@@ -65,9 +65,6 @@
 
   /* ---------- markup ---------- */
   function ptag(m){ return m.plat === 'ais' ? '<span class="ptag ais"></span>' : '<img class="ptag" src="badges/tag-' + m.plat + '.png" alt="">'; }
-  function metaRow(m){
-    return ptag(m) + MD.metaHtml(m);   // content.js: the detail page shows the same
-  }
   function wide(k, i, set, extra){
     return '<div class="card item"' + attrs({kind:'title', k:k, set:set, i:i}) + '><div class="thumb" style="background-image:url(\'' + (M[k].w || M[k].p) + '\')">' + (extra || '') + '</div></div>';
   }
@@ -112,7 +109,7 @@
       '<div class="xc-wide" style="background-image:url(\'' + pic(f.k) + '\')"></div><div class="xc-scrim"></div>' +
       '<div class="xc-content"><div class="xc-badges"><span class="xc-badge">' + f.price + ' baht</span></div>' +
         '<h3 class="xc-title">' + esc(m.t) + '</h3><p class="xc-desc">' + esc(m.d) + '</p>' +
-        '<div class="xc-chips"><span class="xc-premium"><img src="icons/crown-gold.svg" alt="">Premium</span>' +
+        '<div class="xc-chips">' +   // a title's card: no crown (its detail page's meta row says Premium)
           [genres(m), m.y, m.len, m.age].map(function(c){ return '<span class="xc-chip">' + esc(String(c)) + '</span>'; }).join('') + '</div></div></div>';
   }).join('') + '</div></div></section>';
   html += sec('because', 'Because You Watched District 9', BECAUSE.map(function(k, i){ return poster(k, i, 'because'); }).join(''), 'tall-rail');
@@ -138,9 +135,9 @@
   html += '<section class="sec" data-row="channels"><h2 class="sec-title">Movie Channel</h2><div class="rail"><div class="track chan-track">' + CHANNELS.map(function(c, i){
     return '<div class="ch-card tv-glass item"' + attrs({kind:'chan', i:i}) + ' data-ring-art=""><div class="ch-slot"><div class="ava">' + logoHtml(c) + '</div></div>' +
       '<div class="ch-name">' + esc(c.n) + '</div><div class="ch-meta">' +
-      // as the TV Guide's cards: the heart only on a favourite, the crown as the channel has it (gold: not in the package)
+      // as the TV Guide's cards: the heart only on a favourite, the crown (content.js: gold, not in the package; owned)
       (c.fav ? '<img class="ic20 fav-ic" src="icons/tv-guide/heart-fill.svg" alt="Favorite">' : '') +
-      (c.crown ? '<img class="ic20" src="icons/tv-guide/' + (c.crown === 'owned' ? 'crown.svg' : 'crown-s.svg') + '" alt="Premium">' : '') +
+      Content.crownIcon({ch:c.n}, 0, 'ic20') +
       '<div class="ch-no">' + c.no + '</div></div></div>';
   }).join('') + '</div></div></section>';
   html += '<section class="sec" data-row="quick"><div class="rail"><div class="track quick-track">' + QUICK.map(function(q, i){
@@ -178,21 +175,25 @@
     picFront = 1 - picFront;
     if(img){ pics[picFront].style.backgroundImage = 'url(\'' + img + '\')'; pics[picFront].classList.add('on'); }
   }
-  function titleHero(k){ var m = M[k]; return { t:m.t, meta:metaRow(m), d:m.d, bg:pic(k) }; }
+  // a title's screen text: its detail page's tag, Premium and meta row (content.js), and how far in when it is being
+  // watched (MD.watched: this session's progress, as the detail page)
+  function titleHero(k){ var m = M[k], wd = MD.watched(k);
+    return { t:m.t, meta:Content.metaHtml({k:k}, true), d:m.d, bg:pic(k),
+      watched:wd ? '<span class="bar"><i style="width:' + wd.pct + '%"></i></span>' + wd.w + 'm of ' + wd.of + 'm' : '' }; }
   function heroFor(el, rowKey){
     if(rowKey === 'scene') return titleHero(SLIDES[cur.slide]);
     var kind = el && el.dataset.kind, i = el ? +el.dataset.i : 0;
     if(kind === 'cat'){ var c = CATS[i]; return { t:c.t === 'All' ? 'Movies & Series' : c.t, d:c.d, bg:c.bg }; }
-    if(kind === 'cw'){
-      var cw = CONTINUE[i], h = titleHero(cw.k);
-      h.watched = '<span class="bar"><i style="width:' + Math.round(cw.w / cw.of * 100) + '%"></i></span>' + cw.w + 'm of ' + cw.of + 'm';
-      return h;
-    }
+    if(kind === 'cw') return titleHero(CONTINUE[i].k);
     if(kind === 'short'){ var s = window.SHORTS[i]; return { t:s.t, meta:Content.metaHtml({s:i}, true), d:s.d, bg:'posters/shorts/' + s.img }; }
     if(el && el.dataset.k) return titleHero(el.dataset.k);
     return null;
   }
   function paintHero(rowKey, el){
+    // the first scene's main button: its movie's detail page's (content.js): View Package (premium, not the viewer's),
+    // Resume, or Play
+    if(rowKey === 'scene'){ var a = Content.mainAction({ k:SLIDES[cur.slide] });
+      if(playEl.dataset.label !== a.label){ playEl.dataset.label = a.label; playEl.innerHTML = '<i class="' + a.icon + '"></i>' + a.label; } }
     var h = heroFor(el, rowKey);
     if(!h) return;
     var key = h.t + '|' + (h.watched || '') + '|' + (h.meta || '');
@@ -285,7 +286,7 @@
     if(el === profileEl) return;   // its panel is already open under it
     // a title's detail page (movie-detail.html: Resume / Play / View Package + Buy, You May Also Like)
     if(el === detailEl){ leave('movie-detail.html?k=' + SLIDES[cur.slide]); return; }
-    if(k === 'play'){ leave(Content.playUrl({ k:SLIDES[cur.slide] })); return; }   // the player (content.js)
+    if(k === 'play'){ leave(Content.mainAction({ k:SLIDES[cur.slide] }).url); return; }   // the player, or its package (content.js)
     if(k === 'cat'){ toast('Showing ' + CATS[i].t); return; }
     if(k === 'cw' || k === 'buy' || k === 'title'){ leave('movie-detail.html?k=' + el.dataset.k); return; }
     if(k === 'actor'){ toast('Movies with ' + ACTORS[i].n); return; }

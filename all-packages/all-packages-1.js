@@ -7,32 +7,13 @@
   var $ = function(q, root){ return Array.prototype.slice.call((root || document).querySelectorAll(q)); };
 
   /* ---------- content ----------
-     The packages are Movie Detail's three (same logos, from icons/pkg) and Figma's two placeholders. Each lists what it
-     carries, for the filters: sports, leagues, services and AIS PLAY bundles. */
+     The packages are AIS PLAY's three (packages.js Packages.BUNDLES, the package suggestion page's too) and Figma's two
+     placeholders. Each lists what it carries, for the filters: sports, leagues, services and AIS PLAY bundles. */
   var P = 'icons/pkg/';
-  var F4K = [P + 'i4k.svg', 'Up to 4K Ultra HD Resolution'], FHD = [P + 'ihd.svg', 'Full HD 1080p'],
-      FDOLBY = [P + 'idolby.svg', 'Audio 5.1 Up to Dolby Atmos'], FSCREEN = [P + 'iscreen.svg', '4 Screen at once'];
-  function t(img, cls){ return { img:P + img, cls:cls || '' }; }
   function ph(n, half){ var a = []; for(var i = 0; i < n; i++) a.push({ ph:1, half:half }); return a; }
   var PH = { title:'Package Title Lorem ipsum dolor sit amet, consectetur Lorem ipsum dolor sit amet, consectetur', ph:1,
-    grid:ph(4), count:'xx Premium Channels', row:ph(7, 1), feats:[F4K, FSCREEN], amt:'199', per:'/Month', tags:[] };
-  var PKGS = [
-    { title:'PLAY ULTIMATE Monthly Package', badge:'Recommend', logo:P + 'l1.png', detail:1,
-      grid:[t('l2.png'), t('l3.png'), t('l4.png'), t('l5.png', 'cover'), t('l6.png', 'cover')],
-      count:'99 Premium Channels', row:['l7', 'l8', 'l9', 'l10', 'l11', 'l12'].map(function(l){ return t(l + '.png', 'cover'); }),
-      feats:[F4K, FDOLBY, FSCREEN], amt:'999', per:'/Month',
-      tags:['netflix', 'hbo', 'disney', 'iqiyi', 'viu', 'football', 'epl', 'ucl', 'ultimate'] },
-    { title:'HBO MAX Standard Package', badge:'Best Seller', logo:P + 'l3.png',
-      grid:[t('l3.png')], count:'6 Premium Channels', row:[t('l13.png'), t('l14.png', 'cover'), t('l15.png'), t('l16.png'), t('l17.png')],
-      feats:[F4K, FDOLBY, FSCREEN], amt:'199', per:'/Month', tags:['hbo', 'premium'] },
-    { title:'PLAY ALL', logo:P + 'l18.png',
-      grid:[t('l19.png', 'white cover'), t('l20.png', 'white pad'), t('l21.png', 'white pad'), t('l22.png', 'white cover'), t('l23.png', 'white pad'),
-        t('l24.png', 'white cover'), t('l25.png', 'white pad'), { more:'13+' }],
-      count:'99 Premium Channels', row:['l28', 'l29', 'l30', 'l31', 'l32'].map(function(l){ return t(l + '.png', 'white cover'); }).concat([t('l33.png', 'white pad')]),
-      feats:[FHD, FDOLBY, FSCREEN], amt:'1,999', per:'/Year',
-      tags:['football', 'golf', 'basketball', 'tennis', 'motorsports', 'bundesliga', 'nba', 'nfl', 'lpga', 'atp', 'motogp', 'rws', 'premiumplus'] },
-    PH, PH
-  ];
+    grid:ph(4), count:'xx Premium Channels', row:ph(7, 1), feats:[[P + 'i4k.svg', 'Up to 4K Ultra HD Resolution'], [P + 'iscreen.svg', '4 Screen at once']], amt:'199', per:'/Month', tags:[] };
+  var PKGS = Packages.BUNDLES.concat([PH, PH]);
 
   // the filters under each tab (Figma's variants); logos reuse the project's league and service logos
   var LOGO = {
@@ -60,21 +41,7 @@
   ];
 
   /* ---------- markup ---------- */
-  function tileHtml(x){
-    if(x.more) return '<span class="tile more">' + esc(x.more) + '</span>';
-    if(x.ph) return '<span class="tile ph' + (x.half ? ' half' : '') + '"></span>';
-    return '<span class="tile ' + x.cls + '"><img src="' + x.img + '" alt=""></span>';
-  }
-  function cardHtml(p, i){
-    return '<div class="pcard item' + (p.badge ? ' has-badge' : '') + '" data-i="' + i + '" data-label="' + esc(p.title) + '">' +
-      (p.badge ? '<div class="badge">' + esc(p.badge) + '</div>' : '') +
-      '<div class="body"><div class="ptitle"><span class="lg' + (p.ph ? ' ph' : '') + '">' + (p.ph ? '' : '<img src="' + p.logo + '" alt="">') + '</span><b>' + esc(p.title) + '</b></div>' +
-      '<div class="mid"><div class="chans"><div class="grid">' + p.grid.map(tileHtml).join('') + '</div>' +
-      '<div class="chanlist"><div class="small">' + esc(p.count) + '</div><div class="row40">' + p.row.map(tileHtml).join('') + '</div></div></div>' +
-      '<div class="feats">' + p.feats.map(function(f){ return '<div class="feat"><img src="' + f[0] + '" alt="">' + esc(f[1]) + '</div>'; }).join('') + '</div></div>' +
-      '<div class="price"><div class="amtwrap"><div class="amt"><b>' + esc(p.amt) + ' baht</b><span>' + esc(p.per) + '</span></div><div class="vat">(Exclude VAT)</div></div>' +
-      '<div class="subscribe">Subscribe<img src="' + P + 'ichev.svg" alt=""></div></div></div></div>';
-  }
+  function cardHtml(p, i){ return Packages.cardHtml(p, ' data-i="' + i + '"'); }   // packages.js: the shared card
   function logoHtml(k){
     var l = LOGO[k];
     return '<div class="ava item ' + (l.ph ? 'ph' : (l.cls || '')) + '" data-f="' + k + '"' + (l.ph ? '' : ' style="background-image:url(\'' + l.img + '\')"') + ' data-ring-art=""></div>';
@@ -180,7 +147,7 @@
     var pk = PKGS[+el.dataset.i];
     el.animate([{ transform:'scale(1)' }, { transform:'scale(0.98)' }], { duration:140, easing:'ease-out' });
     // PLAY ULTIMATE: the same purchase flow as Movie Detail's and the Store's (package-detail.html), coming back here
-    if(pk.detail){ save(); location.href = 'package-detail.html?from=all-packages'; return; }
+    if(pk.detail){ save(); location.href = 'package-detail.html?from=all-packages' + RET_Q; return; }
     toast('Subscribe to ' + (pk.ph ? 'this package' : pk.title) + ' (demo)');
   }
   // Back: up to the tabs first, then where the page was opened from (its Back lands on View All / See all Packages).
@@ -192,9 +159,12 @@
     /live-tv-player\.html/.test(ref) ? 'live-tv-player.html' + (ref.match(/\?[^#]*/) || [''])[0] : '';
   try { if(OPENER) sessionStorage.setItem('apOpener', OPENER); else OPENER = sessionStorage.getItem('apOpener') || 'store.html'; } catch(e){ OPENER = OPENER || 'store.html'; }
   if(!/\.html/.test(OPENER)) OPENER = OPENER === 'movie-detail' ? 'movie-detail.html#packages' : 'store.html';   // (saved by an earlier version)
+  // ?ret=: a detail page's View Package with no package of its own (content.js Content.packageUrl): PLAY ULTIMATE's
+  // purchase goes back there (package-detail.html ?ret=), subscribed
+  var RET = (location.search.match(/[?&]ret=([^&#]+)/) || [])[1], RET_Q = RET ? '&ret=' + RET : '';
   function back(){
     if(cur.row > 1){ cur.row = 1; paint(); return; }
-    try { if(document.referrer && /(store|movie-detail|short-detail|live-tv-player)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    try { if(document.referrer && /(store|movie-detail|short-detail|live-tv-player|package-suggest)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
     location.href = OPENER;
   }
   // leaving for the package detail page: coming back lands on the same tab, filters and card

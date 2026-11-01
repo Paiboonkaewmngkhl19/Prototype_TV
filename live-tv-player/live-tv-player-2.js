@@ -25,11 +25,12 @@
   // 10s, hold to scrub faster (with a thumbnail) and Start Over; without it the player stays live
   var TS = q.ts === '1';
   if(!TS) byId('bottom').classList.add('no-ts');
-  // a package bought this session (All Packages, from Explore Package): premium channels play in full, Time Shift too
-  var SUBSCRIBED = false; try { SUBSCRIBED = sessionStorage.getItem('tvSubscribed') === '1'; } catch(e){}
+  // the channel's crown (content.js Content.crown): gold, a premium channel not in the viewer's package; owned, one in it
+  // (crown 'owned', or a package bought this session, All Packages from Explore Package); '' a free channel
+  var CROWN = Content.crown({ch:C});
   // Time Shift on a premium channel not in the package (gold crown): its icon still shows (TV Guide, mini EPG), but
   // play / pause, back / forward, the hold speeds and Start Over stay locked until a package is bought
-  var TS_LOCK = TS && C.crown === 'gold' && !SUBSCRIBED;
+  var TS_LOCK = TS && CROWN === 'gold';
   if(TS_LOCK) byId('bottom').classList.add('ts-locked');
   // back from All Packages out of the browser's page cache: start again, so a package bought there takes effect
   addEventListener('pageshow', function(e){ if(e.persisted) location.reload(); });
@@ -46,15 +47,15 @@
   }
   byId('progT').textContent = P.t;
   byId('chName').textContent = C.n;
-  if(!C.crown) byId('crown').style.display = 'none';
-  // a premium channel in the viewer's package: the crown with the green play mark, as on the TV Guide's cards
-  else if(C.crown === 'owned'){ byId('crown').classList.add('owned'); byId('crown').querySelector('img').src = 'icons/tv-guide/crown.svg'; }
+  // gold, or the crown with the green play mark (in the viewer's package), as on the TV Guide's cards
+  if(!CROWN) byId('crown').style.display = 'none';
+  else { byId('crown').innerHTML = Content.crownIcon({ch:C}); byId('crown').classList.toggle('owned', CROWN === 'owned'); }
   if(C.no) byId('chNo').textContent = C.no; else byId('chNo').style.display = 'none';   // Exclusive channels have no number
   byId('progTm').textContent = hm(P.start) + ' - ' + hm(P.end);
-  // free preview + Explore Package: a premium channel not in the viewer's package (gold crown, not 'owned')
-  // (an owned premium channel, crown 'owned', plays in full). The 3 minutes count only while playing and are kept per
+  // free preview + Explore Package: a premium channel not in the viewer's package (gold crown)
+  // (an owned one plays in full). The 3 minutes count only while playing and are kept per
   // channel for this browser session, so leaving and coming back doesn't start them over
-  var preview = C.crown === 'gold' && !SUBSCRIBED, PKEY = 'freePreview:' + C.n, previewLeft = 180;
+  var preview = CROWN === 'gold', PKEY = 'freePreview:' + C.n, previewLeft = 180;
   try { var kept = sessionStorage.getItem(PKEY); if(kept !== null) previewLeft = +kept; } catch(e){}
   if(!preview) byId('bottom').classList.add('no-preview');
   function previewText(){ byId('previewLeft').textContent = previewLeft ? Math.floor(previewLeft / 60) + ':' + pad(previewLeft % 60) + ' minutes left' : 'Ended'; }
@@ -288,7 +289,7 @@
       '<div class="m1">' + miniAva(c) + '<div class="minfo">' +
         '<div class="mname-row"><div class="mname">' + esc(c.n) + '</div><div class="mchips">' +
           (c.fav ? '<span class="mico"><img src="icons/tv-guide/heart-fill.svg" alt="Favorite"></span>' : '') +
-          (c.crown ? '<span class="mico' + (c.crown === 'owned' ? ' owned' : '') + '"><img src="icons/tv-guide/' + (c.crown === 'owned' ? 'crown.svg' : 'crown-s.svg') + '" alt="Premium"></span>' : '') +
+          (Content.crown({ch:c}) ? '<span class="mico' + (Content.crown({ch:c}) === 'owned' ? ' owned' : '') + '">' + Content.crownIcon({ch:c}) + '</span>' : '') +
           (c.excl ? '' : '<span class="mno">' + c.no + '</span>') + '</div></div>' +
         '<div class="mprog">' + esc(p[0]) + '</div>' +
         '<div class="mtime">' + hm2(p[1]) + ' - ' + hm2(p[2]) + '<span class="mtags">' +

@@ -191,7 +191,7 @@
   function matchCard(it, i, set){
     sync(it);
     return '<div class="card item"' + attrs({kind:'match', set:set, i:i}) + '><div class="thumb' + (it.img ? '' : ' ph') + '" data-ratio="16:9"' + thumbStyle(it.img) + '>' +
-      (it.live ? '' : '<span class="top-tag">' + esc(it.when) + '</span>') + (it.ch && it.ch.crown ? '<img class="crown-tag" src="icons/crown-gold.svg" alt="Premium">' : '') + '</div>' +   // premium: the crown tag (corner-tag.css)
+      (it.live ? '' : '<span class="top-tag">' + esc(it.when) + '</span>') + (it.ch ? Content.crownIcon({tv:it.ch.tv}, 0, 'crown-tag') : '') + '</div>' +   // premium: the crown tag (corner-tag.css), gold or owned
       (it.live ? '<span class="live-ribbon" data-ring-top="styled">Live</span>' : '') +   // live: Home's Live ribbon
       '<div class="t one">' + esc(it.t) + '</div></div>';
   }
@@ -370,7 +370,7 @@
     if(k === 'match'){
       var m = SETS[set][i];
       var p = matchProg(m);   // its detail page's meta row and words (content.js LIVE): LIVE / Upcoming, Premium, the channel, the time
-      return { t:p.t, meta:(m.live ? '<span class="badge live">LIVE</span>' : '<span class="badge">Upcoming</span>') + (window.LIVE.premium(p.tv) ? '<span class="badge"><img src="sport-assets/crown.svg" alt="">Premium</span>' : '') + chMeta(m.ch) + '<span class="pill">' + window.LIVE.range(p) + '</span>', d:p.d, bg:p.bg };
+      return { t:p.t, meta:(m.live ? '<span class="badge live">LIVE</span>' : '<span class="badge">Upcoming</span>') + (Content.crown({tv:p.tv}) ? '<span class="badge">' + Content.crownIcon({tv:p.tv}) + 'Premium</span>' : '') + chMeta(m.ch) + '<span class="pill">' + window.LIVE.range(p) + '</span>', d:p.d, bg:p.bg };
     }
     if(k === 'uclava') return { t:BAND.t, d:BAND.d, bg:null };
     if(rowKey === 'chips'){ var c = CHIPS[i]; return { t:c.t, d:c.d, bg:c.img }; }

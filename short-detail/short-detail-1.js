@@ -13,16 +13,24 @@
   var STORE_KEY = 'shortUnlocked' + si;   // the episodes unlocked this session (bought / ads / subscribed)
   var unlocked = {}, adsLeft = 4;
   try { unlocked = JSON.parse(sessionStorage.getItem(STORE_KEY) || '{}'); adsLeft = +(sessionStorage.getItem('shortAdsLeft') || 4); } catch(e){}
-  var SUBSCRIBED = false;   // a package bought through All Packages (Subscribe to unlock all) opens every episode
-  try { SUBSCRIBED = !!sessionStorage.getItem('shortsSubscribed'); } catch(e){}
-  function isOpen(n){ return n <= FREE || SUBSCRIBED || unlocked.all || unlocked[n]; }
+  // free, unlocked, a pass, or a package (All Packages' Short Drama, or this short's app): content.js SHORT.open
+  function isOpen(n){ return SHORT.open(si, n); }
+  // back from its package (View Package → package-detail.html / purchase.html → ?subscribed=1): every episode is open
+  var JUST_BOUGHT = /[?&]subscribed=1/.test(location.search);
+  if(JUST_BOUGHT) history.replaceState(null, '', 'short-detail.html?s=' + si);
+  // a pass bought on the payment page: every episode of this short is open (before the crown and buttons are drawn)
+  if(/[?&]pass=1/.test(location.search)){
+    unlocked.all = 1; keep();
+    history.replaceState(null, '', 'short-detail.html?s=' + si);
+    setTimeout(function(){ toast('Your pass is active: every episode is unlocked'); }, 300);
+  }
   function keep(){ try { sessionStorage.setItem(STORE_KEY, JSON.stringify(unlocked)); sessionStorage.setItem('shortAdsLeft', adsLeft); } catch(e){} }
 
   // the top
   document.title = S.t;
   $('.top .pic')[0].style.backgroundImage = "url('posters/shorts/" + S.img + "')";
   $('.hero h1')[0].textContent = S.t;
-  $('.metarow')[0].innerHTML = Content.metaHtml({s:si}, true);   // content.js: Home's and the Movie page's screen text say the same
+  $('.metarow')[0].innerHTML = Content.metaHtml({s:si}, true);   // content.js (with Premium): Home's and the Movie page's screen text say the same
   $('.syn')[0].innerHTML = esc(S.d) + ' <b>More</b>';
   // Play: the episode the player left off on (SHORT.at), else Ep.1
   var playEp = (window.SHORT && SHORT.at(si) || {}).ep || 1;
@@ -30,6 +38,10 @@
   // watching it already (SHORT.at): Start Over after the main button, as a movie's or series' detail page
   if(window.SHORT && SHORT.at(si)) $('.actions .main')[0].insertAdjacentHTML('afterend',
     '<div class="tv-btn tv-btn--secondary ic item" data-act="startover" data-tip="Start Over" data-ring-art=""><img src="icons/player/start-over.svg" alt="Start Over"><span class="tip"></span></div>');
+  // not the viewer's yet (gold crown): View Package next to Play, its app's Short Drama packages (content.js); the
+  // locked episodes keep their own unlock options. Owned: every episode open, no View Package
+  if(Content.crown({s:si}) === 'gold') $('.actions .main')[0].insertAdjacentHTML('afterend',
+    '<div class="tv-btn tv-btn--secondary main item" data-act="package" data-label="View Package" data-ring-art=""><i class="ic-pkg"></i>View Package</div>');
 
   // You May Also Like: other short dramas only (content.js Content.related), never a movie in their place
   var LIKES = Content.related({s:si}, 18).map(function(r){ return { t:SHORTS[r.s].t, img:'posters/shorts/' + SHORTS[r.s].img, s:r.s }; });
@@ -195,6 +207,7 @@
     if(el.dataset.href){ location.href = el.dataset.href; return; }
     if(navItems.indexOf(el) >= 0){ toast(el.dataset.label + ' (demo)'); return; }
     if(el.dataset.act === 'play'){ location.href = 'player.html?short=' + si + '&ep=' + playEp; return; }   // the vertical player
+    if(el.dataset.act === 'package'){ save(); location.href = Content.packageUrl({s:si}, 'short-detail.html?s=' + si); return; }   // bought, it comes back here (?subscribed=1)
     if(el.dataset.act === 'startover'){ location.href = 'player.html?short=' + si + '&ep=1&start=1'; return; }   // from Ep.1
     if(el.dataset.act === 'toggle'){
       var msgs = el.dataset.toggle.split('|'), on = !el.classList.contains('on');
@@ -275,12 +288,7 @@
     sessionStorage.removeItem('shortReturn');
     if(saved && saved.s === si){ tabAt = saved.tabAt; rangeAt = saved.rangeAt; cur = saved.cur; }
   } catch(e){}
-  // a pass bought on the payment page: every episode of this short is open
-  if(/[?&]pass=1/.test(location.search)){
-    unlocked.all = 1; keep();
-    history.replaceState(null, '', 'short-detail.html?s=' + si);
-    setTimeout(function(){ toast('Your pass is active: every episode is unlocked'); }, 300);
-  }
+  if(JUST_BOUGHT) setTimeout(function(){ toast(Content.packageFor({s:si}).n + ' is active: every episode is unlocked'); }, 300);
   build();
   if(!cur.row || cur.row >= rows.length) cur.row = 1;
   addEventListener('pageshow', function(e){ if(e.persisted) location.reload(); });   // back from the player: Play Ep.N follows it

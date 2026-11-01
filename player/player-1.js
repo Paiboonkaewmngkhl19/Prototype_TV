@@ -28,7 +28,9 @@
   byId('video').src = byId('thumbV').src = CLIP;
   if(SHORT_ON) byId('video').poster = m.w;
   byId('title').textContent = SER ? 'S' + S + ' E' + E + ' : ' + EP.t : m.t;
-  byId('sub').textContent = SER ? m.t : '';
+  // the header's crown, as the Live TV player's (content.js: gold, a premium title not the viewer's; owned), then the series
+  byId('sub').innerHTML = Content.crownIcon(SHORT_ON ? {s:SI} : {k:K}, 32);
+  byId('sub').appendChild(document.createTextNode(SER ? m.t : ''));
   document.title = byId('title').textContent + ' · Player';
   function hms(s){ s = Math.max(0, Math.floor(s)); return Math.floor(s / 3600) + ':' + ('0' + Math.floor(s / 60) % 60).slice(-2) + ':' + ('0' + s % 60).slice(-2); }
   function vmod(t){ var d = byId('video').duration || 0; return d ? ((t % d) + d) % d : 0; }

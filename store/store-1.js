@@ -157,7 +157,7 @@
     var top = e.kind === 'upcoming' ? '<span class="top-tag ev-top">' + esc(e.when) + '</span>' : '';
     var meta = e.kind === 'vod'
       ? '<span class="ptag ais" aria-label="AIS PLAY"></span><strong>Genres · Genres</strong><span>2026</span><span>2h 15m</span><span class="pill sm">16+</span><span class="pill sm">HD</span>'
-      : '<span class="b"><img src="sport-assets/crown.svg" alt="">Premium</span><span class="logo"></span><span>Channel 111: AISPLAY 111</span>' +
+      : '<span class="b">' + Content.crownIcon({ t:e.t + ' ' + (i + 1), ppv:1 }) + 'Premium</span><span class="logo"></span><span>Channel 111: AISPLAY 111</span>' +   // the event's crown (content.js): gold until it is bought
         (e.time ? '<span class="pill">' + e.time + '</span>' : '') + '<span class="pill sm">HD</span>';
     return open + tall + wide + '<div class="xc-scrim ev-scrim"></div>' + top +
       '<div class="xc-content ev-info"><h3>' + esc(e.t) + '</h3><div class="cost"><b>' + e.price + ' baht</b><span>(VAT Included: ' + vat(e.price) + ' baht)</span></div>' +

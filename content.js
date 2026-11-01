@@ -18,6 +18,10 @@
     MD.state(k)     what the detail page offers: 'soon' (not out yet: MD.soon(k) its release), 'resume' (in Continue Watching), 'play' (rented, bought this session, or
                     in the viewer's package), 'buy' (For You / Rent or Buy, not yet bought); MD.price(k) its price
     MD.own(k)       mark a title bought / its package subscribed (this session)
+    MD.subscribe(plat), MD.subscribed(plat)   a platform's package bought this session (packages.js: netflix, hbo, ...,
+                    reelshort, dramabox): its premium titles and shorts are the viewer's (sessionStorage ottSubscribed)
+    m.premium       a premium title: sold on its own or in a package; Content.crown(info) says whether the viewer has
+                    it ('owned') or not ('gold'). Its cards show no crown; its detail page's meta row says Premium
     MD.cw(k)        where the title was left: this session's progress (player.html), else Continue Watching
     MD.setProgress(k, w, of[, s, e])   remember it (minutes watched of `of`; a series also its season / episode);
                     MD.minutes(k) its length in minutes
@@ -151,6 +155,11 @@
   // q: the titles in 4K with Dolby Atmos (a 4K pill and the Dolby mark, MD.qtag); every other title is HD
   ['avatar', 'topgun', 'f1', 'house', 'got', 'lotr', 'spider', 'endgame', 'odyssey', 'superman', 'stranger', 'wicked']
     .forEach(function(k){ M[k].q = '4k'; });
+  // premium: the titles sold on their own or in a package (For You, Rent or Buy, the series sold one by one, District 9's
+  // package, the rentals) and AIS PLAY Exclusive; Content.crown(info) their crown (Premium on the detail page)
+  ['d9', 'avatar', 'f1', 'topgun', 'john', 'venom', 'lotr', 'hobbit', 'house', 'got', 'loki', 'odyssey', 'spider', 'lastofus', 'vikings',
+   'missuni', 'sophomores', 'bossckm', 'cityars', 'mufcche', 'mufcars']
+    .forEach(function(k){ M[k].premium = true; });
   // titles made from a card that had no data of its own (Content.open): back into the catalogue on every page
   try { var ADHOC = JSON.parse(sessionStorage.getItem('contentAdhoc') || '{}'); for(var ak in ADHOC) if(!M[ak]) M[ak] = ADHOC[ak]; } catch(e){}
   var CONTINUE = [{k:'sherlock', s:1, e:5, w:31, of:58}, {k:'endgame', w:122, of:181}, {k:'encanto', w:61, of:102}, {k:'brazil', s:1, e:2, w:20, of:55}, {k:'hailmary', w:101, of:156},
@@ -181,6 +190,10 @@
 
   function owned(){ try { return JSON.parse(sessionStorage.getItem('mdOwned') || '[]'); } catch(e){ return []; } }
   function own(k){ var o = owned(); if(o.indexOf(k) < 0){ o.push(k); try { sessionStorage.setItem('mdOwned', JSON.stringify(o)); } catch(e){} } }
+  // a platform's package bought this session (purchase.html?ott=, or a detail page's View Package): read fresh each call
+  function subs(){ try { return JSON.parse(sessionStorage.getItem('ottSubscribed') || '[]'); } catch(e){ return []; } }
+  function subscribed(plat){ return !!plat && subs().indexOf(plat) >= 0; }
+  function subscribe(plat){ var s = subs(); if(plat && s.indexOf(plat) < 0){ s.push(plat); try { sessionStorage.setItem('ottSubscribed', JSON.stringify(s)); } catch(e){} } }
   function find(list, k){ for(var i = 0; i < list.length; i++) if(list[i].k === k) return list[i]; return null; }
   function price(k){ var f = find(FOR_YOU, k); return f ? f.price : find(RENT, k) ? 149 : SERIES_PRICE[k] || (M[k] && M[k].price) || 0; }   // Rent or Buy titles: 149 baht
   // titles that need a package (View Package opens the package view, then the purchase): District 9 (Monomax)
@@ -196,7 +209,7 @@
   function continueList(){
     var p = progress(), seen = {}, out = [];
     Object.keys(p).sort(function(a, b){ return (p[b].at || 0) - (p[a].at || 0); }).forEach(function(k){
-      seen[k] = 1; if(M[k] && M[k].w && p[k].w < p[k].of - 1) out.push(cw(k));
+      seen[k] = 1; if(M[k] && M[k].w && p[k].w < p[k].of - 1 && state(k) !== 'buy') out.push(cw(k));   // (not one still for sale)
     });
     CONTINUE.forEach(function(c){ if(!seen[c.k]) out.push(cw(c.k)); });
     return out;
@@ -206,13 +219,15 @@
   function soon(k){ var m = M[k]; if(!m || !m.soon) return null; var d = new Date(); d.setHours(0, 0, 0, 0); return d.getTime() + m.soon * 864e5; }
   function state(k){
     if(soon(k)) return 'soon';   // not out yet: its detail page has no Play (Remind instead)
-    if(cw(k)) return 'resume';
-    if(owned().indexOf(k) >= 0) return 'play';
-    if(PACKAGE.indexOf(k) >= 0) return 'buy';
-    if(MY_RENTAL.indexOf(k) >= 0) return 'play';
-    return price(k) ? 'buy' : 'play';
+    // a title for sale stays 'buy' until it is the viewer's (bought this session, its platform's package, a rental),
+    // even if it was played before: progress alone never makes it theirs (Content.crown stays gold)
+    var bought = owned().indexOf(k) >= 0 || !!(M[k] && M[k].premium && subscribed(M[k].plat));
+    if(!bought && PACKAGE.indexOf(k) >= 0) return 'buy';
+    if(!bought && MY_RENTAL.indexOf(k) < 0 && price(k)) return 'buy';
+    return cw(k) ? 'resume' : 'play';
   }
   window.MD = { P:P, PP:PP, M:M, CONTINUE:CONTINUE, FOR_YOU:FOR_YOU, RENT:RENT, MY_RENTAL:MY_RENTAL, state:state, price:price, own:own, cw:cw, setProgress:setProgress, minutes:minutes,
+    subscribe:subscribe, subscribed:subscribed,
     soon:soon, continueList:continueList, series:series, seasons:seasons, episodes:episodes, episode:episode, next:next, until:until,
     bg:function(k){ var m = M[k]; return m ? m.b || m.w || m.p : ''; },
     // the quality tag every page shows in a title's meta row: 4K Dolby (platform-tag.css .qtag), else the HD pill
@@ -230,21 +245,21 @@
   (each short's page) and package-detail.html (its payment, ?short=N).
 */
 window.SHORTS = [
-  { t:'Seven Days Back, Old Love Ends', img:'s1.jpg', plat:'reelshort', gen:['Romance', 'Period'], rate:'13+',
+  { t:'Seven Days Back, Old Love Ends', img:'s1.jpg', plat:'reelshort', gen:['Romance', 'Period'], rate:'13+', premium:true,
     d:'Seven days before her wedding, a palace maid wakes up in the past with one chance to undo the love that ruined her, and the courage to finally walk away.' },
-  { t:'Grandma Takes Over the Family II', img:'s2.jpg', plat:'dramabox', gen:['Comedy', 'Family'], rate:'13+',
+  { t:'Grandma Takes Over the Family II', img:'s2.jpg', plat:'dramabox', gen:['Comedy', 'Family'], rate:'13+', premium:true,
     d:'Back in a young body, the family matriarch returns to set her spoiled heirs straight and save the business they nearly lost.' },
-  { t:'Ink and Rain', img:'s3.jpg', plat:'reelshort', gen:['Romance', 'Fantasy'], rate:'13+',
+  { t:'Ink and Rain', img:'s3.jpg', plat:'reelshort', gen:['Romance', 'Fantasy'], rate:'13+', premium:true,
     d:'A painter whose brush brings ink to life and a guarded swordsman cross paths in a city of rain, where every painting hides a promise.' },
-  { t:"The Secretary's Forbidden Love", img:'s4.jpg', plat:'dramabox', gen:['Romance', 'Drama'], rate:'16+',
+  { t:"The Secretary's Forbidden Love", img:'s4.jpg', plat:'dramabox', gen:['Romance', 'Drama'], rate:'16+', premium:true,
     d:'A new secretary falls for the CEO she was hired to watch, and has to choose between the job, the truth and her heart.' },
-  { t:"The Mafia Boss's Spoiled Secretary", img:'s5.jpg', plat:'reelshort', gen:['Romance', 'Crime'], rate:'18+',
+  { t:"The Mafia Boss's Spoiled Secretary", img:'s5.jpg', plat:'reelshort', gen:['Romance', 'Crime'], rate:'18+', premium:true,
     d:'Hired by the most feared man in the city, a quiet secretary finds out she is the only one he will not let go.' },
-  { t:"The Healer's Comeback", img:'s6.jpg', plat:'dramabox', gen:['Drama', 'Period'], rate:'13+',
+  { t:"The Healer's Comeback", img:'s6.jpg', plat:'dramabox', gen:['Drama', 'Period'], rate:'13+', premium:true,
     d:'Cast out of the imperial clinic, a young healer comes back under a new name to cure the court and expose the ones who framed her.' },
-  { t:'Back to the Moonlight Promise', img:'s7.jpg', plat:'reelshort', gen:['Romance', 'Drama'], rate:'13+',
+  { t:'Back to the Moonlight Promise', img:'s7.jpg', plat:'reelshort', gen:['Romance', 'Drama'], rate:'13+', premium:true,
     d:'Two strangers keep meeting under the same full moon, until they remember the promise they made in another life.' },
-  { t:'The Contract Bride\'s Revenge', img:'s8.jpg', plat:'dramabox', gen:['Romance', 'Drama'], rate:'13+',
+  { t:'The Contract Bride\'s Revenge', img:'s8.jpg', plat:'dramabox', gen:['Romance', 'Drama'], rate:'13+', premium:true,
     d:'Married by contract to the heir who ruined her family, a quiet bride plays the perfect wife while she plans her revenge.' }
 ];
 
@@ -252,19 +267,23 @@ window.SHORTS = [
   Episodes of a short, shared by short-detail.html and the vertical player (player.html?short=N&ep=E):
     SHORT.EPS episodes (the first SHORT.FREE free), SHORT.open(s, n) whether episode n of short s can be watched (free,
     unlocked this session, a pass, or the Short Drama package), SHORT.secs(n) its length in seconds (1-3 minutes),
-    SHORT.at(s) / SHORT.setAt(s, ep, sec) where the short was left.
+    SHORT.at(s) / SHORT.setAt(s, ep, sec) where the short was left. SHORT.owned(s) every episode is the viewer's: the
+    Short Drama package (All Packages), its app's package (MD.subscribed), a pass, or each locked episode unlocked.
 */
 window.SHORT = (function(){
   var EPS = 160, FREE = 10;
   function get(k, d){ try { return JSON.parse(sessionStorage.getItem(k) || d); } catch(e){ return JSON.parse(d); } }
-  function open(s, n){
-    var u = get('shortUnlocked' + s, '{}');
-    return n <= FREE || !!sessionStorage.getItem('shortsSubscribed') || !!u.all || !!u[n];
+  function owned(s){
+    var u = get('shortUnlocked' + s, '{}'), sh = window.SHORTS[s];
+    if(sessionStorage.getItem('shortsSubscribed') || u.all || (sh && window.MD.subscribed(sh.plat))) return true;
+    for(var n = FREE + 1; n <= EPS; n++) if(!u[n]) return false;
+    return true;
   }
+  function open(s, n){ return n <= FREE || !!get('shortUnlocked' + s, '{}')[n] || owned(s); }
   function secs(n){ return 75 + (n * 37) % 105; }
   function at(s){ return get('shortProgress', '{}')[s] || null; }
   function setAt(s, ep, sec){ var p = get('shortProgress', '{}'); p[s] = { ep:ep, sec:Math.floor(sec) }; try { sessionStorage.setItem('shortProgress', JSON.stringify(p)); } catch(e){} }
-  return { EPS:EPS, FREE:FREE, open:open, secs:secs, at:at, setAt:setAt };
+  return { EPS:EPS, FREE:FREE, open:open, owned:owned, secs:secs, at:at, setAt:setAt };
 })();
 
 /*
@@ -276,6 +295,10 @@ window.SHORT = (function(){
   Content.play(info)  straight into the player
   Content.info(el)    what an element shows: data-k / data-s / data-title / data-label / data-desc / data-price, and
                       the picture of the element or the first child with one; null for live cards (they play live)
+  Content.crown(info) 'gold' | 'owned' | '': the premium crown of a channel, programme, movie, series or short; every
+                      page asks this, never c.crown / MD.state itself. Content.crownIcon(info, size, cls) its <img>
+  Content.packageFor(info)   the package that includes it; Content.packageUrl(info, ret) View Package's page
+                      (package-suggest.html: the packages that include it, then their purchase, back to ret)
 */
 window.Content = (function(){
   function base(src){ return String(src || '').split('/').pop().split('?')[0].toLowerCase(); }
@@ -303,7 +326,7 @@ window.Content = (function(){
       d:info.d || t + ': watch it now on AIS PLAY.' };
     if(info.img){ if(portrait) m.p = info.img; else m.w = info.img; }
     if(info.bg) m.b = info.bg;
-    if(info.price) m.price = +info.price;
+    if(info.price){ m.price = +info.price; m.premium = true; }   // sold on its own: premium (Content.crown)
     if(info.ppv) m.ppv = 1;   // a PPV event: premium, bought on its own (purchase.html)
     window.MD.M[k] = m;
     try { var a = JSON.parse(sessionStorage.getItem('contentAdhoc') || '{}'); a[k] = m; sessionStorage.setItem('contentAdhoc', JSON.stringify(a)); } catch(e){}
@@ -387,18 +410,94 @@ window.Content = (function(){
     return [];
   }
   // a title's or short's meta row, the same on every screen and its detail page: (tag: its platform tag first) then
-  // a title's genres, year, length, age pill and quality tag (MD.metaHtml), or a short's genres, year, episodes, rating
-  // pill and HD
+  // Premium (a premium one: its crown, gold or owned, platform-tag.css .mbadge.prem), then a title's genres, year,
+  // length, age pill and quality tag (MD.metaHtml), or a short's genres, year, episodes, rating pill and HD
   function ptag(plat){ return plat === 'ais' ? '<span class="ptag ais" aria-label="AIS PLAY"></span>' : '<img class="ptag" src="badges/tag-' + plat + '.png" alt="">'; }
+  function premTag(f){ return crown(f) ? '<span class="mbadge prem">' + crownIcon(f) + 'Premium</span>' : ''; }
   function metaHtml(info, tag){
     var f = target(info);
     if(f.s !== undefined){ var sh = window.SHORTS[f.s];
-      return (tag ? ptag(sh.plat) : '') + '<strong>' + sh.gen.join(' · ') + '</strong><span>2026</span><span>' + window.SHORT.EPS + ' Episodes</span>' +
+      return (tag ? ptag(sh.plat) : '') + premTag(f) + '<strong>' + sh.gen.join(' · ') + '</strong><span>2026</span><span>' + window.SHORT.EPS + ' Episodes</span>' +
         '<span class="pill">' + sh.rate + '</span><span class="pill">HD</span>'; }
     var m = window.MD.M[f.k];
-    return (tag ? ptag(m.plat) : '') + window.MD.metaHtml(m);
+    return (tag ? ptag(m.plat) : '') + premTag(f) + window.MD.metaHtml(m);
+  }
+  // the channel `info` is or is on, or null: {tv: name} (a LIVE / Upcoming programme), {ch: channel or name}, or a channel
+  // itself (channels-data.js, or a page's copy of one: n plus its crown); the TV Guide's own entry when there is one
+  function channelOf(info){
+    var c = info.tv !== undefined ? info.tv : info.ch !== undefined ? info.ch : info.n !== undefined && 'crown' in info ? info : null;
+    if(c === null || c === '') return null;
+    var name = typeof c === 'string' ? c : c.n, d = window.TV && TV.byName ? TV.byName(name) : null;
+    return d || (typeof c === 'string' ? { n:c, crown:'' } : c);
+  }
+  // the crown, one status for every kind of content: '' not premium, 'owned' premium and the viewer has it, 'gold' premium
+  // and they don't. Read fresh each call (sessionStorage), so a purchase shows on the next page load:
+  //   a channel / programme  its crown (channels-data.js); 'owned' too once a package with the premium channels is
+  //                          bought (tvSubscribed)
+  //   a movie / series       m.premium (or a PPV event); 'owned' while MD.state is 'play' or 'resume' (bought, rented,
+  //                          its platform's package)
+  //   a short                'owned' once SHORT.owned (a package, a pass, every episode unlocked)
+  function crown(info){
+    if(!info) return '';
+    var c = channelOf(info);
+    if(c){
+      if(!c.crown) return '';
+      var sub = false; try { sub = sessionStorage.getItem('tvSubscribed') === '1'; } catch(e){}
+      return c.crown === 'owned' || sub ? 'owned' : 'gold';
+    }
+    var f = find(info);
+    if(f && f.s !== undefined) return window.SHORTS[f.s].premium ? (window.SHORT.owned(f.s) ? 'owned' : 'gold') : '';
+    if(f){ var m = window.MD.M[f.k], st = window.MD.state(f.k);
+      return m.premium || m.ppv ? (st === 'play' || st === 'resume' ? 'owned' : 'gold') : ''; }
+    return info.ppv || info.premium ? 'gold' : '';   // a PPV card not opened yet: nothing bought
+  }
+  // the crown's <img> (nothing when not premium): gold the plain gold crown, owned the crown with the green play mark.
+  // size: its width and height in px (else the page's CSS sizes it); cls: the page's class for it (crown-tag, ic20 ...)
+  var CROWN_SRC = { gold:'icons/crown-gold.svg', owned:'icons/tv-guide/crown.svg' };
+  function crownIcon(info, size, cls){
+    var st = crown(info);
+    return st ? '<img class="crown-ic ' + st + (cls ? ' ' + cls : '') + '" src="' + CROWN_SRC[st] + '" alt="' + (st === 'owned' ? 'Premium: yours' : 'Premium') + '"' +
+      (size ? ' width="' + size + '" height="' + size + '"' : '') + '>' : '';
+  }
+  // the package that includes `info` (View Package): {n, url}. A channel or programme: PLAY ULTIMATE (its premium
+  // channels, package-detail.html's own); a movie or series: its platform's packages (packages.js, ?ott=), AIS PLAY's
+  // own titles PLAY ULTIMATE; a short: its app's Short Drama packages (ReelShort / DramaBox). Anything else (a PPV
+  // event): All Packages. A page without packages.js gets All Packages for a platform.
+  var ULTIMATE = { n:'PLAY ULTIMATE Monthly Package', url:'package-detail.html' };
+  function packageFor(info){
+    if(!info) return { n:'All Packages', url:'all-packages.html' };
+    if(channelOf(info)) return ULTIMATE;
+    var f = find(info), plat = f && f.s !== undefined ? window.SHORTS[f.s].plat : f ? window.MD.M[f.k].plat : '';
+    if(f && f.k && window.MD.M[f.k].ppv) plat = '';
+    if(plat === 'ais') return ULTIMATE;
+    var P = window.Packages;
+    if(plat && P && P.PKG[plat]) return { n:P.OTT[plat].n, url:'package-detail.html?ott=' + plat + '&p=0', ott:plat };
+    return { n:'All Packages', url:'all-packages.html' };
+  }
+  // View Package: the package suggestion page (package-suggest.html: the packages that include it), whose purchases come
+  // back to `ret` (the detail page) with ?subscribed=1. A channel's programme: info.prog (movie-detail.html's), else its
+  // channel's packages only
+  function packageUrl(info, ret){
+    info = info || {};
+    var c = !info.prog && channelOf(info), f = !info.prog && !c && target(info);
+    var q = info.prog || c ? 'prog=' + encodeURIComponent(JSON.stringify(info.prog || { t:c.n, tv:c.n, live:1 }))
+      : f.s !== undefined ? 's=' + f.s : 'k=' + f.k;
+    return 'package-suggest.html?' + q + '&ret=' + encodeURIComponent(ret || location.pathname.split('/').pop() + location.search);
+  }
+  // a title's or short's main button, as its detail page has it (a screen's own Play button says the same):
+  //   gold (premium, not the viewer's)  View Package (ic-pkg): its package, which comes back to the detail page bought
+  //   being watched                     Resume (a series: "Resume S1: Ep.5"), else Play (a short: "Play Ep.N")
+  // {act:'package' | 'play', label, icon (the <i> class), url}
+  function mainAction(info){
+    var f = target(info);
+    if(crown(f) === 'gold') return { act:'package', label:'View Package', icon:'ic-pkg', url:packageUrl(f, detailUrl(f)) };
+    if(f.s !== undefined){ var ep = (window.SHORT.at(f.s) || {}).ep || 1;
+      return { act:'play', label:'Play Ep.' + ep, icon:'ic-play', url:'player.html?short=' + f.s + '&ep=' + ep }; }
+    var c = window.MD.state(f.k) === 'resume' && window.MD.cw(f.k);
+    return { act:'play', label:c ? (window.MD.series(f.k) ? 'Resume S' + c.s + ': Ep.' + c.e : 'Resume') : 'Play', icon:'ic-play', url:playUrl(f) };
   }
   return { find:find, info:info, hero:hero, metaHtml:metaHtml, related:related, detailUrl:detailUrl, playUrl:playUrl,
+    crown:crown, crownIcon:crownIcon, packageFor:packageFor, packageUrl:packageUrl, mainAction:mainAction,
     open:function(i){ location.href = detailUrl(i); }, play:function(i){ location.href = playUrl(i); } };
 })();
 
@@ -415,13 +514,13 @@ window.Content = (function(){
                        TV (channels-data.js)
     LIVE.href(p, from) the card's link: its detail page, else the channel in the Live TV player (via the TV Guide)
     LIVE.hot          Home's Hot Channel Program: news channels' programmes on now (t, img, logo, tv, d)
-    LIVE.premium(tv), LIVE.range(p), LIVE.find(title)   Premium, its time on air, a programme by its title (Home's
-                       screen text and the detail page's meta row say the same)
+    LIVE.range(p), LIVE.find(title)   its time on air, a programme by its title (Home's screen text and the detail
+                       page's meta row say the same); its Premium: Content.crown({tv:p.tv})
 */
 window.LIVE = (function(){
   var U = 'posters/upcoming/';
   var list = [
-    {t:'Liverpool vs Brentford', img:U + 'live.jpg', bg:'posters/liver-ben.jpg', tv:'MONOMAX 1', live:true, sp:'football', lg:'epl',   // bg: Home's first scene and the detail page
+    {t:'Liverpool vs Brentford', img:U + 'live.jpg', bg:'posters/liver-ben.jpg', v:'posters/homapage.mp4', tv:'MONOMAX 1', live:true, sp:'football', lg:'epl',   // bg: Home's first scene and the detail page; v: its video, Home's and the player's
      d:'Liverpool host Brentford at Anfield in a big Premier League clash. Follow every moment live, from kick-off to the final whistle.'},
     {t:'Arsenal vs Chelsea', img:'posters/arsenal.jpg', bg:'posters/hero/arsenal.jpg', tv:'MONOMAX SPORTS', live:true, heroOnly:true, sp:'football', lg:'epl',   // Home's first scene only
      d:'A fierce London derby as Arsenal host Chelsea in a top-of-the-table Premier League showdown.'},
@@ -472,9 +571,8 @@ window.LIVE = (function(){
     return 'tv-guide.html?play=' + encodeURIComponent(p.tv) + '&from=' + (from || 'home') + (p.live ? '&t=' + encodeURIComponent(p.t) : '');
   }
   list.forEach(function(p){ if(!p.live) p.when = label(p); });   // the card's label, as the page opens
-  // the same meta on Home's screen text and the detail page: Premium (the channel is premium) and the time on air (a LIVE
-  // one: what the channel's TV Guide has on now; an Upcoming one: from its start, 2h15m)
-  function premium(tv){ var c = window.TV && TV.byName(tv); return !!c && (c.crown === 'gold' || c.crown === 'owned'); }
+  // the same meta on Home's screen text and the detail page: the time on air (a LIVE one: what the channel's TV Guide has
+  // on now; an Upcoming one: from its start, 2h15m)
   function range(p){
     if(p.range) return p.range;
     var c = window.TV && TV.byName(p.tv);
@@ -495,5 +593,5 @@ window.LIVE = (function(){
     {t:'Open News Desk', img:N + 'lc-2.png', tv:'PPTV HD', live:true, d:'The PPTV news team opens the desk on every hot topic of the day.'},
     {t:'Komchadluek', img:N + 'lc-4.png', tv:'Nation TV', live:true, d:'Komchadluek goes straight to the heart of Thai politics and society, with frank, in-depth interviews.'}
   ];
-  return { list:list, hot:hot, start:start, label:label, hasMD:hasMD, href:href, premium:premium, range:range, find:find };
+  return { list:list, hot:hot, start:start, label:label, hasMD:hasMD, href:href, range:range, find:find };
 })();

@@ -74,7 +74,8 @@
       return '<div class="hero-btn hero-play tv-btn tv-btn--primary item" data-title="'+attr(it.hero.title)+'" data-ring-art=""'+
         ' data-hero-title="'+attr(it.hero.title)+'" data-hero-logo="'+attr(it.hero.logo)+'" data-hero-channel="'+attr(it.hero.channel)+'"'+
         ' data-hero-live="'+(it.hero.live?'1':'0')+'"'+(it.hero.tv?' data-hero-tv="'+attr(it.hero.tv)+'"':'')+' data-hero-desc="'+attr(it.hero.desc)+'" data-hero-img="'+it.bg+'"'+(it.k ? ' data-k="'+it.k+'"' : '')+'>'+
-        '<i class="ic-play"></i>Play</div>';
+        // a title's slide: its detail page's main button (content.js: View Package, Resume or Play); a live one: Play
+        (function(a){ return '<i class="'+a.icon+'"></i>'+a.label; })(it.k ? Content.mainAction({k:it.k}) : {icon:'ic-play', label:'Play'})+'</div>';
     }).join('');
     addRow('<div class="row-block hero-row">'+
       '<div class="hero-btn hero-detail tv-btn tv-btn--secondary" id="heroDetail" data-title="Detail" data-ring-art=""><i class="ic-info"></i>Detail</div>'+
@@ -216,7 +217,7 @@
           (tv ? ' data-ch="'+q(tv.n)+'" data-meta="'+q(meta)+'"' : '')+(p.bg ? ' data-hero-bg="'+q(p.bg)+'"' : '')+' data-desc="'+q(p.d)+'">'+   // hero-bg: its detail page's picture
         '<div class="thumb" style="background-image:url(\''+p.img+'\');background-size:cover;background-position:center;">'+
           (p.live ? '' : '<span class="time-pill top-tag">'+p.when+'</span>')+
-          (tv && (tv.crown === 'gold' || tv.crown === 'owned') ? '<img class="crown-tag" src="icons/crown-gold.svg" alt="Premium">' : '')+'</div>'+
+          Content.crownIcon({tv:p.tv}, 0, 'crown-tag')+'</div>'+   // premium: gold, or owned (content.js)
         '<div class="strip"><div class="t">'+p.t+'</div></div>'+
         (p.live ? '<span class="live-ribbon">Live</span>' : '')+
       '</div>';
@@ -272,7 +273,6 @@
   /* ---------- Row: AIS Play Exclusive ---------- */
   (function(){
     // Expanding cards, like Top Pick For You: portrait posters that widen into the feature card when focused
-    var PREMIUM = '<span class="xc-premium"><img src="icons/crown-gold.svg" alt="">Premium</span>';
     // each a catalogue title (content.js MD.M, AIS PLAY's own): its name, synopsis, genres, length, rating and pictures;
     // the rail adds its badges, a match's kick-off (when) and where the pictures sit
     var picks = [
@@ -291,7 +291,7 @@
           '<div class="xc-badges">'+it.badges.map(function(b){ return '<span class="xc-badge">'+b+'</span>'; }).join('')+'</div>'+
           '<h3 class="xc-title">'+m.t+'</h3>'+
           '<p class="xc-desc">'+m.d+'</p>'+
-          '<div class="xc-chips">'+PREMIUM+chips.map(function(c){ return '<span class="xc-chip">'+c+'</span>'; }).join('')+'</div>'+
+          '<div class="xc-chips">'+chips.map(function(c){ return '<span class="xc-chip">'+c+'</span>'; }).join('')+'</div>'+
         '</div>'+
       '</div>';
     }).join('');
@@ -350,7 +350,7 @@
       var chName = p.tv, tv = window.TV.byName(chName), prog = p;
       return '<div class="card card-landscape item" data-title="'+attrQ(p.t)+'" data-live="1" data-href="'+attrQ(LIVE.href(prog, 'home'))+'"'+
         (tv ? ' data-ch="'+attrQ(tv.n)+'" data-meta="'+attrQ('Channel '+tv.no+': '+tv.n)+'"' : '')+' data-desc="'+attrQ(p.d)+'" style="'+pic+'">'+
-        (LIVE.premium(chName) ? '<img class="crown-tag" src="icons/crown-gold.svg" alt="Premium">' : '')+'</div>';
+        Content.crownIcon({tv:chName}, 0, 'crown-tag')+'</div>';
     }).join('');
     addRow('<div class="row-block"><div class="row-title">Hot Channel Program</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
   })();
@@ -572,7 +572,9 @@
   // a channel's programme (content.js LIVE, else null): Upcoming, Premium and its time on air, as its detail page's meta row
   function showHeroProg(p){
     heroUpEl.style.display = p && !p.live ? '' : 'none';
-    heroPremEl.style.display = p && LIVE.premium(p.tv) ? '' : 'none';
+    var prem = p ? Content.crown({tv:p.tv}) : '';
+    heroPremEl.style.display = prem ? '' : 'none';
+    if(prem) heroPremEl.innerHTML = Content.crownIcon({tv:p.tv})+'Premium';   // gold, or owned (content.js)
     heroRangeEl.style.display = p ? '' : 'none';
     if(p) heroRangeEl.textContent = LIVE.range(p);
   }
@@ -695,8 +697,9 @@
       heroLogoEl.classList.toggle('ais', h.plat === 'ais');
       heroLogoEl.src = h.plat === 'ais' ? 'icons/aisplay-mark.png' : 'badges/' + heroTagFile(h.plat);
       heroLogoEl.style.display = '';
-      if(h.k){ heroChannelEl.innerHTML = MD.metaHtml(MD.M[h.k]); showHeroWatched(el, h.k); }   // as the detail page (content.js)
-      else heroChannelEl.innerHTML = Content.metaHtml({s:h.s});   // a short: as its page (content.js)
+      // after the tag: Premium and the meta row, as the detail page (content.js)
+      if(h.k){ heroChannelEl.innerHTML = Content.metaHtml({k:h.k}); showHeroWatched(el, h.k); }
+      else heroChannelEl.innerHTML = Content.metaHtml({s:h.s});
       heroLiveEl.style.display = 'none';
       heroChannelEl.parentElement.style.display = '';
       heroDescEl.textContent = h.d; heroDescEl.style.display = '';
@@ -744,7 +747,7 @@
     if(heroTitleEl) heroTitleEl.textContent = item.dataset.heroTitle;
     if(heroLogoEl){ heroLogoEl.classList.remove('ais'); heroLogoEl.src = 'badges/' + heroTagFile(item.dataset.heroLogo); heroLogoEl.alt = item.dataset.heroLogo; }
     // a title's slide: its meta row and how far in, as its detail page (content.js); a live slide: below
-    if(heroChannelEl){ if(item.dataset.k) heroChannelEl.innerHTML = MD.metaHtml(MD.M[item.dataset.k]); else heroChannelEl.textContent = item.dataset.heroChannel; }
+    if(heroChannelEl){ if(item.dataset.k) heroChannelEl.innerHTML = Content.metaHtml({k:item.dataset.k}); else heroChannelEl.textContent = item.dataset.heroChannel; }
     if(item.dataset.k) showHeroWatched(null, item.dataset.k);
     if(heroDescEl) heroDescEl.textContent = item.dataset.heroDesc;
     if(heroLiveEl) heroLiveEl.style.display = (item.dataset.heroLive === '1') ? '' : 'none';
@@ -968,7 +971,7 @@
     // Grab The Mic! (karaoke) and Seasonal / Collection cards have no page: a mockup, OK only presses them.
     var href = it.getAttribute('data-href'), ci = Content.info(it);
     if(!href && it.classList.contains('hero-play') && it.dataset.heroTv) href = 'tv-guide.html?play=' + encodeURIComponent(it.dataset.heroTv) + '&from=home&t=' + encodeURIComponent(it.dataset.title);   // a LIVE slide: its channel, live
-    else if(!href && ci && it.classList.contains('hero-play') && it.dataset.heroLive !== '1') href = Content.playUrl(ci);
+    else if(!href && ci && it.classList.contains('hero-play') && it.dataset.heroLive !== '1') href = Content.mainAction(ci).url;   // the player, or its package (content.js)
     else if(!href && ci && it.matches('.card, .rank-wrap')) href = Content.detailUrl(ci);
     if(href){
       keepPlace();   // Back from there lands on the same card

@@ -605,6 +605,7 @@
      button, Play a primary one */
   .hero-btn .ic-info{-webkit-mask:url('../icons/hero/info.svg') center / contain no-repeat;mask:url('../icons/hero/info.svg') center / contain no-repeat;}
   .hero-btn .ic-play{-webkit-mask:url('../icons/hero/play.svg') center / contain no-repeat;mask:url('../icons/hero/play.svg') center / contain no-repeat;}
+  .hero-btn .ic-pkg{-webkit-mask:url('../icons/player/crown-dark.svg') center / contain no-repeat;mask:url('../icons/player/crown-dark.svg') center / contain no-repeat;}   /* View Package (Movie Detail's) */
   .hero-detail{margin:0 0 24px 110px;}
   .hero-detail.focused{transform:scale(1.05);}
   .hero-dots{display:flex;justify-content:center;gap:8px;margin-top:58px;}

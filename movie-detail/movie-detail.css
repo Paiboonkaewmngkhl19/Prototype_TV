@@ -3,7 +3,7 @@
     --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%);
     --focus-fill:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%), var(--th-pill);
     --idle-fill:rgba(255,255,255,.16); --idle-fill-on:rgba(255,255,255,.26);
-    --ease:cubic-bezier(.2,0,0,1); }
+    --ease:cubic-bezier(.2,0,0,1); --bg-0:#101010; --inter:'Plus Jakarta Sans', system-ui, sans-serif; }
   html,body{ margin:0; height:100%; background:#000; overflow:hidden; font-family:'Plus Jakarta Sans', system-ui, sans-serif; color:var(--on-surface); }
   #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:var(--surface); }
   #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; }
@@ -100,44 +100,6 @@
   .ymal .pst{ width:220px; height:330px; border-radius:12px; background:#2a2a2a center / cover no-repeat; transition:transform .22s var(--ease); }
   .ymal .pst.focused{ transform:scale(1.08); }
 
-  /* ---------- Package selection (Figma "02 / Package Selection / District 9", 628:69703) ----------
-     Same page: View Package swaps the details for this view (body.pkg); Esc / Back swaps back. */
-  .bgpkg{ position:absolute; inset:0; background:url('../icons/pkg/bg.jpg') center / cover no-repeat; opacity:0; transition:opacity .35s ease; }
-  .bgpkg::after{ content:''; position:absolute; inset:0; background:rgba(0,0,0,.7); }
-  .hero, .pkgview{ transition:opacity .3s ease, transform .3s cubic-bezier(.2,0,0,1); }
-  .pkgview{ position:absolute; inset:0; opacity:0; pointer-events:none; transform:translateX(40px); }
-  body.pkg .bgpkg{ opacity:1; }
-  body.pkg .hero, body.pkg .ctas{ opacity:0; pointer-events:none; transform:translateX(-40px); }
-  body.pkg .pkgview{ opacity:1; pointer-events:auto; transform:none; }
-  
-  .pkgleft{ position:absolute; left:108px; top:183px; width:667px; height:745px; display:flex; flex-direction:column; justify-content:space-between; opacity:.9; }
-  .pkgleft .head{ display:flex; flex-direction:column; gap:20px; }
-  .pkgleft .kicker{ font-size:36px; font-weight:600; text-shadow:0 0 4px rgba(0,0,0,.5); }
-  .pkgleft .account{ display:flex; flex-direction:column; align-items:center; gap:32px; width:441px; }
-  .pkgleft .account p{ margin:0; font-size:32px; font-weight:700; text-shadow:0 0 4px rgba(0,0,0,.5); }
-  .glassbtn{ position:relative; display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer; box-sizing:border-box;
-    /* default: a faint glass pill; focused: a brighter one, with the shared focus ring around it */
-    border:2px solid rgba(255,255,255,.22); border-radius:50px;
-    background:radial-gradient(ellipse 120% 160% at 12% 90%, rgba(255,255,255,0) 6%, rgba(255,255,255,.14) 100%), rgba(255,255,255,.08);
-    backdrop-filter:blur(24px) saturate(1.3) brightness(1.15); -webkit-backdrop-filter:blur(24px) saturate(1.3) brightness(1.15);
-    box-shadow:inset -1px 3px 17px rgba(255,255,255,.28); font-weight:700; text-shadow:0 4px 4px rgba(0,0,0,.25);
-    transition:transform .22s cubic-bezier(.2,0,0,1), box-shadow .22s ease; }
-  .glassbtn.bring{ width:100%; padding:32px 40px; font-size:28px; line-height:1.2; white-space:nowrap; }
-  .glassbtn.focused{ border-color:rgba(255,255,255,.5); background:radial-gradient(ellipse 120% 160% at 12% 90%, rgba(255,255,255,.04) 6%, rgba(255,255,255,.34) 100%), rgba(255,255,255,.18); }
-  .glassbtn.focused, .seeall.focused{ transform:scale(1.08); }
-
-  /* exact Figma sizes (628:76050): a 1127px row, 24px gaps, bottom-aligned. A card is 354px wide (1px border around a
-     352px body: 40px badge + 750.6px content); the focused one grows to 371 x 818 (8px padding + 1.5px border) and its
-     price block takes in the Subscribe button. */
-  .pkgcards{ position:absolute; left:735px; top:118px; width:1127px; height:818px; display:flex; gap:24px; align-items:flex-end; }
-  /* stairs: the cards always step down left to right at Figma's heights, whichever one is focused; inside, the
-     features block gives up its spare space when a focused card needs room for Subscribe */
-  .pcard:nth-child(1){ height:818px; }
-  .pcard:nth-child(2){ height:792.6px; }
-  .pcard:nth-child(3){ height:752.6px; }
-  .seeall{ position:absolute; left:1123px; top:968px; width:350px; height:86px; border-radius:9999px; display:flex; align-items:center; justify-content:center; cursor:pointer;
-    background:rgba(28,28,28,.8); color:rgba(232,232,232,.85); font-size:31px; font-weight:500; transition:transform .22s cubic-bezier(.2,0,0,1), box-shadow .22s ease; }
-  body.pkg .bg{ opacity:0; }
   /* ---------- a channel's programme (?prog=; content.js LIVE): Figma "MD LIVE State" (2712:80712) with its You May Also
      Like (2712:80470), and "Upcoming Has Access (MD)" (2235:116291). The same scene, buttons and tabs as a title ---------- */
   /* meta row: LIVE / Upcoming, Premium, the channel (its logo disc, "Channel N: Name"), the time */
@@ -176,3 +138,21 @@
   #toast{ position:absolute; left:50%; bottom:80px; z-index:20; transform:translateX(-50%); padding:14px 26px; border-radius:999px;
     background:rgba(20,20,24,.85); font-size:24px; opacity:0; transition:opacity .2s ease; pointer-events:none; }
   #toast.on{ opacity:1; }
+
+  /* ---------- top bar: Short Drama detail's (Home's): over the first scene; once the page has moved up to the tabs
+     (body.grid), away until it gets focus (Up from the buttons, Left from a row's first item) ---------- */
+  #screen .topnav .item.focused{ transform:scale(1.06); }
+  .scrim{ position:absolute; left:0; top:0; width:1920px; height:170px; z-index:4; pointer-events:none; opacity:0; transition:opacity .3s ease;
+    background:linear-gradient(180deg, var(--bg-0) 0%, var(--bg-0) 45%, rgba(16,16,16,0) 100%); }
+  body.grid.on-nav .scrim{ opacity:1; }
+  .topnav{ position:absolute; left:0; top:0; z-index:5; width:1920px; box-sizing:border-box; padding:24px 110px 0; display:flex; align-items:center; transition:opacity .3s ease, translate .3s var(--ease); }
+  body.grid:not(.on-nav) .topnav{ opacity:0; translate:0 -40px; pointer-events:none; }
+  .topnav .item{ transition:transform .22s var(--ease), background .15s ease, color .15s ease; cursor:pointer; }
+  .profile{ width:60px; height:60px; border-radius:999px; overflow:hidden; flex:0 0 auto; }
+  .profile img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .center{ display:flex; align-items:center; gap:12px; margin-left:20px; }
+  .navsearch{ width:60px; height:60px; margin:0 8px; border-radius:999px; display:flex; align-items:center; justify-content:center; }
+  .navsearch img{ width:32px; height:32px; display:block; }
+  .navtab{ height:60px; padding:0 20px; border-radius:999px; display:flex; align-items:center; font-family:'Plus Jakarta Sans', var(--inter); font-size:24px; line-height:1.2;
+    color:#fff; text-shadow:0 0 6px rgba(0,0,0,.4); white-space:nowrap; }
+  .topnav .item.focused:not(.tv-tab){ background:var(--th-pill); backdrop-filter:blur(12px) saturate(1.4); }   /* the tabs: button-theme.css */

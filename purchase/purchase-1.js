@@ -8,6 +8,13 @@
   if(OB){ var OP = Packages.PKG[OK][+((location.search.match(/[?&]p=(\d+)/) || [])[1] || 0)] || Packages.PKG[OK][0];
     m = { t:OP.t, price:OP.price }; }
   if(!m){ location.replace('store.html'); return; }
+  // ?ret=: bought from a detail page's View Package (package-detail.html passes it on): Done goes back there, subscribed
+  var RET = (location.search.match(/[?&]ret=([^&#]+)/) || [])[1];
+  RET = RET ? decodeURIComponent(RET) : '';
+  function leave(){ location.href = RET ? RET + (RET.indexOf('?') < 0 ? '?' : '&') + 'subscribed=1' : 'store.html'; }
+  // an OTT package is bought by the time this page opens (package-detail.html's OTP): its titles and shorts are the
+  // viewer's now (content.js MD.subscribe: their crowns turn owned)
+  if(OB) MD.subscribe(OK);
   var price = OB ? OP.price : MD.price(K) || 0;
   function vat(p){ return (Math.round(p * 107) / 100).toLocaleString('en-US', { minimumFractionDigits:2 }); }
   function day(d){ return d.getDate() + ' ' + 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ')[d.getMonth()] + ' ' + d.getFullYear(); }
@@ -15,6 +22,8 @@
   var pic = OB ? null : m.b || m.w || m.p;
   $('.c-nm, .d-nm').forEach(function(e){ e.textContent = m.t; });
   $('.o-nm').forEach(function(e){ e.textContent = m.t; });
+  // Premium beside the title's name, with its crown (content.js: gold until bought); an OTT package has none
+  $('.prem').forEach(function(e){ var ic = OB ? '' : Content.crownIcon({k:K}); if(ic) e.innerHTML = ic + 'Premium'; else e.remove(); });
   $('.c-amt, .d-amt, .o-amt').forEach(function(e){ e.textContent = price + ' baht'; });
   if(OB) $('.d-amt').forEach(function(e){ e.textContent = price + ' baht / ' + (OP.card === 'Month' ? 'Month' : '7 Days'); });
   $('.c-vat').forEach(function(e){ e.textContent = '(VAT Included: ' + vat(price) + ' baht)'; });
@@ -70,7 +79,7 @@
   function act(a){
     if(a === 'cancel') back();
     else if(a === 'confirm') go('otp');
-    else if(a === 'store') location.href = 'store.html';
+    else if(a === 'store') leave();
     else if(a === 'guide') location.href = 'activation-guide.html?app=' + GUIDE;
     else if(a === 'watch') location.href = 'player.html?k=' + K;
   }
@@ -97,12 +106,13 @@
     if(k === 'ArrowLeft') f[step] = Math.max(0, f[step] - 1);
     else if(k === 'ArrowRight') f[step] = Math.min(n - 1, f[step] + 1);
     else if(k === 'Enter') act((step === 'confirm' ? cBtns : dBtns)[f[step]].dataset.act);
-    else if(back1){ if(step === 'confirm') back(); else location.href = 'store.html'; }
+    else if(back1){ if(step === 'confirm') back(); else leave(); }
     else return;
     paint(); e.preventDefault();
   });
   $('.s-confirm .item, .doneb').forEach(function(el){ el.addEventListener('click', function(){ act(el.dataset.act); }); });
   oKeys.forEach(function(el, i){ el.addEventListener('click', function(){ okey = i; type(el.dataset.key); }); });
+  if(RET) $('.doneb[data-act="store"]').forEach(function(b){ b.textContent = 'Done'; });   // back to the title, not the Store
   f.done = dBtns.length - 1;
   if(OB) go('done'); else paint();
 })();

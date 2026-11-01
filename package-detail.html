@@ -3,19 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PLAY ULTIMATE · Package Detail</title>
+<title>Package Detail</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <!--
-  Package detail + payment (Figma "03 / Package Detail / Payment", node 628:76377), opened from Subscribe on the
-  PLAY ULTIMATE card in movie-detail.html's package view. A 1920x1080 TV screen scaled to the window.
-  Short drama mode (?short=N&ep=E, Figma Store "Details Short pay" 3998:120134), opened from Buy this episode in a
-  short's Unlock Episode popup (short-detail.html): Title Details on the left (poster, title, meta, synopsis), the
-  viewing passes on the right (24 / 48 / 100 hours), then the same payment: Confirm, OTP, success, which returns to
-  the short with every episode open for the pass.
-  Remote / keyboard: left column = Details / Terms tabs; right column = the 3 prices, then the 2 payment buttons.
-  Arrows move, Enter selects, Esc / Back returns to the packages.
+  Package detail + payment (Figma Store "Package details use cases" 3994:99732: "AIS PLAY Bundle" / "Full OTT" with no
+  parameter, "Standalone Streaming" with ?ott=K&p=i, "Rent" with ?short=N): opened from View Package's package
+  suggestions (package-suggest.html), the Store and All Packages. A 1920x1080 TV screen scaled to the window.
+  Everything it shows comes from packages.js (nothing typed here): Package Details on the left (the package's logo and
+  name, Package Description / Terms and Conditions, its apps with screens / 4K / Dolby, sports, channels, devices; a
+  section with no data is left out), Package Options on the right (its plans), then Choose how to pay: Charge to AIS
+  Bill opens Confirm, OTP and done, which return to ?ret= (the detail page) with ?subscribed=1 and make every title of
+  the package the viewer's (content.js Content.crown: owned).
+  Short drama mode (?short=N&ep=E, Figma Store "Details Short pay" 3998:120134, "Rent"), opened from Buy this episode in
+  a short's Unlock Episode popup (short-detail.html): Title Details on the left (poster, title, meta, synopsis), the
+  viewing passes on the right (24 / 48 / 100 hours), then the same payment, which returns to the short with every
+  episode open for the pass.
+  Remote / keyboard: left column = Package Description / Terms and Conditions; right column = the plans, then the 2
+  payment buttons. Arrows move, Enter selects, Esc / Back returns.
 -->
 <link rel="stylesheet" href="platform-tag.css">
 <link rel="stylesheet" href="league-disc.css">
@@ -24,69 +30,37 @@
 <body>
 <div id="frame"><div id="screen">
   <section class="left">
-    <h1>Package Detail</h1>
+    <h1>Package Details</h1>
     <div class="tdetails"><div class="poster"></div><div class="info"><div class="head"><div class="nm"></div><div class="meta"></div></div><p class="syn"></p></div></div>
-    <div class="content">
-      <div class="switcher">
-        <div class="tab item active" data-tab="details">Details</div>
-        <div class="tab disabled" data-tab="terms" aria-disabled="true">Terms &amp; Conditions</div>
-      </div>
-      <div class="card">
-        <div class="hero"><span class="lg"><img src="icons/pkg/l1.png" alt="PLAY ULTIMATE"></span><b>PLAY ULTIMATE Monthly Package</b></div>
-        <div class="services">
-          <div class="svc"><span class="ic"><img src="icons/pkg/l2.png" alt="Netflix"></span><div class="info">4 Screens<div class="tags"><img src="icons/pkg/d-badge-a.svg" alt="4K"><img src="icons/pkg/d-badge-b.svg" alt="Dolby Atmos"></div></div></div>
-          <div class="svc"><span class="ic"><img src="icons/pkg/l3.png" alt="HBO Max"></span><div class="info">4 Screens<div class="tags"><img src="icons/pkg/d-badge-a.svg" alt="4K"><img src="icons/pkg/d-badge-b.svg" alt="Dolby Atmos"></div></div></div>
-          <div class="svc"><span class="ic"><img src="icons/pkg/l4.png" alt="Disney+ Hotstar"></span><div class="info">4 Screens<div class="tags"><span class="fhd">Full HD</span><img src="icons/pkg/d-badge-b.svg" alt="Dolby Atmos"></div></div></div>
-          <div class="svc"><span class="ic cover"><img src="icons/pkg/l5.png" alt="iQIYI"></span><div class="info">2 Screens<div class="tags"><img src="icons/pkg/d-badge-a.svg" alt="4K"></div></div></div>
-          <div class="svc"><span class="ic cover"><img src="icons/pkg/l6.png" alt="Viu"></span><div class="info">5 Screens<div class="tags"><span class="fhd">Full HD</span><img src="icons/pkg/d-badge-b.svg" alt="Dolby Atmos"></div></div></div>
-          <div class="svc"><span class="ic white"><img src="icons/pkg/d-wetv.png" alt="WeTV"></span><div class="info">2 Screens<div class="tags"><span class="fhd">Full HD</span></div></div></div>
+    <!-- the package (packages.js): its logo and name, Package Description / Terms and Conditions, then what it includes -->
+    <div class="phead">
+      <span class="lg"></span>
+      <div class="pinfo">
+        <b class="pnm"></b>
+        <div class="switcher">
+          <div class="tab item active" data-tab="details">Package Description</div>
+          <div class="tab item" data-tab="terms">Terms and Conditions</div>
         </div>
-        <div class="groups">
-          <div class="group"><h3>Sports</h3><div class="logos">
-            <span class="sq pad"><img src="icons/pkg/d-ucl.png" alt="UEFA Champions League"></span>
-            <span class="sq"><img src="icons/pkg/l19.png" alt="Bundesliga"></span>
-            <span class="sq pad"><img src="icons/pkg/d-motogp.png" alt="MotoGP"></span>
-            <span class="sq pad"><img src="icons/pkg/l21.png" alt="NBA"></span>
-            <span class="sq more">13+</span>
-          </div></div>
-          <div class="group"><h3>Premium Channels</h3><div class="logos">
-            <span class="sq"><img src="icons/pkg/d-cn.png" alt="Cartoon Network"></span>
-            <span class="sq pad"><img src="icons/pkg/d-cnn.png" alt="CNN"></span>
-            <span class="sq pad"><img src="icons/pkg/d-eurosport.png" alt="Eurosport"></span>
-            <span class="sq pad"><img src="icons/pkg/d-discovery.png" alt="Discovery"></span>
-          </div></div>
-          <div class="group"><h3>Available on</h3><div class="logos devices">
-            <img src="icons/pkg/d-phone.svg" alt="Phone"><img src="icons/pkg/d-tablet.svg" alt="Tablet"><img src="icons/pkg/d-laptop.svg" alt="Laptop"><img src="icons/pkg/d-tv.svg" alt="TV">
-          </div></div>
-        </div>
-        <p class="fine">Enjoy Netflix, HBO Max, Disney+ Hotstar, iQIYI, Viu, and WeTV in one PLAY ULTIMATE package. THB 999/month for 12 billing cycles, excluding 7% VAT and internet charges. Available to individual AIS postpaid customers with at least 3 months of active service.</p>
-        <div class="terms">
-          <ol>
-            <li>The package renews automatically at the end of each billing cycle until cancelled.</li>
-            <li>Prices exclude 7% VAT and internet charges.</li>
-            <li>Available to individual AIS postpaid customers with at least 3 months of active service.</li>
-            <li>Number of screens and video quality depend on each streaming service and your device.</li>
-            <li>Partner apps may require you to sign in with an account linked to AIS PLAY.</li>
-            <li>AIS reserves the right to change the package terms without prior notice.</li>
-          </ol>
-        </div>
+        <p class="fine"></p>
+        <ol class="terms"></ol>
       </div>
     </div>
+    <div class="services"></div>
+    <p class="note4k">*** 4K is supported on compatible devices.</p>
+    <div class="groups"></div>
   </section>
 
   <section class="right">
-    <div class="rhead"><h1>Package Price</h1><span>3&nbsp; Packages</span></div>
-    <div class="prices">
-      <div class="price item" data-label="Daily"><div><div class="amt">99 ฿ / 7 Days</div><div class="vat">VAT Included: 105.93 ฿</div></div><span class="pill">Daily</span></div>
-      <div class="price item selected" data-label="Monthly"><div><div class="amt">999 ฿ / Month</div><div class="vat">VAT Included: 1,068.93 ฿</div></div><span class="pill">Monthly</span></div>
-      <div class="price item" data-label="Yearly"><div><div class="amt">4,999 ฿ / Year</div><div class="vat">VAT Included: 5,348.93 ฿</div></div><span class="pill">Yearly</span></div>
+    <div class="opts">
+      <h1 class="rh">Package Options</h1>
+      <div class="prices"></div>
+      <div class="opthead"><h1>Options</h1><p>Please ensure you can watch within the viewing period. Content expires after that time.</p></div>
+      <div class="passes"></div>
     </div>
-    <div class="opthead"><h1>Options</h1><p>Please ensure you can watch within the viewing period. Content expires after that time.</p></div>
-    <div class="passes"></div>
     <div class="pay">
       <h2>Choose how to pay</h2>
-      <div class="paybtn item" data-label="Charge to AIS Bill"><img src="icons/pkg/d-bill.svg" alt=""><span>Charge to AIS Bill</span><img src="icons/pkg/d-chev.svg" alt=""></div>
-      <div class="paybtn item" data-label="QR PromptPay"><img src="icons/pkg/d-qr.svg" alt=""><span>QR PromptPay</span><img src="icons/pkg/d-chev2.svg" alt=""></div>
+      <div class="paybtn item" data-label="Charge to AIS Bill"><span>Charge to AIS Bill</span><i></i></div>
+      <div class="paybtn item" data-label="QR PromptPay"><span>QR PromptPay</span><i></i></div>
       <p class="note">You'll be asked to verify with OTP before payment completes</p>
     </div>
   </section>
@@ -95,11 +69,11 @@
   <div class="scrim"></div>
   <div class="modal" role="dialog" aria-label="Confirm Subscribe">
     <div class="mtitle"><b>Confirm Subscribe:</b><span>Charge to AIS Bill</span></div>
-    <div class="mhero"><span class="lg"><img src="icons/pkg/l1.png" alt="PLAY ULTIMATE"></span>
-      <div><div class="nm">PLAY ULTIMATE Monthly Package</div><div class="pr"><b class="m-amt">999 ฿ / Month</b><span class="m-vat">(VAT Included: 1068.93 ฿)</span></div></div></div>
+    <div class="mhero"><span class="lg"></span>
+      <div><div class="nm"></div><div class="pr"><b class="m-amt"></b><span class="m-vat"></span></div></div></div>
     <div class="tcbox">
       <h3>Terms and Conditions of Service</h3>
-      <div class="tcscroll"><p>1. This package is available to AIS postpaid customers who have been active for at least 3 months and are registered as individual customers only.</p><p>2. The PLAY ULTIMATE package is priced at THB 999/month for 12 billing cycles. The price excludes 7% VAT and internet charges.</p><p>3. The package includes access to Netflix, HBO Max, Disney+ Hotstar, iQIYI, Viu, and WeTV at no additional charge while the package remains active.</p><p>4. Once the subscription is successfully activated, a confirmation SMS will be sent with subscription details.</p><p>5. If the PLAY ULTIMATE package is cancelled, access to all included streaming services will be terminated immediately.</p><p>6. AIS PLAY supports streaming on up to 4 devices simultaneously via the AIS PLAY app, website, and supported devices such as Apple TV, Samsung Smart TV, and Chromecast.</p><p>7. Netflix Premium supports streaming on up to 4 devices simultaneously, subject to Netflix Household terms and conditions.</p><p>8. HBO Max Ultimate supports streaming on up to 4 devices simultaneously via the HBO Max app or website.</p><p>9. Disney+ Hotstar Premium supports streaming on up to 4 devices simultaneously via the Disney+ Hotstar app or website.</p><p>10. iQIYI VIP supports streaming on up to 2 devices simultaneously via the iQIYI app or website.</p><p>11. Viu Premium supports streaming on up to 5 devices simultaneously via the Viu app or website.</p><p>12. WeTV VIP supports streaming on up to 2 devices simultaneously via the WeTV app or website.</p><p>13. Video quality (HD, Full HD or 4K) depends on the content, your internet speed, and the capability of your device and screen.</p><p>14. Dolby Atmos and Dolby Vision are available only on supported titles and compatible devices.</p><p>15. Subscribing to this package does not change or cancel any existing partner subscription you pay for directly; please cancel those separately to avoid double charges.</p><p>16. To use partner services, you may need to sign in or create an account with each partner and link it to your AIS PLAY account.</p><p>17. Content availability, titles, and release schedules are determined by each partner and may change or be removed without prior notice.</p><p>18. The package renews automatically at the end of each billing cycle. You can cancel anytime via the myAIS app or by dialling *1185; cancellation takes effect at the end of the current cycle.</p><p>19. Fees already charged are non-refundable, including for partial billing cycles, except where required by law.</p><p>20. Internet data used for streaming is charged according to your mobile or AIS Fibre plan unless a separate data package applies.</p><p>21. Using a VPN or streaming from outside Thailand may restrict access to some content.</p><p>22. Accounts are for personal, non-commercial use only. Sharing account details outside your household may lead to suspension of the service.</p><p>23. Payment is charged to your AIS postpaid bill and appears as a separate line item. Late payment may result in temporary suspension of the package.</p><p>24. Promotional prices, if any, apply only during the stated period, after which the standard package price applies.</p><p>25. Your personal data is processed in accordance with the AIS Privacy Policy and the privacy policies of each partner service.</p><p>26. For assistance, contact AIS Call Center 1175 (24 hours) or visit any AIS Shop.</p><p>The company reserves the right to change the package details, benefits, and terms and conditions without prior notice.</p></div>
+      <div class="tcscroll"></div>
       <img class="tcarrow" src="icons/pkg/c-down.svg" alt="">
       <div class="scrollbtn mitem" data-act="scroll"><img src="icons/pkg/c-scroll.svg" alt="">Scroll to the bottom</div>
     </div>
@@ -111,8 +85,8 @@
 
   <div class="dlg otpd" role="dialog" aria-label="Confirm OTP">
     <div class="ohead">
-      <h2>PLAY ULTIMATE</h2>
-      <p>You will be charged <b class="o-amt">฿1,068.93 /Month</b> consecutively.</p>
+      <h2></h2>
+      <p>You will be charged <b class="o-amt"></b> consecutively.</p>
       <p>Internet Number: 880XXX0088</p>
     </div>
     <div class="pad">
@@ -132,7 +106,7 @@
       <div><h2>Your package is almost ready</h2><p>We’re confirming your purchase.<br>We’ll send you an SMS when your package is ready to use within 15 mins.</p></div>
     </div>
     <hr>
-    <div class="okcard"><div class="n">PLAY ULTIMATE</div><div class="a ok-amt">999 ฿ / Month</div><div class="v ok-vat">VAT Included: 1,068.93 ฿</div><div class="d ok-date"></div></div>
+    <div class="okcard"><div class="n"></div><div class="a ok-amt"></div><div class="v ok-vat"></div><div class="d ok-date"></div></div>
   </div>
   <div id="toast"></div>
 </div></div>

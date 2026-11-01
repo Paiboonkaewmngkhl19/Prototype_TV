@@ -22,8 +22,7 @@
   .ava img.contain{ left:12%; top:12%; width:76%; height:76%; object-fit:contain; }
   .ava.txt{ display:flex; align-items:center; justify-content:center; text-align:center; font:700 22px/1.1 var(--noto); }
   .crown{ position:relative; width:40px; height:40px; flex:0 0 auto; }
-  .crown img{ position:absolute; left:6px; top:9.33px; width:28px; height:21.33px; }   /* 32px crown in its 40px box, shape inset 16.67% / 6.25% */
-  .crown.owned img{ left:4px; top:4px; width:32px; height:32px; }   /* the whole 20px Crown State icon, at the header's 32px */
+  .crown img{ position:absolute; left:4px; top:4px; width:32px; height:32px; }   /* the whole crown icon (gold or owned, content.js), at the header's 32px */
   .ch-no{ height:40px; box-sizing:border-box; padding:8px 12px; border-radius:8px; display:flex; align-items:center;
     background:rgba(0,0,0,.35); font:600 24px/normal var(--noto); }   /* the number chip of the TV Guide, Home and the mini EPG */
 

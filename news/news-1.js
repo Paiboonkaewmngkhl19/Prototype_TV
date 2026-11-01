@@ -82,9 +82,8 @@
   /* ---------- markup ---------- */
   // a premium channel's programme: the crown tag bottom-left (corner-tag.css), as Home's and Sport's cards
   function liveCard(it, i, set){
-    var prem = it.ch && it.ch.d && (it.ch.d.crown === 'gold' || it.ch.d.crown === 'owned');
     return '<div class="card item"' + attrs({kind:'live', set:set, i:i}) + '><div class="thumb' + (it.logo ? ' logo' : '') + '" style="background-image:url(\'' + it.img + '\')">' +
-      (prem ? '<img class="crown-tag" src="icons/crown-gold.svg" alt="Premium">' : '') + '</div><span class="live-ribbon" data-ring-top="styled">Live</span><div class="t">' + esc(it.t) + '</div></div>';   // Home's Live ribbon
+      (it.ch && it.ch.d ? Content.crownIcon({ch:it.ch.d}, 0, 'crown-tag') : '') + '</div><span class="live-ribbon" data-ring-top="styled">Live</span><div class="t">' + esc(it.t) + '</div></div>';   // Home's Live ribbon
   }
   function epgIcons(o){ return (o.ts ? '<img class="epg-ts" src="icons/tv-guide/timeshift.svg" alt="Time Shift">' : '') + (o.fav ? '<span class="epg-heart"><img src="icons/epg/heart.svg" alt="Favorite"></span>' : ''); }
   // Home's TV Guide card (tvguide-card.css): the channel's logo, what's on now and its progress, then what's next

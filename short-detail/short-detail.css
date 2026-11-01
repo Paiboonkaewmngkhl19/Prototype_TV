@@ -45,6 +45,8 @@
   .actions .main{ --btn-w:auto; min-width:300px; padding:0 40px; gap:16px; }
   .actions .ic{ --btn-w:90px; --btn-h:90px; padding:0; position:relative; }
   .ic-play{ -webkit-mask:url('../icons/hero/play.svg') center / contain no-repeat; mask:url('../icons/hero/play.svg') center / contain no-repeat; }
+  /* View Package (a short not the viewer's yet): Movie Detail's, the crown (the player's Explore Package icon) */
+  .ic-pkg{ -webkit-mask:url('../icons/player/crown-dark.svg') center / contain no-repeat; mask:url('../icons/player/crown-dark.svg') center / contain no-repeat; }
   .actions .ic img{ width:40px; height:40px; display:block; }
   .actions .ic.on{ background:rgba(232,232,232,.9); box-shadow:none; }
   .actions .ic.on img{ filter:brightness(0); }

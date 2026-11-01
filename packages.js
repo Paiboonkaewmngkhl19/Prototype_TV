@@ -4,7 +4,15 @@
     Packages.OTT[k]     a brand: n (name), logo, tile (a logo on white), bg (its screen gradient, Figma Store frames);
                         a sport's league (league: its leagues.js id) shows its logo disc instead, in its own colour
     Packages.PKG[k]     its packages: t, price, per, card ("7 Days" / "Month"), tags, d, screens, q (quality), devices
+                        (plans: its payment options when there are several, else its own price as one plan)
     Packages.AIS        the AIS PLAYBOX logo that sits next to every brand's
+    Packages.BUNDLES    AIS PLAY's own packages (All Packages' cards, the package suggestion page): PLAY ULTIMATE, HBO MAX
+                        Standard, PLAY ALL: title, badge, logo, grid / row (service and channel tiles), count, feats, amt,
+                        per, tags (what they carry: the filters, and Packages.suggest), href (their purchase page, or none)
+    Packages.cardHtml(card, attrs)   a package card (package-card.css), the same on every page; Subscribe shows when focused
+    Packages.suggest(o) up to 3 cards for what an item needs (package-suggest.html, View Package): o.plat (a title's
+                        platform or a short's app: the bundles that carry it, then its own packages), o.channel (a
+                        channel's programme: the bundles with premium channels, PLAY ALL first for o.sport)
 */
 window.Packages = (function(){
   // the OTT packages (Figma Store 5472:228410 Netflix, 228753 Disney+, 229116 HBO Max, 229476 Prime Video, 230211 Viu,
@@ -52,7 +60,10 @@ window.Packages = (function(){
     hbo:[
       op('hbo', 'HBO Max 7 Days', 79, 7, 'HBO originals, Warner Bros. films and the DC universe for 7 days, charged once to your AIS bill.', 'Recommend'),
       op('hbo', 'HBO Max Standard', 199, 30, 'HBO Max in Full HD on two screens at a time, billed to your AIS account every month.'),
-      op('hbo', 'HBO Max Ultimate', 349, 30, 'HBO Max in 4K Dolby Vision on four screens at a time, with downloads on every device.')],
+      op('hbo', 'HBO Max Ultimate', 349, 30, 'HBO Max in 4K Dolby Vision on four screens at a time, with downloads on every device.'),
+      // Figma Store "Standalone Streaming": HBO Max on its own, paid monthly or yearly (VAT included: 299 / 2,090 baht)
+      Object.assign(op('hbo', 'HBO Max Standalone', 279.44, 30, 'HBO Max on its own, in 4K on four screens at a time, billed to your AIS account monthly or yearly.'),
+        { screens:4, q:'4K', plans:[{ name:'Monthly plan', amt:279.44, per:'Monthly', period:'month', renew:1 }, { name:'Yearly plan', amt:1953.27, per:'Yearly', period:'year', renew:1 }] })],
     prime:[
       op('prime', 'Prime Video Monthly', 149, 30, 'Amazon Originals, blockbuster films and live sport on Prime Video, billed to your AIS account every month.', 'Recommend'),
       op('prime', 'Prime Video 7 Days', 39, 7, 'Prime Video for 7 days, charged once to your AIS bill. Amazon Originals and blockbuster films.')],
@@ -105,5 +116,116 @@ window.Packages = (function(){
       op('pga', 'PGA Tour Monthly', 149, 30, 'Every round of the PGA Tour live, the majors and featured groups, with round highlights.', 'Recommend'),
       op('pga', 'PGA Tour 7 Days', 49, 7, 'A tournament week of the PGA Tour live, charged once to your AIS bill.')]
   };
-  return { OTT:OTT, PKG:PKG, AIS:'store-assets/ott/ais-playbox.png' };
+  // ---- AIS PLAY's own packages, as cards (moved here from All Packages, which shows them too) ----
+  var P = 'icons/pkg/';
+  var F4K = [P + 'i4k.svg', 'Up to 4K Ultra HD Resolution'], FHD = [P + 'ihd.svg', 'Full HD 1080p'],
+      FDOLBY = [P + 'idolby.svg', 'Audio 5.1 Up to Dolby Atmos'];
+  function fscreen(n){ return [P + 'iscreen.svg', n + ' Screen at once']; }   // (Figma's words)
+  function t(img, cls){ return { img:P + img, cls:cls || '' }; }
+  var BUNDLES = [
+    { title:'PLAY ULTIMATE Monthly Package', badge:'Recommend', logo:P + 'l1.png', detail:1, href:'package-detail.html',
+      grid:[t('l2.png'), t('l3.png'), t('l4.png'), t('l5.png', 'cover'), t('l6.png', 'cover')],
+      count:'99 Premium Channels', row:['l7', 'l8', 'l9', 'l10', 'l11', 'l12'].map(function(l){ return t(l + '.png', 'cover'); }),
+      feats:[F4K, FDOLBY, fscreen(4)], amt:'999', per:'/Month',
+      tags:['netflix', 'hbo', 'disney', 'iqiyi', 'viu', 'football', 'epl', 'ucl', 'ultimate'],
+      // its detail page (package-detail.html, Figma Store "AIS PLAY Bundle" / "Full OTT"): the apps (screens, quality,
+      // Dolby; txt: no logo yet, a name box), sports, channels, devices, description, terms (the page) and tc (the
+      // Confirm popup), and its plans
+      services:[
+        { n:'AIS PLAY', txt:'AIS PLAY', screens:5, q:'4K', dolby:1 },
+        { n:'Netflix', logo:P + 'l2.png', screens:4, q:'4K', dolby:1 },
+        { n:'HBO Max', logo:P + 'l3.png', screens:4, q:'4K', dolby:1 },
+        { n:'Disney+ Hotstar', logo:P + 'l4.png', screens:4, q:'Full HD', dolby:1 },
+        { n:'iQIYI', logo:P + 'l5.png', cls:'cover', screens:2, q:'4K' },
+        { n:'viu', logo:P + 'l6.png', cls:'cover', screens:5, q:'Full HD', dolby:1 },
+        { n:'WeTV', logo:P + 'd-wetv.png', cls:'white', screens:2, q:'Full HD' },
+        { n:'Monomax', logo:'partners/monomax.png', cls:'white', screens:5, q:'4K', dolby:1 },
+        { n:'OneD', txt:'OneD', screens:5, q:'4K', dolby:1 },
+        { n:'3 Plus', txt:'3 Plus', screens:5, q:'4K', dolby:1 }],
+      sports:{ tiles:[t('d-ucl.png', 'pad'), t('l19.png'), t('d-motogp.png', 'pad'), t('l21.png', 'pad')], more:'13+', names:['UEFA Champions League', 'Bundesliga', 'MotoGP', 'NBA'] },
+      channels:{ tiles:[t('d-cn.png'), t('d-cnn.png', 'pad'), t('d-eurosport.png', 'pad'), t('d-discovery.png', 'pad')], more:'99+', names:['Cartoon Network', 'CNN', 'Eurosport', 'Discovery'] },
+      devices:['tv', 'phone', 'tablet', 'laptop'],
+      d:"Enjoy Netflix, HBO Max, Disney+ Hotstar, iQIYI, Viu, and WeTV in one PLAY ULTIMATE package. THB 999/month for 12 billing cycles, excluding 7% VAT and internet charges. Available to individual AIS postpaid customers with at least 3 months of active service.",
+      terms:[
+        "The package renews automatically at the end of each billing cycle until cancelled.",
+        "Prices exclude 7% VAT and internet charges.",
+        "Available to individual AIS postpaid customers with at least 3 months of active service.",
+        "Number of screens and video quality depend on each streaming service and your device.",
+        "Partner apps may require you to sign in with an account linked to AIS PLAY.",
+        "AIS reserves the right to change the package terms without prior notice."],
+      tc:[
+        "1. This package is available to AIS postpaid customers who have been active for at least 3 months and are registered as individual customers only.",
+        "2. The PLAY ULTIMATE package is priced at THB 999/month for 12 billing cycles. The price excludes 7% VAT and internet charges.",
+        "3. The package includes access to Netflix, HBO Max, Disney+ Hotstar, iQIYI, Viu, and WeTV at no additional charge while the package remains active.",
+        "4. Once the subscription is successfully activated, a confirmation SMS will be sent with subscription details.",
+        "5. If the PLAY ULTIMATE package is cancelled, access to all included streaming services will be terminated immediately.",
+        "6. AIS PLAY supports streaming on up to 4 devices simultaneously via the AIS PLAY app, website, and supported devices such as Apple TV, Samsung Smart TV, and Chromecast.",
+        "7. Netflix Premium supports streaming on up to 4 devices simultaneously, subject to Netflix Household terms and conditions.",
+        "8. HBO Max Ultimate supports streaming on up to 4 devices simultaneously via the HBO Max app or website.",
+        "9. Disney+ Hotstar Premium supports streaming on up to 4 devices simultaneously via the Disney+ Hotstar app or website.",
+        "10. iQIYI VIP supports streaming on up to 2 devices simultaneously via the iQIYI app or website.",
+        "11. Viu Premium supports streaming on up to 5 devices simultaneously via the Viu app or website.",
+        "12. WeTV VIP supports streaming on up to 2 devices simultaneously via the WeTV app or website.",
+        "13. Video quality (HD, Full HD or 4K) depends on the content, your internet speed, and the capability of your device and screen.",
+        "14. Dolby Atmos and Dolby Vision are available only on supported titles and compatible devices.",
+        "15. Subscribing to this package does not change or cancel any existing partner subscription you pay for directly; please cancel those separately to avoid double charges.",
+        "16. To use partner services, you may need to sign in or create an account with each partner and link it to your AIS PLAY account.",
+        "17. Content availability, titles, and release schedules are determined by each partner and may change or be removed without prior notice.",
+        "18. The package renews automatically at the end of each billing cycle. You can cancel anytime via the myAIS app or by dialling *1185; cancellation takes effect at the end of the current cycle.",
+        "19. Fees already charged are non-refundable, including for partial billing cycles, except where required by law.",
+        "20. Internet data used for streaming is charged according to your mobile or AIS Fibre plan unless a separate data package applies.",
+        "21. Using a VPN or streaming from outside Thailand may restrict access to some content.",
+        "22. Accounts are for personal, non-commercial use only. Sharing account details outside your household may lead to suspension of the service.",
+        "23. Payment is charged to your AIS postpaid bill and appears as a separate line item. Late payment may result in temporary suspension of the package.",
+        "24. Promotional prices, if any, apply only during the stated period, after which the standard package price applies.",
+        "25. Your personal data is processed in accordance with the AIS Privacy Policy and the privacy policies of each partner service.",
+        "26. For assistance, contact AIS Call Center 1175 (24 hours) or visit any AIS Shop.",
+        "The company reserves the right to change the package details, benefits, and terms and conditions without prior notice."],
+      plans:[{ name:'Monthly plan', amt:999, per:'Monthly', period:'month', renew:1 }] },
+    { title:'HBO MAX Standard Package', badge:'Best Seller', logo:P + 'l3.png', href:'package-detail.html?ott=hbo&p=1',
+      grid:[t('l3.png')], count:'6 Premium Channels', row:[t('l13.png'), t('l14.png', 'cover'), t('l15.png'), t('l16.png'), t('l17.png')],
+      feats:[F4K, FDOLBY, fscreen(4)], amt:'199', per:'/Month', tags:['hbo', 'premium'] },
+    { title:'PLAY ALL', logo:P + 'l18.png',
+      grid:[t('l19.png', 'white cover'), t('l20.png', 'white pad'), t('l21.png', 'white pad'), t('l22.png', 'white cover'), t('l23.png', 'white pad'),
+        t('l24.png', 'white cover'), t('l25.png', 'white pad'), { more:'13+' }],
+      count:'99 Premium Channels', row:['l28', 'l29', 'l30', 'l31', 'l32'].map(function(l){ return t(l + '.png', 'white cover'); }).concat([t('l33.png', 'white pad')]),
+      feats:[FHD, FDOLBY, fscreen(4)], amt:'1,999', per:'/Year',
+      tags:['football', 'golf', 'basketball', 'tennis', 'motorsports', 'bundesliga', 'nba', 'nfl', 'lpga', 'atp', 'motogp', 'rws', 'premiumplus'] }
+  ];
+  // a brand's package (PKG) as a card: its logo, its quality and screens, its price; bought on package-detail.html
+  function ottCard(k, i){
+    var p = PKG[k][i], b = OTT[k];
+    return { title:p.t, badge:p.badge, logo:b.logo, logoCls:b.tile ? 'white' : b.icon ? 'cover' : '', href:'package-detail.html?ott=' + k + '&p=' + i,
+      grid:[{ img:b.logo, cls:b.tile ? 'white' : b.icon ? 'cover' : '' }], count:'', row:[],
+      feats:(p.q === '4K' ? [F4K, FDOLBY] : [FHD]).concat([fscreen(p.screens)]), amt:String(p.price), per:'/' + (p.card === 'Month' ? 'Month' : '7 Days') };
+  }
+  function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+  function tileHtml(x){
+    if(x.more) return '<span class="tile more">' + esc(x.more) + '</span>';
+    if(x.ph) return '<span class="tile ph' + (x.half ? ' half' : '') + '"></span>';
+    return '<span class="tile ' + x.cls + '"><img src="' + x.img + '" alt=""></span>';
+  }
+  // attrs: the page's own attributes on the card (its index ...); the chanlist only when the package has channels
+  function cardHtml(c, attrs){
+    return '<div class="pcard item' + (c.badge ? ' has-badge' : '') + '"' + (attrs || '') + ' data-label="' + esc(c.title) + '" data-ring-art="">' +   // the plain ring (Figma's white rim)
+      (c.badge ? '<div class="badge">' + esc(c.badge) + '</div>' : '') +
+      '<div class="body"><div class="ptitle"><span class="lg' + (c.ph ? ' ph' : '') + (c.logoCls ? ' ' + c.logoCls : '') + '">' + (c.ph ? '' : '<img src="' + c.logo + '" alt="">') + '</span><b>' + esc(c.title) + '</b></div>' +
+      '<div class="mid"><div class="chans"><div class="grid">' + c.grid.map(tileHtml).join('') + '</div>' +
+      (c.count ? '<div class="chanlist"><div class="small">' + esc(c.count) + '</div><div class="row40">' + c.row.map(tileHtml).join('') + '</div></div>' : '') + '</div>' +
+      '<div class="feats">' + c.feats.map(function(f){ return '<div class="feat"><img src="' + f[0] + '" alt="">' + esc(f[1]) + '</div>'; }).join('') + '</div></div>' +
+      '<div class="price"><div class="amtwrap"><div class="amt"><b>' + esc(c.amt) + ' baht</b><span>' + esc(c.per) + '</span></div><div class="vat">(Exclude VAT)</div></div>' +
+      '<div class="subscribe">Subscribe<img src="' + P + 'ichev-dark.svg" alt=""></div></div></div></div>';
+  }
+  function suggest(o){
+    var out = [], U = BUNDLES[0], H = BUNDLES[1], A = BUNDLES[2];
+    function add(c){ if(c && out.length < 3 && out.indexOf(c) < 0) out.push(c); }
+    if(o.channel){ add(o.sport ? A : U); add(o.sport ? U : A); add(H); }
+    else if(o.plat && PKG[o.plat]){
+      BUNDLES.forEach(function(b){ if(b.tags.indexOf(o.plat) >= 0) add(b); });
+      PKG[o.plat].forEach(function(p, i){ add(ottCard(o.plat, i)); });
+    } else { add(U); add(H); add(A); }
+    // one Recommend: the first card's
+    return out.map(function(c, i){ return i && c.badge === 'Recommend' ? Object.assign({}, c, { badge:'' }) : c; });
+  }
+  return { OTT:OTT, PKG:PKG, AIS:'store-assets/ott/ais-playbox.png', BUNDLES:BUNDLES, cardHtml:cardHtml, suggest:suggest };
 })();
