@@ -1,0 +1,1 @@
+if(/[?&](quiet|nochan)=/.test(location.search)) document.documentElement.classList.add('quiet-start');

@@ -1,0 +1,1 @@
+if(/[?&](tune|zap|play)=/.test(location.search)) document.documentElement.style.visibility = 'hidden';

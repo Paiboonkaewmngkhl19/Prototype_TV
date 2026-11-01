@@ -1,0 +1,224 @@
+
+  :root{
+    color-scheme:dark;
+    /* Figma variables (default mode) */
+    /* Home's page: dark navy, Open Sans */
+    --bg-0:#070e16; --wash:10,8,24;
+    --surface:#070e16; --on-surface:#e8e8e8; --on-surface-variant:#a8a8a8; --surface-container:#2a2a2a;
+    --surface-container-high:#3a3a3a; --outline:#5a5a5a; --outline-variant:#4a4a4a; --inverse-surface:#e8e8e8;
+    --on-inverse-surface:#101010; --live:#ff1f1f;
+    --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%);
+    /* Home's focus fill: the frosted grey-blue glass of a focused top-bar tab, white text */
+    --focus-fill:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%), var(--th-pill);
+    /* resting buttons: Home's chip rail, white frosted glass over a strong blur; a picked tab a little brighter */
+    --idle-fill:rgba(255,255,255,.16); --idle-fill-on:rgba(255,255,255,.26);
+    --ease:cubic-bezier(.2,0,0,1);
+    --inter:'Open Sans', system-ui, sans-serif; --roboto:'Open Sans', system-ui, sans-serif;
+  }
+  html,body{ margin:0; height:100%; background:#000; overflow:hidden; color:var(--on-surface); font-family:var(--inter); -webkit-font-smoothing:antialiased; }
+  *{ box-sizing:border-box; }
+  #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:var(--bg-0); }
+  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; overflow:hidden;
+    background:radial-gradient(1400px 900px at 85% 110%, rgba(214,222,240,.12), transparent 70%), var(--bg-0); }   /* Home's page colour and glow */
+
+  /* ---------- hero background (dynamic), as Home's: the focused item's picture full-screen and bright, with only a dark
+     wash behind the text on the left and a fade into the page at the bottom ---------- */
+  .hero-bg{ position:absolute; left:0; top:0; width:1920px; height:1080px; z-index:0; overflow:hidden; transition:opacity .4s ease; }
+  .hero-bg .pic{ position:absolute; inset:0; background:center 30% / cover no-repeat; opacity:0; transition:opacity .6s ease; }
+  .hero-bg .pic.on{ opacity:1; }
+  .hero-bg::after{ content:''; position:absolute; inset:0;
+    background:linear-gradient(90deg, rgba(var(--wash),.88) 0%, rgba(var(--wash),.62) 30%, rgba(var(--wash),.12) 58%, transparent 75%),
+      linear-gradient(180deg, transparent 52%, rgba(var(--wash),.55) 74%, var(--bg-0) 96%); }
+  .hero-bg .fade{ display:none; }
+  body.static .hero-bg, body.ucl .hero-bg{ opacity:0; }
+
+  /* ---------- hero text, as Home's: pinned at the top (title, meta row, description) ---------- */
+  .hero{ position:absolute; left:110px; top:160px; width:1100px; z-index:3; display:flex; flex-direction:column; gap:14px;
+    transition:opacity .3s ease, transform .3s var(--ease); }
+  body.static .hero{ opacity:0; transform:translateY(-40px); pointer-events:none; }
+  .hero.swap{ animation:heroIn .3s var(--ease); }
+  @keyframes heroIn{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
+  .hero h1{ max-width:820px; margin:0 0 12px; font-size:72px; font-weight:700; line-height:1.08; letter-spacing:-.01em; color:#fff; text-shadow:0 2px 12px rgba(0,0,0,.35);
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  body.ucl .hero h1{ color:#fff; }
+  .hero .desc{ margin:0; max-width:760px; font-size:26px; line-height:1.4; color:#fff; opacity:.82; text-shadow:0 0 6px rgba(0,0,0,.6);
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .meta{ display:flex; flex-wrap:wrap; align-items:center; gap:16px; height:40px; overflow:hidden; font-size:20px; }
+  .meta:empty{ display:none; }
+  .badge{ height:36px; padding:0 12px; border-radius:9999px; display:inline-flex; align-items:center; justify-content:center; gap:4px;
+    font-weight:500; font-size:20px; color:#fff; background:var(--surface-container-high); white-space:nowrap; }
+  .badge.live{ background:var(--live); }
+  .badge.live::before{ content:''; width:12px; height:12px; background:url('../sport-assets/dot.svg') center / contain no-repeat; }
+  .badge img{ width:20px; height:20px; }
+  .meta .ch{ display:inline-flex; align-items:center; gap:8px; color:var(--on-surface); white-space:nowrap; }
+  .meta .ch > img, .meta .ch > .ch-logo{ width:36px; height:36px; border-radius:40px; object-fit:cover; }
+  .pill{ height:36px; padding:0 12px; border:1px solid var(--outline); border-radius:18px; display:inline-flex; align-items:center; font-weight:500; white-space:nowrap; }
+  .meta b, .meta strong{ font-weight:700; color:#fff; }
+
+  /* ---------- the page: Figma's rows, 60px apart, starting at y=600 (under Home's 600px hero); it moves as a whole ---------- */
+  #page{ position:absolute; left:0; top:0; width:1920px; z-index:1; padding:600px 0 44px; display:flex; flex-direction:column; gap:60px;
+    transition:transform .45s var(--ease); }
+  .sec{ position:relative; transition:opacity .3s ease; }
+  body:not(.static) .sec.above{ opacity:0; }
+  .sec-title{ margin:0 110px; font-weight:500; font-size:29px; line-height:40px; color:#fff; }   /* Home's row title */
+  .item{ cursor:pointer; }
+  /* a rail: the track slides sideways under a fixed focus slot (Home's rule) */
+  .rail{ position:relative; }
+  .track{ display:flex; gap:32px; padding:8px 110px; transition:transform .35s var(--ease); width:max-content; }
+
+  /* 16:9 card (TV / Card): 320x180 picture, radius 12, title under it; the ring wraps picture + title */
+  .card{ position:relative; width:320px; flex:0 0 auto; display:flex; flex-direction:column; gap:8px; border-radius:12px; }
+  .thumb{ position:relative; width:320px; height:180px; border-radius:12px; overflow:hidden; background:var(--surface-container-high) center / cover no-repeat; }
+  .thumb.ph::after{ content:attr(data-ratio); position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); padding-left:20px;
+    font-size:11px; line-height:32px; font-weight:500; color:rgba(232,232,232,.5); background:url('../sport-assets/ratio-icon.svg') left center / 16px no-repeat; }
+  .thumb .top{ position:absolute; left:12px; top:12px; }
+  .thumb .top .badge{ height:auto; line-height:normal; }
+  /* duration: the corner tag (corner-tag.css) */
+  .card .t{ padding:8px 12px 0; margin-bottom:16px;   /* with the card's 8px gap: 16px under the picture, 16px below, 12px from the sides */ font-size:20px; font-weight:500; line-height:normal; color:var(--on-surface); overflow:hidden; }
+  .card .t.one{ white-space:nowrap; text-overflow:ellipsis; }
+  .card .t.two{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; min-height:48px; }
+
+  /* sport chips (TV / Chip) */
+  .chips{ display:flex; gap:32px; padding:0 110px; width:max-content; transition:transform .35s var(--ease); }
+  .chip{ position:relative; height:100px; min-width:180px; padding:0 40px; border-radius:26px; display:flex; align-items:center; justify-content:center; gap:20px;
+    font-size:32px; line-height:32px; font-weight:500; color:var(--on-surface-variant); white-space:nowrap;
+    transition:background .15s ease, color .15s ease, border-color .15s ease; }
+  .chip::before{ content:''; position:absolute; inset:0; border-radius:inherit; border:2px solid var(--outline-variant); opacity:.5; transition:opacity .15s ease; }
+  .chip.focused{ background:var(--focus-fill); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); border-radius:24px; }
+  .chip.focused::before{ opacity:0; }
+  /* the sport chosen: its chip keeps the focused glass fill (no ring) while focus is elsewhere; the rails below are that sport's */
+  .chip.sel:not(.focused){ background:var(--focus-fill); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+  .chip.sel::before{ opacity:0; }
+
+  /* League & Tournament: 134px discs (160 focused), 187px apart; the followed ones carry a heart */
+  .leagues{ display:flex; padding:0 85px; width:max-content; margin-top:31px; transition:transform .35s var(--ease); }
+  .league{ width:210px; margin-right:-23px; display:flex; flex-direction:column; align-items:center; gap:24px; }
+  .disc{ position:relative; width:134px; height:134px; margin:9px 0; border-radius:50%; background:#fff;
+    transition:transform .3s var(--ease), box-shadow .2s ease; }
+  /* the logo inside: league-disc.css (leagues.js Leagues.pic) */
+  .disc .lg-mono{ font-family:var(--roboto); font-size:26px; }
+  .disc .fav{ position:absolute; right:-16px; bottom:-16px; width:84px; height:84px; transition:opacity .2s ease, transform .25s var(--ease); }
+  /* followed: the league page's Follow button, as it looks once followed (button-theme.css secondary: its 3px ring, the
+     white filled heart), on the page's dark so it reads over the logo */
+  .disc .fav{ display:flex; align-items:center; justify-content:center; }
+  .disc .fav i{ width:69px; height:69px; border-radius:50%; background:#0d0d18; box-shadow:inset 0 0 0 3px rgba(232,232,232,.18);
+    display:flex; align-items:center; justify-content:center; }
+  .disc .fav img{ width:32px; height:32px; display:block; }
+  .disc:not(.followed) .fav{ opacity:0; transform:scale(.6); }
+  .disc.focused{ transform:scale(1.194); }   /* no stroke: the round focus ring is the outline */
+  .league .name{ width:100%; height:56px; font-family:var(--roboto); font-size:22px; line-height:28px; text-align:center; color:var(--on-surface); overflow:hidden; }
+
+  /* TV Guide rail: Home's TV Guide tile and channel cards (tvguide-card.css), all 280px tall */
+  [data-row="guide"] .track{ align-items:stretch; }
+
+  /* the suggested league (UCL): key art + glows, clipped to the section; on focus the art also fills the screen above it */
+  .ucl{ height:600px; padding:80px 110px 40px; display:flex; flex-direction:column; gap:60px; }
+  .ucl .back{ position:absolute; left:0; right:0; top:0; bottom:0; overflow:hidden; transition:top .45s var(--ease); }
+  /* the artwork fades out at its top and bottom edges (a mask, not a colour), so it melts into the page with no band edge;
+     focused, the top fade sits above the screen and the picture fills it to the top */
+  .ucl .back{ -webkit-mask-image:linear-gradient(180deg, transparent 0, #000 140px, #000 calc(100% - 200px), transparent 100%);
+    mask-image:linear-gradient(180deg, transparent 0, #000 140px, #000 calc(100% - 200px), transparent 100%); }
+  body.ucl .ucl .back{ top:-600px; }
+  .ucl .inner{ position:absolute; left:0; bottom:0; width:1920px; height:600px; }
+  .ucl .art{ position:absolute; left:-1177px; top:-160px; width:3110px; height:1432px; max-width:none; }
+  /* Figma's art starts 160px above the band; when it fills the screen above, a mirrored copy carries it on seamlessly */
+  .ucl .art.top{ top:-1592px; transform:scaleY(-1); }
+  .ucl .glow{ position:absolute; display:flex; align-items:center; justify-content:center; }
+  .ucl .glow > div{ flex:none; }
+  .ucl .glow img{ position:absolute; max-width:none; display:block; }
+  .ucl .text{ position:relative; width:700px; display:flex; flex-direction:column; gap:24px; transition:opacity .3s ease; }
+  body.ucl .ucl .text{ opacity:0; }
+  .ucl .text h2{ margin:0; font-size:57px; font-weight:700; color:#fff; line-height:normal; }
+  .ucl .text p{ margin:0; height:87px; font-size:24px; color:var(--on-surface-variant); overflow:hidden; }
+  .ucl .row{ position:relative; display:flex; align-items:center; gap:60px; margin:0 -110px; }
+  .ucl .row .track{ padding-right:0; }
+  /* another tournament's band (ATP Tour, Formula 1): its picture fills the band, darkened behind the text */
+  .ucl.plain .inner{ height:100%; }
+  .ucl.plain .art{ left:0; top:0; width:100%; height:100%; object-fit:cover; }
+  .ucl.plain .inner::after{ content:''; position:absolute; inset:0; background:linear-gradient(90deg, rgba(8,8,24,.82) 0%, rgba(8,8,24,.45) 55%, rgba(8,8,24,.2) 100%); }
+  .ucl .uclava{ width:160px; height:160px; border-radius:50%; flex:0 0 auto; background:url('../sport-assets/ucl-avatar.jpg') 46% 40% / 208% auto no-repeat; }
+
+  /* Short Highlight + Short */
+  .shorts{ display:flex; gap:32px; padding:0 110px; }
+  .short{ position:relative; height:570px; border-radius:32px; overflow:hidden; flex:0 0 auto; background:var(--surface-container-high); }
+  .short.wide{ width:1254px; } .short.tall{ width:414px; }
+  .short span{ position:absolute; left:32px; top:482px; font-family:var(--roboto); font-weight:500; font-size:48px; line-height:56px; color:var(--on-surface); }
+
+  /* ---------- a league's landing page (?league=; Figma Sports 3011:44457): no dynamic background or pinned text; its own
+     hero (the league's picture, 1020px, fading into the page) at the top of the page, the LIVE rail at y=580 ---------- */
+  body.landing .hero, body.landing .hero-bg{ display:none; }
+  body.landing #page{ padding-top:0; }
+  .lhero{ height:520px; }
+  .lhero .lbg{ position:absolute; left:0; top:0; width:1920px; height:1020px; z-index:-1; background:center 30% / cover no-repeat;
+    -webkit-mask-image:linear-gradient(180deg, #000 55%, transparent 100%); mask-image:linear-gradient(180deg, #000 55%, transparent 100%); }
+  .lhero .lbg::after{ content:''; position:absolute; inset:0;   /* the Sport hero's wash: dark behind the text on the left */
+    background:linear-gradient(90deg, rgba(var(--wash),.88) 0%, rgba(var(--wash),.62) 30%, rgba(var(--wash),.12) 58%, transparent 75%),
+      linear-gradient(180deg, rgba(var(--wash),.35) 0%, transparent 25%); }
+  .lhero .ltext{ position:absolute; left:110px; bottom:20px; display:flex; flex-direction:column; align-items:flex-start; gap:24px; }   /* ends at y=500 */
+  .lhero h1{ margin:0; font-size:57px; font-weight:700; line-height:normal; color:var(--on-surface); text-shadow:0 2px 12px rgba(0,0,0,.35); }
+  .lhero p{ margin:0; width:700px; font-size:24px; line-height:32px; color:var(--on-surface-variant); text-shadow:0 0 6px rgba(0,0,0,.6);
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .lfav{ --btn-w:90px; --btn-h:90px; padding:0; }   /* follow: the round icon button (button-theme.css), the heart filled once followed */
+  .lfav img{ width:40px; height:40px; display:block; }
+  .lfav.focused{ transform:scale(1.08); }
+  /* Match Schedule: the Short Highlight tiles, with their two-line label (This Week large, Next Week smaller) */
+  .short.sched .sl{ position:absolute; left:24px; bottom:24px; display:flex; flex-direction:column; gap:12px; font-family:var(--roboto); color:var(--on-surface); }
+  .short.sched .sl b{ font-weight:500; font-size:56px; line-height:64px; }
+  .short.sched .sl i{ font-style:normal; font-weight:500; font-size:32px; line-height:40px; }
+  .short.tall.sched .sl{ gap:4px; }
+  .short.tall.sched .sl b{ font-size:32px; line-height:40px; }
+  .short.tall.sched .sl i{ font-weight:400; font-size:28px; line-height:36px; }
+  .short.sched::before{ opacity:.45; }
+
+  /* Documentary: 2:3 posters */
+  .poster{ width:220px; height:330px; flex:0 0 auto; border-radius:12px; background:var(--surface-container-high) center / cover no-repeat; }
+  .docs .track{ margin-top:32px; }   /* the 2:3 posters grow 13px up when focused, plus the ring and its gap: room under the title */
+
+  /* Sport Channel: 142px discs (160 focused, no shade); no rim, the round focus ring is the outline */
+  .chans{ display:flex; align-items:center; gap:32px; padding:9px 110px; width:max-content; margin-top:31px; transition:transform .35s var(--ease); }
+  .chan{ position:relative; width:142px; height:142px; border-radius:50%; flex:0 0 auto; background:#000 center / cover no-repeat;
+    transition:transform .3s var(--ease); }
+  .chan::after{ content:''; position:absolute; inset:0; border-radius:50%; background:rgba(0,0,0,.3); transition:opacity .2s ease; }
+  .chan.contain{ background-color:#fff; background-size:78% auto; }
+  .chan.focused{ transform:scale(1.127); }
+  .chan.focused::after{ opacity:0; }
+
+  /* Back to Top */
+  .totop{ height:150px; display:flex; align-items:center; justify-content:center; }
+  .totop .btn{ display:flex; align-items:center; gap:16px; padding:24px 100px; border-radius:9999px; background:var(--surface-container-high); color:var(--on-surface);
+    font-weight:500; font-size:31px; line-height:41.877px; white-space:nowrap; transition:background .15s ease, color .15s ease; }
+  .totop .btn img{ width:40px; height:40px; filter:invert(1); }
+  .totop .btn.focused{ background:var(--focus-fill); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+
+  /* ---------- top bar (Home's), Sport is the current page ---------- */
+  /* past the hero the rails get the full screen: the top bar steps away until it gets focus, with the page colour fading in behind it */
+  .scrim{ position:absolute; left:0; top:0; width:1920px; height:170px; z-index:4; pointer-events:none; opacity:0; transition:opacity .3s ease;
+    background:linear-gradient(180deg, var(--bg-0) 0%, var(--bg-0) 45%, rgba(7,14,22,0) 100%); }
+  body.static.on-nav .scrim, body.past-first.on-nav .scrim{ opacity:1; }   /* full screen past the hero: no fade over the rails, only behind the top bar when it comes back */
+  .topnav{ position:absolute; left:0; top:0; z-index:5; width:1920px; padding:24px 110px 0; display:flex; align-items:center; transition:opacity .3s ease, translate .3s var(--ease); }
+  body.static:not(.on-nav) .topnav, body.past-first:not(.on-nav) .topnav{ opacity:0; translate:0 -40px; pointer-events:none; }
+  .profile{ width:60px; height:60px; border-radius:999px; overflow:hidden; flex:0 0 auto; }
+  .profile img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .center{ display:flex; align-items:center; gap:12px; margin-left:20px; }
+  .navsearch{ width:60px; height:60px; margin:0 8px; border-radius:999px; display:flex; align-items:center; justify-content:center; }
+  .navsearch img{ width:32px; height:32px; display:block; }
+  .navtab{ height:60px; padding:0 20px; border-radius:999px; display:flex; align-items:center; font-family:'Plus Jakarta Sans', var(--inter); font-size:24px; line-height:1.2;
+    color:#fff; text-shadow:0 0 6px rgba(0,0,0,.4); white-space:nowrap; }
+  .topnav .item:not(.tv-tab){ transition:background .15s ease; }
+  .topnav .item.focused:not(.tv-tab){ background:var(--th-pill); backdrop-filter:blur(12px) saturate(1.4); }   /* the tabs: button-theme.css */
+
+  #toast{ position:absolute; left:50%; bottom:80px; z-index:60; transform:translateX(-50%); padding:14px 26px; border-radius:999px;
+    background:rgba(20,20,24,.85); font-size:24px; opacity:0; transition:opacity .2s ease; pointer-events:none; }
+  #toast.on{ opacity:1; }
+  /* resting chips and buttons: Home's chip glass; focus turns them to the glass pill */
+  .chip::before{ display:none; }
+  .chip:not(.focused), .totop .btn:not(.focused){
+    background:var(--idle-fill); -webkit-backdrop-filter:blur(80px) saturate(1.5); backdrop-filter:blur(80px) saturate(1.5); color:var(--on-surface); }
+  /* focused items grow: 8% on every rail, 6% in the top bar; the wide Short Highlight 3% (more would reach
+     past the 32px gap); the league and channel discs keep their own growth */
+  #screen .item{ transition:transform .22s var(--ease), background .15s ease, color .15s ease, box-shadow .2s ease; }
+  #screen .item.focused{ transform:scale(1.08); z-index:2; }
+  #screen .topnav .item.focused{ transform:scale(1.06); }
+  #screen .short.wide.focused{ transform:scale(1.03); }
+  #screen .disc.focused{ transform:scale(1.194); }
+  #screen .chan.focused{ transform:scale(1.127); }

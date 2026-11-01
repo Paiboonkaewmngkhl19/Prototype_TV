@@ -29,9 +29,10 @@
 }
 
 /*
-  Crown tag: a premium title or programme (its channel is premium), the same on every page: the gold crown on a grey
-  circle (so it shows on light pictures too), 36px, 12px from the card's left edge and bottom. Add the `crown-tag` class
-  to an <img src="icons/crown-gold.svg"> inside the card's picture. Used by home.html (Hot Channel Program, Live and
+  Crown tag: a premium title or programme (its channel is premium), the same on every page: its crown on a grey circle
+  (so it shows on light pictures too), 36px, 12px from the card's left edge and bottom: the plain gold crown when the
+  viewer doesn't have it, the crown with the green play mark when they do. Made by content.js
+  Content.crownIcon(info, 0, 'crown-tag') inside the card's picture. Used by home.html (Hot Channel Program, Live and
   Upcoming), sport.html (match cards), news.html (Don't Miss, Localized Program News) and movie-detail.html (its LIVE / Upcoming cards); the detail page itself says
   Premium in its meta row, so a premium card and its page always agree.
 */

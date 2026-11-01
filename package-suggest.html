@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get Access</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!--
+  Package suggestion (Figma Prototype "Page for Package sugges when select View button" 162:49857): where every View
+  Package goes (movie-detail.html, short-detail.html, Home's and the Movie page's first scene: content.js
+  Content.packageUrl). ?k=<title> / ?s=<short> / ?prog=<a channel's programme, JSON>, &ret=<the detail page>.
+  Left: "Get Access to", the item's title and its detail page's meta row (Content.metaHtml), "I already have my account"
+  and "bring me to <its platform>". Right: up to 3 packages that include it (packages.js Packages.suggest, the shared
+  package card), then See all Packages. Its picture, faint, behind.
+  Subscribe opens the package's purchase (package-detail.html), which comes back to `ret` with ?subscribed=1.
+  Remote / keyboard: Left / Right along "bring me to" and the cards, Down to See all Packages, Enter, Esc / Back returns.
+-->
+<link rel="stylesheet" href="button-theme.css">
+<link rel="stylesheet" href="platform-tag.css">
+<link rel="stylesheet" href="package-card.css">
+<link rel="stylesheet" href="tvguide-card.css">
+<link rel="stylesheet" href="package-suggest/package-suggest.css">
+</head>
+<body>
+<div id="frame"><div id="screen">
+  <div class="bg" id="bg"></div>
+  <section class="left">
+    <div class="kicker">Get Access to</div>
+    <div class="hc"><h1 id="title"></h1><div class="meta" id="meta"></div></div>
+  </section>
+  <section class="account" id="account">
+    <p>I already have my account</p>
+    <div class="tv-btn tv-btn--primary sbtn bring item" id="bring" data-ring-art=""></div>
+  </section>
+  <section class="cards" id="cards"></section>
+  <div class="tv-btn tv-btn--primary sbtn seeall item" id="seeall" data-label="See all Packages" data-ring-art="">See&nbsp; all Packages</div>
+  <div id="toast"></div>
+</div></div>
+
+<script src="channels-data.js"></script>
+<script src="content.js"></script>
+<script src="leagues.js"></script>
+<script src="packages.js"></script>
+<script src="tv-screen.js"></script>
+<script src="package-suggest/package-suggest-1.js"></script>
+<script src="focus-ring.js"></script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+  :root{ color-scheme:dark; --surface:#101010; --on-surface:#e8e8e8; --on-surface-variant:#a8a8a8; --outline:#5a5a5a;
+    --surface-container-low:#1c1c1c; --surface-container:#2a2a2a; --surface-container-high:#3a3a3a; --inverse-surface:#e8e8e8;
+    --btn-focus-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%);
+    --ease:cubic-bezier(.2,0,0,1); }
+  html,body{ margin:0; height:100%; background:#000; overflow:hidden; font-family:'Plus Jakarta Sans', system-ui, sans-serif; color:var(--on-surface); }
+  #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:var(--surface); }
+  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; }
+
+  /* the item's picture, faint over the page's #101010 (Figma: 16%) */
+  .bg{ position:absolute; inset:0; background:center / cover no-repeat; opacity:.16; }
+
+  /* ---------- left (Figma "metadata" 162:49859): 553px wide from x110; the text from y226, the account block at the bottom ---------- */
+  .left{ position:absolute; left:110px; top:226px; width:553px; display:flex; flex-direction:column; gap:16px; }
+  .kicker{ font-size:32px; font-weight:600; color:#fff; text-shadow:0 0 4px rgba(0,0,0,.5); }
+  .hc{ display:flex; flex-direction:column; gap:24px; }
+  .hc h1{ margin:0; font-size:57px; font-weight:700; line-height:normal; color:var(--on-surface);
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  /* the detail page's meta row (content.js Content.metaHtml), wrapping inside the 553px column as in Figma */
+  .meta{ display:flex; flex-wrap:wrap; align-items:center; gap:16px; font-size:20px; white-space:nowrap; }
+  .meta strong{ font-size:22px; font-weight:700; line-height:28px; color:#fff; }
+  .meta .chan{ display:flex; align-items:center; gap:8px; }
+  .meta .chan .ch-logo{ width:36px; height:36px; border-radius:40px; }   /* its round logo, as on its detail page */
+  .pill{ height:36px; min-width:80px; box-sizing:border-box; padding:0 12px; border:1px solid var(--outline); border-radius:18px; display:inline-flex; align-items:center; justify-content:center; }
+
+  .account{ position:absolute; left:110px; top:860px; display:flex; flex-direction:column; align-items:flex-start; gap:24px; }
+  .account p{ margin:0; font-size:32px; font-weight:400; color:#fff; text-shadow:0 0 4px rgba(0,0,0,.5); white-space:nowrap; }
+
+  /* the two buttons (Figma "TV / Button"): button-theme.css's, on #1c1c1c at 80% with the text at 80%; focused as every
+     button (the theme's pill and the focus ring) */
+  .sbtn{ --btn-h:86px; padding:0 32px; background:rgba(28,28,28,.8); -webkit-backdrop-filter:none; backdrop-filter:none; color:rgba(232,232,232,.8); white-space:pre; cursor:pointer; }
+  .sbtn.focused{ transform:scale(1.08); }
+  .bring{ --btn-w:auto; min-width:388px; }
+  .seeall{ --btn-w:350px; position:absolute; left:1071px; top:924px; }
+
+  /* ---------- the packages (Figma 162:49955): a 1127px row from x683, bottom-aligned at y892, 24px apart; the shared card
+     (package-card.css) 354px wide, its badge strip 40px; the focused one 9.4px taller, as Figma's first card ---------- */
+  .cards{ position:absolute; left:683px; top:92px; width:1127px; height:800px; display:flex; gap:24px; align-items:flex-end; }
+  .cards .pcard{ height:750.6px; }
+  .cards .pcard.has-badge{ height:790.6px; }
+  .cards .pcard.focused{ height:760px; }
+  .cards .pcard.has-badge.focused{ height:800px; }
+  .cards .pcard .ptitle b{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }   /* two lines at most */
+  .cards .pcard{ transition:width .22s var(--ease), height .22s var(--ease), padding .22s var(--ease), border-color .22s ease; }
+
+  #toast{ position:absolute; left:50%; bottom:48px; transform:translateX(-50%) translateY(20px); padding:16px 28px; border-radius:999px; background:rgba(28,28,28,.92);
+    font-size:24px; opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s var(--ease); z-index:60; }
+  #toast.on{ opacity:1; transform:translateX(-50%); }

@@ -1,0 +1,93 @@
+
+
+  /* the controls (the Live TV player's): scrims, the top and bottom bars; they fade out together when idle */
+  /* top: back and the title (Figma: 40px medium, #d9d9d9, 24px after the back button) */
+  /* a series: the episode, the series name 20px under it (Figma 2700:18288) */
+
+  /* player chips (Figma "player element" / TV / Chip, h84): Skip Intro, Next Episode, Watch Credit. Focused (or the only
+     choice): light; otherwise dark */
+  /* Skip Intro: over the seek bar's right end with the controls, at the bottom without them */
+  /* the Live TV chips (player.css .preview / .explore) as Skip Intro, Next Episode, Watch Credit: clickable, clipping the
+     countdown's fill */
+  .pchip{ position:relative; overflow:hidden; cursor:pointer; }
+  .skip{ position:absolute; right:90px; bottom:294px; transition:bottom .3s var(--ease), opacity .3s ease; }
+  body.idle .skip{ bottom:60px; }
+  .skip[hidden]{ display:none; }
+  /* the credits: the picture dimmed, no controls, the next-episode choice at the bottom right */
+  .nextup{ position:absolute; inset:0; display:flex; align-items:flex-end; justify-content:flex-end; gap:24px; padding:60px 90px; box-sizing:border-box;
+    background:rgba(0,0,0,.5); backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px); opacity:0; pointer-events:none; transition:opacity .3s ease; }
+  body.credits .nextup{ opacity:1; pointer-events:auto; }
+  body.credits .scrim, body.credits .top, body.credits .bottom, body.credits .skip{ opacity:0; pointer-events:none; }
+  /* "Next Episode in": outlined, a light fill sweeping across it over 5s (the text dark where it has passed) */
+  .pchip.count{ background:transparent; box-shadow:inset 0 0 0 2px rgba(74,74,74,.5); backdrop-filter:none; -webkit-backdrop-filter:none; color:var(--on-surface-variant); }
+  .pchip.count .fill{ position:absolute; left:0; top:0; bottom:0; width:0; overflow:hidden; background:#fff; }
+  .pchip.count .fill span{ position:absolute; left:32px; top:0; height:80px; display:flex; align-items:center; color:#101010; }
+  .pchip.count.go .fill{ width:100%; transition:width 5s linear; }
+
+  /* bottom: the seek bar, then the buttons (Start Over, Subtitle/Audio, Settings; You may also like on the right) */
+  .seek .tm.end{ text-align:right; }
+  /* the track (the Live TV player's, Figma VOD look): 12px with its handle, played in white; focused, it grows and shows its handle, no ring */
+  /* scrubbing: a thumbnail of that moment over the handle, its time under it, and the seek marker in its middle */
+
+  /* the buttons (the Live TV player's): round icons with a tooltip; You may also like on the right with its label */
+  .btn.ymal{ margin-left:auto; gap:16px; font:500 24px/32px var(--inter); color:var(--inverse-surface); }   /* the one labelled button: icon, 16px gap, label */
+  .btn.ymal span{ opacity:.8; }
+  /* pause / play: a big mark flashes in the middle */
+
+  /* ---------- You may also like (Figma PLAY-player 2025:102260): the picture under the same scrim, back + title stay on top;
+     at the bottom (90px in, 60px up) a back icon button and the selected "You may also like" chip, then a row of cards ---------- */
+  .ymal-view{ position:absolute; inset:0; opacity:0; pointer-events:none; transition:opacity .3s ease; }
+  body.ymal .ymal-view{ opacity:1; pointer-events:auto; }
+  body.ymal .bottom{ opacity:0; pointer-events:none; }
+  .ymal-view .row-wrap{ position:absolute; left:90px; right:0; bottom:0; padding-bottom:60px; display:flex; flex-direction:column; gap:32px; }
+  .ymal-view .head{ display:flex; align-items:center; }
+  .ymal-view .head .back{ display:block; }
+  .ymal-view .chip{ height:80px; box-sizing:border-box; padding:0 21px; border:3px solid var(--on-surface); border-radius:9999px; display:flex; align-items:center; gap:16px;
+    font:500 24px/32px var(--inter); color:var(--on-surface); white-space:nowrap; }
+  .ymal-view .chip img{ width:32px; height:32px; display:block; }
+  .ymal-view .row{ display:flex; gap:32px; align-items:flex-end; transition:transform .35s var(--ease); }
+  .card{ flex:0 0 auto; box-sizing:border-box; padding:16px; border-radius:24px; background:var(--surface-container); display:flex; flex-direction:column; gap:16px; cursor:pointer;
+    transition:transform .22s var(--ease); }
+  .card .pic{ width:320px; height:180px; border-radius:16px; background:#3a3a3a center / cover no-repeat; }
+  .card .nm{ max-width:320px; font:500 20px/1.5 var(--inter); letter-spacing:-.38px; color:var(--on-surface); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .card .len{ font:500 16px/1.5 var(--inter); letter-spacing:-.3px; color:var(--on-surface); margin-top:-8px; }
+  .card.focused{ transform:scale(1.04); }   /* the ring: focus-ring.js */
+  /* Select Episode: the one playing has the now-playing mark on its picture */
+  .card .pic{ position:relative; }
+  .card .np{ position:absolute; inset:0; border-radius:16px; background:rgba(0,0,0,.55) url('../icons/player/now-playing.svg') center / 36px no-repeat; }
+  /* ---------- a short drama: the 9:16 picture centred on #141414 (Figma 2076:32401) ---------- */
+  body.vertical #screen{ background:#141414; }
+  body.vertical #video{ left:50%; top:12px; width:594px; height:1056px; margin-left:-297px; border-radius:16px; }
+  #sub:empty{ display:none; }   /* a movie: its title alone */
+  /* Select Episode (Figma 2076:31754): the player fades, and from 543px down: back + the chip, the season, the ranges,
+     then the episodes 10 a row (148px squares across 1740px). The block slides up to keep the focused row in view. */
+  .grid-view{ position:absolute; inset:0; opacity:0; pointer-events:none; transition:opacity .3s ease; overflow:hidden;
+    background:linear-gradient(180deg, #000 18.43%, rgba(0,0,0,0) 33.33%), linear-gradient(180deg, rgba(0,0,0,0) 64.63%, rgba(0,0,0,.9) 97.02%), rgba(0,0,0,.55); }
+  body.sgrid .grid-view{ opacity:1; pointer-events:auto; }
+  body.sgrid .bottom, body.sgrid .top{ opacity:0; pointer-events:none; }
+  .gblock{ position:absolute; left:90px; top:543px; width:1740px; display:flex; flex-direction:column; gap:40px; transition:transform .35s var(--ease); }
+  .gblock .head{ display:flex; align-items:center; }
+  .gblock .head .back{ display:block; }
+  .gblock .chip{ height:80px; box-sizing:border-box; padding:0 21px; border:3px solid var(--on-surface); border-radius:9999px; display:flex; align-items:center; gap:16px;
+    font:500 24px/32px var(--inter); color:var(--on-surface); white-space:nowrap; }
+  .gblock .chip img{ width:32px; height:32px; display:block; }
+  .gblock .filters{ display:flex; flex-direction:column; gap:20px; }
+  .seasons{ display:flex; gap:32px; }
+  .sea{ height:64px; padding:0 32px; box-sizing:border-box; border-radius:12px; display:flex; align-items:center; font:500 24px/32px var(--inter); color:var(--on-surface-variant);
+    box-shadow:inset 0 0 0 2px rgba(74,74,74,.5); cursor:pointer; transition:transform .22s var(--ease); }
+  .sea.sel{ background:#6a6a6a; color:var(--on-surface); box-shadow:none; }
+  .ranges{ display:flex; gap:16px; }
+  .rng{ height:60px; padding:0 40px; display:flex; align-items:center; font:500 24px/32px var(--inter); color:var(--on-surface-variant); opacity:.8; cursor:pointer; transition:transform .22s var(--ease); }
+  .rng.sel{ color:var(--inverse-surface); opacity:1; text-decoration:underline; text-decoration-thickness:10%; text-underline-offset:6px; }
+  .sea.focused, .rng.focused{ transform:scale(1.06); color:#fff; opacity:1; }
+  .sgrid-eps{ display:grid; grid-template-columns:repeat(10, 148px); justify-content:space-between; row-gap:40px; }
+  .sep{ position:relative; width:148px; height:148px; border-radius:8px; overflow:hidden; background:#474747; display:flex; flex-direction:column; cursor:pointer; transition:transform .22s var(--ease); }
+  .sep b{ flex:1; display:flex; align-items:center; justify-content:center; font:700 28px/16px var(--inter); color:#fff; }
+  .sep.locked b{ color:var(--on-surface-variant); }
+  .sep .lk{ height:32px; background:var(--surface-container); display:flex; align-items:center; justify-content:center; }
+  .sep .lk img{ width:20px; height:20px; display:block; }
+  .sep .watching{ height:26px; background:#59d478; display:flex; align-items:center; justify-content:center; font:500 16px/14px var(--inter); color:#fff; }
+  .sep .bar{ height:6px; background:var(--on-surface-variant); }
+  .sep .bar i{ display:block; height:100%; background:red; }
+  .sep.focused{ transform:scale(1.08); }   /* 8%, as every rail card; the ring: focus-ring.js */
+

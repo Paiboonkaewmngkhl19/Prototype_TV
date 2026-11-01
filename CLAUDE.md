@@ -9,7 +9,7 @@
 | Short drama | `content.js` → `window.SHORTS`, `window.SHORT` | home, short-detail, player |
 | รายการถ่ายทอดสด / Upcoming | `content.js` → `window.LIVE` | home, sport, news, movie-detail |
 | ช่องทีวี + ผังรายการ | `channels-data.js` → `TV.CHANNELS` | home, tv-guide, news, sport |
-| แพ็กเกจ | `packages.js` | store, package-detail, purchase |
+| แพ็กเกจ (+ การ์ดแพ็กเกจ `Packages.cardHtml`, `Packages.suggest`) | `packages.js` | store, package-detail, purchase, package-suggest, all-packages |
 | ลีก | `leagues.js` | sport, store, package-detail |
 
 ## กฎการสร้างการ์ด
@@ -26,3 +26,14 @@
 ## ก่อนบอกว่างานเสร็จ
 - เปิดหน้าที่แก้ใน Live Server แล้วรัน `syncCheck()` ใน Console (โหลด `sync-check.js`) → ต้องได้ 0 การ์ดไม่ซิงค์
 - ถ้าแก้ข้อมูล ให้บอกว่าแก้ใน `content.js` / `channels-data.js` บรรทัดไหน
+
+## File map (CSS/JS ของแต่ละหน้า)
+แต่ละหน้า `<page>.html` เหลือแค่ markup — สไตล์อยู่ที่ `<page>/<page>.css`, สคริปต์อยู่ที่ `<page>/<page>-N.js` (เรียงตามลำดับเดิมในหน้า)
+| หน้า | โฟลเดอร์ |
+|---|---|
+| all-packages, home, launcher, login, movie, movie-detail, news, package-detail, package-suggest, player, purchase, short-detail, sport, store | `<page>/<page>.css` + `<page>/<page>-1.js` |
+| live-tv-player, tv-guide | `<page>/<page>.css` + `<page>-1.js`, `<page>-2.js` |
+| activation-guide, index | ยังเป็น inline (เล็กกว่า 10 KB) |
+- กฎ CSS ที่ใช้ `var(--img)` (home ring, sport shorts) ตั้งใจเก็บเป็น `<style>` inline ในหน้า เพราะ JS ใส่ `url()` แบบ relative ลงไป ถ้าย้ายไปไฟล์ใน subfolder รูปจะ 404
+- `url()` ใน `<page>.css` ต้องขึ้นต้นด้วย `../` (อ้างจากโฟลเดอร์ของหน้า)
+- แยกใหม่ได้ด้วย `python3 tools/split-pages.py [page.html]`
