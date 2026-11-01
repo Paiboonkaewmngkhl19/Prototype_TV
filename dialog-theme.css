@@ -1,0 +1,16 @@
+/*
+  TV dialog theme (Home's default theme): a popup centred on the screen over a dark, blurred backdrop.
+    .tv-scrim     the backdrop over the page (black 70%, blurred)
+    .tv-dialog    the popup: Home's navy with its grey-blue glow (as the profile panel), a faint light edge, 36px corners
+  Both stay hidden until the page adds `.open` (they fade in; the dialog grows from 96%). The page sets the dialog's
+  size and layout; its buttons are button-theme.css's. Used by package-detail.html (OTP, Scan QR PromptPay) and
+  store.html (the banner's QR Code).
+*/
+.tv-scrim{ position:absolute; inset:0; z-index:30; background:rgba(0,0,0,.7); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+  opacity:0; pointer-events:none; transition:opacity .25s ease; }
+.tv-dialog{ position:absolute; left:50%; top:50%; z-index:31; box-sizing:border-box; border-radius:36px;
+  background:radial-gradient(600px 460px at 85% 110%, var(--th-glow, rgba(214,222,240,.12)), transparent 70%), var(--bg-0, #070e16);
+  border:1px solid rgba(255,255,255,.1); box-shadow:0 8px 24px rgba(0,0,0,.4); color:#e8e8e8;
+  opacity:0; pointer-events:none; transform:translate(-50%,-50%) scale(.96); transition:opacity .25s ease, transform .25s cubic-bezier(.2,0,0,1); }
+.tv-scrim.open{ opacity:1; pointer-events:auto; }
+.tv-dialog.open{ opacity:1; pointer-events:auto; transform:translate(-50%,-50%); }

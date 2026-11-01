@@ -31,6 +31,11 @@
   .tab.on{ background:var(--idle-fill-on); color:#fff; }
   .tab.focused{ background:var(--focus-fill); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
   .tab.focused img{ filter:brightness(0) invert(1); }
+  /* the picked tab while focus is off the tab bar (the filters, the cards, the top bar): Active dim, as the Store's tabs:
+     the focused chip's glass (fill and white text), without the ring, which stays on the focused item */
+  .tab.on.active-dim:not(.focused){ background:var(--focus-fill); -webkit-backdrop-filter:blur(50px) saturate(1.4); backdrop-filter:blur(50px) saturate(1.4);
+    color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+  .tab.on.active-dim:not(.focused) img{ filter:brightness(0) invert(1); }
 
   /* filters: names (TV / Chip, text only) and logos (TV / Avatar, 80px discs); the picked one's name is underlined */
   .flt{ height:60px; padding:0 32px; border-radius:12px; display:flex; align-items:center; flex:0 0 auto; font-weight:500; font-size:24px; line-height:32px;

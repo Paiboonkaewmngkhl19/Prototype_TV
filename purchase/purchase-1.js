@@ -41,12 +41,14 @@
   else $('.c-pic, .d-pic').forEach(function(e){ e.style.background = pic ? "#3a3a3a url('" + pic + "') center / cover no-repeat" : "#000 url('icons/aisplay-mark.png') center / 60% auto no-repeat"; });
   $('.c-until').forEach(function(e){ e.textContent = day(end) + ' | 23:59:59'; });
   $('.d-dur').forEach(function(e){ e.textContent = day(now) + ' | 00:00:00 - ' + day(end) + ' | 23:59:59'; });
-  // the receipt from package-detail.html: its own name, price (the plan picked), picture and period
+  // the receipt from package-detail.html: its own name, price (the plan picked), picture (a package's logo: whole, on
+  // black) and period
   if(RC){
     $('.d-nm').forEach(function(e){ e.textContent = RC.t; });
     $('.d-amt').forEach(function(e){ e.textContent = RC.amt; });
     $('.d-vat').forEach(function(e){ e.textContent = RC.vat; });
-    if(!OB) $('.d-pic').forEach(function(e){ e.style.background = RC.pic ? "#3a3a3a url('" + RC.pic + "') center / cover no-repeat" : "#000 url('icons/aisplay-mark.png') center / 60% auto no-repeat"; });
+    if(!OB) $('.d-pic').forEach(function(e){ e.style.background = RC.pic ? (RC.logo ? "#000 url('" + RC.pic + "') center / contain no-repeat" : "#3a3a3a url('" + RC.pic + "') center / cover no-repeat") : "#000 url('icons/aisplay-mark.png') center / 60% auto no-repeat"; });
+    if(RC.pm) $('.d-pm').forEach(function(e){ e.textContent = RC.pm; });   // how it was paid (package-detail.html: QR PromptPay)
     $('.d-dur').forEach(function(e){ e.textContent = RC.dur; var l = e.previousElementSibling; if(l && l.lastChild) l.lastChild.textContent = RC.dl; });
   }
 
@@ -59,7 +61,11 @@
   // Purchase complete: an OTT package with an Activation Guide shows it (and the activation SMS card); a title has
   // nothing to activate, so Watch Now in its place and no activation card
   $('.doneb').forEach(function(b){ if(b.dataset.act === (OB && GUIDE ? 'watch' : 'guide') || (OB && !GUIDE && b.dataset.act === 'watch')) b.remove(); });
-  if(RC && !OB && !RC.watch) $('.doneb[data-act="watch"]').forEach(function(b){ b.remove(); });   // a package of AIS PLAY's: nothing to watch from here
+  // a package of AIS PLAY's (PLAY ULTIMATE / PLAY ALL): nothing to watch from here; its activation card, then View My
+  // Package / Back to Store. Anything else: no activation card and no View My Package
+  var AISPKG = RC && !OB && !RC.watch;
+  if(AISPKG) $('.doneb[data-act="watch"], .doneb[data-act="guide"]').forEach(function(b){ b.remove(); });
+  else { document.querySelector('.actcard').remove(); document.querySelector('.doneb[data-act="mypkg"]').remove(); }
   if(!OB) document.querySelector('.guide').remove();
   var cBtns = $('.s-confirm .item'), dBtns = $('.doneb'), oKeys = $('.otpk');   // oKeys: 12 pad keys, then Resend, Confirm
   function go(s){ step = s; document.body.dataset.step = s; if(s === 'otp'){ code = ''; okey = 0; countdown(); } paint(); }
@@ -94,7 +100,8 @@
   function act(a){
     if(a === 'cancel') back();
     else if(a === 'confirm') go('otp');
-    else if(a === 'store') leave();
+    else if(a === 'store') AISPKG ? location.href = 'store.html' : leave();   // (an AIS PLAY package's: Back to Store, as it says)
+    else if(a === 'mypkg') toast('My Package (demo)');
     else if(a === 'guide') location.href = 'activation-guide.html?app=' + GUIDE;
     else if(a === 'watch') location.href = RC && RC.watch || 'player.html?k=' + K;
   }
@@ -127,7 +134,7 @@
   });
   $('.s-confirm .item, .doneb').forEach(function(el){ el.addEventListener('click', function(){ act(el.dataset.act); }); });
   oKeys.forEach(function(el, i){ el.addEventListener('click', function(){ okey = i; type(el.dataset.key); }); });
-  if(RET || NEXT) $('.doneb[data-act="store"]').forEach(function(b){ b.textContent = 'Done'; });   // back where it was bought, not the Store
+  if(!AISPKG && (RET || NEXT)) $('.doneb[data-act="store"]').forEach(function(b){ b.textContent = 'Done'; });   // back where it was bought, not the Store
   f.done = dBtns.length - 1;
   if(OB || RC) go('done'); else paint();   // paid already (package-detail.html's OTP): Purchase complete
 })();

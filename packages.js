@@ -10,6 +10,7 @@
                         Standard, PLAY ALL: title, badge, logo, grid / row (service and channel tiles), count, feats, amt,
                         per, tags (what they carry: the filters, and Packages.suggest), href (their purchase page, or none)
     Packages.cardHtml(card, attrs)   a package card (package-card.css), the same on every page; Subscribe shows when focused
+    Packages.ottCard(k, i)  PKG[k][i] as such a card (its logo, quality, screens, price; href its Package Detail)
     Packages.suggest(o) up to 3 cards for what an item needs (package-suggest.html, View Package): o.plat (a title's
                         platform or a short's app: the bundles that carry it, then its own packages), o.channel (a
                         channel's programme: PLAY ULTIMATE; a sports one, o.sport: PLAY ALL, then o.league's packages)
@@ -223,7 +224,7 @@ window.Packages = (function(){
       (c.count ? '<div class="chanlist"><div class="small">' + esc(c.count) + '</div><div class="row40">' + c.row.map(tileHtml).join('') + '</div></div>' : '') + '</div>' +
       '<div class="feats">' + c.feats.map(function(f){ return '<div class="feat"><img src="' + f[0] + '" alt="">' + esc(f[1]) + '</div>'; }).join('') + '</div></div>' +
       '<div class="price"><div class="amtwrap"><div class="amt' + (String(c.amt).length > 4 ? ' long' : '') + '"><b>' + esc(c.amt) + ' baht</b><span>' + esc(c.per) + '</span></div><div class="vat">(Exclude VAT)</div></div>' +
-      '<div class="subscribe">Subscribe<img src="' + P + 'ichev-dark.svg" alt=""></div></div></div></div>';
+      '<div class="subscribe tv-btn tv-btn--primary tv-btn--lit">Subscribe<img src="' + P + 'ichev.svg" alt=""></div></div></div></div>';
   }
   function suggest(o){
     var out = [], U = BUNDLES[0], H = BUNDLES[1], A = BUNDLES[2];
@@ -241,5 +242,5 @@ window.Packages = (function(){
     // one Recommend: the first card's
     return out.map(function(c, i){ return i && c.badge === 'Recommend' ? Object.assign({}, c, { badge:'' }) : c; });
   }
-  return { OTT:OTT, PKG:PKG, AIS:'store-assets/ott/ais-playbox.png', BUNDLES:BUNDLES, cardHtml:cardHtml, suggest:suggest };
+  return { OTT:OTT, PKG:PKG, AIS:'store-assets/ott/ais-playbox.png', BUNDLES:BUNDLES, cardHtml:cardHtml, ottCard:ottCard, suggest:suggest };
 })();

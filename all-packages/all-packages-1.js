@@ -7,13 +7,30 @@
   var $ = function(q, root){ return Array.prototype.slice.call((root || document).querySelectorAll(q)); };
 
   /* ---------- content ----------
-     The packages are AIS PLAY's three (packages.js Packages.BUNDLES, the package suggestion page's too) and Figma's two
-     placeholders. Each lists what it carries, for the filters: sports, leagues, services and AIS PLAY bundles. */
+     Every package the Store sells (store.html), as the shared card (packages.js): AIS PLAY's bundles (Packages.BUNDLES)
+     and each app's and league's packages (Packages.PKG, Packages.ottCard). Each card lists the tabs it shows on (tabs)
+     and what it carries (tags), for the filters: sports, leagues, apps and AIS PLAY bundles. */
   var P = 'icons/pkg/';
-  function ph(n, half){ var a = []; for(var i = 0; i < n; i++) a.push({ ph:1, half:half }); return a; }
-  var PH = { title:'Package Title Lorem ipsum dolor sit amet, consectetur Lorem ipsum dolor sit amet, consectetur', ph:1,
-    grid:ph(4), count:'xx Premium Channels', row:ph(7, 1), feats:[[P + 'i4k.svg', 'Up to 4K Ultra HD Resolution'], [P + 'iscreen.svg', '4 Screen at once']], amt:'199', per:'/Month', tags:[] };
-  var PKGS = Packages.BUNDLES.concat([PH, PH]);
+  var OTT = Packages.OTT, PKG = Packages.PKG;
+  // the apps by tab (Movies: the film and series apps; Short Drama: the short drama apps, with iQIYI's); a league's sport
+  var MOVIES = ['netflix', 'hbo', 'disney', 'prime', 'iqiyi', 'viu', 'monomax'], SHORTS = ['reelshort', 'dramabox', 'iqiyi'];
+  var SPORT_OF = { epl:'football', ucl:'football', bundesliga:'football', thai1:'football', nba:'basketball', motogp:'motorsports', pga:'golf', rws:'boxing' };
+  var B = Packages.BUNDLES;
+  B[0].tabs = ['foryou', 'bundle']; B[1].tabs = ['foryou', 'bundle', 'movies']; B[2].tabs = ['foryou', 'bundle', 'sports'];
+  var PKGS = B.slice();
+  Object.keys(PKG).forEach(function(k){
+    var lg = OTT[k].league, tabs = lg ? ['sports'] : [];
+    if(MOVIES.indexOf(k) >= 0) tabs.push('movies');
+    if(SHORTS.indexOf(k) >= 0) tabs.push('shorts');
+    PKG[k].forEach(function(p, i){
+      var c = Packages.ottCard(k, i);
+      c.tags = [k].concat(lg ? [SPORT_OF[k]] : []);
+      // For You: each app's and league's recommended package (its first), after the bundles
+      c.tabs = tabs.concat(i ? [] : ['foryou']);
+      c.badge = i ? '' : c.badge;
+      PKGS.push(c);
+    });
+  });
 
   // the filters under each tab (Figma's variants); logos reuse the project's league and service logos
   var LOGO = {
@@ -24,7 +41,8 @@
     bundesliga:{ img:'sport-assets/league-bundesliga.png', cls:'inset' }, motogp:{ img:P + 'd-motogp.png', cls:'contain' },
     nba:{ img:P + 'l21.png', cls:'inset' }, nfl:{ img:P + 'l22.png', cls:'inset' }, lpga:{ img:P + 'l23.png', cls:'inset' },
     atp:{ img:P + 'l25.png', cls:'contain' }, rws:{ img:'sport-assets/league-rws.png', cls:'black' },
-    sd1:{ ph:1 }, sd2:{ ph:1 }, sd3:{ ph:1 }
+    // the short drama apps: ReelShort and DramaBox their square app icons (badges/tag-*.png), WeTV and iQIYI as on Movies
+    reelshort:{ img:'badges/tag-reelshort.png' }, dramabox:{ img:'badges/tag-dramabox.png' }
   };
   var TABS = [
     { key:'foryou', t:'For You', icon:'tab-foryou' },
@@ -33,7 +51,7 @@
         ['tennis', 'Tennis'], ['rugby', 'Rugby'], ['boxing', 'Boxing']],
       logos:['epl', 'ucl', 'bundesliga', 'motogp', 'nba', 'nfl', 'lpga', 'atp', 'rws'] },
     { key:'movies', t:'Movies', icon:'tab-movies', logos:['netflix', 'hbo', 'disney', 'iqiyi', 'viu', 'prime', 'wetv', 'monomax'] },
-    { key:'shorts', t:'Short Drama', icon:'tab-shorts', logos:['sd1', 'sd2', 'sd3'] },
+    { key:'shorts', t:'Short Drama', icon:'tab-shorts', logos:['reelshort', 'dramabox', 'wetv', 'iqiyi'] },
     { key:'bundle', t:'AIS PLAY Bundle', icon:'tab-bundle',
       names:[['all', 'All'], ['ultimate', 'PLAY ULTIMATE'], ['premiumplus', 'PLAY PREMIUM PLUS'], ['inter', 'PLAY INTER'], ['disneyplus', 'PLAY Disney+'],
         ['premium', 'PLAY PREMIUM'], ['asian', 'PLAY ASIAN GAMES']],
@@ -64,7 +82,7 @@
   function matches(){
     var tb = TABS[tabAt], p = pick[tb.key];
     return PKGS.filter(function(pk){
-      return (p.name === 'all' || pk.tags.indexOf(p.name) >= 0) && (p.logo === 'all' || pk.tags.indexOf(p.logo) >= 0);
+      return pk.tabs.indexOf(tb.key) >= 0 && (p.name === 'all' || pk.tags.indexOf(p.name) >= 0) && (p.logo === 'all' || pk.tags.indexOf(p.logo) >= 0);
     });
   }
   // the filter rows and the cards for the picked tab and filters
@@ -129,6 +147,9 @@
     // top-bar tab states (button-theme.css): the current page's tab is Active while the D-pad is on the bar, Active dim in the content
     var curTab = document.querySelector('.topnav .navtab.active, .topnav .navtab.active-dim');
     curTab.classList.toggle('active', cur.row === 0); curTab.classList.toggle('active-dim', cur.row !== 0);
+    // the category tabs, as the Store's: the picked one Active dim while focus is off its tab bar (its glass, no ring)
+    var tabsRow = rowOf('tabs');
+    $('.tab', tabsEl).forEach(function(el){ el.classList.toggle('active-dim', el.classList.contains('on') && cur.row !== tabsRow); });
     rows.forEach(function(r, ri){ if(ri === cur.row && r.el) slide(r); });
     document.body.classList.toggle('on-nav', cur.row === 0);
     var r = cur.row === 0 ? rows[Math.max(1, rowOf(cur.from))] : rows[cur.row], y = 0;   // on the top bar the page stays as it was
@@ -149,7 +170,9 @@
     // PLAY ULTIMATE: the same purchase flow as Movie Detail's and the Store's (package-detail.html), coming back here
     // PLAY ULTIMATE and PLAY ALL: their detail page and purchase (package-detail.html; packages.js href), coming back here
     if(pk.detail || pk.tv){ save(); location.href = (pk.href || 'package-detail.html') + (/\?/.test(pk.href || '') ? '&' : '?') + 'from=all-packages' + RET_Q; return; }
-    toast('Subscribe to ' + (pk.ph ? 'this package' : pk.title) + ' (demo)');
+    // any other package (an app's or a league's, HBO MAX Standard): its Package Detail, coming back here
+    if(pk.href){ save(); location.href = pk.href + '&from=all-packages' + RET_Q; return; }
+    toast('Subscribe to ' + pk.title + ' (demo)');
   }
   // Back: up to the tabs first, then where the page was opened from (its Back lands on View All / See all Packages).
   // That page is remembered for the session, so it still holds after a trip through the package detail page.

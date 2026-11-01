@@ -1,19 +1,27 @@
 /*
   Package card (Figma "card_Package"): badge, logo + title, the channel / service logos, the features (resolution,
-  audio, screens) and the price; focused, it grows 17px (8px padding + a 1.5px rim) and shows Subscribe.
+  audio, screens) and the price; focused, it grows 17px (the card 8px inside the focus ring, no rim of its own) and shows Subscribe.
   Shared by package-suggest.html (View Package's 3 cards) and all-packages.html; packages.js Packages.cardHtml makes it.
   The page sets the width (--pc-w, 354px by default) and the heights; the features block gives up its spare space when
-  a focused card needs room for Subscribe. Colours: Figma 162:49956 (the badge on #3a3a3a, the card #1c1c1c, the
-  services #2a2a2a, the price #292929, Subscribe light).
+  a focused card needs room for Subscribe. Colours: Home's default theme (navy, its glow, the chip's frosted glass;
+  Figma 162:49956's greys mapped onto it, below); Subscribe is button-theme.css's Primary focus pill.
 */
+/* Home's default theme (home.css): the badge strip the chip's white frosted glass (chip-theme.css), the card's body a
+   lifted navy with Home's glow, the services and the price frosted over it */
+:root{
+  --pc-glass:rgba(255,255,255,.16);
+  --pc-surface:radial-gradient(420px 360px at 85% 105%, rgba(214,222,240,.12), transparent 70%), #0e1622;
+  --pc-chans:rgba(255,255,255,.08);
+  --pc-price:rgba(255,255,255,.06);
+}
 .pcard{ width:var(--pc-w, 354px); flex:0 0 auto; box-sizing:border-box; position:relative; display:flex; flex-direction:column; border-radius:36px; cursor:pointer;
-  background:var(--surface-container-high, #3a3a3a); background-clip:content-box;   /* (focused: not under its 8px padding) */
+  background:var(--pc-glass); -webkit-backdrop-filter:blur(40px) saturate(1.4); backdrop-filter:blur(40px) saturate(1.4); background-clip:content-box;   /* (focused: not under its 3px padding) */
   border:1px solid transparent; box-shadow:0 12px 12px rgba(0,0,0,.3);
   transition:width .22s cubic-bezier(.2,0,0,1), padding .22s cubic-bezier(.2,0,0,1), border-color .22s ease, box-shadow .22s ease; }
-.pcard.focused{ width:calc(var(--pc-w, 354px) + 17px); padding:8px; border:1.5px solid rgba(255,255,255,.5); }
+.pcard.focused{ width:calc(var(--pc-w, 354px) + 17px); padding:3px; }   /* no rim of its own: 1px edge + 3px + the ring's 4px gap = 8px to the ring */
 .pcard .badge{ height:40px; box-sizing:border-box; border-radius:36px 36px 0 0; padding:8px 16px; text-align:center; font-size:16px; font-weight:500; line-height:24px; letter-spacing:.15px; color:#fff; }
 .pcard.focused .badge{ border-radius:28px 28px 0 0; }
-.pcard .body{ flex:1; min-height:0; display:flex; flex-direction:column; gap:24px; background:#1c1c1c; border-radius:36px; }
+.pcard .body{ flex:1; min-height:0; display:flex; flex-direction:column; gap:24px; background:var(--pc-surface); border-radius:36px; }
 .pcard.focused .body{ border-radius:28px; }
 .pcard .ptitle{ flex:0 0 96px; height:96px; box-sizing:border-box; display:flex; align-items:center; gap:12px; padding:16px 16px 0; }
 .pcard .ptitle .lg{ width:80px; height:80px; border-radius:8px; background:#000; flex:0 0 auto; overflow:hidden; display:flex; align-items:center; justify-content:center; }
@@ -22,7 +30,7 @@
 .pcard .ptitle .lg.white{ background:#fff; }
 .pcard .ptitle b{ font-size:22px; line-height:28px; font-weight:400; color:#fff; }
 .pcard .mid{ flex:0 1 412px; min-height:380px; display:flex; flex-direction:column; }
-.pcard .chans{ flex:0 0 244px; height:244px; box-sizing:border-box; margin:0 16px; padding:16px; border-radius:20px; background:var(--surface-container, #2a2a2a); display:flex; flex-direction:column; gap:16px; }
+.pcard .chans{ flex:0 0 244px; height:244px; box-sizing:border-box; margin:0 16px; padding:16px; border-radius:20px; background:var(--pc-chans); display:flex; flex-direction:column; gap:16px; }
 .pcard .grid{ height:128px; display:flex; flex-wrap:wrap; align-content:flex-start; gap:16px; }
 .tile{ width:56px; height:56px; border-radius:10px; overflow:hidden; background:#000; display:flex; align-items:center; justify-content:center; flex:0 0 auto; }
 .tile img{ width:100%; height:100%; object-fit:contain; display:block; }
@@ -37,7 +45,7 @@
 .pcard .feats{ flex:1 1 168px; min-height:136px; box-sizing:border-box; display:flex; flex-direction:column; justify-content:center; gap:8px; padding:0 16px; }
 .pcard .feat{ height:40px; display:flex; align-items:center; gap:8px; font-size:16px; font-weight:500; line-height:24px; letter-spacing:.15px; color:#fff; }
 .pcard .feat img{ width:40px; height:40px; flex:0 0 auto; }
-.pcard .price{ flex:1 0 auto; background:#292929; border-radius:0 0 36px 36px; padding:16px; display:flex; flex-direction:column; gap:16px; }
+.pcard .price{ flex:1 0 auto; background:var(--pc-price); border-radius:0 0 36px 36px; padding:16px; display:flex; flex-direction:column; gap:16px; }
 .pcard.focused .price{ border-radius:0 0 28px 28px; }
 .pcard .amtwrap{ display:flex; flex-direction:column; gap:8px; }
 .pcard .amt{ height:56px; display:flex; align-items:baseline; gap:8px; text-shadow:1px 1px 2px rgba(0,0,0,.7); }
@@ -47,9 +55,8 @@
 .pcard.focused .amt.long b{ font-size:44px; }   /* a long price (1,999): still one line in the focused card */
 .pcard .amt span{ font-size:20px; }
 .pcard .vat{ font-size:12px; line-height:15px; }
-/* Subscribe appears on the focused card (80 high): Figma's light button, a 3px rim, a 3px gap, the #e8e8e8 fill, dark text
-   and chevron (icons/pkg/ichev-dark.svg) */
-.pcard .subscribe{ display:none; align-items:center; justify-content:center; gap:16px; height:80px; box-sizing:border-box; border-radius:9999px; border:3px solid var(--on-surface, #e8e8e8);
-  background:var(--inverse-surface, #e8e8e8); box-shadow:inset 0 0 0 3px #292929; color:var(--surface-container, #2a2a2a); font-size:24px; font-weight:500; line-height:32px; }
+/* Subscribe appears on the focused card (80 high): button-theme.css's Primary button in its Focus state (tv-btn
+   tv-btn--primary tv-btn--lit, the glass pill, no rim) with a white chevron (icons/pkg/ichev.svg) */
+.pcard .subscribe{ display:none; width:auto; height:80px; font-size:24px; line-height:32px; }
 .pcard .subscribe img{ width:32px; height:32px; }
 .pcard.focused .subscribe{ display:flex; }

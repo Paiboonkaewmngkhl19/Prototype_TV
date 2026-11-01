@@ -119,7 +119,7 @@
   ];
   // F1: The Movie, then the Netflix sports documentaries (Figma For PBR 8:11038)
   var DOCS = [
-    {t:'F1: The Movie', img:'posters_portrait/F1.jpg'},
+    {k:'f1', t:'F1: The Movie', img:'posters_portrait/F1.jpg'},   // (content.js MD.M: its platform and words)
     {t:'Giannis: The Marvelous Journey', img:PS + 'doc-giannis.jpg', plat:'netflix', len:'1h 46m', d:'From selling goods on the streets of Athens to NBA champion: the rise of Giannis Antetokounmpo.'},
     {t:'The Rise', img:PS + 'doc-the-rise.jpg', plat:'netflix', len:'1h 38m', d:'One young player\'s fight to make it from the playground courts to the professional game.'},
     {t:'The Knockout', img:PS + 'doc-the-knockout.jpg', plat:'netflix', len:'1h 32m', d:'Inside the ring and out: a fighter\'s long road back to a title shot.'},
@@ -219,7 +219,7 @@
   if(LG) document.body.classList.add('landing');
   if(!LG) html += '<section class="sec" data-row="live"><div class="rail"><div class="track">' + LIVE.map(function(it, i){ return matchCard(it, i, 'live'); }).join('') + '</div></div></section>';
   if(!LG) html += '<section class="sec" data-row="chips"><div class="rail"><div class="chips">' + CHIPS.map(function(c, i){
-    return '<div class="chip item' + (i === PICK ? ' sel' : '') + '"' + attrs({kind:'chip', i:i}) + ' data-ring-art="">' + (i ? '<img class="chip-ic" src="sport-assets/chip-icon.png" alt="">' : '') + esc(c.t) + '</div>';
+    return '<div class="chip item' + (i === PICK ? ' sel' : '') + '"' + attrs({kind:'chip', i:i}) + ' data-ring-art="">' + (c.sp ? '<img class="chip-ic" src="icons/chips/' + c.sp + '.svg" alt="">' : '') + esc(c.t) + '</div>';
   }).join('') + '</div></div></section>';
   // the rails below the chips, for the sport picked ('' = All Sport). SETS: each rail's items by set name, for the screen
   // text and Enter
@@ -250,7 +250,7 @@
     return '<section class="sec" data-row="leagues"><h2 class="sec-title">League &amp; Tournament</h2><div class="rail"><div class="leagues">' + list.map(function(l, i){
       var pic = Leagues.pic(l);   // leagues.js
       return '<div class="league"><div class="disc item' + (l.fav ? ' followed' : '') + '"' + attrs({kind:'league', i:i}) + '>' + pic +
-        '<span class="fav" data-ring-top><i><img src="icons/tv-guide/heart-fill.svg" alt="Following"></i></span></div><div class="name">' + l.name + '</div></div>';
+        '<span class="dfav" data-ring-top="styled"><i><img src="icons/tv-guide/heart-fill.svg" alt="Following"></i></span></div><div class="name">' + l.name + '</div></div>';
     }).join('') + '</div></div></section>';
   }
   // the tournament band: the Champions League's own artwork, or a plain picture for the others; its matches under the text
@@ -276,7 +276,10 @@
   }
   function docsSec(){
     return '<section class="sec docs" data-row="docs"><h2 class="sec-title">Related Contents</h2><div class="rail"><div class="track">' + DOCS.map(function(d, i){
-        return '<div class="poster item"' + attrs({kind:'doc', i:i}) + ' style="background-image:url(\'' + d.img + '\')"></div>';
+        // its app's tag bottom-left (platform-tag.css), as the Movie page's posters: a title in content.js its own platform
+        var plat = d.k ? MD.M[d.k].plat : d.plat;
+        var tag = !plat ? '' : plat === 'ais' ? '<span class="ptag ais"></span>' : '<img class="ptag" src="badges/tag-' + plat + '.png" alt="">';
+        return '<div class="poster item"' + attrs({kind:'doc', i:i}) + (d.k ? ' data-k="' + d.k + '"' : '') + ' style="background-image:url(\'' + d.img + '\')">' + tag + '</div>';
       }).join('') + '</div></div></section>';
   }
   function totopSec(){ return '<section class="sec totop" data-row="totop"><div class="btn item" data-kind="totop" data-ring-art=""><img src="sport-assets/arrow-up.svg" alt="">Back to Top</div></section>'; }
@@ -297,7 +300,8 @@
     var d = l.id === 'ucl' ? SPORT.football.band.d : 'Every ' + l.t + ' match live, with full replays, the week’s best moments and the fixtures still to come.';
     return '<section class="sec lhero" data-row="lhero"><div class="lbg" style="background-image:url(\'' + pic + '\')"></div>' +
         '<div class="ltext"><h1>' + esc(l.t) + '</h1><p>' + esc(d) + '</p>' +
-        '<div class="tv-btn tv-btn--secondary lfav item' + (l.fav ? ' on' : '') + '" data-kind="lfav" data-ring-art=""><img src="icons/tv-guide/heart' + (l.fav ? '-fill' : '') + '.svg" alt="Follow"></div></div></section>' +
+        '<div class="tv-btn tv-btn--secondary ic lfav item' + (l.fav ? ' on' : '') + '" data-kind="lfav" data-label="Favorite" data-ring-art=""><img src="icons/tv-guide/heart' + (l.fav ? '-fill' : '') + '.svg" alt="Follow">' +
+          '<span class="tip">' + (l.fav ? 'Remove from Favorite' : 'Add to Favorite') + '</span></div></div></section>' +
       '<section class="sec" data-row="live"><div class="rail"><div class="track">' + live.map(function(it, i){ return matchCard(it, i, 'live'); }).join('') + '</div></div></section>' +
       vodSec('highlights', 'Highlights', S.highlights, l.sp) + vodSec('rerun', 'Rerun', rerun, l.sp, (S.forYou || {}).portrait) + vodSec('moments', 'Moments of the Week', S.leagueHl.items, l.sp) +
       '<section class="sec" data-row="sched"><div class="shorts">' +
@@ -513,14 +517,19 @@
     if(k === 'lfav'){
       LG.fav = LG.fav ? 0 : 1; FOLLOW[LG.id] = !!LG.fav;
       try { sessionStorage.setItem('leagueFollow', JSON.stringify(FOLLOW)); } catch(e){}
-      el.classList.toggle('on', !!LG.fav); el.querySelector('img').src = 'icons/tv-guide/heart' + (LG.fav ? '-fill' : '') + '.svg';
+      // as the detail pages' Favorite (icon-toggle.js): filled and light while on, the pop and sparks, its tooltip
+      el.classList.toggle('on', !!LG.fav); IconToggle.pop(el, !!LG.fav);
+      el.querySelector('.tip').textContent = LG.fav ? 'Remove from Favorite' : 'Add to Favorite';
       toast((LG.fav ? 'Following ' : 'Unfollowed ') + LG.t); return;
     }
     // videos, documentaries and shorts: their detail page (content.js), then the player
+    // clips with no detail page play at once: a sport's Highlights and its league's highlights (leaguehl); on a league's
+    // page, Highlights, Rerun and Moments of the Week
+    if(k === 'vod' && /^(highlights|leaguehl|rerun|moments)$/.test(el.dataset.set)){ leave(Content.playUrl(vodInfo(el))); return; }
     if(k === 'vod'){ leave(Content.detailUrl(vodInfo(el))); return; }
     if(k === 'doc' || k === 'short'){ var ci = Content.info(el); if(ci){
       if(k === 'doc'){ var dc = DOCS[i]; ci.t = dc.t; ci.g = ['Documentary', 'Sport']; if(dc.plat){ ci.plat = dc.plat; ci.len = dc.len; ci.d = dc.d; ci.own = 1; } }
-      else ci.g = ['Sport'];
+      else { ci.g = ['Sport']; leave(Content.playUrl(ci)); return; }   // Short Highlight / Short: clips with no detail page, they play at once
       leave(Content.detailUrl(ci)); return; } }
     if(k === 'doc'){ toast('Now playing: ' + DOCS[i].t); return; }
     if(k === 'uclava'){ toast(BAND.t); return; }

@@ -338,7 +338,7 @@
      Built after every older rail, so the pool posters those take stay where they were; the rail order below puts
      each one in its place. */
 
-  /* ---------- Row: Hot Channel Program (16:9 programme cards, crown on premium) ----------
+  /* ---------- Row: Hot Channel Program (16:9 programme cards, crown on premium, the Live ribbon: all on now) ----------
      The News page's programme pictures (news-assets/), with their titles, channels and descriptions there; focused,
      a card's picture and text fill the screen (updateHeroFromCard: data-meta / data-desc). */
   (function(){
@@ -350,9 +350,10 @@
       // Enter as any channel's programme (content.js LIVE.href: a Movie / Sport channel's detail page, else the channel
       // in the Live TV player)
       var chName = p.tv, tv = window.TV.byName(chName), prog = p;
-      return '<div class="card card-landscape item" data-title="'+attrQ(p.t)+'" data-live="1" data-href="'+attrQ(LIVE.href(prog, 'home'))+'"'+
+      return '<div class="card card-landscape item has-ribbon" data-title="'+attrQ(p.t)+'" data-live="1" data-href="'+attrQ(LIVE.href(prog, 'home'))+'"'+
         (tv ? ' data-ch="'+attrQ(tv.n)+'" data-meta="'+attrQ('Channel '+tv.no+': '+tv.n)+'"' : '')+' data-desc="'+attrQ(p.d)+'" style="'+pic+'">'+
-        Content.crownIcon({tv:chName}, 0, 'crown-tag')+'</div>';
+        Content.crownIcon({tv:chName}, 0, 'crown-tag')+
+        '<span class="live-ribbon">Live</span></div>';   // on now, as its hero's LIVE: the Live and Upcoming cards' ribbon
     }).join('');
     addRow('<div class="row-block"><div class="row-title">Hot Channel Program</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
   })();

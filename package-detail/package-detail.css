@@ -1,14 +1,19 @@
 
-  :root{ color-scheme:dark; --on:#e8e8e8; --muted:#a8a8a8; }
+  /* Home's default theme: the navy page (--bg-0) and its grey-blue glow; cards and panels are white frosted over it
+     (--fill, --fill-hi when picked, --fill-lo for chips), so the page reads as Home / Store do */
+  :root{ color-scheme:dark; --on:#e8e8e8; --muted:#a8a8a8; --outline-variant:#4a4a4a;
+    --bg-0:#070e16; --th-glow:rgba(214,222,240,.12); --fill:rgba(255,255,255,.1); --fill-hi:rgba(255,255,255,.18); --fill-lo:rgba(255,255,255,.06);
+    --surface-container-high:var(--fill); }
   html,body{ margin:0; height:100%; background:#000; overflow:hidden; font-family:'Plus Jakarta Sans', system-ui, sans-serif; color:#fff; }
-  #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:#101010; }
-  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; }
+  #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:var(--bg-0); }
+  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left;
+    background:radial-gradient(1400px 900px at 85% 110%, var(--th-glow), transparent 70%), var(--bg-0); }   /* Home's page colour and glow */
 
-  /* ---------- left: Package Details (Figma Store "AIS PLAY Bundle", 5191:220671): #1c1c1c, 1093px, 60 / 80 / 60 / 110 ---------- */
-  .left{ position:absolute; left:0; top:0; width:1093px; height:1080px; box-sizing:border-box; padding:60px 80px 60px 110px; background:#1c1c1c; display:flex; flex-direction:column; gap:24px; }
+  /* ---------- left: Package Details (Figma Store "AIS PLAY Bundle", 5191:220671): on the page (Home's navy), 1093px, 60 / 80 / 60 / 110 ---------- */
+  .left{ position:absolute; left:0; top:0; width:1093px; height:1080px; box-sizing:border-box; padding:60px 80px 60px 110px; background:transparent; display:flex; flex-direction:column; gap:24px; }
   h1{ margin:0; font-size:32px; font-weight:500; line-height:40px; color:var(--on); }
   /* the package: its logo (80px) and name, the two chips (focus: the shared ring), its description or terms */
-  .phead{ display:flex; gap:20px; padding:12px 24px 12px 16px; border-radius:16px; background:#3a3a3a; }   /* sized up for the TV, as Title Details' card */
+  .phead{ display:flex; gap:20px; padding:12px 24px 12px 16px; border-radius:16px; background:var(--fill); }   /* sized up for the TV, as Title Details' card */
   .phead .lg{ width:80px; height:80px; border-radius:8px; background:#000; overflow:hidden; flex:0 0 auto; align-self:flex-start; }
   .phead .lg img{ width:100%; height:100%; object-fit:contain; display:block; }
   .phead .lg.white{ background:#fff; }
@@ -16,7 +21,7 @@
   .pinfo{ flex:1; min-width:0; display:flex; flex-direction:column; gap:12px; }
   .pnm{ margin-bottom:12px; /* 24px down to the tags (with the card's 12px gap) */ font-size:30px; font-weight:600; line-height:38px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .switcher{ display:flex; gap:12px; margin-bottom:16px; }   /* the chips are info tags only (the card opens the details view) */
-  .tab{ height:28px; box-sizing:border-box; padding:0 12px; border-radius:9999px; background:#2a2a2a; display:flex; align-items:center; font-size:16px; font-weight:500; color:var(--on); }
+  .tab{ height:28px; box-sizing:border-box; padding:0 12px; border-radius:9999px; background:var(--fill-lo); display:flex; align-items:center; font-size:16px; font-weight:500; color:var(--on); }
   .fine{ margin:0; font-size:22px; line-height:32px; letter-spacing:.2px; color:#c8c8c8; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
   /* its apps, 3 across (274px, 40px apart): the logo (48px; no logo: its name on a box), name, screens, quality, Dolby */
   .services{ display:grid; grid-template-columns:repeat(3, 274px); column-gap:40px; row-gap:20px; }
@@ -25,7 +30,7 @@
   .svc .ic img{ width:100%; height:100%; object-fit:contain; display:block; }
   .svc .ic.cover img{ object-fit:cover; }
   .svc .ic.white{ background:#fff; }
-  .svc .ic.txt{ background:#3a3a3a; font-size:11px; font-weight:700; line-height:1.1; text-align:center; color:#e8e8e8; padding:2px; box-sizing:border-box; }   /* no logo yet */
+  .svc .ic.txt{ background:var(--fill); font-size:11px; font-weight:700; line-height:1.1; text-align:center; color:#e8e8e8; padding:2px; box-sizing:border-box; }   /* no logo yet */
   .svc .info{ display:flex; flex-direction:column; gap:4px; min-width:0; }
   .svc .info b{ font-size:16px; font-weight:500; line-height:24px; letter-spacing:.15px; color:#fff; white-space:nowrap; }
   .svc .tags{ display:flex; align-items:center; gap:8px; height:21px; font-size:16px; letter-spacing:.25px; color:var(--muted); white-space:nowrap; }
@@ -45,21 +50,21 @@
   .dev{ display:flex; flex-direction:column; align-items:center; gap:4px; min-width:40px; font-size:12px; line-height:16px; letter-spacing:.4px; color:#c6c6c6; }
   .dev img{ width:24px; height:24px; display:block; }
 
-  /* ---------- right: Package Options + Choose how to pay (#383838, padding 80px; the options at the top, the payment at the bottom) ---------- */
-  .right{ position:absolute; left:1093px; top:0; width:827px; height:1080px; box-sizing:border-box; padding:80px; background:#383838; display:flex; flex-direction:column; justify-content:space-between; }
+  /* ---------- right: Package Options + Choose how to pay (a faint frosted panel, padding 80px; the options at the top, the payment at the bottom) ---------- */
+  .right{ position:absolute; left:1093px; top:0; width:827px; height:1080px; box-sizing:border-box; padding:80px; background:var(--fill-lo); display:flex; flex-direction:column; justify-content:space-between; }
   .opts{ display:flex; flex-direction:column; gap:32px; }
   .rh{ font-size:32px; font-weight:500; line-height:40px; color:#fff; }
   .prices{ display:flex; flex-direction:column; gap:24px; }
   /* a plan: the radio (checked when picked), its name and Auto renews, its price per period and the VAT-included price */
-  .price{ position:relative; box-sizing:border-box; padding:24px 16px; border-radius:16px; background:#3a3a3a; border:3px solid transparent; display:flex; align-items:center; gap:16px; cursor:pointer;
+  .price{ position:relative; box-sizing:border-box; padding:24px 16px; border-radius:16px; background:var(--fill); border:3px solid transparent; display:flex; align-items:center; gap:16px; cursor:pointer;
     transition:background .15s ease, border-color .15s ease; }
-  .price.selected{ background:#4a4a4a; border-color:var(--muted); }
+  .price.selected{ background:var(--fill-hi); border-color:var(--muted); }
   .price .rd{ width:32px; height:32px; flex:0 0 auto; background:url('../icons/short/radio-off.svg') center / 32px no-repeat; }
   .price.selected .rd{ background-image:url('../icons/short/radio-on.svg'); }
   .price .pn{ flex:1; min-width:0; display:flex; align-items:center; gap:4px; }
   .price .pn b{ font-size:28px; font-weight:500; line-height:36px; color:#f0f0f0; white-space:nowrap; }
-  .price .chip{ height:28px; box-sizing:border-box; padding:0 8px; border-radius:9999px; background:#3a3a3a; display:flex; align-items:center; font-size:14px; font-weight:500; color:var(--on); white-space:nowrap; }
-  .price.selected .chip{ background:#2a2a2a; }
+  .price .chip{ height:28px; box-sizing:border-box; padding:0 8px; border-radius:9999px; background:var(--fill); display:flex; align-items:center; font-size:14px; font-weight:500; color:var(--on); white-space:nowrap; }
+  .price.selected .chip{ background:var(--fill-lo); }
   .price .cost{ display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
   .price .amt{ display:flex; align-items:baseline; gap:4px; white-space:nowrap; color:#fff; }
   .price .amt b{ font-size:24px; font-weight:500; line-height:32px; }
@@ -74,19 +79,18 @@
   .paybtn i{ width:32px; height:32px; flex:0 0 auto; background:currentColor; -webkit-mask:url('../icons/pkg/ichev.svg') center / contain no-repeat; mask:url('../icons/pkg/ichev.svg') center / contain no-repeat; }
   .note{ margin:0; text-align:center; font-size:22px; line-height:28px; color:#fff; }
 
-  /* ---------- OTP popup (Figma Store 5555:183690): this page's popup (the scrim, the #404040 dialog, the pins and the
+  /* ---------- OTP popup (Figma Store 5555:183690): this page's popup (the scrim, the default theme's navy dialog, the pins and the
      keys' glass focus), Figma's layout: title and amount, 4 pins, a 3 x 4 keypad (delete, 0, clear), the OTP card,
      "Did not receive OTP?", Cancel / Resend OTP (button-theme.css) ---------- */
-  .scrim{ position:absolute; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:3; }
-  .dlg{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) scale(.96); box-sizing:border-box; border-radius:36px; background:#404040;
-    box-shadow:0 8px 24px rgba(0,0,0,.3); z-index:4; opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s cubic-bezier(.2,0,0,1); }
+  /* the scrim and the popups: dialog-theme.css (.tv-scrim / .tv-dialog), opened by the body's otp / qrpay class */
+  .scrim{ z-index:3; } .dlg{ z-index:4; }
   body.otp .dlg.otpd{ opacity:1; pointer-events:auto; transform:translate(-50%,-50%); }
   body.otp .scrim{ opacity:1; pointer-events:auto; }
   .otpd{ width:800px; padding:60px; display:flex; flex-direction:column; align-items:center; gap:40px; }
-  .otpd .ohead{ display:flex; flex-direction:column; align-items:center; gap:16px; text-align:center; }
-  .otpd .ohead h2{ margin:0; font-size:40px; font-weight:500; line-height:1.2; letter-spacing:-.2px; }
-  .otpd .ohead p{ margin:0; font-size:24px; line-height:40px; letter-spacing:-.2px; color:#fff; }
-  .otpd .ohead p b{ font-weight:700; }
+  .otpd .ohead, .qrd .ohead{ display:flex; flex-direction:column; align-items:center; gap:16px; text-align:center; }
+  .otpd .ohead h2, .qrd .ohead h2{ margin:0; font-size:40px; font-weight:500; line-height:1.2; letter-spacing:-.2px; }
+  .otpd .ohead p, .qrd .ohead p{ margin:0; font-size:24px; line-height:40px; letter-spacing:-.2px; color:#fff; }
+  .otpd .ohead p b, .qrd .ohead p b{ font-weight:700; }
   .pad{ display:flex; flex-direction:column; align-items:center; gap:24px; }
   .pins{ display:flex; gap:17.24px; }
   .pin{ width:86.2px; height:100px; box-sizing:border-box; border-bottom:5.17px solid rgba(255,255,255,.1); display:flex; align-items:center; justify-content:center; font-size:56px; font-weight:500; }
@@ -95,18 +99,31 @@
   .pin.cur:empty::after{ content:''; width:1.7px; height:66px; background:#fff; animation:blink 1s steps(1) infinite; }
   @keyframes blink{ 50%{ opacity:0; } }
   .keys{ display:grid; grid-template-columns:repeat(3, 161.33px); grid-auto-rows:66px; column-gap:8px; row-gap:16px; }
-  .key{ position:relative; border-radius:12px; background:#2b2b2b; display:flex; align-items:center; justify-content:center; font-size:40px; font-weight:500; color:#fff; cursor:pointer;
+  .key{ position:relative; border-radius:12px; background:var(--fill-lo); display:flex; align-items:center; justify-content:center; font-size:40px; font-weight:500; color:#fff; cursor:pointer;
     transition:background .15s ease; }
   .key.ic{ background:transparent; }   /* delete / clear: their icon only, as in Figma */
   .key img{ width:36px; height:36px; display:block; }
   .key.focused{ background:radial-gradient(ellipse 120% 160% at 12% 90%, rgba(255,255,255,0) 6%, rgba(255,255,255,.4) 100%), rgba(255,255,255,.28); }   /* the keys' glass focus (and the shared ring) */
-  .ocard{ width:100%; box-sizing:border-box; padding:24px; border-radius:24px; background:#3a3a3a; text-align:center; font-size:24px; line-height:32px; color:#e8e8e8; }
+  .ocard{ width:100%; box-sizing:border-box; padding:24px; border-radius:24px; background:var(--surface-container-high); text-align:center; font-size:24px; line-height:32px; color:#e8e8e8; }
   .ocard b{ font-weight:700; }
   .otpd .sent{ margin:0; text-align:center; font-size:24px; line-height:1.2; letter-spacing:-.2px; }
   .oacts{ display:flex; gap:16px; width:100%; }
   .obtn{ --btn-h:80px; font-size:24px; cursor:pointer; }
   .obtn.back{ --btn-w:207px; }
   .obtn.req{ --btn-w:auto; flex:1; }
+
+  /* ---------- Scan QR PromptPay (Figma Store 5510:189647): the OTP popup's dialog, heading, card and buttons; the QR
+     (300, 8px corners), the amount card under it, the note, Cancel and the disabled "QR expires in" countdown ---------- */
+  body.qrpay .dlg.qrd{ opacity:1; pointer-events:auto; transform:translate(-50%,-50%); }
+  body.qrpay .scrim{ opacity:1; pointer-events:auto; }
+  .qrd{ width:800px; padding:60px; display:flex; flex-direction:column; align-items:center; gap:40px; }
+  .qslot{ width:100%; display:flex; flex-direction:column; align-items:center; gap:16px; }
+  .qrbox{ position:relative; width:300px; height:300px; border-radius:8px; overflow:hidden; }
+  .qrbox img{ position:absolute; left:-15.87%; top:-59.84%; width:134.73%; height:198.92%; max-width:none; }   /* Figma's crop of the image */
+  .qrd .sent{ margin:0; text-align:center; font-size:24px; line-height:1.2; letter-spacing:-.2px; }
+  .qbtn{ --btn-h:80px; font-size:24px; cursor:pointer; }
+  .qbtn.back{ --btn-w:207px; }
+  .qbtn.exp, .qbtn.exp.disabled{ --btn-w:auto; flex:1; background:var(--fill-lo); box-shadow:none; }   /* Figma: a faint fill, no outline, at 40% */
 
   /* ---------- short drama mode (Figma "Details Short pay"): Title Details + viewing passes ---------- */
   .tdetails, .opthead, .passes{ display:none; }
@@ -115,7 +132,7 @@
   body.short .right{ left:1075px; width:845px; }
   body.short .opts{ gap:0; }
   body.short .tdetails{ display:flex; gap:40px; }
-  .tdetails .poster{ width:220px; height:330px; border-radius:16px; flex:0 0 auto; background:#3a3a3a center / cover no-repeat; }
+  .tdetails .poster{ width:220px; height:330px; border-radius:16px; flex:0 0 auto; background:var(--fill) center / cover no-repeat; }
   .tdetails .info{ flex:1; min-width:0; display:flex; flex-direction:column; gap:24px; }   /* 40px from the title and meta row to the chips (with the card's 16px padding) */
   .tdetails .head{ display:flex; flex-direction:column; gap:16px; }
   .tdetails .nm{ font-size:24px; font-weight:600; line-height:32px; color:#fff; }
@@ -129,7 +146,7 @@
   .tdetails .syn{ margin:0; font-size:16px; line-height:24px; letter-spacing:.25px; color:var(--muted); }
   /* Synopsis / Terms and Conditions (Figma "Buy" / "Rent" / "PPV Event"): the header card's chips, over its text */
   /* sized up for the TV (the chips 40px, the text 22px), so it reads from the sofa */
-  .tdetails .tbox{ display:flex; flex-direction:column; gap:12px; padding:16px 20px 20px; border-radius:16px; background:#3a3a3a; }
+  .tdetails .tbox{ display:flex; flex-direction:column; gap:12px; padding:16px 20px 20px; border-radius:16px; background:var(--fill); }
   .tdetails .tbox .syn{ font-size:22px; line-height:32px; letter-spacing:.2px; color:#c8c8c8; display:-webkit-box; -webkit-line-clamp:6; -webkit-box-orient:vertical; overflow:hidden; }
 
   /* the card (Package Details / Title Details) is one focus stop; Enter opens its details view (Figma Prototype
@@ -147,8 +164,8 @@
   .pscroll ol{ margin:0; padding-left:30px; }
   .pscroll li + li{ margin-top:10px; }
   .pv-acts{ position:relative; display:flex; justify-content:center; align-items:center; height:64px; flex:0 0 auto; }
-  .pv-jump{ --btn-w:auto; --btn-h:56px; padding:0 28px 0 20px; gap:10px; }
-  .pv-jump img{ width:28px; height:28px; transition:transform .2s; }
+  .pv-jump{ --btn-w:auto; --btn-h:44px; padding:0 22px 0 16px; gap:8px; font-size:22px; }
+  .pv-jump img{ width:20px; height:20px; transition:transform .2s; }
   .pv-jump.up img{ transform:rotate(180deg); }
   .pv-step{ position:absolute; right:0; top:4px; width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.12); cursor:pointer; }
   .pv-step img{ width:32px; height:32px; }
@@ -160,10 +177,10 @@
   .opthead h1{ font-size:32px; line-height:40px; color:#fff; }
   .opthead p{ margin:0; font-size:16px; line-height:24px; letter-spacing:.25px; color:var(--on); }
   body.short .passes{ display:flex; flex-direction:column; gap:16px; }
-  .pass{ height:auto; padding:24px 16px; gap:16px; border-radius:16px; background:#4a4a4a; justify-content:flex-start; border-color:transparent; }
+  .pass{ height:auto; padding:24px 16px; gap:16px; border-radius:16px; background:var(--fill); justify-content:flex-start; border-color:transparent; }
   .pass.selected{ border-color:var(--muted); }
   .pass .rd{ width:32px; height:32px; flex:0 0 auto; background:url('../icons/short/radio-off.svg') center / 32px no-repeat; }
-  .pass.selected{ background:#4a4a4a; }
+  .pass.selected{ background:var(--fill-hi); }
   .pass.selected .rd{ background-image:url('../icons/short/radio-on.svg'); }
   .pass .what{ flex:1; display:flex; flex-direction:column; gap:4px; }
   .pass .what b{ font-size:28px; font-weight:600; line-height:36px; color:#f0f0f0; }

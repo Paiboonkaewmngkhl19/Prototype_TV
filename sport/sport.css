@@ -97,14 +97,15 @@
     transition:transform .3s var(--ease), box-shadow .2s ease; }
   /* the logo inside: league-disc.css (leagues.js Leagues.pic) */
   .disc .lg-mono{ font-family:var(--roboto); font-size:26px; }
-  .disc .fav{ position:absolute; right:-16px; bottom:-16px; width:84px; height:84px; transition:opacity .2s ease, transform .25s var(--ease); }
-  /* followed: the league page's Follow button, as it looks once followed (button-theme.css secondary: its 3px ring, the
-     white filled heart), on the page's dark so it reads over the logo */
-  .disc .fav{ display:flex; align-items:center; justify-content:center; }
-  .disc .fav i{ width:69px; height:69px; border-radius:50%; background:#0d0d18; box-shadow:inset 0 0 0 3px rgba(232,232,232,.18);
+  .disc .dfav{ position:absolute; right:-16px; bottom:-16px; transition:opacity .2s ease, transform .25s var(--ease); }
+  /* followed: the league page's Follow button as it looks once followed (button-theme.css .tv-btn.ic.on: the light fill,
+     the heart dark), lifted off the logo by a drop shadow (no outline) so it reads over a white logo too */
+  /* (its own class, not under .disc: focus-ring.js copies it over the ring, data-ring-top="styled", so it stays on top while focused) */
+  .dfav{ width:84px; height:84px; display:flex; align-items:center; justify-content:center; }
+  .dfav i{ width:69px; height:69px; border-radius:50%; background:#e8e8e8; box-shadow:0 4px 14px rgba(0,0,0,.55), 0 1px 3px rgba(0,0,0,.4);
     display:flex; align-items:center; justify-content:center; }
-  .disc .fav img{ width:32px; height:32px; display:block; }
-  .disc:not(.followed) .fav{ opacity:0; transform:scale(.6); }
+  .dfav img{ width:32px; height:32px; display:block; filter:brightness(0); }
+  .disc:not(.followed) .dfav{ opacity:0; transform:scale(.6); }
   .disc.focused{ transform:scale(1.194); }   /* no stroke: the round focus ring is the outline */
   .league .name{ width:100%; height:56px; font-family:var(--roboto); font-size:22px; line-height:28px; text-align:center; color:var(--on-surface); overflow:hidden; }
 
@@ -158,7 +159,7 @@
   .lhero h1{ margin:0; font-size:57px; font-weight:700; line-height:normal; color:var(--on-surface); text-shadow:0 2px 12px rgba(0,0,0,.35); }
   .lhero p{ margin:0; width:700px; font-size:24px; line-height:32px; color:var(--on-surface-variant); text-shadow:0 0 6px rgba(0,0,0,.6);
     display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-  .lfav{ --btn-w:90px; --btn-h:90px; padding:0; }   /* follow: the round icon button (button-theme.css), the heart filled once followed */
+  .lfav{ --btn-w:90px; --btn-h:90px; padding:0; }   /* follow: the detail pages' round Favorite toggle (button-theme.css .tv-btn.ic), the heart filled and light once followed */
   .lfav img{ width:40px; height:40px; display:block; }
   .lfav.focused{ transform:scale(1.08); }
   /* Match Schedule: the Short Highlight tiles, with their two-line label (This Week large, Next Week smaller) */
@@ -172,6 +173,8 @@
 
   /* Documentary: 2:3 posters */
   .poster{ width:220px; height:330px; flex:0 0 auto; border-radius:12px; background:var(--surface-container-high) center / cover no-repeat; }
+  .poster{ position:relative; }
+  .poster .ptag{ position:absolute; right:12px; top:12px; }   /* its app's tag (platform-tag.css: 56 x 36), top right, as the Movie page's Top 10 posters */
   .docs .track{ margin-top:32px; }   /* the 2:3 posters grow 13px up when focused, plus the ring and its gap: room under the title */
 
   /* Sport Channel: 142px discs (160 focused, no shade); no rim, the round focus ring is the outline */

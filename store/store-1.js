@@ -7,11 +7,8 @@
   function attrs(o){ return Object.keys(o).filter(function(k){ return o[k] != null; }).map(function(k){ return ' data-' + k + '="' + esc(o[k]) + '"'; }).join(''); }
 
   /* ---------- content ----------
-     Artwork is Figma's own; every other card keeps Figma's placeholder (ph) and speaks with Figma's placeholder text. */
+     Every card is real: the packages (packages.js), the events and titles (content.js MD.M) and AIS's own art (store-assets/). */
   var SA = 'store-assets/', PK = SA + 'pkg/';
-  var LOREM = 'Lorem Ipsum is simply dummy text of the printing and setting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since 1966, when Lorem Ipsum hassasdfasdf Lorem Ipsum is simply dummy text of the printing and setting industry. Lorem Ipsum has been';
-  // a placeholder package, as Figma's hero shows it
-  function ph(badge){ return { badge:badge, t:'Package Title', price:199, per:'Month', tags:['Monthly', 'Recurring'], d:LOREM }; }
   // art: how the card shows its picture; hero: the picture behind the hero (a logo on black keeps Figma's placeholder hero)
   var ULTIMATE = { badge:'Recommend', dark:1, t:'PLAY ULTIMATE', price:999, per:'Month', tags:['Monthly', 'Recurring', 'Recommend'],
     d:'Netflix, HBO Max, Disney+ Hotstar, iQIYI, oneD and WeTV in one package, with AIS PLAY Premium channels and live sport. Watch on your TV, phone and tablet.',
@@ -75,7 +72,7 @@
     // Popular: both apps' packages, alternating, as the Movies rail (Recommend: the first only)
     short:[ PKG.reelshort[0] ].concat([PKG.dramabox[0], PKG.reelshort[1], PKG.dramabox[1], PKG.reelshort[2], PKG.dramabox[2]].map(function(p){
       return Object.assign({}, p, { badge:null }); })),
-    value:[ph('Best Saver'), ph(), ph(), ph(), ph(), ph(), ph()]
+    value:null   // Great Value: its first tab's (VALUE below)
   };
   var TABS = {
     sports:['Popular', 'Premier League', 'UEFA Champions League', 'NBA', 'Thai League', 'RWS', 'Bundesliga', 'MotoGP', 'PGA Tour'],
@@ -87,22 +84,40 @@
   var TAB_LOGO = { 'Netflix':'badges/tag-netflix.png', 'HBO Max':'badges/tag-hbo.png', 'Disney+':'badges/tag-disney.png',
     'iQIYI':'partners/iqiyi.png', 'Viu':'badges/tag-viu.png', 'MONOMAX':'badges/tag-monomax.png',
     'ReelShort':'badges/tag-reelshort.png', 'DramaBox':'badges/tag-dramabox.png' };
-  var EVENTS = [
-    { kind:'vod', t:'Content Title', price:199 },
-    { kind:'upcoming', t:'Content Title', price:199, when:'Today 20:30 PM' },
-    { kind:'live', t:'Content Title', price:199, time:'20:00 – 22:15' },
-    { kind:'vod', t:'Content Title', price:149 },
-    { kind:'upcoming', t:'Content Title', price:249, when:'Tomorrow 19:00 PM' }
+  // Great Value: each tab's packages (packages.js), cheapest first; its first card carries the tab's badge
+  function allPkgs(){ var a = []; Object.keys(PKG).forEach(function(k){ a = a.concat(PKG[k]); }); return a; }
+  function pick(test, badge){
+    return allPkgs().filter(test).sort(function(a, b){ return a.price - b.price; })
+      .map(function(p, i){ return Object.assign({}, p, { badge:i ? null : badge }); });
+  }
+  var ASIA = ['iqiyi', 'viu', 'monomax', 'disney', 'reelshort', 'dramabox'], LEAGUE = function(p){ return !!OTT[p.ott].league; };
+  var VALUE = [
+    pick(function(p){ return p.price < 100 && ASIA.indexOf(p.ott) >= 0; }, 'Best Saver'),                 // < 100 baht Enjoy Asia Movies & Shorts
+    pick(function(p){ return p.price < 100 && LEAGUE(p); }, 'Best Saver'),                               // < 100 baht Sports Lover
+    pick(function(p){ return p.price >= 300 && p.price <= 500; }, 'Recommend'),                          // 300 - 500 baht Enjoy Movies & Sports
+    [ Object.assign({}, ROWS.foryou[1], { badge:'Recommend' }), Object.assign({}, ROWS.sports[0], { badge:null }) ]
+      .concat(pick(function(p){ return LEAGUE(p) && p.card === 'Month'; }))                              // Asian Games: PLAY ALL Asian Games, PLAY ALL, then the leagues
   ];
-  var EVENT_SYN = 'Package Description Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed bibendum, ex id condimentum egestas, libero velit consectetur purus, ut tristique turpis elit eu diam. Curabitur lobortis ligula purus, sed molestie eros sagittis quis. Suspendisse potenti. Aenean';
-  var RENTALS = [{ badge:'Recommend', price:199 }, { badge:'Best Seller', price:149 }, { price:99 }, { price:99 }, { price:129 }, { price:149 }, { price:99 }, { price:79 }, { price:99 }, { price:149 }, { price:199 }];
-  var ONETIME = [NETFLIX_7D, ph(), ph(), ph(), ph(), ph(), ph(), ph()];
+  ROWS.value = VALUE[0];
+  // PPV Event: AIS PLAY's own events (content.js MD.M: its words, pictures and price), as Home's AIS Play Exclusive rail;
+  // a match not played yet carries its kick-off (Home's), the others their badge
+  var EVENTS = [{ k:'missuni', badge:'#1 in Thailand', ppos:'30% center' }, { k:'cityars', when:'Sun 22:30', pos:'center 40%' },
+    { k:'sophomores', badge:'Rerun' }, { k:'mufcche', when:'Sat 19:30' }, { k:'bossckm', badge:'New Arrival' }, { k:'mufcars', when:'Sat 23:00' }];
+  // Rent or Buy: content.js's list (its badges), then the titles sold on their own only (MD OFFERS pkg 0)
+  var RENTALS = MD.RENT.map(function(r){ return { k:r.k, badge:r.b }; })
+    .concat(['superman', 'wicked', 'dragon', 'prada', 'debt', 'medium', 'khemjira'].map(function(k){ return { k:k }; }));
+  // One Time Package: every 7-day pass, charged once (packages.js), Netflix's first
+  var ONETIME = [NETFLIX_7D].concat(pick(function(p){ return p.card === '7 Days' && p !== NETFLIX_7D; }));
+  // Others: the add-ons, then AIS's offers with their own art (go: the package it opens)
   var OTHERS = [
     { t:'Smart Soundbar', price:250, per:'Month', tags:['24 Months', 'Add-on'], art:{ img:SA + 'banner-soundbar.png', pos:'left center' },
       d:'An Android TV soundbar with Dolby Vision and Atmos, with HBO Max, karaoke and PLAY ALL included. 250 baht a month for 24 months.' },
     { t:'AIS Cloud PC', price:199, per:'Month', tags:['Monthly', 'Add-on'], art:{ img:SA + 'others-cloud-pc.png' },
       d:'A Windows PC in the cloud that you can open on your TV, laptop or phone.' },
-    ph(), ph(), ph(), ph(), ph(), ph(), ph(), ph(), ph(), ph()];
+    { t:'MONOMAX Sports', price:99, per:'Month', tags:['Monthly', 'Recurring'], art:{ img:SA + 'sports-monomax.png' }, go:'package-detail.html?ott=monomax&p=0',
+      d:'The Premier League, the FA Cup and more sport on the MONOMAX app, for AIS customers, billed to your AIS account.' },
+    { t:'Prime Video 3 Months', price:149, per:'Month', tags:['3 Months', 'Recurring'], art:{ img:SA + 'foryou-prime.png', pos:'left center' }, go:'package-detail.html?ott=prime&p=0',
+      d:'Three months of Prime Video for 149 baht, then 149 baht a month: Amazon Originals, blockbuster films and live sport.' }];
   // the banner carousel's slides (the Smart Soundbar promotion, then wide pictures until the other promotions have art)
   var BANNERS = [{ t:'Smart Soundbar', img:SA + 'banner-soundbar.png', pkg:1 }, { t:'Miss Universe Thailand 2026', img:'posters/miss-universe.jpg' },
     { t:'Top Gun: Maverick', img:'posters/topgun-m.jpg', pos:'center 30%' }, { t:'F1', img:'posters/f1.jpg', pos:'center 30%' },
@@ -149,24 +164,21 @@
       (TAB_LOGO[t] ? '<img class="ott" src="' + TAB_LOGO[t] + '" alt="">' : i ? '<span class="lgdisc">' + Leagues.pic(Leagues.find(t) || { t:t }) + '</span>' : '') + esc(t) + '</div>';
   }
   function eventCard(e, i){
-    var tall = '<div class="xc-portrait ph-bg"><div class="ratio big huge"><img src="' + SA + 'image-icon-60.svg" alt=""><span>2:3</span></div></div>';
-    var wide = '<div class="xc-wide ph-bg"><div class="ratio row huge"><img src="' + SA + 'image-icon-46.svg" alt=""><span>16:9</span></div></div>';
-    var live = e.kind === 'live';
-    var open = '<div class="xcard item' + (live ? ' xc-ribbon' : '') + '"' + attrs({ kind:'event', i:i }) + ' data-ring-art="">';
-    if(!e.kind) return open + tall + wide + '</div>';
-    var top = e.kind === 'upcoming' ? '<span class="top-tag ev-top">' + esc(e.when) + '</span>' : '';
-    var meta = e.kind === 'vod'
-      ? '<span class="ptag ais" aria-label="AIS PLAY"></span><strong>Genres · Genres</strong><span>2026</span><span>2h 15m</span><span class="pill sm">16+</span><span class="pill sm">HD</span>'
-      : '<span class="b">' + Content.crownIcon({ t:e.t + ' ' + (i + 1), ppv:1 }) + 'Premium</span><span class="logo"></span><span>Channel 111: AISPLAY 111</span>' +   // the event's crown (content.js): gold until it is bought
-        (e.time ? '<span class="pill">' + e.time + '</span>' : '') + '<span class="pill sm">HD</span>';
-    return open + tall + wide + '<div class="xc-scrim ev-scrim"></div>' + top +
-      '<div class="xc-content ev-info"><h3>' + esc(e.t) + '</h3><div class="cost"><b>' + e.price + ' baht</b><span>(VAT Included: ' + vat(e.price) + ' baht)</span></div>' +
-        '<div class="meta">' + meta + '</div><p class="syn">' + EVENT_SYN + '</p></div>' +
-      (live ? '<span class="live-ribbon" data-ring-top="styled">Live</span>' : '') + '</div>';   // live: Home's Live ribbon (live-ribbon.css)
+    var m = MD.M[e.k], wide = MD.bg(e.k), pr = MD.price(e.k);
+    return '<div class="xcard item"' + attrs({ kind:'event', i:i, k:e.k }) + ' data-ring-art="">' +
+      '<div class="xc-portrait" style="background-image:url(\'' + m.p + '\')' + (e.ppos ? ';background-position:' + e.ppos : '') + '"></div>' +
+      '<div class="xc-wide" style="background-image:url(\'' + wide + '\');background-position:' + (e.pos || 'center') + '"></div>' +
+      '<div class="xc-scrim ev-scrim"></div><span class="top-tag ev-top">' + esc(e.when || e.badge) + '</span>' +
+      '<div class="xc-content ev-info"><h3>' + esc(m.t) + '</h3>' +
+        (pr ? '<div class="cost"><b>' + pr + ' baht</b><span>(VAT Included: ' + vat(pr) + ' baht)</span></div>' : '') +
+        '<div class="meta">' + Content.metaHtml({ k:e.k }, true) + '</div><p class="syn">' + esc(m.d) + '</p></div></div>';   // (content.js: its crown in the meta row)
   }
+  // a Rent or Buy title: its poster (content.js), its badge and its app's tag (platform-tag.css), as the Movie page's
   function posterCard(p, set, i){
-    return '<div class="pst item"' + attrs({ kind:set, i:i }) + '><div class="pic ph-bg"><div class="ratio big"><img src="' + SA + 'ratio-icon-36.svg" alt=""><span>2:3</span></div></div>' +
-      badgeHtml(p) + '</div>';
+    var m = MD.M[p.k], tag = m.plat === 'ais' ? '<span class="ptag ais"></span>' : '<img class="ptag" src="badges/tag-' + m.plat + '.png" alt="">';
+    // (a title with only a 16:9 picture: its centre, as You May Also Like's posters)
+    return '<div class="pst item"' + attrs({ kind:set, i:i, k:p.k }) + '><div class="pic" style="background-image:url(\'' + (m.p || m.w) + '\')"></div>' +
+      badgeHtml(p) + tag + '</div>';
   }
   function railSec(key, title, inner, cls){
     return '<section class="sec' + (cls ? ' ' + cls : '') + '" data-sec="' + key + '"><h2 class="sec-title">' + title + '</h2><div class="rail"><div class="track">' + inner + '</div></div></section>';
@@ -228,11 +240,11 @@
     artFront = 1 - artFront;
     if(src){ arts[artFront].style.backgroundImage = 'url(\'' + src + '\')'; arts[artFront].classList.add('on'); }
   }
-  // the list a tab bar is showing: the picked tab's packages (Recommend), Figma's placeholders on the others
+  // the list a tab bar is showing: the picked tab's packages (Recommend)
   function listOf(set){
     if(cur.tab[set] === undefined || !cur.tab[set]) return ROWS[set];
     if(set === 'movies' || set === 'sports' || set === 'short') return PKG[TAB_OTT[TABS[set][cur.tab[set]]]];   // an OTT's or a league's tab: its own packages
-    return ROWS[set].map(function(_, i){ return ph(i ? null : 'Recommend'); });
+    if(set === 'value') return VALUE[cur.tab.value];   // Great Value: the tab's price range
   }
   function paintHero(r){
     var set = r.set, cards = rows[R[set]];
@@ -361,24 +373,16 @@
       var set = el.dataset.set, it = (set === 'onetime' ? ONETIME : set === 'others' ? OTHERS : listOf(set))[i];
       // an OTT package: Package Detail for it (packages.js), its own price picked
       if(it.ott){ leave('package-detail.html?ott=' + it.ott + '&p=' + PKG[it.ott].map(function(p){ return p.t; }).indexOf(it.t)); return; }
+      if(it.go){ leave(it.go); return; }   // an offer of Others: the package it is for
       if(it.pkg) leave('package-detail.html'); else toast(it.t + ' (demo)');
       return;
     }
     if(k === 'tab') return;
     // View All: the All Packages page, on the matching tab (For You, Sports, Movies, Short Drama)
     if(k === 'viewall'){ var tab = { sports:'sports', movies:'movies', short:'shorts' }[el.dataset.set]; leave('all-packages.html' + (tab ? '?tab=' + tab : '')); return; }
-    // an event or a rental opens its detail page (content.js) with its price, so Buy works there; a live event still plays live
-    // a PPV event (every one premium, a live one too): its detail page, bought there (purchase.html)
-    var ci = k === 'event' ? { t:EVENTS[i].t, img:'', ppv:1, g:['Event'] } : k === 'rent' && Content.info(el);
-    if(ci){   // the cards are placeholders still: a title and synopsis of their own, until their art arrives
-      ci.price = (k === 'event' ? EVENTS : RENTALS)[i].price;
-      ci.t = k === 'event' ? EVENTS[i].t + ' ' + (i + 1) : 'Rent or Buy ' + (i + 1);
-      ci.d = k === 'event' ? EVENT_SYN : 'Rent it for 48 hours, or buy it to keep.';
-      leave(Content.detailUrl(ci)); return;
-    }
-    if(k === 'event'){ var e = EVENTS[i]; toast(e.kind === 'live' ? 'Buy this event to watch it live (demo)' : e.kind === 'upcoming' ? 'Buy now and watch at ' + e.when.replace('Today ', '') + ' (demo)' : e.kind ? 'Buy this event (demo)' : 'Event (demo)'); return; }
-    if(k === 'rent'){ toast('Rent or buy from ' + RENTALS[i].price + ' baht (demo)'); return; }
-    if(k === 'banner'){ if(BANNERS[bannerAt].pkg) leave('package-detail.html'); else toast(BANNERS[bannerAt].t + ' (demo)'); return; }
+    // a PPV event or a Rent or Buy title: its detail page (content.js), bought or rented there
+    if(k === 'event' || k === 'rent'){ leave(Content.detailUrl({ k:el.dataset.k })); return; }
+    if(k === 'banner'){ openQr(); return; }   // its QR Code: scan to continue on the phone
     if(k === 'totop'){ cur.row = R.foryou; cur.col[R.foryou] = 0; return; }
     toast((el.dataset.label || 'Selected') + ' (demo)');
   }
@@ -387,6 +391,18 @@
     try { if(document.referrer && /(home|sport)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
     location.href = 'home.html';
   }
+
+  // ---- the banner's QR Code popup (dialog-theme.css): Close (its only button) or Back closes it, focus back on the banner ----
+  var qrPop = document.querySelector('.qr-pop'), qrScrim = document.querySelector('.qr-scrim'), qrClose = qrPop.querySelector('.qr-close');
+  function qrOpen(){ return qrPop.classList.contains('open'); }
+  function openQr(){ qrPop.classList.add('open'); qrScrim.classList.add('open'); clearInterval(slideT); $('.item.focused').forEach(function(e){ e.classList.remove('focused'); }); qrClose.classList.add('focused'); }
+  function closeQr(){ qrClose.classList.remove('focused'); qrPop.classList.remove('open'); qrScrim.classList.remove('open'); goSlide(bannerAt); paint(); }
+  qrClose.addEventListener('click', closeQr); qrScrim.addEventListener('click', closeQr);
+  addEventListener('keydown', function(e){
+    if(!qrOpen()) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    if(e.key === 'Enter' || e.key === ' ' || e.key === 'Escape' || e.key === 'Backspace') closeQr();
+  }, true);
 
   addEventListener('keydown', function(e){
     if(prof.key(e.key)){ e.preventDefault(); return; }   // the profile photo / its panel
