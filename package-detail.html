@@ -18,6 +18,7 @@
   Arrows move, Enter selects, Esc / Back returns to the packages.
 -->
 <link rel="stylesheet" href="platform-tag.css">
+<link rel="stylesheet" href="league-disc.css">
 <style>
   :root{ color-scheme:dark; --on:#e8e8e8; --muted:#a8a8a8; }
   html,body{ margin:0; height:100%; background:#000; overflow:hidden; font-family:'Plus Jakarta Sans', system-ui, sans-serif; color:#fff; }
@@ -334,6 +335,7 @@
 </div></div>
 
 <script src="content.js"></script>
+<script src="leagues.js"></script>
 <script src="packages.js"></script>
 <script src="tv-screen.js"></script>
 <script>
@@ -388,7 +390,12 @@
   // packages as the prices on the right (the one picked selected), then the same payment ----
   var OK = (location.search.match(/[?&]ott=(\w+)/) || [])[1], OB = OK && Packages.OTT[OK], OP = OB ? Packages.PKG[OK] : null;
   var OI = OP ? Math.max(0, Math.min(OP.length - 1, +((location.search.match(/[?&]p=(-?\d+)/) || [])[1] || 0))) : 0;
-  function ottLg(){ return '<img src="' + OB.logo + '" alt="' + OB.n + '" style="object-fit:contain;' + (OB.tile ? '' : 'background:#000;padding:8px;box-sizing:border-box') + '">'; }
+  function ottLg(){
+    if(OB.league)   // a league's package: its disc (leagues.js), on white
+      return '<span style="position:relative;display:block;width:100%;height:100%;border-radius:50%;background:#fff;overflow:hidden">' +
+        Leagues.pic(Leagues.list.filter(function(l){ return l.id === OB.league; })[0]) + '</span>';
+    return '<img src="' + OB.logo + '" alt="' + OB.n + '" style="object-fit:contain;' + (OB.tile ? '' : OB.icon ? 'object-fit:cover' : 'background:#000;padding:8px;box-sizing:border-box') + '">';
+  }
   if(OB){
     var P0 = OP[OI], DEV = { phone:'Phone', tablet:'Tablet', laptop:'Laptop', tv:'TV' };
     document.title = P0.t + ' · Package Detail';
@@ -538,7 +545,10 @@
     if(a === 'req'){ code = ''; startCountdown(); otpPaint(); toast('A new OTP has been sent'); return; }
     if(a === 'done'){
       if(code.length < 4){ toast('Enter the 4-digit OTP first'); return; }
-      clearInterval(otpT); document.body.classList.remove('otp'); openDone();
+      clearInterval(otpT); document.body.classList.remove('otp');
+      // an OTT package: Purchase complete, then its Activation Guide (purchase.html)
+      if(OB){ var si = $('.price').indexOf(document.querySelector('.price.selected')); location.href = 'purchase.html?ott=' + OK + '&p=' + si; return; }
+      openDone();
     }
   }
   function openDone(){

@@ -290,7 +290,7 @@
   var bgPic = m.b || m.w || m.p;   // MD.bg: the picture Home's and the Movie page's screen text show for it
   if(bgPic) document.getElementById('bg').style.backgroundImage = "url('" + bgPic + "')";   // a title made from a placeholder card has none
   document.getElementById('title').textContent = m.t;
-  document.getElementById('meta').innerHTML = ptag('ptag') +
+  document.getElementById('meta').innerHTML = ptag('ptag') + (m.ppv ? '<span class="mbadge prem"><img src="icons/crown-gold.svg" alt="">Premium</span>' : '') +
     '<strong>' + esc(m.g.join(' · ')) + '</strong><span>' + m.y + '</span><span>' + m.len + '</span><span class="pill">' + m.age + '</span><span class="pill">HD</span>';
   document.getElementById('desc').innerHTML = esc(m.d) + ' <span class="more">More</span>';
   var ctasEl = document.getElementById('ctas'), state, cw = MD.cw(K);
@@ -310,7 +310,8 @@
     ue.hidden = !u;
     if(u) ue.innerHTML = 'Available until:<span class="when">' + u.d + '<i></i>' + u.t + '</span>';
     var resumeLbl = SER && cw ? 'Resume S' + cw.s + ': Ep.' + cw.e : 'Resume';
-    var main = state === 'resume' ? '<div class="tv-btn tv-btn--primary main item" data-label="Resume" data-ring-art=""><i class="ic-play"></i>' + resumeLbl + '</div>'
+    var main = m.ppv && state === 'buy' ? '<div class="tv-btn tv-btn--primary buy item" data-label="Buy" data-ring-art="">Buy ' + MD.price(K) + ' ฿</div>'   // a PPV event: bought on its own
+      : state === 'resume' ? '<div class="tv-btn tv-btn--primary main item" data-label="Resume" data-ring-art=""><i class="ic-play"></i>' + resumeLbl + '</div>'
       : state === 'play' ? '<div class="tv-btn tv-btn--primary main item" data-label="Play" data-ring-art=""><i class="ic-play"></i>Play</div>'
       : '<div class="tv-btn tv-btn--primary main item" data-label="View Package" data-ring-art=""><i class="ic-pkg"></i>View Package</div>' +
         '<div class="tv-btn tv-btn--secondary buy item" data-label="Buy" data-ring-art="">Buy ' + MD.price(K) + ' ฿</div>';
@@ -492,7 +493,7 @@
     if(L === 'Play' || L === 'Resume'){ play(false); return; }
     if(L === 'Start Over'){ play(true); return; }
     if(L === 'View Package'){ setView('pkg'); return; }
-    if(L === 'Buy'){ MD.own(K); render(); cur = { row:0, col:0 }; paint(); toast('Bought ' + m.t + ' for ' + MD.price(K) + ' baht. Enjoy!'); return; }   // the title is now playable
+    if(L === 'Buy'){ location.href = 'purchase.html?k=' + K; return; }   // Confirm, OTP, Purchase complete; back here it plays
     if(el.dataset.k){ location.href = 'movie-detail.html?k=' + el.dataset.k; return; }
     if(el.dataset.tab){ cur.row = 2; cur.col = el.dataset.tab === 'eps' ? season - 1 : 0; paint(); return; }
     if(el.dataset.season){ season = +el.dataset.season; renderEps(); cur.row = 3; cur.col = 0; paint(); return; }

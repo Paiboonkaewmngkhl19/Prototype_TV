@@ -15,10 +15,10 @@ window.Leagues = (function(){
     {id:'bundesliga', t:'Bundesliga', sp:'football', name:'Bundesliga', logo:'sport-assets/league-bundesliga.png', fitc:'inset', fav:1, img:'posters/upcoming/u3.jpg'},
     {id:'europa', t:'UEFA Europa League', sp:'football', name:'UEFA<br>Europa League', logo:'sport-assets/league-europa.png', box:[21.95,10,56.1,80], fav:1},
     {id:'motogp', t:'MotoGP', sp:'motorsport', name:'MotoGP', logo:'sport-assets/league-motogp.png', box:[5,24.69,90,50.62]},
-    {id:'nfl', t:'NFL', sp:'nfl', name:'NFL', logo:'sport-assets/league-nfl.png', box:[19.08,7.5,61.84,85]},
+    {id:'nfl', t:'NFL', sp:'rugby', name:'NFL', logo:'sport-assets/league-nfl.png', box:[19.08,7.5,61.84,85]},   // American football: under Rugby
     {id:'nba', t:'NBA', sp:'basketball', name:'NBA', logo:'sport-assets/league-nba.png', box:[-28.13,6.05,156.25,87.89]},
     {id:'conference', t:'UEFA Conference League', sp:'football', name:'UEFA Conference League', logo:'sport-assets/league-conference.png', box:[11.13,11.24,78.18,77.53]},
-    {id:'rws', t:'RWS', sp:'rws', name:'RWS', logo:'sport-assets/league-rws.png'},
+    {id:'rws', t:'RWS', sp:'boxing', name:'RWS', logo:'sport-assets/league-rws.png'},   // Rajadamnern World Series (Muay Thai): under Boxing
     {id:'pga', t:'PGA Tour', sp:'golf', name:'PGA<br>Tour', logo:'sport-assets/league-pga.png', box:[-18.13,11.68,136.25,76.64]},
     {id:'atp', t:'ATP Tour', sp:'tennis', name:'ATP<br>Tour', logo:'sport-assets/league-atp.png', box:[8.5,30.5,83,39.01]},
     // the landing page's own rail (Figma 3258:67811): Premier League (its lion), FA Cup, the four Grand Slams

@@ -252,6 +252,7 @@ window.Content = (function(){
     if(info.img){ if(portrait) m.p = info.img; else m.w = info.img; }
     if(info.bg) m.b = info.bg;
     if(info.price) m.price = +info.price;
+    if(info.ppv) m.ppv = 1;   // a PPV event: premium, bought on its own (purchase.html)
     window.MD.M[k] = m;
     try { var a = JSON.parse(sessionStorage.getItem('contentAdhoc') || '{}'); a[k] = m; sessionStorage.setItem('contentAdhoc', JSON.stringify(a)); } catch(e){}
     return { k:k };

@@ -63,6 +63,8 @@
   .hero-bg .art{ position:absolute; left:43.91%; top:-2.54%; width:56.09%; height:99.72%; background:center / cover no-repeat; opacity:0; transition:opacity .45s ease; }
   .hero-bg .art.on{ opacity:1; }
   .hero-bg .art{ -webkit-mask-image:linear-gradient(90deg, transparent 0%, #000 30%); mask-image:linear-gradient(90deg, transparent 0%, #000 30%); }   /* no hard edge where the art starts */
+  /* a 16:9 key art (wide): the whole screen, fading in from the left behind the text */
+  .hero-bg.wide .art{ left:0; top:0; width:100%; height:100%; -webkit-mask-image:linear-gradient(90deg, transparent 0%, rgba(0,0,0,.35) 30%, #000 55%); mask-image:linear-gradient(90deg, transparent 0%, rgba(0,0,0,.35) 30%, #000 55%); }
   .hero-bg .down{ position:absolute; inset:0; background:linear-gradient(180deg, transparent 52%, rgba(var(--wash),.55) 74%, var(--bg-0) 96%); }
   .hero-bg .side{ position:absolute; inset:0;
     background:linear-gradient(90deg, rgba(var(--wash),.88) 0%, rgba(var(--wash),.62) 30%, rgba(var(--wash),.12) 58%, transparent 75%); }
@@ -76,6 +78,11 @@
   .hero-bg.ott .ott-hero{ opacity:1; }
   .ott-hero .logos{ display:flex; align-items:center; gap:34px; }
   .ott-hero .logos > img:first-child{ width:316px; height:120px; object-fit:contain; }   /* Figma: Netflix's wordmark 316 wide */
+  .ldisc{ position:relative; display:block; flex:0 0 auto; border-radius:50%; background:#fff; overflow:hidden; }
+  .sq .ott .lg .ldisc{ width:64px; height:64px; }
+  .ott-hero .logos .ldisc{ width:160px; height:160px; margin:0 78px; }   /* the 316px a wordmark takes */
+  .ott-hero .logos > img.solo{ width:560px; height:150px; object-fit:contain; mix-blend-mode:screen; }   /* its black box drops away */   /* a package's own logo, the pair's width */
+  .ott-hero .logos > img.icon{ width:auto; height:150px; border-radius:32px; margin:0 40px; }
   .ott-hero .logos > img.tile{ width:260px; height:110px; border-radius:12px; }
   .ott-hero .logos i{ width:3px; height:184px; background:#e8e8e8; opacity:.6; }
   .ott-hero .logos .ais{ width:282px; }
@@ -84,8 +91,9 @@
   /* the package card: its OTT's logo | AIS PLAYBOX on black, the price under them */
   .sq .pic.ott{ background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; }
   .sq .pic.ott img{ position:static; }
-  .sq .ott .lg{ display:flex; align-items:center; gap:12px; height:56px; }
+  .sq .ott .lg{ display:flex; align-items:center; gap:12px; height:64px; }
   .sq .ott .lg > img:first-child{ max-width:112px; max-height:40px; }
+  .sq .ott .lg > img.icon{ max-height:none; height:56px; width:auto; border-radius:12px; }   /* a short drama app: its icon */
   .sq .ott .lg > img.tile{ max-height:52px; border-radius:6px; }
   .sq .ott .lg i{ width:1px; height:49px; background:#e8e8e8; opacity:.6; }
   .sq .ott .lg .ais{ width:89px; }
@@ -162,7 +170,7 @@
 
   /* Highlight you shouldn't miss (Gene rail): its own 500px band with Figma's picture at 40% */
   .gene{ height:500px; padding:0 0 20px; display:flex; flex-direction:column; justify-content:center; gap:40px; }
-  .gene::before{ content:''; position:absolute; inset:0; background:var(--ph) center / cover no-repeat; opacity:.4; }
+  /* (no backdrop picture: the rail sits on the page) */
   .gene .sec-title, .gene .rail{ position:relative; margin-top:0; }
 
   /* PPV Event: Home's AIS Play Exclusive cards (expand-card.css) with the event's own details (event-card.css); placeholder pictures until the events have art */
@@ -280,7 +288,7 @@
 
   /* ---------- content ----------
      Artwork is Figma's own; every other card keeps Figma's placeholder (ph) and speaks with Figma's placeholder text. */
-  var SA = 'store-assets/';
+  var SA = 'store-assets/', PK = SA + 'pkg/';
   var LOREM = 'Lorem Ipsum is simply dummy text of the printing and setting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since 1966, when Lorem Ipsum hassasdfasdf Lorem Ipsum is simply dummy text of the printing and setting industry. Lorem Ipsum has been';
   // a placeholder package, as Figma's hero shows it
   function ph(badge){ return { badge:badge, t:'Package Title', price:199, per:'Month', tags:['Monthly', 'Recurring'], d:LOREM }; }
@@ -290,7 +298,12 @@
     art:{ img:SA + 'foryou-play-ultimate.png', crop:'height:123.75%;left:-60%;top:-17.17%;width:220%' }, hero:SA + 'hero-play-ultimate.png', pkg:1 };
   var OTT = Packages.OTT, PKG = Packages.PKG;   // packages.js (Package Detail shows the same)
   // the Movies tabs: Popular, then each OTT's own packages
-  var TAB_OTT = { 'Netflix':'netflix', 'HBO Max':'hbo', 'Disney+':'disney', 'iQIYI':'iqiyi', 'Viu':'viu', 'MONOMAX':'monomax' };
+  var TAB_OTT = { 'Netflix':'netflix', 'HBO Max':'hbo', 'Disney+':'disney', 'iQIYI':'iqiyi', 'Viu':'viu', 'MONOMAX':'monomax',
+    // the Sports tabs: each league's own packages
+    'Premier League':'epl', 'UEFA Champions League':'ucl', 'NBA':'nba', 'Thai League':'thai1', 'RWS':'rws', 'Bundesliga':'bundesliga',
+    'MotoGP':'motogp', 'PGA Tour':'pga',
+    // the Short Series tabs: each app's own packages
+    'ReelShort':'reelshort', 'DramaBox':'dramabox' };
   var NETFLIX_7D = PKG.netflix[0];
   var ROWS = {
     foryou:[ ULTIMATE,
@@ -300,31 +313,52 @@
       { badge:'New Release', dark:1, t:'PLAY PREMIUM PLUS', price:99, per:'Month', tags:['Monthly', 'Recurring', 'New Release'],
         d:'Supergirl and the newest HBO Max originals, with five more apps in one package: HBO Max, Disney+ Hotstar, iQIYI, oneD and AIS PLAY.',
         art:{ img:SA + 'foryou-supergirl.png' }, pkg:1 },
-      { badge:'Flash Sale', timer:12 * 3600 + 23 * 60 + 2, dark:1, t:'Prime Video 3 Months', price:149, per:'3 Months', tags:['3 Months', 'Flash Sale'],
-        d:'Three months of Prime Video for 149 baht, then 149 baht a month. Amazon Originals, blockbuster films and live sport.',
-        art:{ img:SA + 'foryou-prime.png', crop:'height:100%;left:-71.97%;top:0;width:177.78%' }, hero:SA + 'foryou-prime.png', pkg:1 },
-      Object.assign(ph('Flash Sale'), { timer:43 * 3600 + 14 * 60 + 38 }), ph(), ph()],
+      // AIS's own package art (store-assets/pkg/): each package once in a rail
+      { badge:'Flash Sale', timer:43 * 3600 + 14 * 60 + 38, dark:1, t:'PLAY ASIAN PLUS', price:169, per:'Month', tags:['Monthly', 'Recurring', 'Flash Sale'],
+        d:'iQIYI, Viu, WeTV and oneD in one package: Thai, Korean and Chinese series, from Khemjira to Against the Current.',
+        art:{ img:PK + 'asian-plus.jpg' }, pkg:1 },
+      { dark:1, t:'oneD PREMIUM Monthly', price:99, per:'Month', tags:['Monthly', 'Recurring'],
+        d:'Watch Raeng Ngao and every one31 drama before anyone else on oneD. 99 baht a month for AIS customers only (usually 149).',
+        art:{ img:PK + 'oned-premium-monthly.jpg' }, pkg:1 },
+      { dark:1, t:'oneD PREMIUM Yearly', price:999, per:'Year', tags:['Yearly', 'Recurring'],
+        d:'A year of oneD PREMIUM for 999 baht (usually 1,490), for AIS customers only: one31 dramas first, ad-free.',
+        art:{ img:PK + 'oned-premium-yearly.jpg' }, pkg:1 }],
     highlight:[
-      { t:'AIS PLAY Asian Games Pass', price:199, per:'Month', tags:['Monthly', 'Recurring'],
-        d:'The Asian Games in full on AIS PLAY: every venue live, the medal moments, and replays on demand, on every screen.',
-        art:{ img:SA + 'highlight-asian-games.png' }, pkg:1 },
-      ph(), ph(), ph(), ph()],
+      // the shows each package brings (AIS's package art, store-assets/pkg/)
+      { dark:1, t:'PLAY PREMIUM PLUS', price:299, per:'Month', tags:['Monthly', 'Recurring'],
+        d:'The Lord of the Rings: The Rings of Power on Prime Video, with HBO Max, iQIYI, Viu and WeTV: five apps in one package.',
+        art:{ img:PK + 'premium-plus-rings.jpg' }, hero:PK + 'premium-plus-rings-wide.jpg', wide:1, pkg:1 },   // hero: its 16:9 key art, across the screen
+      { dark:1, t:'PLAY ULTIMATE', price:999, per:'Month', tags:['Monthly', 'Recurring'],
+        d:'The Super Mario Galaxy Movie on HBO Max, Steps on Netflix and Moana on Disney+: all six apps in one package.',
+        art:{ img:PK + 'ultimate-mario.jpg' }, pkg:1 },
+      { dark:1, t:'PLAY PREMIUM PLUS', price:299, per:'Month', tags:['Monthly', 'Recurring'],
+        d:'Make Me Tingle on HBO Max, Final Table on Prime Video and One of a Kind Romance on Viu, in one package with iQIYI and WeTV.',
+        art:{ img:PK + 'premium-plus-tingle.jpg' }, pkg:1 },
+      { dark:1, t:'PLAY ULTIMATE', price:999, per:'Month', tags:['Monthly', 'Recurring'],
+        d:'Take Charge of My Heart on Netflix, Make Me Tingle on HBO Max and Merry Berry Love on Disney+: six apps, one price.',
+        art:{ img:PK + 'ultimate-take-charge.jpg' }, pkg:1 },
+      { dark:1, t:'PLAY ASIAN PLUS', price:169, per:'Month', tags:['Monthly', 'Recurring'],
+        d:'Khemjira Forever on iQIYI, with Viu, WeTV and oneD: four apps of Asian drama in one package.',
+        art:{ img:PK + 'asian-plus-khemjira.jpg' }, pkg:1 },
+      { dark:1, t:'PLAY ASIAN PLUS', price:169, per:'Month', tags:['Monthly', 'Recurring'],
+        d:'Raeng Ngao on oneD, with iQIYI, Viu and WeTV: four apps of Asian drama in one package.',
+        art:{ img:PK + 'asian-plus-rang-ngao.jpg' }, pkg:1 }],
     sports:[
       { badge:'Recommend', t:'PLAY ALL', price:299, per:'Month', tags:['Monthly', 'Recurring', 'Recommend'],
         d:'All the sport on AIS PLAY in one package: Premier League, Bundesliga, Formula 1, NBA and the AIS PLAY Sports channels.',
-        art:{ logo:SA + 'sports-playall.png' }, pkg:1 },
-      { t:'MONOMAX Sports', price:199, per:'Month', tags:['Monthly', 'Recurring'],
-        d:'Premier League and more sport on the MONOMAX app, for AIS customers. Every match live, with replays and highlights.',
-        art:{ img:SA + 'sports-monomax.png' }, pkg:1 },
-      ph(), ph(), ph(), ph(), ph()],
+        art:{ logo:SA + 'sports-playall.png' }, pkg:1 }
+      // then one package of each league (packages.js): its disc | AIS PLAYBOX, as the Movies rail's OTT cards
+      ].concat(['epl', 'ucl', 'nba', 'thai1', 'rws', 'bundesliga', 'motogp', 'pga'].map(function(k){ return Object.assign({}, PKG[k][0], { badge:null }); })),
     // Popular: one of each OTT, as the Figma's rail
     movies:[ NETFLIX_7D ].concat([PKG.disney[0], PKG.hbo[0], PKG.prime[0], PKG.viu[0], PKG.iqiyi[0], PKG.netflix[1], PKG.monomax[0]].map(function(p){
       return Object.assign({}, p, { badge:null }); })),   // (Recommend: the rail's first only)
-    short:[ph('Recommend'), ph(), ph(), ph(), ph(), ph(), ph()],
+    // Popular: both apps' packages, alternating, as the Movies rail (Recommend: the first only)
+    short:[ PKG.reelshort[0] ].concat([PKG.dramabox[0], PKG.reelshort[1], PKG.dramabox[1], PKG.reelshort[2], PKG.dramabox[2]].map(function(p){
+      return Object.assign({}, p, { badge:null }); })),
     value:[ph('Best Saver'), ph(), ph(), ph(), ph(), ph(), ph()]
   };
   var TABS = {
-    sports:['Popular', 'Premier League', 'NBA', 'RWS', 'Thai League'],
+    sports:['Popular', 'Premier League', 'UEFA Champions League', 'NBA', 'Thai League', 'RWS', 'Bundesliga', 'MotoGP', 'PGA Tour'],
     movies:['Popular', 'Netflix', 'HBO Max', 'Disney+', 'iQIYI', 'Viu', 'MONOMAX'],
     short:['Popular', 'ReelShort', 'DramaBox'],
     value:['< 100 baht Enjoy Asia Movies & Shorts', '< 100 baht Sports Lover', '300 - 500 baht Enjoy Movies & Sports', 'Asian Games']
@@ -366,7 +400,11 @@
     return '<span class="bdg top-tag"' + (it.timer ? ' data-timer="' + it.timer + '"' : '') + '>' +
       esc(it.badge + (it.timer ? ' ' + hms(it.timer) : '')) + '</span>';
   }
-  function ottLogo(o, cls){ return '<img class="' + (cls || '') + (o.tile ? ' tile' : '') + '" src="' + o.logo + '" alt="' + esc(o.n) + '">'; }
+  // a brand's logo: an OTT's picture, or a league's disc (leagues.js, league-disc.css)
+  function ottLogo(o, cls){
+    if(o.league) return '<span class="ldisc ' + (cls || '') + '">' + Leagues.pic(Leagues.list.filter(function(l){ return l.id === o.league; })[0]) + '</span>';
+    return '<img class="' + (cls || '') + (o.tile ? ' tile' : '') + (o.icon ? ' icon' : '') + '" src="' + o.logo + '" alt="' + esc(o.n) + '">';
+  }
   function sqPic(it){
     if(it.ott){ var o = OTT[it.ott];
       return '<div class="pic ott"><div class="lg">' + ottLogo(o) + '<i></i><img class="ais" src="' + SA + 'ott/ais-playbox.png" alt="AIS PLAYBOX"></div>' +
@@ -473,7 +511,7 @@
   // the list a tab bar is showing: the picked tab's packages (Recommend), Figma's placeholders on the others
   function listOf(set){
     if(cur.tab[set] === undefined || !cur.tab[set]) return ROWS[set];
-    if(set === 'movies') return PKG[TAB_OTT[TABS.movies[cur.tab[set]]]];   // an OTT's tab: its own packages
+    if(set === 'movies' || set === 'sports' || set === 'short') return PKG[TAB_OTT[TABS[set][cur.tab[set]]]];   // an OTT's or a league's tab: its own packages
     return ROWS[set].map(function(_, i){ return ph(i ? null : 'Recommend'); });
   }
   function paintHero(r){
@@ -492,7 +530,16 @@
     }
     // an OTT package: its brand over the screen, its logos and price on the right (no picture of its own)
     var o = it.ott && OTT[it.ott];
-    heroBg.classList.toggle('ott', !!o);
+    // a package whose card is its logo on black (PLAY ALL): the same place and look, its logo where an OTT's pair stands
+    var lg = !o && it.art && it.art.logo && !it.art.price;
+    heroBg.classList.toggle('ott', !!(o || lg));
+    if(lg){
+      heroBg.querySelector('.brand').style.background = it.brand || 'linear-gradient(118.51deg, rgba(120,200,60,.35) 1%, rgba(150,40,200,.35) 60%, rgba(0,0,0,.4) 99.61%), #101010';
+      var lh = heroBg.querySelector('.ott-hero'), lk = it.t + it.price;
+      if(lh.dataset.k !== lk){ lh.dataset.k = lk;
+        lh.innerHTML = '<div class="logos"><img class="solo" src="' + it.art.logo + '" alt="' + esc(it.t) + '"></div>' +
+          '<div class="pr">' + it.price + '<i></i>' + (it.per === 'Month' ? 'Month' : it.per) + '</div>'; }
+    }
     if(o){
       heroBg.querySelector('.brand').style.background = o.bg;
       var oh = heroBg.querySelector('.ott-hero'), ok = it.ott + it.price + it.card;
@@ -500,7 +547,8 @@
         oh.innerHTML = '<div class="logos">' + ottLogo(o) + '<i></i><img class="ais" src="' + SA + 'ott/ais-playbox.png" alt="AIS PLAYBOX"></div>' +
           '<div class="pr">' + it.price + '<i></i>' + it.card + '</div>'; }
     }
-    setArt(o ? null : it.hero || (it.art && it.art.img) || null);
+    heroBg.classList.toggle('wide', !!it.wide);
+    setArt(o || lg ? null : it.hero || (it.art && it.art.img) || null);
   }
 
   // ---- keep the focused item in view ----
@@ -521,13 +569,23 @@
     while(e && e !== r.sec){ y += e.offsetTop; e = e.offsetParent; }
     heroEl.style.bottom = 1080 - (r.sec.offsetTop + y - pageY - HERO_GAP) + 'px';
   }
+  function pageTop(el){ var y = 0; while(el && el !== page){ y += el.offsetTop; el = el.offsetParent; } return y; }
+  function cardsOf(sec){ return sec.querySelector('.track .item'); }
+  // Highlight's gap: its cards' bottom to the screen's bottom with the section at HERO_Y (the reference for every rail)
+  var GAP = null;
+  function cardGap(){
+    if(GAP === null){ var hs = page.querySelector('[data-sec="highlight"]'), hc = hs && cardsOf(hs);
+      GAP = hc ? 1080 - (pageTop(hc) + hc.offsetHeight - (hs.offsetTop - HERO_Y)) : 120; }
+    return GAP;
+  }
   function layout(ri){
     var r = rows[ri], top = r.sec.offsetTop, y;
-    if(ri <= DYNAMIC_END) y = top - HERO_Y;
+    // a rail under the hero: its cards end as far from the screen's bottom as Highlight's do (CARD_GAP)
+    if(ri <= DYNAMIC_END){ var c = cardsOf(r.sec); y = c ? pageTop(c) + c.offsetHeight - (1080 - cardGap()) : top - HERO_Y; }
     else {
       y = Math.min(top - STATIC_Y, page.offsetHeight - 1080);
     }
-    pageY = Math.max(0, y);
+    pageY = ri <= DYNAMIC_END ? y : Math.max(0, y);   // (For You, the first rail, sits lower than the page's top allows: the page moves down)
     page.style.transform = 'translateY(' + -pageY + 'px)';
     secs.forEach(function(s){ s.classList.toggle('above', s.offsetTop < r.sec.offsetTop); });
     document.body.classList.toggle('static', ri > DYNAMIC_END);
@@ -590,7 +648,8 @@
     // View All: the All Packages page, on the matching tab (For You, Sports, Movies, Short Drama)
     if(k === 'viewall'){ var tab = { sports:'sports', movies:'movies', short:'shorts' }[el.dataset.set]; leave('all-packages.html' + (tab ? '?tab=' + tab : '')); return; }
     // an event or a rental opens its detail page (content.js) with its price, so Buy works there; a live event still plays live
-    var ci = (k === 'event' || k === 'rent') && Content.info(el);
+    // a PPV event (every one premium, a live one too): its detail page, bought there (purchase.html)
+    var ci = k === 'event' ? { t:EVENTS[i].t, img:'', ppv:1, g:['Event'] } : k === 'rent' && Content.info(el);
     if(ci){   // the cards are placeholders still: a title and synopsis of their own, until their art arrives
       ci.price = (k === 'event' ? EVENTS : RENTALS)[i].price;
       ci.t = k === 'event' ? EVENTS[i].t + ' ' + (i + 1) : 'Rent or Buy ' + (i + 1);

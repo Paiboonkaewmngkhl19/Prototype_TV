@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Package Activation Guide · AIS PLAY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Roboto:wght@400;500&family=Noto+Sans+Thai:wght@400;500&display=swap" rel="stylesheet">
+<!--
+  Package Activation Guide (Figma Store 5215:262576 VIU Premium, 5215:255285 HBO Max, 5215:264605 Disney+), opened
+  from Purchase complete (purchase.html) or ?app=hbo. Left: the apps (TV / Chip list, scrolls) and the myAIS QR.
+  Right: that app's steps, a phone screenshot and its text each; more than five slide sideways with the page dots and
+  arrows. Footer: where to find the guide again, and Back to Home.
+  Remote / keyboard: Up / Down picks an app (its steps show at once), Right goes to the steps (Left / Right slide
+  them), Down to Back to Home; Enter on it, or Back, returns to Home.
+-->
+<link rel="stylesheet" href="button-theme.css">
+<style>
+  :root{ color-scheme:dark; --on:#e8e8e8; --muted:#a8a8a8; --ease:cubic-bezier(.2,0,0,1);
+    --roboto:'Roboto', 'Noto Sans Thai', system-ui, sans-serif; --inter:'Inter', 'Noto Sans Thai', system-ui, sans-serif; }
+  html,body{ margin:0; height:100%; background:#000; overflow:hidden; font-family:var(--roboto); color:#fff; -webkit-font-smoothing:antialiased; }
+  #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:#3b3b3b; }
+  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; }
+
+  /* ---------- left: the apps and the myAIS QR ---------- */
+  .side{ position:absolute; left:0; top:0; width:550px; height:1080px; background:#161616; border-right:2px solid #4a4a4a; box-sizing:border-box; }
+  .side h1{ position:absolute; left:110px; top:60px; margin:0; font:500 32px/40px var(--roboto); color:var(--on); }
+  .apps{ position:absolute; left:100px; top:122px; width:400px; height:520px; overflow:hidden; padding:10px;
+    -webkit-mask-image:linear-gradient(180deg, #000 88%, transparent 100%); mask-image:linear-gradient(180deg, #000 88%, transparent 100%); }
+  .apps .list{ display:flex; flex-direction:column; gap:24px; transition:transform .3s var(--ease); }
+  .app{ width:380px; height:70px; box-sizing:border-box; padding:0 32px; border-radius:12px; display:flex; align-items:center;
+    font:400 32px/1 var(--roboto); color:var(--on); position:relative; flex:0 0 auto; }
+  .app::before{ content:''; position:absolute; inset:0; border-radius:inherit; border:2px solid #6a6a6a; }
+  .app.on{ background:#e8e8e8; color:#1c1c1c; padding-left:42px; }
+  .app.on::before{ border:0; }
+  .myais{ position:absolute; left:110px; top:664px; width:379px; text-align:center; }
+  .myais .or{ font:400 24px/32px var(--roboto); color:var(--on); }
+  .myais .t{ margin-top:16px; font:400 28px/36px var(--roboto); color:var(--on); }
+  .qrbox{ position:relative; width:250px; height:250px; box-sizing:border-box; margin:16px auto 0; padding:16px; border-radius:16px; background:#fff; }
+  .qrbox > img:first-child{ width:100%; height:100%; display:block; }
+  .qrbox .app-ic{ position:absolute; left:93px; top:93px; width:67px; height:67px; border-radius:20px; }
+
+  /* ---------- right: the steps ---------- */
+  .main{ position:absolute; left:550px; top:0; width:1370px; height:917px; }
+  .win{ position:absolute; left:60px; top:104px; width:1250px; height:680px; overflow:hidden; }
+  .win.centred .track{ justify-content:center; width:100%; }
+  .track{ display:flex; gap:32px; transition:transform .35s var(--ease); }
+  .stepc{ width:209px; flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:16px; }
+  .stepc .n{ width:50px; height:50px; border-radius:50%; background:#fff; color:#000; display:flex; align-items:center; justify-content:center; font:500 30px/1 var(--inter); }
+  .stepc img{ width:209px; height:410px; object-fit:contain; display:block; }
+  .stepc p{ margin:0; width:209px; font:400 22px/28px var(--roboto); color:var(--on); }
+  .nav{ position:absolute; left:60px; top:796px; width:1250px; height:40px; }
+  .dots{ position:absolute; left:50%; top:12px; transform:translateX(-50%); display:flex; gap:12px; }
+  .dots i{ width:16px; height:16px; border-radius:8px; background:#8a8a8a; transition:width .25s var(--ease), background .25s; }
+  .dots i.on{ width:40px; background:#e8e8e8; }
+  .arrows{ position:absolute; right:0; top:0; display:flex; gap:10px; }
+  .arw{ width:40px; height:40px; border-radius:50%; background:#4a4a4a; display:flex; align-items:center; justify-content:center; opacity:.6; }
+  .arw.can{ opacity:1; }
+  .arw.focused{ background:#e8e8e8; }
+  .arw.focused svg path{ stroke:#1c1c1c; }
+
+  /* ---------- footer ---------- */
+  .foot{ position:absolute; left:550px; top:949px; width:1370px; height:131px; background:#2a2a2a; }
+  .foot .info{ position:absolute; left:60px; top:48px; display:flex; gap:12px; align-items:center; font:400 24px/32px var(--roboto); color:var(--on); }
+  .foot .info b{ font-weight:500; }
+  .foot .tv-btn{ position:absolute; right:60px; top:24px; --btn-w:279px; --btn-h:83px; font-size:30px; }
+</style>
+</head>
+<body>
+<div id="frame"><div id="screen">
+  <aside class="side">
+    <h1>Package Activation Guide</h1>
+    <div class="apps"><div class="list"></div></div>
+    <div class="myais">
+      <div class="or">or</div>
+      <div class="t">Activate on myAIS</div>
+      <div class="qrbox"><img src="store-assets/qr-myais-big.png" alt="myAIS QR code"><img class="app-ic" src="store-assets/myais-app.png" alt=""></div>
+    </div>
+  </aside>
+  <section class="main">
+    <div class="win"><div class="track"></div></div>
+    <div class="nav"><div class="dots"></div>
+      <div class="arrows">
+        <div class="arw" data-dir="-1"><svg width="20" height="20" viewBox="0 0 20 20"><path d="M12.5 4 6.5 10l6 6" fill="none" stroke="#e8e8e8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="arw" data-dir="1"><svg width="20" height="20" viewBox="0 0 20 20"><path d="m7.5 4 6 6-6 6" fill="none" stroke="#e8e8e8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      </div>
+    </div>
+  </section>
+  <footer class="foot">
+    <div class="info"><svg width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="none" stroke="#e8e8e8" stroke-width="2"/><path d="M16 14.5v8" stroke="#e8e8e8" stroke-width="2.4" stroke-linecap="round"/><circle cx="16" cy="10" r="1.6" fill="#e8e8e8"/></svg>
+      <span>View activation steps anytime in <b>Package Activation Guide Menu</b></span></div>
+    <div class="tv-btn tv-btn--secondary home">Back to Home</div>
+  </footer>
+</div></div>
+<script src="tv-screen.js"></script>
+<script>
+(function(){
+  var G = 'store-assets/guide/';
+  // the steps (Figma): VIU's own three; HBO Max's seven, which the other apps share until they have their own
+  var VIU = [
+    { img:G + 'viu-1.png', t:'1. รอรับ SMS ยืนยันสิทธิ์การรับชม VIU และกดลิงก์เพื่อรับสิทธิ์' },
+    { img:G + 'viu-2.png', t:'2. ใส่หมายเลขโทรศัพท์ที่ทำการสมัครแพ็กเกจโดยใส่รหัส OTP ที่ได้รับผ่าน SMS แล้วกดเปิดใช้งาน' },
+    { img:G + 'viu-3.png', t:'3. ผูกบัญชีกับ VIU สำเร็จทำตามขั้นตอนของ Application VIU และเริ่มใช้งาน' }];
+  function std(app){
+    return [
+      { img:G + 'hbo-1.png', t:'1. Activate your ' + app + ' subscription by clicking the link in the SMS you receive' },
+      { img:G + 'hbo-2.png', t:'2. Enter your AIS number or your AIS Fiber3 home internet number, then click "Receive OTP"' },
+      { img:G + 'hbo-3.png', t:'3. Enter the OTP you received, then click "Confirm"' },
+      { img:G + 'hbo-4.png', t:'4. Click "Continue watching on ' + app + '"' },
+      { img:G + 'hbo-5.png', t:'5. Enter the email for registration then click \'Continue\'' },
+      { img:G + 'hbo-6.png', t:'6. Enter the details and click \'Create Account\' (If you already have an account, you will receive a One-Time Code via email to activate)' },
+      { img:G + 'hbo-7.png', t:'7. Account activated! You can now download ' + app + ' from the App Store or Google Play to start enjoying entertainment' }];
+  }
+  var APPS = [
+    { id:'viu', n:'VIU Premium', steps:VIU }, { id:'netflix', n:'Netflix', steps:std('Netflix') }, { id:'hbo', n:'HBO Max', steps:std('HBO Max') },
+    { id:'iqiyi', n:'iQIYI', steps:std('iQIYI') }, { id:'wetv', n:'WE TV', steps:std('WeTV') }, { id:'disney', n:'Disney+', steps:std('Disney+') }];
+  var PER = 5, STEP_W = 209 + 32;
+
+  var list = document.querySelector('.apps .list'), track = document.querySelector('.track'), win = document.querySelector('.win');
+  var dots = document.querySelector('.dots'), arws = [].slice.call(document.querySelectorAll('.arw')), home = document.querySelector('.home');
+  list.innerHTML = APPS.map(function(a){ return '<div class="app">' + a.n + '</div>'; }).join('');
+  var appEls = [].slice.call(list.children);
+  var want = (location.search.match(/[?&]app=(\w+)/) || [])[1];
+  var cur = { area:'apps', app:Math.max(0, APPS.map(function(a){ return a.id; }).indexOf(want)), page:0, arw:1 };
+
+  function pages(){ return Math.ceil(APPS[cur.app].steps.length / PER); }
+  function show(){
+    var a = APPS[cur.app];
+    track.innerHTML = a.steps.map(function(s, i){ return '<div class="stepc"><div class="n">' + (i + 1) + '</div><img src="' + s.img + '" alt=""><p>' + s.t + '</p></div>'; }).join('');
+    win.classList.toggle('centred', a.steps.length <= PER);
+    win.style.top = a.steps.length <= PER ? '152px' : '104px';   // Figma: three steps sit lower, centred
+  }
+  function paint(){
+    appEls.forEach(function(el, i){ el.classList.toggle('on', i === cur.app); el.classList.toggle('focused', cur.area === 'apps' && i === cur.app); });
+    // the list scrolls to keep the picked app in its window
+    list.style.transform = 'translateY(' + -Math.max(0, Math.min(cur.app * 94 - 94 * 3, appEls.length * 94 - 24 - 500)) + 'px)';
+    var n = pages(), multi = n > 1;
+    track.style.transform = 'translateX(' + -(cur.page * PER * STEP_W) + 'px)';
+    dots.innerHTML = multi ? Array.apply(null, Array(n)).map(function(_, i){ return '<i class="' + (i === cur.page ? 'on' : '') + '"></i>'; }).join('') : '';
+    arws.forEach(function(el, i){ el.style.display = multi ? '' : 'none'; el.classList.toggle('can', i ? cur.page < n - 1 : cur.page > 0);
+      el.classList.toggle('focused', cur.area === 'steps' && i === cur.arw); });
+    home.classList.toggle('focused', cur.area === 'home');
+  }
+  function goHome(){ location.href = 'home.html'; }
+  function slide(d){ cur.page = Math.max(0, Math.min(pages() - 1, cur.page + d)); }
+  document.addEventListener('keydown', function(e){
+    var k = e.key;
+    if(k === 'Escape' || k === 'Backspace'){ goHome(); e.preventDefault(); return; }
+    if(cur.area === 'apps'){
+      if(k === 'ArrowUp' && cur.app > 0){ cur.app--; cur.page = 0; show(); }
+      else if(k === 'ArrowDown' && cur.app < APPS.length - 1){ cur.app++; cur.page = 0; show(); }
+      else if(k === 'ArrowRight') cur.area = pages() > 1 ? 'steps' : 'home';
+      else return;
+    } else if(cur.area === 'steps'){
+      if(k === 'ArrowLeft'){ if(cur.arw === 1) cur.arw = 0; else cur.area = 'apps'; }
+      else if(k === 'ArrowRight') cur.arw = 1;
+      else if(k === 'ArrowDown') cur.area = 'home';
+      else if(k === 'Enter') slide(cur.arw ? 1 : -1);
+      else return;
+    } else {
+      if(k === 'ArrowUp' || k === 'ArrowLeft') cur.area = pages() > 1 && k === 'ArrowUp' ? 'steps' : 'apps';
+      else if(k === 'Enter'){ goHome(); return; }
+      else return;
+    }
+    paint(); e.preventDefault();
+  });
+  appEls.forEach(function(el, i){ el.addEventListener('click', function(){ cur.area = 'apps'; cur.app = i; cur.page = 0; show(); paint(); }); });
+  arws.forEach(function(el, i){ el.addEventListener('click', function(){ slide(i ? 1 : -1); paint(); }); });
+  home.addEventListener('click', goHome);
+  show(); paint();
+})();
+</script>
+<script src="focus-ring.js"></script>
+</body>
+</html>

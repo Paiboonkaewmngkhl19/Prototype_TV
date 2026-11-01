@@ -126,6 +126,12 @@
   /* the logo inside: league-disc.css (leagues.js Leagues.pic) */
   .disc .lg-mono{ font-family:var(--roboto); font-size:26px; }
   .disc .fav{ position:absolute; right:-16px; bottom:-16px; width:84px; height:84px; transition:opacity .2s ease, transform .25s var(--ease); }
+  /* followed: the league page's Follow button, as it looks once followed (button-theme.css secondary: its 3px ring, the
+     white filled heart), on the page's dark so it reads over the logo */
+  .disc .fav{ display:flex; align-items:center; justify-content:center; }
+  .disc .fav i{ width:69px; height:69px; border-radius:50%; background:#0d0d18; box-shadow:inset 0 0 0 3px rgba(232,232,232,.18);
+    display:flex; align-items:center; justify-content:center; }
+  .disc .fav img{ width:32px; height:32px; display:block; }
   .disc:not(.followed) .fav{ opacity:0; transform:scale(.6); }
   .disc.focused{ transform:scale(1.194); }   /* no stroke: the round focus ring is the outline */
   .league .name{ width:100%; height:56px; font-family:var(--roboto); font-size:22px; line-height:28px; text-align:center; color:var(--on-surface); overflow:hidden; }
@@ -523,11 +529,12 @@
       list.map(function(it, i){ return matchCard(it, i, key); }).join('') + '</div></div></section>';
   }
   function leaguesSec(list){
+    if(!list.length) return '';   // a sport with no leagues: no empty rail to land on
     SHOWN_LEAGUES = list;
     return '<section class="sec" data-row="leagues"><h2 class="sec-title">League &amp; Tournament</h2><div class="rail"><div class="leagues">' + list.map(function(l, i){
       var pic = Leagues.pic(l);   // leagues.js
       return '<div class="league"><div class="disc item' + (l.fav ? ' followed' : '') + '"' + attrs({kind:'league', i:i}) + '>' + pic +
-        '<img class="fav" src="sport-assets/fav-btn.svg" alt="" data-ring-top></div><div class="name">' + l.name + '</div></div>';
+        '<span class="fav" data-ring-top><i><img src="icons/tv-guide/heart-fill.svg" alt="Following"></i></span></div><div class="name">' + l.name + '</div></div>';
     }).join('') + '</div></div></section>';
   }
   // the tournament band: the Champions League's own artwork, or a plain picture for the others; its matches under the text
@@ -567,7 +574,7 @@
      picture, then its LIVE & Upcoming, Highlights, Rerun, Moments of the Week, the Match Schedule tiles (the Short
      Highlight tiles' look), Related Contents and the other leagues; the plain page, no dynamic background ---------- */
   function landingHtml(l){
-    var S = SPORT[l.sp] || SPORT.rugby, pic = l.img || SPORT_PIC[l.sp] || SPORT_PIC[''];
+    var S = SPORT[l.sp] || SPORT.football, pic = l.img || SPORT_PIC[l.sp] || SPORT_PIC[''];   // (a sport without its own rails: Football's)
     sportCur = SPORT[l.sp] ? l.sp : '';
     var live = withPics(l.id === 'ucl' ? UCL : S.upcoming, pic), rerun = (S.forYou || {}).items || S.because;
     SETS = { live:live };

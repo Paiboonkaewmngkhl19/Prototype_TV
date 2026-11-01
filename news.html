@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="chip-theme.css">
 <link rel="stylesheet" href="tvguide-card.css">
+<link rel="stylesheet" href="corner-tag.css">
 <link rel="stylesheet" href="button-theme.css">
 <link rel="stylesheet" href="live-ribbon.css">
 <!--
@@ -72,6 +73,7 @@
   #page{ position:absolute; left:0; top:0; width:1920px; z-index:1; padding:649px 0 40px; display:flex; flex-direction:column; gap:60px;
     transition:transform .45s var(--ease); }
   .sec{ position:relative; transition:opacity .3s ease; }
+  .sec.below-first{ opacity:0; }   /* the rails after the chips, while the first scene shows */
   body:not(.static) .sec.above{ opacity:0; }
   .sec-title{ margin:0 110px 40px; font-weight:400; font-size:32px; line-height:40px; color:var(--on-surface); }
   .item{ cursor:pointer; }
@@ -196,17 +198,28 @@
     {t:'Economics', cat:'economics', d:'The economy explained: growth, inflation, jobs and what they mean for you.'},
     {t:'Politics', cat:'politics', d:'Parliament, elections and policy, at home and around the world.'},
     {t:'Entertainment', cat:'entertainment', d:'Celebrity news, film, music and culture, from red carpets to premieres.'},
-    {t:'IT & Tech', cat:'tech', d:'Gadgets, start-ups and the technology shaping tomorrow.'}
+    {t:'IT & Tech', cat:'tech', d:'Gadgets, start-ups and the technology shaping tomorrow.'},
+    {t:'Thai News', cat:'thai', d:'ข่าวไทยทุกช่อง สดตลอดวัน: Thai news from every Thai channel, live, with the programmes and episodes made at home.'}
   ];
   // what's on now on each news channel: the TV Guide's own channels (channels-data.js, `tv`), so the card, the TV Guide
   // and the player show the same programme, time, Time Shift and favourite
-  var INTL = [{c:CH.fox, cats:'politics economics'}, {c:CH.cnbc, cats:'business economics tech'}, {c:CH.sky, cats:'world politics business'},
-    {c:CH.cnn, cats:'world politics entertainment'}, {c:CH.bbc, cats:'world politics tech'}];
-  var THAI = [
-    {c:CH.thaipbs, cats:'politics world'}, {c:CH.tnn, cats:'business economics tech'}, {c:CH.nation, cats:'politics business'},
-    {c:CH.one, cats:'entertainment'}, {c:CH.pptv, cats:'entertainment'}
-  ];
-  INTL.concat(THAI).forEach(function(e){ e.tv = e.c.g; });   // lowest number first, as the TV Guide
+  // every news channel in the TV Guide (channels-data.js, cats 'news'), lowest number first: the Thai Digital TV ones
+  // (Thai News Channel, and the Thai News chip) and the international ones; each with the categories it covers
+  var NEWS_CATS = {
+    'FOX News':'politics economics', 'Bloomberg':'business economics', 'CNBC News':'business economics tech', 'SKY News':'world politics business',
+    'NHK World Japan':'world tech', 'CNN':'world politics entertainment', 'BBC News':'world politics tech', 'CCTV 4':'world', 'CGTN':'world economics',
+    'CNA':'world business', 'Euro News':'world politics', 'DW':'world politics', 'France 24':'world politics', 'News 1':'world',
+    'FOX Business':'business economics', 'Aljazeera':'world politics', 'Top News':'world politics', 'RT Channel':'world politics', 'TVBS':'world entertainment',
+    'NBT 2 HD':'politics', 'TPBS':'politics world', 'CH5 HD':'politics', 'T Sports 7':'entertainment', 'Parliament':'politics', 'TNN':'business economics tech',
+    'JKN 18':'business world', 'Nation TV':'politics business', 'GMM25':'entertainment', 'CH 8':'entertainment', 'MCOT HD':'politics economics',
+    'ONE 31 HD':'entertainment', 'Thairath TV HD':'politics entertainment', '3 HD':'politics entertainment', 'AmarinTV HD':'entertainment',
+    'CH7 HD':'politics entertainment', 'PPTV HD':'entertainment business' };
+  var INTL = [], THAI = [];
+  TV.CHANNELS.filter(function(d){ return (d.cats || []).indexOf('news') >= 0; }).sort(function(a, b){ return a.no - b.no; }).forEach(function(d){
+    var thai = d.cats.indexOf('digital') >= 0, e = { c:{ g:d.n, n:d.n, no:String(d.no), d:d }, tv:d.n, cats:(NEWS_CATS[d.n] || 'world') + (thai ? ' thai' : '') };
+    (thai ? THAI : INTL).push(e);
+  });
+  // (every localized programme is Thai: the Thai News chip keeps the whole rail)
   var LOCAL = [
     {t:'ทันโลก กับ Thai PBS', cats:'world', img:A + 'lc-1.png', ch:CH.thaipbs, time:'09:00 – 10:00', d:'สรุปข่าวต่างประเทศรอบวัน เจาะลึกประเด็นที่คนทั้งโลกจับตา'},
     {t:'เปิดโต๊ะข่าว PPTV', cats:'politics', img:A + 'lc-2.png', ch:CH.pptv, time:'10:00 – 11:00', d:'เปิดโต๊ะข่าว ถกทุกประเด็นร้อนประจำวันกับทีมข่าว PPTV'},
@@ -218,7 +231,7 @@
   // episode rails: the latest episodes, newest first (Figma: one poster per show, the date and name under it)
   function eps(name, img, dates, contain){ return dates.map(function(d){ return {t:d + ' - ' + name, img:img, contain:contain}; }); }
   var EPISODES = [
-    {title:'Hone-Krasae (โหนกระแส) EP', cats:'entertainment politics', show:'Hone-Krasae (โหนกระแส)', items:eps('โหนกระแส', A + 'ep-honkrasae.png',
+    {title:'Hone-Krasae (โหนกระแส) EP', cats:'entertainment politics thai', show:'Hone-Krasae (โหนกระแส)', items:eps('โหนกระแส', A + 'ep-honkrasae.png',
       ['23/10/26', '22/10/26', '21/10/26', '20/10/26', '19/10/26', '16/10/26', '15/10/26', '14/10/26'], 1),
       d:'โหนกระแส ทุกประเด็นร้อนที่สังคมพูดถึง ถามตรง ตอบจริง กับหนุ่ม กรรชัย'},
     {title:'BBC The Global Story EP', cats:'world politics economics tech', show:'BBC The Global Story', items:eps('The Global Story', A + 'ep-globalstory.png',
@@ -230,9 +243,11 @@
   ];
 
   /* ---------- markup ---------- */
+  // a premium channel's programme: the crown tag bottom-left (corner-tag.css), as Home's and Sport's cards
   function liveCard(it, i, set){
+    var prem = it.ch && it.ch.d && (it.ch.d.crown === 'gold' || it.ch.d.crown === 'owned');
     return '<div class="card item"' + attrs({kind:'live', set:set, i:i}) + '><div class="thumb' + (it.logo ? ' logo' : '') + '" style="background-image:url(\'' + it.img + '\')">' +
-      '</div><span class="live-ribbon" data-ring-top="styled">Live</span><div class="t">' + esc(it.t) + '</div></div>';   // Home's Live ribbon
+      (prem ? '<img class="crown-tag" src="icons/crown-gold.svg" alt="Premium">' : '') + '</div><span class="live-ribbon" data-ring-top="styled">Live</span><div class="t">' + esc(it.t) + '</div></div>';   // Home's Live ribbon
   }
   function epgIcons(o){ return (o.ts ? '<img class="epg-ts" src="icons/tv-guide/timeshift.svg" alt="Time Shift">' : '') + (o.fav ? '<span class="epg-heart"><img src="icons/epg/heart.svg" alt="Favorite"></span>' : ''); }
   // Home's TV Guide card (tvguide-card.css): the channel's logo, what's on now and its progress, then what's next
@@ -279,7 +294,7 @@
   var $ = function(q, root){ return Array.prototype.slice.call((root || document).querySelectorAll(q)); };
   // each card (channels, programmes) and each episode rail carries its categories in data-cats
   $('[data-row="intl"] .epg-card, [data-row="thai"] .epg-card', page).forEach(function(el){ el.dataset.cats = (el.dataset.set === 'intl' ? INTL : THAI)[+el.dataset.i].cats; });
-  $('[data-row="local"] .item', page).forEach(function(el){ el.dataset.cats = LOCAL[+el.dataset.i].cats; });
+  $('[data-row="local"] .item', page).forEach(function(el){ el.dataset.cats = LOCAL[+el.dataset.i].cats + ' thai'; });
   EPISODES.forEach(function(r, ri){ page.querySelector('[data-row="ep' + ri + '"]').dataset.cats = r.cats; });
   var catFilter = CATS[PICK].cat;   // '' = All
   function inCat(el){ return !catFilter || (' ' + el.dataset.cats + ' ').indexOf(' ' + catFilter + ' ') >= 0; }
@@ -328,7 +343,7 @@
       var m = (el.dataset.set === 'local' ? LOCAL : DONT_MISS)[i];
       return { t:m.t, meta:'<span class="badge live">LIVE</span>' + chMeta(m.ch) + '<span class="pill">' + m.time + '</span>', d:m.d || NEWS_DESC, bg:m.bg || m.img };
     }
-    if(k === 'cat'){ var c = CATS[i]; return { t:c.t + ' News', d:c.d, bg:A + 'hero-bg.png' }; }
+    if(k === 'cat'){ var c = CATS[i]; return { t:/News$/.test(c.t) ? c.t : c.t + ' News', d:c.d, bg:A + 'hero-bg.png' }; }
     if(k === 'viewall') return { t:rowKey === 'intl' ? 'International News Channel' : 'Thai News Channel',
       d:'See what’s on now and next on every ' + (rowKey === 'intl' ? 'international' : 'Thai') + ' news channel in the TV Guide.', bg:'posters/tvguide-bg.jpg' };
     if(k === 'epg'){
@@ -366,6 +381,8 @@
   }
   // the hero text ends 80px above the focused rail's first line (its title, else its cards), whatever its length
   var HERO_GAP = 80;
+  var CHIPS_FOCUS_Y = 594;   // Home's quick-menu chips when focused
+  var CHIPS_GAP = 38;   // the chips' row ends 38px above the screen's bottom, as Home's quick-menu chips (y 942, 100 tall)
   function placeHero(r){
     var y = 0, e = r.sec.querySelector('.sec-title, .item');
     while(e && e !== r.sec){ y += e.offsetTop; e = e.offsetParent; }
@@ -376,9 +393,17 @@
     var r = rows[ri], top = r.sec.offsetTop, y;
     // a rail sits at y=649, or higher when it's too tall to end on screen there (the episode rails); Back to Top: the page's end
     y = ri <= DYNAMIC_END ? top - Math.min(ROW_Y, 1080 - 40 - r.sec.offsetHeight) : page.offsetHeight - 1080;
+    // the first scene (Don't Miss, then the category chips): fixed, the chips' row 38px above the bottom as Home's
+    var ch = rows[R.cats].sec.querySelector('.chips'), chTop = rows[R.cats].sec.offsetTop + ch.offsetTop;
+    if(ri === R.dontmiss) y = chTop + ch.offsetHeight - (1080 - CHIPS_GAP);
+    // the chips focused: up to y=594 with the rail after them showing, as Home's quick menu
+    if(ri === R.cats) y = chTop - CHIPS_FOCUS_Y;
     pageY = Math.max(0, y);
     page.style.transform = 'translateY(' + -pageY + 'px)';
     secs.forEach(function(s, si){ s.classList.toggle('above', si + 1 < ri); });
+    // the first scene, as Home's: nothing under the chips' row, only its gap to the screen's bottom
+    var first = ri === R.dontmiss;
+    secs.forEach(function(s){ s.classList.toggle('below-first', first && s.offsetTop > rows[R.cats].sec.offsetTop); });
     document.body.classList.toggle('static', ri > DYNAMIC_END);
   }
 
