@@ -315,10 +315,16 @@
       : state === 'play' ? '<div class="tv-btn tv-btn--primary main item" data-label="Play" data-ring-art=""><i class="ic-play"></i>Play</div>'
       : '<div class="tv-btn tv-btn--primary main item" data-label="View Package" data-ring-art=""><i class="ic-pkg"></i>View Package</div>' +
         '<div class="tv-btn tv-btn--secondary buy item" data-label="Buy" data-ring-art="">Buy ' + MD.price(K) + ' ฿</div>';
-    var REMIND = icon('Remind', 'icons/tv-guide/bell.svg', 'Remind me', 'Stop reminding', SER ? 'We’ll remind you of new episodes|Reminder off' : 'We’ll remind you of new titles like this|Reminder off'),
-        MYLIST = icon('My List', 'icons/detail-plus.svg', 'Add to My List', 'Remove from My List', 'Added to My List|Removed from My List');
-    ctasEl.innerHTML = main + (state === 'resume' ? icon('Start Over', 'icons/player/start-over.svg', 'Start Over') + REMIND + LIKE
-      : SER && state === 'buy' ? icon('Watch Trailer', 'icons/player/start-over.svg', 'Watch Trailer') + MYLIST + REMIND + LIKE   // Figma "Series MD: First scene"
+    var MYLIST = icon('My List', 'icons/detail-plus.svg', 'Add to My List', 'Remove from My List', 'Added to My List|Removed from My List');
+    // the icon buttons, by scenario (the same for a movie, a series and a short): coming soon: My List, Remind, Like,
+    // Dislike; watching: Start Over, My List, Like, Dislike; else (first time): My List, Like, Dislike
+    if(state === 'soon'){
+      var out = new Date(MD.soon(K)), when = 'Coming ' + out.getDate() + ' ' + 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ')[out.getMonth()];
+      main = '<div class="tv-btn tv-btn--primary main wait disabled" aria-disabled="true"><i class="ic-clock"></i><span>' + when + '</span></div>';
+    }
+    var REMIND = icon('Remind', 'icons/tv-guide/bell.svg', 'Remind me', 'Stop reminding', 'We’ll remind you when ' + m.t + ' is out|Reminder off');
+    ctasEl.innerHTML = main + (state === 'soon' ? MYLIST + REMIND + LIKE
+      : state === 'resume' ? icon('Start Over', 'icons/player/start-over.svg', 'Start Over') + MYLIST + LIKE
       : MYLIST + LIKE);
     if(SER) renderEps();
   }
@@ -500,6 +506,7 @@
     if(el.dataset.season){ season = +el.dataset.season; renderEps(); cur.row = 3; cur.col = 0; paint(); return; }
     if(el.dataset.e){
       if(state === 'buy'){ cur = { row:0, col:0 }; paint(); toast('Get a package or buy ' + m.t + ' to watch'); return; }   // not yet playable
+      if(state === 'soon'){ toast(m.t + ' isn’t out yet: Remind me to hear when it is'); return; }
       var s = +el.dataset.s, e = +el.dataset.e;
       play(!(cw && cw.s === s && cw.e === e), s, e); return;   // the episode left part-way resumes; any other starts
     }

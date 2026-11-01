@@ -15,7 +15,7 @@
     MD.FOR_YOU      For You (PPV): k, price
     MD.RENT         Rent or Buy: k, b (badge)
     MD.MY_RENTAL    titles already rented
-    MD.state(k)     what the detail page offers: 'resume' (in Continue Watching), 'play' (rented, bought this session, or
+    MD.state(k)     what the detail page offers: 'soon' (not out yet: MD.soon(k) its release), 'resume' (in Continue Watching), 'play' (rented, bought this session, or
                     in the viewer's package), 'buy' (For You / Rent or Buy, not yet bought); MD.price(k) its price
     MD.own(k)       mark a title bought / its package subscribed (this session)
     MD.cw(k)        where the title was left: this session's progress (player.html), else Continue Watching
@@ -100,7 +100,7 @@
     prada:  {t:'The Devil Wears Prada 2', w:P + 'P10-Devil.jpg', plat:'disney', g:['Comedy', 'Drama'], y:2026, len:'1h 59m', age:'13+',
              d:'Miranda Priestly faces the decline of print, and an old assistant who now holds the purse strings.'},
     // Thai horror (Figma For PBR 8:11038)
-    khemjira:{t:'Khemjira', p:PP + 'khemjira.jpg', plat:'monomax', g:['Horror', 'Thriller'], y:2025, len:'1h 58m', age:'18+',
+    khemjira:{t:'Khemjira', p:PP + 'khemjira.jpg', plat:'monomax', g:['Horror', 'Thriller'], y:2025, len:'1h 58m', age:'18+', soon:19,   // out in 19 days
              d:'A young man haunted by a curse on his family\'s bloodline turns to an ancient ritual, and the spirit it wakes will not let him go.'},
     medium: {t:'The Medium', p:PP + 'the-medium.jpg', plat:'monomax', g:['Horror', 'Mystery'], y:2021, len:'2h 10m', age:'18+',
              d:'A documentary crew follows a shaman in rural north-east Thailand, until her niece starts to show signs of something far darker.'},
@@ -202,7 +202,10 @@
     return out;
   }
   function minutes(k){ var l = (M[k] && M[k].len) || '', h = /(\d+)h/.exec(l), mm = /(\d+)m/.exec(l); return (h ? +h[1] * 60 : 0) + (mm ? +mm[1] : 0) || 50; }   // a series ('1 Season'): a 50-minute episode
+  // soon: a title not out yet (days from today; MD.soon(k) its release, ms), else null
+  function soon(k){ var m = M[k]; if(!m || !m.soon) return null; var d = new Date(); d.setHours(0, 0, 0, 0); return d.getTime() + m.soon * 864e5; }
   function state(k){
+    if(soon(k)) return 'soon';   // not out yet: its detail page has no Play (Remind instead)
     if(cw(k)) return 'resume';
     if(owned().indexOf(k) >= 0) return 'play';
     if(PACKAGE.indexOf(k) >= 0) return 'buy';
@@ -210,7 +213,7 @@
     return price(k) ? 'buy' : 'play';
   }
   window.MD = { P:P, PP:PP, M:M, CONTINUE:CONTINUE, FOR_YOU:FOR_YOU, RENT:RENT, MY_RENTAL:MY_RENTAL, state:state, price:price, own:own, cw:cw, setProgress:setProgress, minutes:minutes,
-    continueList:continueList, series:series, seasons:seasons, episodes:episodes, episode:episode, next:next, until:until,
+    soon:soon, continueList:continueList, series:series, seasons:seasons, episodes:episodes, episode:episode, next:next, until:until,
     bg:function(k){ var m = M[k]; return m ? m.b || m.w || m.p : ''; },
     // the quality tag every page shows in a title's meta row: 4K Dolby (platform-tag.css .qtag), else the HD pill
     // a title's meta row, the same on every page (Home's screen text, the Movie page's hero, the detail page): its

@@ -277,6 +277,9 @@
   // Play: the episode the player left off on (SHORT.at), else Ep.1
   var playEp = (window.SHORT && SHORT.at(si) || {}).ep || 1;
   $('.actions .main span')[0].textContent = 'Play Ep.' + playEp;
+  // watching it already (SHORT.at): Start Over after the main button, as a movie's or series' detail page
+  if(window.SHORT && SHORT.at(si)) $('.actions .main')[0].insertAdjacentHTML('afterend',
+    '<div class="tv-btn tv-btn--secondary ic item" data-act="startover" data-tip="Start Over" data-ring-art=""><img src="icons/player/start-over.svg" alt="Start Over"><span class="tip"></span></div>');
 
   // You May Also Like: other short dramas only (content.js Content.related), never a movie in their place
   var LIKES = Content.related({s:si}, 18).map(function(r){ return { t:SHORTS[r.s].t, img:'posters/shorts/' + SHORTS[r.s].img, s:r.s }; });
@@ -442,10 +445,11 @@
     if(el.dataset.href){ location.href = el.dataset.href; return; }
     if(navItems.indexOf(el) >= 0){ toast(el.dataset.label + ' (demo)'); return; }
     if(el.dataset.act === 'play'){ location.href = 'player.html?short=' + si + '&ep=' + playEp; return; }   // the vertical player
+    if(el.dataset.act === 'startover'){ location.href = 'player.html?short=' + si + '&ep=1&start=1'; return; }   // from Ep.1
     if(el.dataset.act === 'toggle'){
       var msgs = el.dataset.toggle.split('|'), on = !el.classList.contains('on');
       el.classList.toggle('on', on); IconToggle.pop(el, on);
-      if(on && el.dataset.pair){ var other = $('.actions .item')[el.dataset.pair === '1' ? 3 : 2]; other.classList.remove('on'); IconToggle.paint(other); }   // like and dislike can't both be on
+      if(on && el.dataset.pair){ var other = $('.actions [data-label="' + (el.dataset.pair === '1' ? 'Dislike' : 'Like') + '"]')[0]; other.classList.remove('on'); IconToggle.paint(other); }   // like and dislike can't both be on
       toast(on ? msgs[0] : msgs[1]); return;
     }
     if(el.classList.contains('ep')){
