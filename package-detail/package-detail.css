@@ -8,23 +8,18 @@
   .left{ position:absolute; left:0; top:0; width:1093px; height:1080px; box-sizing:border-box; padding:60px 80px 60px 110px; background:#1c1c1c; display:flex; flex-direction:column; gap:24px; }
   h1{ margin:0; font-size:32px; font-weight:500; line-height:40px; color:var(--on); }
   /* the package: its logo (80px) and name, the two chips (focus: the shared ring), its description or terms */
-  .phead{ display:flex; gap:16px; padding:8px 24px 8px 8px; border-radius:12px; background:#3a3a3a; }
-  .phead .lg{ width:80px; height:80px; border-radius:8px; background:#000; overflow:hidden; flex:0 0 auto; align-self:center; }
+  .phead{ display:flex; gap:20px; padding:12px 24px 12px 16px; border-radius:16px; background:#3a3a3a; }   /* sized up for the TV, as Title Details' card */
+  .phead .lg{ width:80px; height:80px; border-radius:8px; background:#000; overflow:hidden; flex:0 0 auto; align-self:flex-start; }
   .phead .lg img{ width:100%; height:100%; object-fit:contain; display:block; }
   .phead .lg.white{ background:#fff; }
   .phead .lg.cover img{ object-fit:cover; }
-  .pinfo{ flex:1; min-width:0; display:flex; flex-direction:column; gap:8px; padding:8px 0; }
-  .pnm{ font-size:24px; font-weight:500; line-height:32px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .switcher{ display:flex; gap:8px; }
-  .tab{ height:28px; box-sizing:border-box; padding:0 8px; border-radius:9999px; background:#2a2a2a; display:flex; align-items:center; font-size:14px; font-weight:500; color:var(--on); cursor:pointer;
-    transition:background .15s ease, color .15s ease; }
-  .tab.active{ background:#e8e8e8; color:#2a2a2a; }
-  .fine{ margin:0; font-size:16px; line-height:24px; letter-spacing:.25px; color:var(--muted); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-  .terms{ display:none; margin:0; padding-left:22px; font-size:16px; line-height:24px; letter-spacing:.25px; color:var(--muted); }
-  body.show-terms .fine, body.show-terms .services, body.show-terms .note4k, body.show-terms .groups{ display:none; }
-  body.show-terms .terms{ display:block; }
+  .pinfo{ flex:1; min-width:0; display:flex; flex-direction:column; gap:12px; }
+  .pnm{ margin-bottom:12px; /* 24px down to the tags (with the card's 12px gap) */ font-size:30px; font-weight:600; line-height:38px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .switcher{ display:flex; gap:12px; margin-bottom:16px; }   /* the chips are info tags only (the card opens the details view) */
+  .tab{ height:28px; box-sizing:border-box; padding:0 12px; border-radius:9999px; background:#2a2a2a; display:flex; align-items:center; font-size:16px; font-weight:500; color:var(--on); }
+  .fine{ margin:0; font-size:22px; line-height:32px; letter-spacing:.2px; color:#c8c8c8; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
   /* its apps, 3 across (274px, 40px apart): the logo (48px; no logo: its name on a box), name, screens, quality, Dolby */
-  .services{ display:grid; grid-template-columns:repeat(3, 274px); column-gap:40px; row-gap:24px; }
+  .services{ display:grid; grid-template-columns:repeat(3, 274px); column-gap:40px; row-gap:20px; }
   .svc{ display:flex; gap:8px; align-items:center; height:49px; }
   .svc .ic{ width:48px; height:48px; border-radius:7.6px; overflow:hidden; flex:0 0 auto; background:#000; display:flex; align-items:center; justify-content:center; }
   .svc .ic img{ width:100%; height:100%; object-fit:contain; display:block; }
@@ -38,7 +33,7 @@
   .svc .tags img{ height:20px; display:block; }
   .note4k{ margin:-8px 0 0; font-size:16px; line-height:24px; letter-spacing:.25px; color:var(--on); }
   /* Sports, Free & Premium Channels, Available on (a group only when the package has it) */
-  .groups{ display:flex; flex-direction:column; gap:40px; margin-top:16px; }
+  .groups{ display:flex; flex-direction:column; gap:40px; }
   .group{ display:flex; flex-direction:column; gap:8px; }
   .group h3{ margin:0; font-size:20px; font-weight:400; color:#fff; }
   .logos{ display:flex; gap:16px; padding:0 8px; }
@@ -72,102 +67,46 @@
   .price .vat{ font-size:16px; line-height:24px; letter-spacing:.25px; color:var(--on); white-space:nowrap; }
   .pay{ display:flex; flex-direction:column; gap:24px; }
   .pay h2{ margin:0 0 8px; font-size:32px; font-weight:500; line-height:40px; }
-  /* Figma's pay buttons: a faint outline; focused, a light fill inside a 3px rim (and the shared ring) with dark text */
-  .paybtn{ position:relative; height:80px; box-sizing:border-box; border-radius:9999px; padding:0 40px; display:flex; align-items:center; justify-content:space-between; font-size:24px; font-weight:500; cursor:pointer;
-    border:3px solid rgba(74,74,74,.4); color:rgba(232,232,232,.8); transition:background .15s ease, color .15s ease, box-shadow .15s ease; }
+  /* the pay buttons: the site's buttons (button-theme.css tv-btn--primary: its focus, the light glass pill, and the shared
+     ring), full width; at rest Figma's faint outline */
+  .paybtn{ --btn-w:100%; --btn-h:80px; padding:0 40px; justify-content:space-between; font-size:24px; cursor:pointer; }
+  .paybtn:not(.focused){ background:transparent; -webkit-backdrop-filter:none; backdrop-filter:none; box-shadow:inset 0 0 0 3px rgba(232,232,232,.18); color:rgba(232,232,232,.8); }
   .paybtn i{ width:32px; height:32px; flex:0 0 auto; background:currentColor; -webkit-mask:url('../icons/pkg/ichev.svg') center / contain no-repeat; mask:url('../icons/pkg/ichev.svg') center / contain no-repeat; }
-  .paybtn.focused{ border-color:#e8e8e8; background:#e8e8e8; box-shadow:inset 0 0 0 3px #383838; color:#2a2a2a; }
   .note{ margin:0; text-align:center; font-size:22px; line-height:28px; color:#fff; }
 
-  /* ---------- Confirm Subscribe popup (Figma 654:77295 before scrolling, 654:77363 ready to confirm) ---------- */
+  /* ---------- OTP popup (Figma Store 5555:183690): this page's popup (the scrim, the #404040 dialog, the pins and the
+     keys' glass focus), Figma's layout: title and amount, 4 pins, a 3 x 4 keypad (delete, 0, clear), the OTP card,
+     "Did not receive OTP?", Cancel / Resend OTP (button-theme.css) ---------- */
   .scrim{ position:absolute; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:3; }
-  .modal{ position:absolute; left:260px; top:100px; width:1400px; height:880px; box-sizing:border-box; padding:44px 60px; border-radius:36px; background:#404040;
-    box-shadow:0 8px 12px rgba(0,0,0,.3); display:flex; flex-direction:column; gap:24px; z-index:4;
-    opacity:0; transform:scale(.96); pointer-events:none; transition:opacity .25s ease, transform .25s cubic-bezier(.2,0,0,1); }
-  body.confirm .scrim, body.confirm .modal{ opacity:1; pointer-events:auto; }
-  body.confirm .modal{ transform:none; }
-  .modal .mtitle{ display:flex; gap:16px; font-size:32px; line-height:40px; }
-  .modal .mtitle b{ font-weight:600; }
-  .modal .mhero{ display:flex; align-items:center; gap:16px; }
-  .modal .mhero .lg{ width:110px; height:110px; border-radius:8px; background:#000; overflow:hidden; flex:0 0 auto; }
-  .modal .mhero .lg img{ width:100%; height:100%; object-fit:contain; display:block; }
-  .modal .mhero .nm{ font-size:24px; font-weight:600; line-height:32px; }
-  .modal .mhero .pr{ display:flex; align-items:center; gap:16px; margin-top:8px; }
-  .modal .mhero .pr b{ font-size:32px; font-weight:600; line-height:44px; }
-  .modal .mhero .pr span{ font-size:20px; color:var(--muted); }
-  .tcbox{ position:relative; flex:1; min-height:0; border-radius:20px; background:#525252; padding:16px 16px 0; display:flex; flex-direction:column; gap:10px; }
-  .tcbox h3{ margin:0; font-size:24px; font-weight:500; line-height:32px; }
-  .tcscroll{ flex:1; min-height:0; overflow-y:auto; scrollbar-width:none; padding:0 18px 90px; font-size:16px; line-height:26px; letter-spacing:.25px; scroll-behavior:smooth; }
-  .tcscroll::-webkit-scrollbar{ display:none; }
-  /* text fades out at the bottom of the box, behind the Scroll to the bottom button */
-  .tcscroll{ -webkit-mask-image:linear-gradient(180deg, #000 calc(100% - 90px), transparent calc(100% - 10px)); mask-image:linear-gradient(180deg, #000 calc(100% - 90px), transparent calc(100% - 10px)); }
-  body.read .tcscroll{ -webkit-mask-image:none; mask-image:none; }
-  .tcscroll p{ margin:0; }
-  .tcscroll p:first-child{ line-height:24px; margin-bottom:10px; }
-  .tcarrow{ position:absolute; right:16px; bottom:14px; width:40px; height:40px; }
-  .scrollbtn{ position:absolute; left:50%; bottom:12px; transform:translateX(-50%); display:flex; align-items:center; gap:8px; padding:8px 16px; border-radius:9999px; font-size:16px; font-weight:500; cursor:pointer;
-    background:#242424; box-shadow:inset 0 0 0 1.6px rgba(232,232,232,.5); transition:opacity .2s ease, box-shadow .15s ease; }
-  .scrollbtn img{ width:24px; height:24px; }
-  .scrollbtn.focused{ background:radial-gradient(ellipse 120% 160% at 12% 90%, rgba(255,255,255,0) 6%, rgba(255,255,255,.25) 100%), #3a3a3a; }
-  body.read .scrollbtn{ opacity:0; pointer-events:none; }
-  .actions{ display:flex; gap:16px; }
-  .mbtn{ position:relative; height:80px; box-sizing:border-box; border-radius:9999px; display:flex; align-items:center; justify-content:center; gap:16px; font-size:24px; font-weight:600; cursor:pointer; background:#252525; box-shadow:inset 0 3px 3px rgba(0,0,0,.23); }
-  .mbtn.cancel{ width:486px; }
-  .mbtn.agree{ flex:1; background:#3d3d3d; color:rgba(255,255,255,.52); box-shadow:none; }
-  .mbtn.agree img{ width:32px; height:32px; opacity:.52; }
-  body.read .mbtn.agree{ color:#fff; background:#2c2c2c; }
-  body.read .mbtn.agree img{ opacity:1; }
-  .mbtn > *{ position:relative; }
-  .mbtn.focused{ color:#fff; }
-  .mbtn.focused::before{ content:''; position:absolute; inset:0; border-radius:9999px;
-    background:radial-gradient(ellipse 120% 160% at 12% 90%, rgba(255,255,255,0) 6%, rgba(255,255,255,.4) 100%), rgba(255,255,255,.2); box-shadow:inset -1px 3px 17px rgba(255,255,255,.16); }
-
-  /* ---------- OTP popup (Figma 654:77283 empty, 654:77287 filled) + success (654:77291) ---------- */
   .dlg{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) scale(.96); box-sizing:border-box; border-radius:36px; background:#404040;
     box-shadow:0 8px 24px rgba(0,0,0,.3); z-index:4; opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s cubic-bezier(.2,0,0,1); }
-  body.otp .dlg.otpd, body.done .dlg.okd{ opacity:1; pointer-events:auto; transform:translate(-50%,-50%); }
-  body.otp .scrim, body.done .scrim{ opacity:1; pointer-events:auto; }
+  body.otp .dlg.otpd{ opacity:1; pointer-events:auto; transform:translate(-50%,-50%); }
+  body.otp .scrim{ opacity:1; pointer-events:auto; }
   .otpd{ width:800px; padding:60px; display:flex; flex-direction:column; align-items:center; gap:40px; }
   .otpd .ohead{ display:flex; flex-direction:column; align-items:center; gap:16px; text-align:center; }
-  .otpd .ohead h2{ margin:0; font-size:40px; font-weight:600; line-height:1.2; letter-spacing:-.2px; }
-  .otpd .ohead p{ margin:0; font-size:24px; line-height:1.2; letter-spacing:-.2px; }
-  .otpd .ohead p b{ font-weight:600; }
-  .pad{ display:flex; flex-direction:column; align-items:center; gap:24px; width:438px; }
+  .otpd .ohead h2{ margin:0; font-size:40px; font-weight:500; line-height:1.2; letter-spacing:-.2px; }
+  .otpd .ohead p{ margin:0; font-size:24px; line-height:40px; letter-spacing:-.2px; color:#fff; }
+  .otpd .ohead p b{ font-weight:700; }
+  .pad{ display:flex; flex-direction:column; align-items:center; gap:24px; }
   .pins{ display:flex; gap:17.24px; }
   .pin{ width:86.2px; height:100px; box-sizing:border-box; border-bottom:5.17px solid rgba(255,255,255,.1); display:flex; align-items:center; justify-content:center; font-size:56px; font-weight:500; }
   .pin.filled{ border-bottom-color:rgba(255,255,255,.35); }
-  .pin.cur{ border-bottom-color:rgba(255,255,255,.8); }
+  .pin.cur{ border-bottom-color:#fff; }
   .pin.cur:empty::after{ content:''; width:1.7px; height:66px; background:#fff; animation:blink 1s steps(1) infinite; }
   @keyframes blink{ 50%{ opacity:0; } }
-  .keys{ width:100%; box-sizing:border-box; padding:26px; border-radius:20px; background:#525252; display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
-  .key{ position:relative; width:120px; height:52px; box-sizing:border-box; border-radius:24px; background:#252525; box-shadow:inset 0 3px 3px rgba(0,0,0,.23);
-    display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; }
-  .key img{ width:36px; height:36px; }
-  .key.blank{ background:transparent; box-shadow:none; cursor:default; }
-  .key.focused{ background:radial-gradient(ellipse 120% 160% at 12% 90%, rgba(255,255,255,0) 6%, rgba(255,255,255,.4) 100%), rgba(255,255,255,.28); }
+  .keys{ display:grid; grid-template-columns:repeat(3, 161.33px); grid-auto-rows:66px; column-gap:8px; row-gap:16px; }
+  .key{ position:relative; border-radius:12px; background:#2b2b2b; display:flex; align-items:center; justify-content:center; font-size:40px; font-weight:500; color:#fff; cursor:pointer;
+    transition:background .15s ease; }
+  .key.ic{ background:transparent; }   /* delete / clear: their icon only, as in Figma */
+  .key img{ width:36px; height:36px; display:block; }
+  .key.focused{ background:radial-gradient(ellipse 120% 160% at 12% 90%, rgba(255,255,255,0) 6%, rgba(255,255,255,.4) 100%), rgba(255,255,255,.28); }   /* the keys' glass focus (and the shared ring) */
+  .ocard{ width:100%; box-sizing:border-box; padding:24px; border-radius:24px; background:#3a3a3a; text-align:center; font-size:24px; line-height:32px; color:#e8e8e8; }
+  .ocard b{ font-weight:700; }
   .otpd .sent{ margin:0; text-align:center; font-size:24px; line-height:1.2; letter-spacing:-.2px; }
-  .oacts{ display:flex; gap:16px; width:653px; }
-  .obtn{ position:relative; height:80px; box-sizing:border-box; padding:0 40px; border-radius:9999px; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:600; cursor:pointer;
-    background:#252525; box-shadow:inset 0 3px 3px rgba(0,0,0,.23); color:rgba(255,255,255,.85); }
-  .obtn.back{ padding:0 80px; }
-  .obtn.req{ width:207px; padding:0; background:#3d3d3d; box-shadow:inset 0 0 0 1px rgba(255,255,255,.18); color:rgba(255,255,255,.52); }
-  .obtn.done{ flex:1; background:#3d3d3d; box-shadow:inset 0 0 0 1px rgba(255,255,255,.18); color:rgba(255,255,255,.52); }
-  .obtn.ready{ background:#252525; color:rgba(255,255,255,.85); box-shadow:inset 0 0 0 1px rgba(255,255,255,.18); }
-  .obtn > *{ position:relative; }
-  .obtn.focused{ color:#fff; }
-  .obtn.focused::before{ content:''; position:absolute; inset:0; border-radius:9999px;
-    background:radial-gradient(ellipse 120% 160% at 12% 90%, rgba(255,255,255,0) 6%, rgba(255,255,255,.4) 100%), rgba(255,255,255,.2); box-shadow:inset -1px 3px 17px rgba(255,255,255,.16); }
-  .okd{ width:816px; padding:60px 40px; display:flex; flex-direction:column; align-items:center; gap:32px; text-align:center; color:rgba(255,255,255,.95); }
-  .okd .okhead{ display:flex; flex-direction:column; align-items:center; gap:24px; }
-  .okd .okhead img{ width:80px; height:80px; }
-  .okd h2{ margin:0 0 8px; font-size:32px; font-weight:600; line-height:40px; letter-spacing:-.2px; }
-  .okd .okhead p{ margin:0; font-size:22px; line-height:28px; }
-  .okd hr{ width:100%; height:2px; margin:0; border:0; background:rgba(255,255,255,.18); }
-  .okd .okcard{ width:100%; box-sizing:border-box; padding:20px 0; border-radius:20px; background:#525252; display:flex; flex-direction:column; align-items:center; gap:24px; }
-  .okd .okcard .n{ font-size:57px; font-weight:700; }
-  .okd .okcard .a{ font-size:45px; line-height:52px; }
-  .okd .okcard .v{ font-size:24px; font-weight:500; }
-  .okd .okcard .d{ font-size:20px; }
+  .oacts{ display:flex; gap:16px; width:100%; }
+  .obtn{ --btn-h:80px; font-size:24px; cursor:pointer; }
+  .obtn.back{ --btn-w:207px; }
+  .obtn.req{ --btn-w:auto; flex:1; }
 
   /* ---------- short drama mode (Figma "Details Short pay"): Title Details + viewing passes ---------- */
   .tdetails, .opthead, .passes{ display:none; }
@@ -177,7 +116,7 @@
   body.short .opts{ gap:0; }
   body.short .tdetails{ display:flex; gap:40px; }
   .tdetails .poster{ width:220px; height:330px; border-radius:16px; flex:0 0 auto; background:#3a3a3a center / cover no-repeat; }
-  .tdetails .info{ flex:1; min-width:0; display:flex; flex-direction:column; gap:32px; }
+  .tdetails .info{ flex:1; min-width:0; display:flex; flex-direction:column; gap:24px; }   /* 40px from the title and meta row to the chips (with the card's 16px padding) */
   .tdetails .head{ display:flex; flex-direction:column; gap:16px; }
   .tdetails .nm{ font-size:24px; font-weight:600; line-height:32px; color:#fff; }
   .tdetails .meta{ width:613px; display:flex; flex-wrap:wrap; align-items:center; gap:16px; white-space:nowrap; }
@@ -188,6 +127,35 @@
   .tdetails .meta span{ font-size:20px; color:var(--on); }
   .tdetails .pill{ height:36px; min-width:80px; box-sizing:border-box; padding:0 12px; border:1px solid #5a5a5a; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:20px; }
   .tdetails .syn{ margin:0; font-size:16px; line-height:24px; letter-spacing:.25px; color:var(--muted); }
+  /* Synopsis / Terms and Conditions (Figma "Buy" / "Rent" / "PPV Event"): the header card's chips, over its text */
+  /* sized up for the TV (the chips 40px, the text 22px), so it reads from the sofa */
+  .tdetails .tbox{ display:flex; flex-direction:column; gap:12px; padding:16px 20px 20px; border-radius:16px; background:#3a3a3a; }
+  .tdetails .tbox .syn{ font-size:22px; line-height:32px; letter-spacing:.2px; color:#c8c8c8; display:-webkit-box; -webkit-line-clamp:6; -webkit-box-orient:vertical; overflow:hidden; }
+
+  /* the card (Package Details / Title Details) is one focus stop; Enter opens its details view (Figma Prototype
+     165:56217): Back, the description and full terms scrolling in their window, Scroll to the bottom / top, the arrow */
+  .phead.item, .tbox.item{ cursor:pointer; }
+  .phead .tab, .tbox .tab{ pointer-events:none; }
+  .pview{ display:none; }
+  body.pv .left > :not(.pview){ display:none; }
+  body.pv .pview{ display:flex; flex-direction:column; gap:32px; flex:1; min-height:0; }
+  .pback{ --btn-w:auto; --btn-h:56px; align-self:flex-start; padding:0 28px 0 16px; gap:8px; margin-bottom:8px; }   /* 40px down to the text (with the view's 32px gap) */
+  .pback img{ width:32px; height:32px; transform:rotate(180deg); }
+  .pscroll{ flex:1; min-height:0; overflow:hidden; scroll-behavior:smooth; color:#c8c8c8; font-size:22px; line-height:34px; letter-spacing:.2px; }
+  .pscroll h3{ margin:0 0 16px; font-size:28px; line-height:36px; font-weight:600; color:#fff; }
+  .pscroll p{ margin:0 0 40px; white-space:pre-line; }
+  .pscroll ol{ margin:0; padding-left:30px; }
+  .pscroll li + li{ margin-top:10px; }
+  .pv-acts{ position:relative; display:flex; justify-content:center; align-items:center; height:64px; flex:0 0 auto; }
+  .pv-jump{ --btn-w:auto; --btn-h:56px; padding:0 28px 0 20px; gap:10px; }
+  .pv-jump img{ width:28px; height:28px; transition:transform .2s; }
+  .pv-jump.up img{ transform:rotate(180deg); }
+  .pv-step{ position:absolute; right:0; top:4px; width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.12); cursor:pointer; }
+  .pv-step img{ width:32px; height:32px; }
+  body.pv-fit .pv-acts{ display:none; }
+  .pv-step.focused{ background:#e8e8e8; }
+  .pv-step.focused img{ filter:invert(1); }
+  body.no-note .opthead p{ display:none; }   /* Figma "Buy": Options without the viewing-period note */
   body.short .opthead{ display:flex; flex-direction:column; gap:8px; margin-bottom:32px; }
   .opthead h1{ font-size:32px; line-height:40px; color:#fff; }
   .opthead p{ margin:0; font-size:16px; line-height:24px; letter-spacing:.25px; color:var(--on); }

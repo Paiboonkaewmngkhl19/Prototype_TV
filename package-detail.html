@@ -14,7 +14,8 @@
   Everything it shows comes from packages.js (nothing typed here): Package Details on the left (the package's logo and
   name, Package Description / Terms and Conditions, its apps with screens / 4K / Dolby, sports, channels, devices; a
   section with no data is left out), Package Options on the right (its plans), then Choose how to pay: Charge to AIS
-  Bill opens Confirm, OTP and done, which return to ?ret= (the detail page) with ?subscribed=1 and make every title of
+  Bill opens the OTP popup; the 4th digit pays and opens the Purchase complete page (purchase.html), whose Done returns
+  to ?ret= (the detail page) with ?subscribed=1. Paying makes every title of
   the package the viewer's (content.js Content.crown: owned).
   Short drama mode (?short=N&ep=E, Figma Store "Details Short pay" 3998:120134, "Rent"), opened from Buy this episode in
   a short's Unlock Episode popup (short-detail.html): Title Details on the left (poster, title, meta, synopsis), the
@@ -23,6 +24,7 @@
   Remote / keyboard: left column = Package Description / Terms and Conditions; right column = the plans, then the 2
   payment buttons. Arrows move, Enter selects, Esc / Back returns.
 -->
+<link rel="stylesheet" href="button-theme.css">
 <link rel="stylesheet" href="platform-tag.css">
 <link rel="stylesheet" href="league-disc.css">
 <link rel="stylesheet" href="package-detail/package-detail.css">
@@ -31,23 +33,35 @@
 <div id="frame"><div id="screen">
   <section class="left">
     <h1>Package Details</h1>
-    <div class="tdetails"><div class="poster"></div><div class="info"><div class="head"><div class="nm"></div><div class="meta"></div></div><p class="syn"></p></div></div>
+    <!-- title mode: the title bought / rented, its meta row, Synopsis / Terms and Conditions -->
+    <div class="tdetails"><div class="poster"></div><div class="info"><div class="head"><div class="nm"></div><div class="meta"></div></div>
+      <div class="tbox pcard-d item" data-ring-art=""><div class="switcher"><span class="tab active">Synopsis</span><span class="tab">Terms and Conditions</span></div>
+        <p class="syn"></p></div></div></div>
     <!-- the package (packages.js): its logo and name, Package Description / Terms and Conditions, then what it includes -->
-    <div class="phead">
+    <div class="phead item" data-ring-art="">
       <span class="lg"></span>
       <div class="pinfo">
         <b class="pnm"></b>
         <div class="switcher">
-          <div class="tab item active" data-tab="details">Package Description</div>
-          <div class="tab item" data-tab="terms">Terms and Conditions</div>
+          <span class="tab active">Package Description</span>
+          <span class="tab">Terms and Conditions</span>
         </div>
         <p class="fine"></p>
-        <ol class="terms"></ol>
       </div>
     </div>
     <div class="services"></div>
     <p class="note4k">*** 4K is supported on compatible devices.</p>
     <div class="groups"></div>
+    <!-- its details (Figma Prototype "enter see package details" 165:56217): Enter on the card above opens them in this
+         column; Back (or Back on the remote) closes them -->
+    <div class="pview">
+      <div class="tv-btn tv-btn--primary pback item" data-act="pback"><img src="icons/pkg/ichev.svg" alt="">Back</div>
+      <div class="pscroll"><h3 class="pv-dt">Package Description</h3><p class="pv-d"></p><h3>Terms and Conditions</h3><ol class="pv-terms"></ol></div>
+      <div class="pv-acts">
+        <div class="tv-btn tv-btn--secondary pv-jump item" data-act="pjump"><img src="icons/pkg/c-scroll.svg" alt=""><span>Scroll to the bottom</span></div>
+        <div class="pv-step item" data-act="pstep"><img src="icons/pkg/c-down.svg" alt="Scroll"></div>
+      </div>
+    </div>
   </section>
 
   <section class="right">
@@ -59,54 +73,30 @@
     </div>
     <div class="pay">
       <h2>Choose how to pay</h2>
-      <div class="paybtn item" data-label="Charge to AIS Bill"><span>Charge to AIS Bill</span><i></i></div>
-      <div class="paybtn item" data-label="QR PromptPay"><span>QR PromptPay</span><i></i></div>
+      <div class="tv-btn tv-btn--primary paybtn item" data-label="Charge to AIS Bill"><span>Charge to AIS Bill</span><i></i></div>
+      <div class="tv-btn tv-btn--primary paybtn item" data-label="QR PromptPay"><span>QR PromptPay</span><i></i></div>
       <p class="note">You'll be asked to verify with OTP before payment completes</p>
     </div>
   </section>
 
 
   <div class="scrim"></div>
-  <div class="modal" role="dialog" aria-label="Confirm Subscribe">
-    <div class="mtitle"><b>Confirm Subscribe:</b><span>Charge to AIS Bill</span></div>
-    <div class="mhero"><span class="lg"></span>
-      <div><div class="nm"></div><div class="pr"><b class="m-amt"></b><span class="m-vat"></span></div></div></div>
-    <div class="tcbox">
-      <h3>Terms and Conditions of Service</h3>
-      <div class="tcscroll"></div>
-      <img class="tcarrow" src="icons/pkg/c-down.svg" alt="">
-      <div class="scrollbtn mitem" data-act="scroll"><img src="icons/pkg/c-scroll.svg" alt="">Scroll to the bottom</div>
-    </div>
-    <div class="actions">
-      <div class="mbtn cancel mitem" data-act="cancel">Cancel</div>
-      <div class="mbtn agree mitem" data-act="agree"><img src="icons/pkg/c-check.svg" alt="">I Agree and Confirm</div>
-    </div>
-  </div>
-
-  <div class="dlg otpd" role="dialog" aria-label="Confirm OTP">
+  <!-- OTP (Figma Store 5555:183690): Charge to AIS Bill opens it; the 4th digit pays, then the Purchase complete page -->
+  <div class="dlg otpd" role="dialog" aria-label="Enter the OTP code">
     <div class="ohead">
-      <h2></h2>
-      <p>You will be charged <b class="o-amt"></b> consecutively.</p>
-      <p>Internet Number: 880XXX0088</p>
+      <h2>Enter the 4-digit OTP code</h2>
+      <p><b class="o-amt"></b> <span class="o-how"></span><br>to your billing account: <b>880XXX0088</b></p>
     </div>
     <div class="pad">
       <div class="pins"><div class="pin"></div><div class="pin"></div><div class="pin"></div><div class="pin"></div></div>
-      <div class="keys"><div class="key" data-k="1">1</div><div class="key" data-k="2">2</div><div class="key" data-k="3">3</div><div class="key" data-k="4">4</div><div class="key" data-k="5">5</div><div class="key" data-k="6">6</div><div class="key" data-k="7">7</div><div class="key" data-k="8">8</div><div class="key" data-k="9">9</div><div class="key" data-k="del"><img src="icons/pkg/o-backspace.svg" alt="Delete"></div><div class="key" data-k="0">0</div><div class="key blank"></div></div>
+      <div class="keys"><div class="key" data-k="1">1</div><div class="key" data-k="2">2</div><div class="key" data-k="3">3</div><div class="key" data-k="4">4</div><div class="key" data-k="5">5</div><div class="key" data-k="6">6</div><div class="key" data-k="7">7</div><div class="key" data-k="8">8</div><div class="key" data-k="9">9</div><div class="key ic" data-k="del"><img src="icons/pkg/o-backspace.svg" alt="Delete"></div><div class="key" data-k="0">0</div><div class="key ic" data-k="clear"><img src="icons/pkg/o-clear.svg" alt="Clear"></div></div>
     </div>
-    <p class="sent">OTP has been sent to 081XXX0082.<br>Did not receive OTP? Resend in <span class="o-sec">60</span> seconds.</p>
+    <div class="ocard">OTP has been sent to <b>081XXX0082</b></div>
+    <p class="sent">Did not receive OTP?</p>
     <div class="oacts">
-      <div class="obtn back" data-o="back"><span>Back</span></div>
-      <div class="obtn req" data-o="req"><span>Request OTP</span></div>
-      <div class="obtn done" data-o="done"><span>Done</span></div>
+      <div class="tv-btn tv-btn--secondary obtn back" data-o="back">Cancel</div>
+      <div class="tv-btn tv-btn--primary obtn req" data-o="req">Resend OTP</div>
     </div>
-  </div>
-  <div class="dlg okd" role="dialog" aria-label="Subscription status">
-    <div class="okhead">
-      <img src="icons/pkg/o-check-circle.svg" alt="">
-      <div><h2>Your package is almost ready</h2><p>We’re confirming your purchase.<br>We’ll send you an SMS when your package is ready to use within 15 mins.</p></div>
-    </div>
-    <hr>
-    <div class="okcard"><div class="n"></div><div class="a ok-amt"></div><div class="v ok-vat"></div><div class="d ok-date"></div></div>
   </div>
   <div id="toast"></div>
 </div></div>

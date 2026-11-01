@@ -12,7 +12,9 @@
     Packages.cardHtml(card, attrs)   a package card (package-card.css), the same on every page; Subscribe shows when focused
     Packages.suggest(o) up to 3 cards for what an item needs (package-suggest.html, View Package): o.plat (a title's
                         platform or a short's app: the bundles that carry it, then its own packages), o.channel (a
-                        channel's programme: the bundles with premium channels, PLAY ALL first for o.sport)
+                        channel's programme: PLAY ULTIMATE; a sports one, o.sport: PLAY ALL, then o.league's packages)
+    bundle.tv           what buying it unlocks: the premium channels of that package (channels-data.js pkg); no
+                        bundle unlocks short dramas (their app's package, a pass or Buy does)
 */
 window.Packages = (function(){
   // the OTT packages (Figma Store 5472:228410 Netflix, 228753 Disney+, 229116 HBO Max, 229476 Prime Video, 230211 Viu,
@@ -122,12 +124,13 @@ window.Packages = (function(){
       FDOLBY = [P + 'idolby.svg', 'Audio 5.1 Up to Dolby Atmos'];
   function fscreen(n){ return [P + 'iscreen.svg', n + ' Screen at once']; }   // (Figma's words)
   function t(img, cls){ return { img:P + img, cls:cls || '' }; }
-  var BUNDLES = [
+  var BUNDLES = [   // (BUNDLES[2], PLAY ALL: its sports / channels / plans from its card, below)
     { title:'PLAY ULTIMATE Monthly Package', badge:'Recommend', logo:P + 'l1.png', detail:1, href:'package-detail.html',
       grid:[t('l2.png'), t('l3.png'), t('l4.png'), t('l5.png', 'cover'), t('l6.png', 'cover')],
       count:'99 Premium Channels', row:['l7', 'l8', 'l9', 'l10', 'l11', 'l12'].map(function(l){ return t(l + '.png', 'cover'); }),
       feats:[F4K, FDOLBY, fscreen(4)], amt:'999', per:'/Month',
       tags:['netflix', 'hbo', 'disney', 'iqiyi', 'viu', 'football', 'epl', 'ucl', 'ultimate'],
+      tv:'ultimate',   // bought: the premium channels that aren't sports (channels-data.js pkg); short dramas stay for sale
       // its detail page (package-detail.html, Figma Store "AIS PLAY Bundle" / "Full OTT"): the apps (screens, quality,
       // Dolby; txt: no logo yet, a name box), sports, channels, devices, description, terms (the page) and tc (the
       // Confirm popup), and its plans
@@ -190,13 +193,19 @@ window.Packages = (function(){
         t('l24.png', 'white cover'), t('l25.png', 'white pad'), { more:'13+' }],
       count:'99 Premium Channels', row:['l28', 'l29', 'l30', 'l31', 'l32'].map(function(l){ return t(l + '.png', 'white cover'); }).concat([t('l33.png', 'white pad')]),
       feats:[FHD, FDOLBY, fscreen(4)], amt:'1,999', per:'/Year',
-      tags:['football', 'golf', 'basketball', 'tennis', 'motorsports', 'bundesliga', 'nba', 'nfl', 'lpga', 'atp', 'motogp', 'rws', 'premiumplus'] }
+      tags:['football', 'golf', 'basketball', 'tennis', 'motorsports', 'bundesliga', 'nba', 'nfl', 'lpga', 'atp', 'motogp', 'rws', 'premiumplus'],
+      // its detail page (package-detail.html?bundle=2): the same leagues and channels as its card, its yearly plan;
+      // bought: the sports premium channels (channels-data.js pkg 'sports')
+      href:'package-detail.html?bundle=2', tv:'sports' }
   ];
-  // a brand's package (PKG) as a card: its logo, its quality and screens, its price; bought on package-detail.html
+  (function(A){ A.sports = { tiles:A.grid.filter(function(x){ return !x.more; }), more:'13+' }; A.channels = { tiles:A.row, more:'99+' };
+    A.plans = [{ name:'Yearly plan', amt:1999, per:'Yearly', period:'year', renew:1 }]; })(BUNDLES[2]);
+  // a brand's package (PKG) as a card: its logo (a league's: its logo, leagues.js), its quality and screens, its price; bought on package-detail.html
   function ottCard(k, i){
-    var p = PKG[k][i], b = OTT[k];
-    return { title:p.t, badge:p.badge, logo:b.logo, logoCls:b.tile ? 'white' : b.icon ? 'cover' : '', href:'package-detail.html?ott=' + k + '&p=' + i,
-      grid:[{ img:b.logo, cls:b.tile ? 'white' : b.icon ? 'cover' : '' }], count:'', row:[],
+    var p = PKG[k][i], b = OTT[k], lg = b.league && window.Leagues && Leagues.list.filter(function(l){ return l.id === b.league; })[0];
+    var logo = lg ? lg.logo : b.logo, cls = lg || b.tile ? 'white' : b.icon ? 'cover' : '';
+    return { title:p.t, badge:p.badge, logo:logo, logoCls:cls, href:'package-detail.html?ott=' + k + '&p=' + i,
+      grid:[{ img:logo, cls:cls }], count:'', row:[],
       feats:(p.q === '4K' ? [F4K, FDOLBY] : [FHD]).concat([fscreen(p.screens)]), amt:String(p.price), per:'/' + (p.card === 'Month' ? 'Month' : '7 Days') };
   }
   function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
@@ -213,13 +222,18 @@ window.Packages = (function(){
       '<div class="mid"><div class="chans"><div class="grid">' + c.grid.map(tileHtml).join('') + '</div>' +
       (c.count ? '<div class="chanlist"><div class="small">' + esc(c.count) + '</div><div class="row40">' + c.row.map(tileHtml).join('') + '</div></div>' : '') + '</div>' +
       '<div class="feats">' + c.feats.map(function(f){ return '<div class="feat"><img src="' + f[0] + '" alt="">' + esc(f[1]) + '</div>'; }).join('') + '</div></div>' +
-      '<div class="price"><div class="amtwrap"><div class="amt"><b>' + esc(c.amt) + ' baht</b><span>' + esc(c.per) + '</span></div><div class="vat">(Exclude VAT)</div></div>' +
+      '<div class="price"><div class="amtwrap"><div class="amt' + (String(c.amt).length > 4 ? ' long' : '') + '"><b>' + esc(c.amt) + ' baht</b><span>' + esc(c.per) + '</span></div><div class="vat">(Exclude VAT)</div></div>' +
       '<div class="subscribe">Subscribe<img src="' + P + 'ichev-dark.svg" alt=""></div></div></div></div>';
   }
   function suggest(o){
     var out = [], U = BUNDLES[0], H = BUNDLES[1], A = BUNDLES[2];
     function add(c){ if(c && out.length < 3 && out.indexOf(c) < 0) out.push(c); }
-    if(o.channel){ add(o.sport ? A : U); add(o.sport ? U : A); add(H); }
+    // a channel's programme: the package its channel comes with (channels-data.js pkg): a sports one PLAY ALL, then its
+    // league's packages; any other PLAY ULTIMATE
+    if(o.channel){
+      if(o.sport){ add(A); if(o.league && PKG[o.league]) PKG[o.league].forEach(function(p, i){ add(ottCard(o.league, i)); }); }
+      else add(U);
+    }
     else if(o.plat && PKG[o.plat]){
       BUNDLES.forEach(function(b){ if(b.tags.indexOf(o.plat) >= 0) add(b); });
       PKG[o.plat].forEach(function(p, i){ add(ottCard(o.plat, i)); });

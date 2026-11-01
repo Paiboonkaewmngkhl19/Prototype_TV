@@ -285,7 +285,9 @@
     if(L === 'Play' || L === 'Resume'){ play(false); return; }
     if(L === 'Start Over'){ play(true); return; }
     if(L === 'View Package'){ location.href = Content.packageUrl(PROG ? { tv:PROG.tv, prog:PROG } : CI, HERE); return; }   // the package that has it; bought, it comes back here (?subscribed=1)
-    if(L === 'Buy' || L === 'Rent'){ location.href = 'purchase.html?k=' + K + (PROG ? '' : '&opt=' + L.toLowerCase()); return; }   // Confirm, OTP, done; back here (?bought=1 / ?rented=1) it plays
+    // its Title Details and Options (package-detail.html: Figma "Buy" / "Rent" / "PPV Event"), then the payment; back here
+    // (?bought=1 / ?rented=1) it plays. (A channel's programme: its own purchase, as before)
+    if(L === 'Buy' || L === 'Rent'){ location.href = PROG ? 'purchase.html?k=' + K : 'package-detail.html?k=' + K + '&opt=' + L.toLowerCase(); return; }
     if(el.dataset.k){ Content.open({k:el.dataset.k}); return; }
     if(el.dataset.tab){ cur.row = 2; cur.col = el.dataset.tab === 'eps' ? season - 1 : 0; paint(); return; }
     if(el.dataset.season){ season = +el.dataset.season; renderEps(); cur.row = 3; cur.col = 0; paint(); return; }

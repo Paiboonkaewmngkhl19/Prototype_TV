@@ -29,7 +29,8 @@
     n, t, m minutes, d), MD.episode(k, s, e), MD.next(k, s, e) (the one after, or null); MD.cw(k) also gives s / e.
     MD.until(k) the rental's last day ({d, t}) for a rented title, else null.
     MD.buyPrice(k), MD.rentPrice(k)   what Buy / Rent cost on its detail page (0: no such option); MD.price(k) the
-                    buy price, else the rent price. MD.rent(k) rent it (this session, 48 hours: MD.MY_RENTAL, MD.until)
+                    buy price, else the rent price. MD.rent(k) rent it (this session, MD.RENT_HOURS: MD.MY_RENTAL, MD.until).
+                    Buy / Rent are paid on package-detail.html?k=K&opt=buy|rent (m.ev: an event, its Event Pass)
     m.buy, m.rent, m.pkg   a title's own options (its detail page: View Package if m.pkg, Buy, Rent); a title without
                     them keeps its price from the lists below (For You, Rent or Buy, series)
     MD.metaHtml(m)  its meta row (genres, year, length, age pill, quality tag); MD.watched(k) how far in, or null
@@ -167,8 +168,12 @@
   // the titles with their own options, so a detail page has 1, 2 or 3 buttons (View Package, Buy N ฿, Rent N ฿); pkg 0:
   // no package has it (Content.packageFor: none)
   var OFFERS = { avatar:{ pkg:1, buy:399, rent:229 }, f1:{ pkg:1, buy:199 }, topgun:{ pkg:1, rent:149 }, john:{ pkg:0, buy:149, rent:99 },
-                 venom:{ pkg:1 }, lotr:{ pkg:0, buy:299 }, hobbit:{ pkg:0, rent:99 } };
-  for(var ok in OFFERS){ M[ok].pkg = !!OFFERS[ok].pkg; M[ok].buy = OFFERS[ok].buy || 0; M[ok].rent = OFFERS[ok].rent || 0; }
+                 venom:{ pkg:1 }, lotr:{ pkg:0, buy:299 }, hobbit:{ pkg:0, rent:99 },
+                 // AIS PLAY Exclusive (Home's rail): premium, bought on its own like a PPV event (the Store's price), or with PLAY ULTIMATE
+                 // (ev: an event, bought as an Event Pass: package-detail.html, Figma "PPV Event")
+                 missuni:{ pkg:1, buy:199, ev:1 }, sophomores:{ pkg:1, buy:199, ev:1 }, bossckm:{ pkg:1, buy:199, ev:1 }, cityars:{ pkg:1, buy:199, ev:1 },
+                 mufcche:{ pkg:1, buy:199, ev:1 }, mufcars:{ pkg:1, buy:199, ev:1 } };
+  for(var ok in OFFERS){ M[ok].pkg = !!OFFERS[ok].pkg; M[ok].buy = OFFERS[ok].buy || 0; M[ok].rent = OFFERS[ok].rent || 0; if(OFFERS[ok].ev) M[ok].ev = 1; }
   // titles made from a card that had no data of its own (Content.open): back into the catalogue on every page
   try { var ADHOC = JSON.parse(sessionStorage.getItem('contentAdhoc') || '{}'); for(var ak in ADHOC) if(!M[ak]) M[ak] = ADHOC[ak]; } catch(e){}
   var CONTINUE = [{k:'sherlock', s:1, e:5, w:31, of:58}, {k:'endgame', w:122, of:181}, {k:'encanto', w:61, of:102}, {k:'brazil', s:1, e:2, w:20, of:55}, {k:'hailmary', w:101, of:156},
@@ -253,7 +258,7 @@
     return cw(k) ? 'resume' : 'play';
   }
   window.MD = { P:P, PP:PP, M:M, CONTINUE:CONTINUE, FOR_YOU:FOR_YOU, RENT:RENT, MY_RENTAL:MY_RENTAL, state:state, price:price, own:own, cw:cw, setProgress:setProgress, minutes:minutes,
-    subscribe:subscribe, subscribed:subscribed, buyPrice:buyPrice, rentPrice:rentPrice, rent:rent,
+    subscribe:subscribe, subscribed:subscribed, buyPrice:buyPrice, rentPrice:rentPrice, rent:rent, RENT_HOURS:RENT_HOURS,
     soon:soon, continueList:continueList, series:series, seasons:seasons, episodes:episodes, episode:episode, next:next, until:until,
     bg:function(k){ var m = M[k]; return m ? m.b || m.w || m.p : ''; },
     // the quality tag every page shows in a title's meta row: 4K Dolby (platform-tag.css .qtag), else the HD pill
@@ -268,18 +273,19 @@
 
 /*
   The short dramas: Home's Shorts row (the same titles and posters, posters/shorts/), shared by short-detail.html
-  (each short's page) and package-detail.html (its payment, ?short=N).
+  (each short's page) and package-detail.html (its payment, ?short=N). buy: its price to own every episode (its detail
+  page's Buy N ฿, purchase.html?s=N&opt=buy).
 */
 window.SHORTS = [
-  { t:'Seven Days Back, Old Love Ends', img:'s1.jpg', plat:'reelshort', gen:['Romance', 'Period'], rate:'13+', premium:true,
+  { t:'Seven Days Back, Old Love Ends', img:'s1.jpg', plat:'reelshort', gen:['Romance', 'Period'], rate:'13+', premium:true, buy:199,
     d:'Seven days before her wedding, a palace maid wakes up in the past with one chance to undo the love that ruined her, and the courage to finally walk away.' },
-  { t:'Grandma Takes Over the Family II', img:'s2.jpg', plat:'dramabox', gen:['Comedy', 'Family'], rate:'13+', premium:true,
+  { t:'Grandma Takes Over the Family II', img:'s2.jpg', plat:'dramabox', gen:['Comedy', 'Family'], rate:'13+', premium:true, buy:199,
     d:'Back in a young body, the family matriarch returns to set her spoiled heirs straight and save the business they nearly lost.' },
-  { t:'Ink and Rain', img:'s3.jpg', plat:'reelshort', gen:['Romance', 'Fantasy'], rate:'13+', premium:true,
+  { t:'Ink and Rain', img:'s3.jpg', plat:'reelshort', gen:['Romance', 'Fantasy'], rate:'13+', premium:true, buy:199,
     d:'A painter whose brush brings ink to life and a guarded swordsman cross paths in a city of rain, where every painting hides a promise.' },
-  { t:"The Secretary's Forbidden Love", img:'s4.jpg', plat:'dramabox', gen:['Romance', 'Drama'], rate:'16+', premium:true,
+  { t:"The Secretary's Forbidden Love", img:'s4.jpg', plat:'dramabox', gen:['Romance', 'Drama'], rate:'16+', premium:true, buy:199,
     d:'A new secretary falls for the CEO she was hired to watch, and has to choose between the job, the truth and her heart.' },
-  { t:"The Mafia Boss's Spoiled Secretary", img:'s5.jpg', plat:'reelshort', gen:['Romance', 'Crime'], rate:'18+', premium:true,
+  { t:"The Mafia Boss's Spoiled Secretary", img:'s5.jpg', plat:'reelshort', gen:['Romance', 'Crime'], rate:'18+', premium:true, buy:199,
     d:'Hired by the most feared man in the city, a quiet secretary finds out she is the only one he will not let go.' },
   { t:"The Healer's Comeback", img:'s6.jpg', plat:'dramabox', gen:['Drama', 'Period'], rate:'13+', premium:true,
     d:'Cast out of the imperial clinic, a young healer comes back under a new name to cure the court and expose the ones who framed her.' },
@@ -293,15 +299,17 @@ window.SHORTS = [
   Episodes of a short, shared by short-detail.html and the vertical player (player.html?short=N&ep=E):
     SHORT.EPS episodes (the first SHORT.FREE free), SHORT.open(s, n) whether episode n of short s can be watched (free,
     unlocked this session, a pass, or the Short Drama package), SHORT.secs(n) its length in seconds (1-3 minutes),
-    SHORT.at(s) / SHORT.setAt(s, ep, sec) where the short was left. SHORT.owned(s) every episode is the viewer's: the
-    Short Drama package (All Packages), its app's package (MD.subscribed), a pass, or each locked episode unlocked.
+    SHORT.at(s) / SHORT.setAt(s, ep, sec) where the short was left. SHORT.owned(s) every episode is the viewer's: its
+    app's package (MD.subscribed: ReelShort / DramaBox; PLAY ULTIMATE doesn't include short dramas), bought (SHORT.own: a short with buy, its
+    detail page's Buy N ฿), a pass, or each locked episode unlocked.
 */
 window.SHORT = (function(){
   var EPS = 160, FREE = 10;
   function get(k, d){ try { return JSON.parse(sessionStorage.getItem(k) || d); } catch(e){ return JSON.parse(d); } }
+  function own(s){ var o = get('shortOwned', '[]'); if(o.indexOf(s) < 0){ o.push(s); try { sessionStorage.setItem('shortOwned', JSON.stringify(o)); } catch(e){} } }
   function owned(s){
     var u = get('shortUnlocked' + s, '{}'), sh = window.SHORTS[s];
-    if(sessionStorage.getItem('shortsSubscribed') || u.all || (sh && window.MD.subscribed(sh.plat))) return true;
+    if(u.all || get('shortOwned', '[]').indexOf(s) >= 0 || (sh && window.MD.subscribed(sh.plat))) return true;
     for(var n = FREE + 1; n <= EPS; n++) if(!u[n]) return false;
     return true;
   }
@@ -309,7 +317,7 @@ window.SHORT = (function(){
   function secs(n){ return 75 + (n * 37) % 105; }
   function at(s){ return get('shortProgress', '{}')[s] || null; }
   function setAt(s, ep, sec){ var p = get('shortProgress', '{}'); p[s] = { ep:ep, sec:Math.floor(sec) }; try { sessionStorage.setItem('shortProgress', JSON.stringify(p)); } catch(e){} }
-  return { EPS:EPS, FREE:FREE, open:open, owned:owned, secs:secs, at:at, setAt:setAt };
+  return { EPS:EPS, FREE:FREE, open:open, owned:owned, own:own, secs:secs, at:at, setAt:setAt };
 })();
 
 /*
@@ -450,6 +458,10 @@ window.Content = (function(){
   }
   // the channel `info` is or is on, or null: {tv: name} (a LIVE / Upcoming programme), {ch: channel or name}, or a channel
   // itself (channels-data.js, or a page's copy of one: n plus its crown); the TV Guide's own entry when there is one
+  // the channel packages bought this session ('ultimate', 'sports': channels-data.js pkg); read fresh each call. (An
+  // older tvSubscribed flag counts for nothing: a premium channel stays for sale until its own package is bought.)
+  function tvSubs(){ try { return JSON.parse(sessionStorage.getItem('tvSubs') || '[]'); } catch(e){ return []; } }
+  function subscribeTv(g){ var s = tvSubs(); if(g && s.indexOf(g) < 0){ s.push(g); try { sessionStorage.setItem('tvSubs', JSON.stringify(s)); } catch(e){} } }
   function channelOf(info){
     var c = info.tv !== undefined ? info.tv : info.ch !== undefined ? info.ch : info.n !== undefined && 'crown' in info ? info : null;
     if(c === null || c === '') return null;
@@ -458,8 +470,8 @@ window.Content = (function(){
   }
   // the crown, one status for every kind of content: '' not premium, 'owned' premium and the viewer has it, 'gold' premium
   // and they don't. Read fresh each call (sessionStorage), so a purchase shows on the next page load:
-  //   a channel / programme  its crown (channels-data.js); 'owned' too once a package with the premium channels is
-  //                          bought (tvSubscribed)
+  //   a channel / programme  its crown (channels-data.js); 'owned' too once its package is bought (its pkg:
+  //                          'ultimate' PLAY ULTIMATE, 'sports' PLAY ALL or a league package; Content.subscribeTv)
   //   a movie / series       m.premium (or a PPV event); 'owned' while MD.state is 'play' or 'resume' (bought, rented,
   //                          its platform's package)
   //   a short                'owned' once SHORT.owned (a package, a pass, every episode unlocked)
@@ -468,8 +480,7 @@ window.Content = (function(){
     var c = channelOf(info);
     if(c){
       if(!c.crown) return '';
-      var sub = false; try { sub = sessionStorage.getItem('tvSubscribed') === '1'; } catch(e){}
-      return c.crown === 'owned' || sub ? 'owned' : 'gold';
+      return c.crown === 'owned' || tvSubs().indexOf(c.pkg || 'ultimate') >= 0 ? 'owned' : 'gold';
     }
     var f = find(info);
     if(f && f.s !== undefined) return window.SHORTS[f.s].premium ? (window.SHORT.owned(f.s) ? 'owned' : 'gold') : '';
@@ -486,13 +497,14 @@ window.Content = (function(){
       (size ? ' width="' + size + '" height="' + size + '"' : '') + '>' : '';
   }
   // the package that includes `info` (View Package): {n, url}. A channel or programme: PLAY ULTIMATE (its premium
-  // channels, package-detail.html's own); a movie or series: its platform's packages (packages.js, ?ott=), AIS PLAY's
+  // channels, package-detail.html's own), a sports channel PLAY ALL; a movie or series: its platform's packages (packages.js, ?ott=), AIS PLAY's
   // own titles PLAY ULTIMATE; a short: its app's Short Drama packages (ReelShort / DramaBox). Anything else (a PPV
   // event): All Packages. A page without packages.js gets All Packages for a platform.
-  var ULTIMATE = { n:'PLAY ULTIMATE Monthly Package', url:'package-detail.html' };
+  var ULTIMATE = { n:'PLAY ULTIMATE Monthly Package', url:'package-detail.html' }, PLAYALL = { n:'PLAY ALL', url:'package-detail.html?bundle=2' };
   function packageFor(info){
     if(!info) return { n:'All Packages', url:'all-packages.html' };
-    if(channelOf(info)) return ULTIMATE;
+    var ch = channelOf(info);
+    if(ch) return ch.pkg === 'sports' ? PLAYALL : ULTIMATE;   // a sports channel: PLAY ALL's
     var f = find(info), plat = f && f.s !== undefined ? window.SHORTS[f.s].plat : f ? window.MD.M[f.k].plat : '';
     if(f && f.k && window.MD.M[f.k].pkg === false) return null;   // sold on its own only (MD OFFERS: no View Package)
     if(f && f.k && window.MD.M[f.k].ppv) plat = '';
@@ -521,7 +533,7 @@ window.Content = (function(){
     if(crown(f) === 'gold'){
       // no package has it: its first own option, as its detail page's first button (Buy, else Rent)
       var b = f.k && !packageFor(f) && (window.MD.buyPrice(f.k) ? 'buy' : window.MD.rentPrice(f.k) ? 'rent' : '');
-      if(b) return { act:b, label:(b === 'buy' ? 'Buy ' + window.MD.buyPrice(f.k) : 'Rent ' + window.MD.rentPrice(f.k)) + ' ฿', icon:'ic-pkg', url:'purchase.html?k=' + f.k + '&opt=' + b };
+      if(b) return { act:b, label:(b === 'buy' ? 'Buy ' + window.MD.buyPrice(f.k) : 'Rent ' + window.MD.rentPrice(f.k)) + ' ฿', icon:'ic-pkg', url:'package-detail.html?k=' + f.k + '&opt=' + b };
       return { act:'package', label:'View Package', icon:'ic-pkg', url:packageUrl(f, detailUrl(f)) };
     }
     if(f.s !== undefined){ var ep = (window.SHORT.at(f.s) || {}).ep || 1;
@@ -530,7 +542,7 @@ window.Content = (function(){
     return { act:'play', label:c ? (window.MD.series(f.k) ? 'Resume S' + c.s + ': Ep.' + c.e : 'Resume') : 'Play', icon:'ic-play', url:playUrl(f) };
   }
   return { find:find, info:info, hero:hero, metaHtml:metaHtml, related:related, detailUrl:detailUrl, playUrl:playUrl,
-    crown:crown, crownIcon:crownIcon, packageFor:packageFor, packageUrl:packageUrl, mainAction:mainAction,
+    crown:crown, crownIcon:crownIcon, packageFor:packageFor, packageUrl:packageUrl, mainAction:mainAction, subscribeTv:subscribeTv,
     open:function(i){ location.href = detailUrl(i); }, play:function(i){ location.href = playUrl(i); } };
 })();
 
@@ -596,6 +608,7 @@ window.LIVE = (function(){
   function href(p, from){
     if(hasMD(p.tv)){
       var o = {t:p.t, img:p.img, tv:p.tv, d:p.d || ''};
+      if(p.lg) o.lg = p.lg;   // its league (View Package: that league's packages)
       if(p.bg) o.bg = p.bg;
       if(p.live) o.live = 1; else o.start = start(p);
       if(p.range) o.range = p.range;

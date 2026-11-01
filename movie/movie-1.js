@@ -10,7 +10,6 @@
      t title, p 2:3 poster, w 16:9 picture, plat platform tag (badges/tag-*.png), g genres, y year, len, age, d synopsis */
   var PP = MD.PP, P = MD.P, M = MD.M;   // the titles: content.js (shared with movie-detail.html)
   function pic(k){ return MD.bg(k); }       // the title's full-screen picture (the hero's background, as its detail page)
-  function genres(m){ return m.g.join(' · '); }
 
   var SLIDES = ['wicked', 'd9', 'topgun', 'superman', 'house', 'lastofus', 'loki', 'dragon'];   // the first scene (8 dots, as Figma)
   var CATS = [
@@ -65,6 +64,7 @@
 
   /* ---------- markup ---------- */
   function ptag(m){ return m.plat === 'ais' ? '<span class="ptag ais"></span>' : '<img class="ptag" src="badges/tag-' + m.plat + '.png" alt="">'; }
+  function metaRow(m){ return ptag(m) + MD.metaHtml(m); }   // a card's meta row: its platform tag, genres, year, length, pills (no crown)
   function wide(k, i, set, extra){
     return '<div class="card item"' + attrs({kind:'title', k:k, set:set, i:i}) + '><div class="thumb" style="background-image:url(\'' + (M[k].w || M[k].p) + '\')">' + (extra || '') + '</div></div>';
   }
@@ -106,11 +106,12 @@
     var m = M[f.k];
     return '<div class="xcard item"' + attrs({kind:'buy', k:f.k, i:i}) + ' data-ring-art="">' +
       '<div class="xc-portrait" style="background-image:url(\'' + (m.p || m.w) + '\')"></div>' +
-      '<div class="xc-wide" style="background-image:url(\'' + pic(f.k) + '\')"></div><div class="xc-scrim"></div>' +
-      '<div class="xc-content"><div class="xc-badges"><span class="xc-badge">' + f.price + ' baht</span></div>' +
-        '<h3 class="xc-title">' + esc(m.t) + '</h3><p class="xc-desc">' + esc(m.d) + '</p>' +
-        '<div class="xc-chips">' +   // a title's card: no crown (its detail page's meta row says Premium)
-          [genres(m), m.y, m.len, m.age].map(function(c){ return '<span class="xc-chip">' + esc(String(c)) + '</span>'; }).join('') + '</div></div></div>';
+      '<div class="xc-wide" style="background-image:url(\'' + pic(f.k) + '\')"></div><div class="xc-scrim ev-scrim"></div>' +
+      // open: the Store's PPV Event details (event-card.css): title, its price (MD.price: buy, else rent) with VAT, the meta
+      // row (its platform tag, MD.metaHtml: no crown on a title's card) and synopsis
+      '<div class="xc-content ev-info"><h3>' + esc(m.t) + '</h3>' +
+        '<div class="cost"><b>' + MD.price(f.k) + ' baht</b><span>(VAT Included: ' + (Math.round(MD.price(f.k) * 107) / 100).toLocaleString('en-US', { minimumFractionDigits:2 }) + ' baht)</span></div>' +
+        '<div class="meta">' + metaRow(m) + '</div><p class="syn">' + esc(m.d) + '</p></div></div>';
   }).join('') + '</div></div></section>';
   html += sec('because', 'Because You Watched District 9', BECAUSE.map(function(k, i){ return poster(k, i, 'because'); }).join(''), 'tall-rail');
   html += '<section class="sec brand" data-row="disney"><h2>Disney</h2>' +

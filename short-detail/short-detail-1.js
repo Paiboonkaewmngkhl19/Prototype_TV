@@ -13,11 +13,14 @@
   var STORE_KEY = 'shortUnlocked' + si;   // the episodes unlocked this session (bought / ads / subscribed)
   var unlocked = {}, adsLeft = 4;
   try { unlocked = JSON.parse(sessionStorage.getItem(STORE_KEY) || '{}'); adsLeft = +(sessionStorage.getItem('shortAdsLeft') || 4); } catch(e){}
-  // free, unlocked, a pass, or a package (All Packages' Short Drama, or this short's app): content.js SHORT.open
+  // free, unlocked, a pass, bought, or this short's app package: content.js SHORT.open
   function isOpen(n){ return SHORT.open(si, n); }
   // back from its package (View Package → package-detail.html / purchase.html → ?subscribed=1): every episode is open
   var JUST_BOUGHT = /[?&]subscribed=1/.test(location.search);
   if(JUST_BOUGHT) history.replaceState(null, '', 'short-detail.html?s=' + si);
+  // back from Buy (purchase.html?s=N&opt=buy → ?bought=1): the short is the viewer's, every episode open
+  var BOUGHT = /[?&]bought=1/.test(location.search);
+  if(BOUGHT){ SHORT.own(si); history.replaceState(null, '', 'short-detail.html?s=' + si); setTimeout(function(){ toast('You bought ' + S.t + ': every episode is unlocked'); }, 300); }
   // a pass bought on the payment page: every episode of this short is open (before the crown and buttons are drawn)
   if(/[?&]pass=1/.test(location.search)){
     unlocked.all = 1; keep();
@@ -40,8 +43,10 @@
     '<div class="tv-btn tv-btn--secondary ic item" data-act="startover" data-tip="Start Over" data-ring-art=""><img src="icons/player/start-over.svg" alt="Start Over"><span class="tip"></span></div>');
   // not the viewer's yet (gold crown): View Package next to Play, its app's Short Drama packages (content.js); the
   // locked episodes keep their own unlock options. Owned: every episode open, no View Package
+  // a short with a price (content.js SHORTS buy): Buy N ฿ after it, to own every episode (package-detail.html, as a movie's Buy)
   if(Content.crown({s:si}) === 'gold') $('.actions .main')[0].insertAdjacentHTML('afterend',
-    '<div class="tv-btn tv-btn--secondary main item" data-act="package" data-label="View Package" data-ring-art=""><i class="ic-pkg"></i>View Package</div>');
+    '<div class="tv-btn tv-btn--secondary main item" data-act="package" data-label="View Package" data-ring-art=""><i class="ic-pkg"></i>View Package</div>' +
+    (S.buy ? '<div class="tv-btn tv-btn--secondary buy item" data-act="buyshort" data-label="Buy" data-ring-art="">Buy ' + S.buy + ' ฿</div>' : ''));
 
   // You May Also Like: other short dramas only (content.js Content.related), never a movie in their place
   var LIKES = Content.related({s:si}, 18).map(function(r){ return { t:SHORTS[r.s].t, img:'posters/shorts/' + SHORTS[r.s].img, s:r.s }; });
@@ -207,6 +212,7 @@
     if(el.dataset.href){ location.href = el.dataset.href; return; }
     if(navItems.indexOf(el) >= 0){ toast(el.dataset.label + ' (demo)'); return; }
     if(el.dataset.act === 'play'){ location.href = 'player.html?short=' + si + '&ep=' + playEp; return; }   // the vertical player
+    if(el.dataset.act === 'buyshort'){ save(); location.href = 'package-detail.html?short=' + si + '&opt=buy'; return; }   // Figma "Vertical Content Full Series", then the payment; back here (?bought=1) every episode is open
     if(el.dataset.act === 'package'){ save(); location.href = Content.packageUrl({s:si}, 'short-detail.html?s=' + si); return; }   // bought, it comes back here (?subscribed=1)
     if(el.dataset.act === 'startover'){ location.href = 'player.html?short=' + si + '&ep=1&start=1'; return; }   // from Ep.1
     if(el.dataset.act === 'toggle'){

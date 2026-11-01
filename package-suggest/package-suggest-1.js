@@ -33,7 +33,7 @@
   else document.getElementById('account').remove();
 
   // ---- right: the packages that include it (packages.js), each to its purchase, which comes back to the detail page ----
-  var CARDS = Packages.suggest(PROG ? { channel:1, sport:!!CH && CH.cats.indexOf('sports') >= 0 } : { plat:plat });
+  var CARDS = Packages.suggest(PROG ? { channel:1, sport:!!CH && CH.pkg === 'sports', league:PROG.lg } : { plat:plat });
   document.getElementById('cards').innerHTML = CARDS.map(function(c, i){ return Packages.cardHtml(c, ' data-i="' + i + '"'); }).join('');
 
   var toastEl = document.getElementById('toast'), toastT;

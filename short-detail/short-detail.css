@@ -43,6 +43,7 @@
   .actions{ display:flex; align-items:center; gap:24px; height:100px; }   /* 24px: room for a focused button's 8% growth and ring */
   .actions .tv-btn{ --btn-h:91px; font-size:31px; font-weight:500; }
   .actions .main{ --btn-w:auto; min-width:300px; padding:0 40px; gap:16px; }
+  .actions .buy{ --btn-w:300px; }   /* Buy N ฿: Movie Detail's */
   .actions .ic{ --btn-w:90px; --btn-h:90px; padding:0; position:relative; }
   .ic-play{ -webkit-mask:url('../icons/hero/play.svg') center / contain no-repeat; mask:url('../icons/hero/play.svg') center / contain no-repeat; }
   /* View Package (a short not the viewer's yet): Movie Detail's, the crown (the player's Explore Package icon) */

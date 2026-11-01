@@ -19,6 +19,8 @@
      From the CSV: premium (Premium), category (Category, split at the commas), sub (Sub-Category; "null" is empty).
      cats / tags: the TV Guide's tabs and sub-tabs they show under (Education -> Others / Education; Woman Sport and
      American Football -> Multi-Sports). crown: 'gold' premium, or 'owned' (gold with the green mark).
+     pkg (set below for every premium one): the package it comes with, 'sports' (its sports channels: PLAY ALL or a
+     league package) or 'ultimate' (every other one: PLAY ULTIMATE); content.js Content.crown turns it owned with it.
      logo: assets/logos/{ChannelNumber}_{ChannelName}.png; fit cover = the square logo fills the disc, contain = sits
      inside it, box = Home's crop [left, top, width, height] in %; bg: the disc behind it (dark for a white logo).
      A channel with no logo anywhere has txt instead: its name on a box (the placeholder). */
@@ -211,6 +213,7 @@
       sched:[['F1 Grand Prix: Qualifying',90,'posters/f1.jpg',1],['F1 Paddock Live',60],['Onboard Classics',60],['F1 Race Replay',120]]},
   ];
   CHANNELS.sort(function(a, b){ return a.no - b.no; });   // lowest channel number first, everywhere
+  CHANNELS.forEach(function(c){ if(c.crown) c.pkg = c.cats.indexOf('sports') >= 0 ? 'sports' : 'ultimate'; });   // its package (above)
 
   var today = new Date(); today.setHours(0, 0, 0, 0);
   var NOW = Date.now();

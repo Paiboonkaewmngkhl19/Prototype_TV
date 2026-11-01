@@ -147,7 +147,8 @@
     var pk = PKGS[+el.dataset.i];
     el.animate([{ transform:'scale(1)' }, { transform:'scale(0.98)' }], { duration:140, easing:'ease-out' });
     // PLAY ULTIMATE: the same purchase flow as Movie Detail's and the Store's (package-detail.html), coming back here
-    if(pk.detail){ save(); location.href = 'package-detail.html?from=all-packages' + RET_Q; return; }
+    // PLAY ULTIMATE and PLAY ALL: their detail page and purchase (package-detail.html; packages.js href), coming back here
+    if(pk.detail || pk.tv){ save(); location.href = (pk.href || 'package-detail.html') + (/\?/.test(pk.href || '') ? '&' : '?') + 'from=all-packages' + RET_Q; return; }
     toast('Subscribe to ' + (pk.ph ? 'this package' : pk.title) + ' (demo)');
   }
   // Back: up to the tabs first, then where the page was opened from (its Back lands on View All / See all Packages).
@@ -209,8 +210,7 @@
   if(!cur.row || cur.row >= rows.length) cur.row = 1;
   cur.col.tabs = tabAt;
   if(subscribed){
-    history.replaceState(null, '', 'all-packages.html'); toast('You\'re now subscribed to PLAY ULTIMATE');
-    try { sessionStorage.setItem('shortsSubscribed', '1'); sessionStorage.setItem('tvSubscribed', '1'); } catch(e){}   // short dramas: every episode open; TV: premium channels and their Time Shift
+    history.replaceState(null, '', 'all-packages.html'); toast('Your package is now active');   // (package-detail.html has kept what it unlocks)
   }
   page.style.transition = 'none';
   paint();

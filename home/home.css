@@ -557,7 +557,9 @@
   .item{cursor:pointer;transition:transform .22s cubic-bezier(.2,0,0,1), box-shadow .22s ease, border-color .22s ease;}
   .item.focused{transform:scale(1.08);z-index:5;position:relative;}   /* every rail: 8% */
   .topnav .item.focused{transform:scale(1.06);}   /* the top bar isn't a rail: unchanged */
-  .toppick-row .item.focused{transform:scale(1.05);}   /* AIS Play Exclusive: its big feature card would grow too far at 8% (expand-card.css) */
+  .toppick-row .item.focused{transform:scale(1.05);}
+  /* the open card's details (event-card.css, the Store's PPV Event): its colour tokens */
+  .toppick-row{--on-surface:#e8e8e8;--on-surface-variant:#a8a8a8;--surface-container:#2a2a2a;--outline:#5a5a5a;}   /* AIS Play Exclusive: its big feature card would grow too far at 8% (expand-card.css) */
 
   /* ---------- Sliding "glass" focus ring (same as the Choose a Demo page) ----------
      ONE ring for the whole screen glides to whatever is focused (cards, chips, nav tabs, buttons), following the

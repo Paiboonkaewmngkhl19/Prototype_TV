@@ -272,26 +272,28 @@
 
   /* ---------- Row: AIS Play Exclusive ---------- */
   (function(){
-    // Expanding cards, like Top Pick For You: portrait posters that widen into the feature card when focused
-    // each a catalogue title (content.js MD.M, AIS PLAY's own): its name, synopsis, genres, length, rating and pictures;
-    // the rail adds its badges, a match's kick-off (when) and where the pictures sit
+    // Expanding cards, like Top Pick For You: portrait posters that widen into the feature card when focused; open, the
+    // Store's PPV Event details (event-card.css): a tag top left (a match's kick-off, else the rail's badge), then over a
+    // dark fade its title, its price with VAT (MD.price), the meta row (content.js Content.metaHtml: its platform tag,
+    // Premium with its crown, as the PPV card, gold until bought) and synopsis.
+    // Each a catalogue title (content.js MD.M, AIS PLAY's own); the rail adds its badge, kick-off and where the pictures sit
     var picks = [
       {k:'missuni', badges:['#1 in thailand'], ppos:'30% center'}, {k:'sophomores', badges:['Rerun']}, {k:'bossckm', badges:['New Arrival']},
       {k:'cityars', badges:['Premier League'], when:'Sun 22:30', pos:'center 40%'}, {k:'mufcche', badges:['Emirates FA Cup'], when:'Sat 19:30'},
       {k:'mufcars', badges:['Premier League'], when:'Sat 23:00'}
     ];
-    function hrs(len){ var h = /(\d+)h/.exec(len), mm = /(\d+)m/.exec(len); return (h ? h[1] + ' hr. ' : '') + (mm ? (mm[1].length < 2 ? '0' : '') + mm[1] + ' min' : ''); }
+    function vat(n){ return (Math.round(n * 107) / 100).toLocaleString('en-US', { minimumFractionDigits:2 }); }
     var cards = picks.map(function(it){
-      var m = M(it.k), wide = MD.bg(it.k), chips = [it.when || hrs(m.len), m.g.join(', '), m.age];
+      var m = M(it.k), wide = MD.bg(it.k);
       return '<div class="card xcard item" data-k="'+it.k+'" data-title="'+m.t+'" data-ring-art="url(&quot;'+wide+'&quot;)">'+
         '<div class="xc-portrait" style="background-image:url(\''+m.p+'\');'+(it.ppos?'background-position:'+it.ppos+';':'')+'"></div>'+
         '<div class="xc-wide" style="background-image:url(\''+wide+'\');background-position:'+(it.pos || 'center')+';"></div>'+
-        '<div class="xc-scrim"></div>'+
-        '<div class="xc-content">'+
-          '<div class="xc-badges">'+it.badges.map(function(b){ return '<span class="xc-badge">'+b+'</span>'; }).join('')+'</div>'+
-          '<h3 class="xc-title">'+m.t+'</h3>'+
-          '<p class="xc-desc">'+m.d+'</p>'+
-          '<div class="xc-chips">'+chips.map(function(c){ return '<span class="xc-chip">'+c+'</span>'; }).join('')+'</div>'+
+        '<div class="xc-scrim ev-scrim"></div><span class="top-tag ev-top">'+(it.when || it.badges[0])+'</span>'+
+        '<div class="xc-content ev-info">'+
+          '<h3>'+m.t+'</h3>'+
+          (MD.price(it.k) ? '<div class="cost"><b>'+MD.price(it.k)+' baht</b><span>(VAT Included: '+vat(MD.price(it.k))+' baht)</span></div>' : '')+
+          '<div class="meta">'+Content.metaHtml({k:it.k}, true)+'</div>'+
+          '<p class="syn">'+m.d+'</p>'+
         '</div>'+
       '</div>';
     }).join('');
