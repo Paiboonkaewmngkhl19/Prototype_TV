@@ -1,0 +1,625 @@
+:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
+
+  :root{
+    --bg-0:#0a0714;
+    --bg-1:#150c2e;
+    --bg-2:#1c1033;
+    --ink:#ffffff;
+    --ink-dim:#e3e3e3;
+    --ink-faint:rgba(255,255,255,0.55);
+    --live:#ff1f1f;   /* the Live TV player's seek-bar red: Live tags and progress bars on every page */
+    --progress-track:rgba(255,255,255,0.35);
+    --progress-fill:var(--live);
+    --card-title-bg:#4d4955;
+    --chip-bg:rgba(255,255,255,0.08);
+    --chip-border:rgba(255,255,255,0.16);
+    --focus-ring:rgba(255,255,255,0.95);
+    --font-display:'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    /* accent: no purple. Selected things (chips, View All pills, All Apps) use the same frosted grey-blue glass as a
+       focused top-bar tab; the heart, Shorts badges and the Customize panel use neutral greys, over a dark navy page. */
+    --bg-0:#070e16;
+    --th-a:#5f6982; --th-b:#d6def0; --th-c:#8e98b0; --th-glow:rgba(214,222,240,.12);
+    --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%);
+    --th-panel:linear-gradient(100deg, #3a4254 0%, #2a3040 45%, #1c2130 100%);
+  }
+  *{box-sizing:border-box;}
+  html,body{background:#000;height:100%;}
+  body{
+    margin:0;
+    padding:0;
+    font-family:var(--font-display);
+    color:var(--ink);
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  /* ---------- Fixed 16:9 "TV screen" ----------
+     Everything lives inside this frame, sized in JS to be the largest
+     16:9 box that fits the real browser window (letterboxed/pillarboxed
+     with black bars otherwise, like an actual TV). The frame itself never
+     scrolls — overflow:hidden — so there is no native/free scrolling at
+     all; the only thing that ever moves content is #stage's own transform,
+     driven exclusively by focus navigation (see scrollStageBy). */
+  #tv-frame{
+    position:relative;
+    overflow:hidden;
+    background:radial-gradient(1400px 900px at 85% 110%, var(--th-glow), transparent 70%), var(--bg-0);   /* page colour behind the hero picture and the rows, with a faint glow */
+    transition:background .4s ease;
+    flex:0 0 auto;
+  }
+  #viewport{
+    position:absolute;
+    inset:0;
+    overflow:hidden;
+    z-index:1;   /* above the hero picture, below the pinned hero text and nav */
+  }
+  #stage{
+    width:1920px;
+    transform-origin:top left;
+    position:relative;
+    transition:transform .22s cubic-bezier(.2,0,0,1);   /* same timing as the rails and the focus ring */
+    /* The bg-1→bg-0 stop below used to be "32%" — a percentage of #stage's
+       OWN height, which is the height of the entire scrollable page (many
+       thousands of px). That meant the fade only finished 32% of the way
+       down the whole page, nowhere near done by the time the pinned hero
+       (which fades out to a flat bg-0 at its own bottom edge) ends around
+       y=600px — so right where the hero handed off to the row below, the
+       stage was still showing a visibly lighter, still-transitioning color,
+       seen as a hard seam/color band. Anchoring the stop to a fixed px
+       distance instead ties it to the hero's own height regardless of how
+       tall the page grows, so the two fades land on the same color.
+       */
+    /* fully transparent: the page colour is the tv-frame's, behind the pinned hero picture, so no edge ever scrolls
+       into view (the old opaque band from 960px down rose over the picture as a hard line) */
+    background:none;
+  }
+
+  /* ---------- Top nav ---------- */
+  .topnav{
+    position:absolute;
+    top:0;
+    left:0;
+    width:1920px;
+    transform-origin:top left;
+    z-index:1000;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    padding:24px 110px 56px;
+    background:linear-gradient(180deg, rgba(8,6,20,.56) 0%, rgba(8,6,20,.38) 55%, rgba(8,6,20,0) 100%);   /* lightened 20%, twice */
+    transition:opacity .22s cubic-bezier(.2,0,0,1), background .22s ease;   /* coming back: a fade in place, so the focus ring lands on it straight away */
+  }
+  /* Past the first rail the bar gets out of the way: it slides up and fades. (`translate`, not `transform`: the transform
+     holds the screen scale.) Left on a rail's first card wakes it as an overlay, on a darker backdrop so it reads over
+     whatever rail is under it; Down puts it away again. */
+  .topnav.nav-away{ opacity:0; translate:0 -40px; pointer-events:none;
+    transition:opacity .25s cubic-bezier(.2,0,0,1), translate .25s cubic-bezier(.2,0,0,1); }
+  .topnav.nav-overlay{ background:linear-gradient(180deg, rgba(8,6,20,.94) 0%, rgba(8,6,20,.82) 55%, rgba(8,6,20,0) 100%); }
+  /* Figma "top_navigation" (628:69619): 60px profile photo, then search and the tabs right after it */
+  .topnav .profile{
+    width:60px;height:60px;border-radius:999px;overflow:hidden;
+    display:flex;align-items:center;justify-content:center;
+    flex:0 0 auto;
+  }
+  .topnav .profile img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .topnav .center{
+    position:relative;
+    display:flex;align-items:center;gap:12px;flex:1;
+    justify-content:flex-start;
+    margin-left:20px;   /* room between the profile photo and the search button's focus ring */
+  }
+  .navsearch{
+    width:60px;height:60px;border-radius:999px;margin:0 8px;   /* square, so its focus fill and ring are a circle; margin: room for that ring */
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;flex:0 0 auto;
+    cursor:pointer;
+  }
+  .navsearch img{ width:32px; height:32px; display:block; }
+  .navtab{
+    height:60px;padding:0 20px;border-radius:999px;   /* border-box: the size already included the old border */
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Plus Jakarta Sans', var(--font-display);font-size:24px;font-weight:400;line-height:1.2;color:#fff;text-shadow:0 0 6px rgba(0,0,0,.4);
+    background:transparent;border:0;   /* no stroke: the glass fill meets the focus ring directly */
+    white-space:nowrap;cursor:pointer;
+  }
+  /* every top-bar item (profile, search, tabs) is focusable; focused = white pill with black text / icon */
+  .topnav .item{ transition:transform .22s ease, background .15s ease, color .15s ease; }
+  /* the tabs' states (default, active, focus, focus active, active dim, disabled) come from the shared button theme
+     (button-theme.css, .tv-tab); the profile photo and search keep this focus fill */
+  .topnav .item.focused:not(.tv-tab){
+    background:var(--th-pill);
+    backdrop-filter:blur(12px) saturate(1.4);
+    border-color:transparent; box-shadow:none;
+    color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35);
+  }
+
+  /* ---------- Profile panel (Figma "profilePanel", PLAY profile - settings 430:137036) ----------
+     Drops down under the profile photo while the photo has focus: the profile card, My Account, then Settings,
+     Help & Support and Exit AIS PLAY. Down / Enter go into it; focus inside uses the Default theme (white glass pill
+     + the gliding ring), the photo keeps a dim fill meanwhile. */
+  /* Figma's layout and sizes in the phone app's theme (Prototype_Mobile's Profile page, the same Default theme tokens
+     as here): the page's navy with its soft glow from the lower right; the profile card its lit grey-blue glass;
+     the chip a 16% white fill, the buttons outlined in it; text #e8e8e8 / #a8a8a8 in Open Sans.
+     Focused: the Default theme's white glass pill (and the gliding ring) */
+  .prof-panel{ position:absolute; left:110px; top:100px; width:402px; box-sizing:border-box; padding:24px; border-radius:24px;
+    background:radial-gradient(600px 460px at 85% 110%, var(--th-glow), transparent 70%), var(--bg-0);
+    box-shadow:inset 0 0 0 1px rgba(214,222,240,.14), 0 12px 32px rgba(0,0,0,.5);
+    display:flex; flex-direction:column; gap:32px; overflow:hidden; font-family:'Open Sans', sans-serif;
+    opacity:0; translate:0 -12px; pointer-events:none; transition:opacity .22s cubic-bezier(.2,0,0,1), translate .22s cubic-bezier(.2,0,0,1); }
+  .topnav.prof-open .prof-panel{ opacity:1; translate:0 0; pointer-events:auto; }
+  .prof-top{ display:flex; flex-direction:column; gap:16px; }
+  .prof-card{ display:flex; align-items:center; gap:8px; padding:16px; border-radius:16px;
+    background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0) 45%), linear-gradient(160deg, #3a4254 0%, #2a3040 55%, #1f2533 100%);
+    box-shadow:inset 0 0 0 1px rgba(214,222,240,.22), inset 0 1px 0 rgba(255,255,255,.18), 0 12px 32px rgba(0,0,0,.5), 0 0 40px rgba(214,222,240,.10); }
+  .prof-ava{ position:relative; width:80px; height:80px; border-radius:100px; flex:0 0 auto; overflow:hidden; background:#404045; }
+  .prof-ava img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+  .prof-info{ flex:1; min-width:0; display:flex; flex-direction:column; gap:8px; }
+  .prof-name-row{ display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+  .prof-name{ flex:1; min-width:0; font-weight:500; font-size:24px; color:#e8e8e8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .prof-chip{ height:24px; padding:2px 10px; box-sizing:border-box; border-radius:999px; background:rgba(255,255,255,.16); display:flex; align-items:center;
+    font-weight:700; font-size:11px; line-height:1.4; color:#e8e8e8; white-space:nowrap; flex:0 0 auto; }
+  .prof-acc{ font-size:14px; color:#a8a8a8; white-space:nowrap; }
+  .prof-net{ font-size:12px; color:#a8a8a8; white-space:nowrap; }
+  .prof-div{ display:block; width:354px; height:1px; opacity:.6; }
+  .prof-menu{ display:flex; flex-direction:column; gap:16px; }
+  /* TV / Button, h56 pill */
+  .prof-btn{ position:relative; height:56px; box-sizing:border-box; padding:16px; border-radius:9999px; display:flex; align-items:center; gap:8px; cursor:pointer;
+    background:transparent; box-shadow:inset 0 0 0 2px rgba(255,255,255,.16);   /* outlined, as Figma's resting TV / Button */
+    font-weight:700; font-size:16px; line-height:24px; color:#f0f0f0; white-space:nowrap; transition:background .2s ease; }
+  .prof-btn .ic{ position:relative; width:24px; height:24px; flex:0 0 auto; }
+  .prof-btn .ic img{ display:block; width:24px; height:24px; }
+  /* Figma exports these icons in their base dark grey (#3B3C3E): shown white, like the labels */
+  .prof-btn .ic img.tint{ filter:brightness(0) invert(.94); }   /* #f0f0f0, as the labels */
+  .prof-btn .ic .dot{ position:absolute; right:-1px; top:-1px; width:8px; height:8px; }
+  .prof-btn .lbl{ position:relative; }
+  .prof-btn.focused{ background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%), var(--th-pill); box-shadow:none; color:#fff; }
+  .prof-btn.focused .lbl{ text-shadow:0 1px 4px rgba(0,0,0,.35); }
+  .topnav .profile.open{ box-shadow:0 0 0 4px rgba(255,255,255,.22); }
+
+  /* ---------- Hero banner ----------
+     Pinned like the top nav: anchored to the tv-frame (not the
+     scaled/scrolling #stage) so it never gets pushed away while browsing
+     the first 8 "dynamic background" rows. #hero-spacer (inside #stage)
+     reserves the same height in normal flow so rows start exactly where
+     they did before. Past row 8 ("no more dynamic background"), it fades
+     out via .hero-hidden instead of scrolling away. */
+  /* The hero text is pinned above the rows (transparent, so the first rail can sit on the picture); the picture
+     itself is .hero-backdrop, behind the rows, reaching down past the first rail. Rows are clipped at the hero's
+     bottom edge while the hero shows (see renderStageTransform), as the opaque hero used to hide them. */
+  .hero{
+    position:absolute;
+    top:0;
+    left:0;
+    width:1920px;
+    height:600px;
+    padding-top:84px;
+    overflow:hidden;
+    transform-origin:top left;
+    z-index:5;
+    transition:opacity .3s cubic-bezier(.2,0,0,1);
+    pointer-events:none;
+  }
+  .hero.hero-hidden, .hero-backdrop.hero-hidden{opacity:0;}
+  /* a chip-rail button focused: the screen shows the Live TV artwork instead, and the programme text steps aside */
+  .hero-bg-livetv{opacity:0;background-position:center;transition:opacity .6s ease, background-image .4s ease;}
+  /* the glass label in the Live TV artwork, redrawn on top of it (exactly covering the baked-in one, growing to the
+     left for longer names) so it can show the focused button's name */
+  .chip-screen-box{
+    position:absolute; right:236px; top:238px; height:229px; min-width:636px; box-sizing:border-box; padding:0 72px;
+    display:flex; align-items:center; justify-content:center; border-radius:22px;
+    border:2px solid rgba(140,150,205,.55);
+    background:
+      radial-gradient(60% 90% at 96% 0%, rgba(84,94,210,.6), transparent 70%),
+      linear-gradient(180deg, rgba(255,255,255,.07), transparent 45%),
+      linear-gradient(90deg, #111b37 0%, #1b2552 35%, #232e76 70%, #29348e 100%);
+    box-shadow:0 8px 24px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.22);
+    font-family:"Helvetica Neue", Helvetica, Arial, sans-serif; font-size:120px; font-weight:400; line-height:1;
+    color:#f1f2f6; text-shadow:0 3px 8px rgba(0,0,0,.5); white-space:nowrap; text-transform:uppercase;
+  }
+  .hero-bg-livetv.on{opacity:1;}
+  .hero.livetv .hero-content{opacity:0;}
+  .hero-livetv-content{position:absolute !important;left:110px;top:168px;bottom:auto;opacity:0;}
+  .hero.livetv .hero-livetv-content{opacity:1;}
+  .hero-livetv-content .hero-title{margin-bottom:28px;}
+  .hero-content{transition:opacity .3s cubic-bezier(.2,0,0,1);}
+  .row-block{ transition:opacity .22s cubic-bezier(.2,0,0,1); }
+  .row-block.row-above{ opacity:0; }
+  /* full-screen rails: page colour fading to transparent under the nav (nav height x 1.5), so rails scrolling up
+     fade out before they reach it */
+  .top-scrim{
+    position:absolute; top:0; left:0; width:1920px; height:170px; z-index:999; transform-origin:top left;
+    background:linear-gradient(180deg, var(--bg-0) 0%, var(--bg-0) 45%, rgba(10,7,20,0) 100%);
+    opacity:0; transition:opacity .3s cubic-bezier(.2,0,0,1); pointer-events:none;
+  }
+  .top-scrim.on{ opacity:1; }
+  #hero-spacer{height:600px;}
+  .hero-backdrop{
+    position:absolute; top:0; left:0; width:1920px; height:1080px; z-index:0;
+    transform-origin:top left; overflow:hidden; transition:opacity .3s cubic-bezier(.2,0,0,1); pointer-events:none;
+  }
+  .hero-bg{position:absolute;inset:0;background-size:cover;background-position:center 30%;transition:opacity .6s ease;}
+  /* the first Jump Right Back In card (Liverpool vs Brentford) plays a video as its screen background */
+  .hero-bg-video{width:100%;height:100%;object-fit:cover;opacity:1;}
+  .hero-bg-video.off{opacity:0;}
+  /* only a dark wash behind the text on the left and a fade into the page at the bottom: the picture stays bright */
+  .hero-backdrop::after{
+    content:"";position:absolute;inset:0;
+    background:
+      linear-gradient(90deg, rgba(10,8,24,.88) 0%, rgba(10,8,24,.62) 30%, rgba(10,8,24,.12) 58%, transparent 75%),
+      linear-gradient(180deg, transparent 52%, rgba(10,8,24,.55) 74%, var(--bg-0) 96%);
+  }
+  /* First scene (Figma PLAY:home_mainPage 3256:175115): title, meta row and synopsis sit right on top of the Detail /
+     Play buttons (the hero row), so the block is anchored to the hero's bottom edge. A rail's own card (card-mode)
+     shows its text from the top instead, as before. */
+  .hero-content{
+    position:absolute;z-index:1;left:110px;bottom:0;width:800px;   /* the hero row's 24px top padding is the gap to Detail */
+    transition:opacity .25s ease;
+  }
+  .hero.card-mode .hero-content{bottom:auto;top:168px;width:1100px;}
+  .hero-title{
+    font-size:57px;font-weight:700;line-height:1.2;max-width:1080px;
+    text-shadow:0 2px 12px rgba(0,0,0,.35);
+    margin:0 0 24px;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  }
+  .hero-meta-row{display:flex;align-items:center;gap:16px;margin-bottom:24px;min-height:36px;}
+  /* Jump Right Back In: how far in, under the title (Movie's Continue Watching: a 400px bar in the Live red, "33m of 58m") */
+  .hero-watched{display:flex;align-items:center;gap:16px;margin-bottom:24px;font-size:20px;color:#e8e8e8;text-shadow:0 0 6px rgba(0,0,0,.6);}
+  .hero-watched .bar{position:relative;width:400px;height:8px;border-radius:4px;background:rgba(255,255,255,.3);overflow:hidden;}
+  .hero-watched .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--live);}
+  /* channel / provider logo, inline before the channel name */
+  .hero-logo{width:var(--ptag-w);height:var(--ptag-h);object-fit:contain;border-radius:8px;display:block;flex:0 0 auto;margin-right:-8px;}   /* 8px to its channel name (Figma) */   /* the provider's tag logo, same as the rail cards' */
+  .hero-channel{font-size:20px;color:#e8e8e8;display:flex;align-items:center;gap:16px;white-space:nowrap;}
+  /* a title's meta row (content.js MD.metaHtml), as its detail page draws it: bold genres, year, length, the age pill,
+     the quality tag (platform-tag.css .qtag) */
+  .hero-channel strong{font-size:22px;font-weight:700;color:#fff;}
+  .hero-channel .pill, .hero-range{background:rgba(128,128,128,.15);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
+  .hero-channel .pill{height:36px;min-width:80px;justify-content:center;padding:0 12px;border:1px solid #5c5c5c;border-radius:18px;display:inline-flex;align-items:center;box-sizing:border-box;}
+  /* a channel's programme (Live and Upcoming): the channel's own round logo (TV.logoHtml), where a title shows its OTT tag */
+  .hero-logo.ais{background:#000;border-radius:6px;padding:6px 10px;box-sizing:border-box;}   /* AIS PLAY's own: its mark on black (platform-tag.css .ptag.ais) */
+  .hero-chlogo{display:flex;margin-right:-8px;}
+  .hero-chlogo .ch-logo{width:36px;height:36px;border-radius:50%;}
+  /* a channel's programme says what its detail page's meta row says (movie-detail.html .mbadge / .pill): Upcoming,
+     Premium, the channel, the time on air (content.js LIVE.premium / LIVE.range) */
+  .hero-mbadge{height:36px;box-sizing:border-box;padding:0 12px;border-radius:9999px;display:inline-flex;align-items:center;gap:4px;flex:0 0 auto;
+    font-size:20px;font-weight:500;white-space:nowrap;background:#3a3a3a;color:#e8e8e8;}
+  .hero-mbadge.prem{color:#fff;}
+  .hero-mbadge.prem img{width:20px;height:20px;display:block;}
+  .hero-range{height:36px;min-width:80px;box-sizing:border-box;padding:0 12px;border:1px solid #5c5c5c;border-radius:18px;
+    display:inline-flex;align-items:center;justify-content:center;font-size:20px;color:#e8e8e8;white-space:nowrap;}
+  .badge-live{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--live);color:#fff;border-radius:18px;
+    height:36px;box-sizing:border-box;padding:0 12px;font-size:20px;font-weight:500;text-transform:uppercase;white-space:nowrap;
+  }
+  .badge-live .dot{width:12px;height:12px;border-radius:999px;background:#fff;}
+  .hero-desc{font-size:24px;line-height:32px;color:#a8a8a8;max-width:700px;margin:0;white-space:pre-line;text-shadow:0 0 6px rgba(0,0,0,.6);
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+
+
+  /* ---------- Generic row / rail ---------- */
+  .row-block{position:relative;z-index:2;padding:0 0 60px;}   /* 60px from one rail to the next (Figma Home 3032:157341) */
+  .chip-row{padding-bottom:54px;}   /* + the chips' 6px bottom padding = 60px */
+  .row-title{
+    font-size:32px;font-weight:500;line-height:40px;color:#e8e8e8;
+    padding:0 110px;margin:0 0 40px;   /* a 40px title line, then 40px to the resting cards (every rail, every page) */
+  }
+  /* Vertical padding + matching negative margin: gives focused cards (which
+     scale up via .card.focused / .item.focused) room to grow without their
+     top/bottom edges being clipped by this container's overflow:hidden
+     (needed on the horizontal axis, to hide off-screen cards during rail
+     scroll) — the negative margin cancels the padding back out for layout
+     purposes, so row spacing is unaffected. */
+  .rail-viewport{overflow:hidden;padding:26px 0 26px 110px;margin:-26px 0;position:relative;}
+  .rail-track{position:relative;display:flex;align-items:center;gap:32px;will-change:transform;transition:transform .22s cubic-bezier(.2,0,0,1);padding-right:120px;}
+
+  .card{position:relative;border-radius:12px;overflow:hidden;flex:0 0 auto;transform:scale(1);transition:transform .22s cubic-bezier(.2,0,0,1), box-shadow .22s ease;cursor:pointer;}
+  .card.focused{transform:scale(1.08);z-index:5;}
+
+  /* landscape card */
+  .card-landscape{width:320px;height:180px;}   /* Figma 16:9 card */
+  .card-landscape.wide{width:470px;height:264px;}
+  .card-art{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:flex-end;padding:14px;font-size:44px;opacity:.35;}
+  .card-tag{position:absolute;left:12px;bottom:12px;height:40px;padding:0 12px;border-radius:8px;background:rgba(0,0,0,.55);display:flex;align-items:center;font-size:15px;font-weight:700;letter-spacing:.03em;}
+  .card-tag.has-logo{padding:6px 12px;}
+  /* provider logos: the badge image IS the tag (a rounded tile with the logo filling it), so it's shown full size with
+     no extra dark box or padding around it */
+  .platform.has-logo, .card-tag.has-logo{ padding:0 !important; background:none !important; height:auto !important; }
+  .platform.has-logo .badge-logo, .card-tag.has-logo .badge-logo{ width:var(--ptag-w) !important; height:var(--ptag-h) !important; object-fit:contain; }   /* platform-tag.css: 56 x 36 */
+  .badge-logo{height:22px;width:auto;display:block;object-fit:contain;}
+  .platform{background:rgba(0,0,0,.6);}
+  .platform .badge-logo{height:18px;}
+  .card-badge-corner{position:absolute;left:-10px;top:8px;background:var(--live);color:#fff;font-size:16px;font-weight:600;padding:8px 14px 8px 20px;border-radius:0 10px 10px 10px;}
+  .card-badge-corner.dim{background:#202020;}
+
+  /* content card (with title strip) */
+  .card-content{width:320px;display:flex;flex-direction:column;border-radius:12px;overflow:visible;}
+  .card-content .thumb{height:180px;position:relative;border-radius:12px;overflow:hidden;}
+  /* a card whose Live ribbon hangs past its edge: unclip it and round the thumb and strip themselves instead */
+  .card-content.has-ribbon{overflow:visible;}
+
+  .card-content .strip{padding:16px 12px;display:flex;flex-direction:column;gap:4px;}   /* the title 16px under the picture, 16px over the card's bottom, 12px in from its sides */
+  /* focused card: its grey info areas turn ~30% darker so the focused card stands apart */
+  .epg-card, .card-karaoke{ transition:background-color .22s cubic-bezier(.2,0,0,1); }
+  /* the cards' glass (chip-theme.css .tv-glass) brightens a little when focused */
+  .epg-card.focused, .card-karaoke.focused{ background:rgba(255,255,255,.24); }
+  .card-content .strip .t{font-size:20px;font-weight:500;color:#e8e8e8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .card-content .strip .s{font-size:16px;color:#a8a8a8;}
+  /* Continue watching (Figma "Jump back right in"): tag bottom-left, time left bottom-right, a 6px bar along the bottom */
+  /* time left: the corner tag (corner-tag.css) */
+  .card-content .thumb > .progress{position:absolute;left:0;bottom:0;height:6px;border-radius:0;}
+  .card-content .thumb > .card-tag{bottom:14px;}
+  /* Live and Upcoming: the start time as a pill on the picture's top-left */
+  /* start times and badges top-left on cards: the top tag (corner-tag.css) */
+  .progress{height:8px;border-radius:2px;background:var(--progress-track);width:100%;overflow:hidden;}
+  .progress > i{display:block;height:100%;background:var(--progress-fill);border-radius:2px;}
+
+  /* poster card */
+  .card-poster{width:220px;height:330px;border-radius:12px;display:flex;align-items:flex-end;}   /* Figma 2:3 card */
+  .card-poster .platform{position:absolute;right:6px;top:6px;height:34px;padding:0 10px;border-radius:6px;background:rgba(0,0,0,.55);display:flex;align-items:center;font-size:13px;font-weight:700;}
+
+  /* top10 rank card: top10.css (and top10.js) */
+
+  /* karaoke card */
+  .card-karaoke{width:280px;flex:0 0 auto;border-radius:10px;overflow:hidden;}   /* never squeezed to fit the row: the rail scrolls */   /* its song strip: the card glass (chip-theme.css .tv-glass) */
+  .karaoke-track{gap:30px;}
+  .card-karaoke .art{width:280px;height:280px;object-fit:cover;display:block;}
+  .card-karaoke .meta{padding:16px 20px;display:flex;flex-direction:column;gap:4px;line-height:1.2;}
+  .card-karaoke .meta .song, .card-karaoke .meta .artist{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .card-karaoke .meta .song{font-size:24px;font-weight:600;}
+  .card-karaoke .meta .artist{font-size:20px;}
+
+  /* chips */
+  .chip-row .rail-track{align-items:center;padding-top:6px;padding-bottom:6px;}
+  /* Category chips (Figma "TV / Chip", 3256:175126): 250 wide, 100px tall (Figma's 130, lowered on request), 32px label. Colours and focus come from the shared chip
+     theme (chip-theme.css, .tv-chip): frosted glass at rest, the grey glass pill when focused. */
+  .chip{
+    position:relative;
+    width:250px;height:100px;box-sizing:border-box;padding:0 40px;border-radius:26px;display:flex;align-items:center;justify-content:center;
+    font-weight:500;font-size:32px;line-height:32px;white-space:nowrap;flex:0 0 auto;
+  }
+
+  /* EPG / TV guide */
+  .epg-row .rail-track{align-items:stretch;}
+  /* the TV Guide tile and cards: tvguide-card.css */
+
+  /* Clips rail (Figma Home 2002:105733) */
+  /* the artwork band (Figma "Short"): 110px above the title, 80px below the cards; then the usual 60px */
+  .clips-row{padding:110px 0 80px;margin-bottom:60px;}
+  .clips-bg{position:absolute;inset:0;z-index:-1;pointer-events:none;
+    background:linear-gradient(rgba(10,7,20,.35), rgba(10,7,20,.35)), url('../posters/shorts-bg.jpg') center / cover no-repeat;opacity:.55;   /* the tint is inside the masked layer, so it fades out with the art */
+    /* fades to transparent top and bottom, so it melts into whatever is behind the page (Figma: 1.8–17% / 83.5–100%) */
+    -webkit-mask-image:linear-gradient(180deg, transparent 0%, #000 34%, #000 70%, transparent 100%);
+    mask-image:linear-gradient(180deg, transparent 0%, #000 34%, #000 70%, transparent 100%);}
+  /* while focus is in the band, the artwork fills the whole screen at full strength, as the LPGA band does: a second
+     copy, from far above the screen's top edge (the band's cards sit low, level with LPGA's) and solid down to the same
+     bottom fade, cross-fades with the band's own dimmed copy */
+  .clips-bg:not(.band-full){transition:opacity .45s cubic-bezier(.2,0,0,1);}
+  .clips-row.band-on .clips-bg:not(.band-full){opacity:0;}
+  .clips-bg.band-full{top:-560px;z-index:0;opacity:0;transition:opacity .45s cubic-bezier(.2,0,0,1);
+    -webkit-mask-image:linear-gradient(180deg, #000 0, #000 calc(100% - 180px), transparent 100%);
+    mask-image:linear-gradient(180deg, #000 0, #000 calc(100% - 180px), transparent 100%);}
+  .clips-row.band-on .clips-bg.band-full{opacity:1;}
+  .row-block.band-on{position:relative;z-index:3;}   /* the focused band over the rail above it (the Top Picks rail is z-index 2) */
+  .clips-row > .row-title, .clips-row > .rail-viewport{position:relative;z-index:1;}
+  .clips-row .row-title{text-shadow:0 2px 10px rgba(0,0,0,.7);}
+  /* no colour overlay on the row: a painted colour would end in a visible edge where it doesn't match the page */
+  .clips-bg{filter:none;}
+  .clips-row .rail-track{gap:32px;align-items:stretch;}
+  .clip-card{position:relative;width:220px;height:330px;border-radius:12px;   /* same size as the other poster rails (220 x 330) */ flex:0 0 auto;background-size:cover;background-position:center;box-shadow:0 8px 24px rgba(0,0,0,.55), 0 2px 6px rgba(0,0,0,.4);}
+  .clip-badge{position:absolute;left:12px;max-width:221px;box-sizing:border-box;padding:0 12px;border-radius:18px;color:#fff;
+    /* neutral grey glass (the accent tokens) */
+    background:linear-gradient(115deg, var(--th-a) 0%, var(--th-b) 55%, var(--th-c) 110%);
+    box-shadow:inset -1px 2px 10px rgba(255,255,255,.28);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);text-shadow:0 1px 3px rgba(0,0,0,.35);
+    font-size:20px;font-weight:500;line-height:26px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .clip-top{top:12px;}
+  .clip-logo{position:absolute;left:12px;bottom:12px;width:60px;height:40px;object-fit:contain;border-radius:10px;display:block;}   /* same tag logo as the other rails */
+  .clip-logo.round{width:44px;height:44px;border-radius:50%;object-fit:cover;background:#fff;}
+  /* View All: same tile as the TV Guide's "TV Guide / View All" pill */
+  .clip-viewall{width:220px;border-radius:38px;flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#fff;}   /* looks: the All Apps tile's */
+  .clip-viewall b{font-size:28px;font-weight:700;}
+  .clip-viewall span{font-size:22px;font-weight:400;opacity:.9;}
+  /* provider tag logos (badges/tag-*.png): their colour fill and corners come from platform-tag.css */
+
+  /* Quick Access (Figma "Rail - My Subscription"): quick-card.css's 401 x 180 cards, 32px apart (four fill the 1700px between the margins) */
+  .quick-row .rail-track{gap:32px;}
+
+  /* partner */
+  .partner-row .rail-track{align-items:center;}
+  .partner-allapps{
+    width:220px;height:140px;box-sizing:border-box;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:6px;   /* Figma "All app" button */
+    font-size:28px;font-weight:700;flex:0 0 auto;
+  }
+  /* the View All tiles (All Apps, TV Guide, Shorts, LPGA): the chip theme's default and focus (chip-theme.css .tv-chip) */
+  .partner-logo-tile{ width:250px !important; height:140px !important; border-radius:12px; overflow:hidden; background:#000; }
+  .partner-logo-tile img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .partner-card{width:200px;height:96px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;letter-spacing:.02em;flex:0 0 auto;}
+  .partner-logo{height:34px;}
+
+  /* portrait card */
+  .portrait-card{width:236px;height:354px;border-radius:12px;overflow:hidden;flex:0 0 auto;border:0;box-shadow:0 0 22px rgba(0,0,0,.6);align-self:flex-start;}   /* no stroke */
+  .portrait-card .art{height:354px;position:relative;}
+  .exclusive-card{width:369px !important;height:553px !important;border-radius:17px;}
+  .exclusive-card img{width:100%;height:100%;object-fit:cover;display:block;}
+
+  /* Hot Channel Program (Figma 3256:172436): 16:9 programme cards, a gold crown on premium ones */
+  /* the premium crown: corner-tag.css .crown-tag */
+
+  /* Recommended Apps (Figma 3256:172467): 250 x 140 app tiles, then All Apps */
+  .recapps-row .rail-track{align-items:center;}
+  .partner-logo-tile.on-white{background:#fff;}
+  .partner-logo-tile.on-white img{object-fit:contain;}
+
+  /* Highlight (Figma "Hilight" 3256:172482): a full-width artwork band, the event's title and synopsis, then its
+     posters and a View All tile; 150px of artwork above the title, 50px below the cards */
+  .hl-row{padding:150px 0 50px;margin-bottom:60px;}
+  /* the artwork fades out to nothing at its top and bottom edges (a mask, not a colour), so it melts into whatever is
+     behind the page with no visible band edge */
+  .hl-bg{position:absolute;left:0;right:0;top:-160px;bottom:-60px;z-index:-1;pointer-events:none;background:url('../posters/highlight/bg.png') center top / cover no-repeat;
+    /* it starts 160px above the band and fades in over its top third on an eased curve (and out the same way at the
+       bottom), so there's no line where the picture begins */
+    --hl-fade:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.04) 6%, rgba(0,0,0,.14) 12%, rgba(0,0,0,.3) 18%, rgba(0,0,0,.5) 24%,
+      rgba(0,0,0,.7) 30%, rgba(0,0,0,.86) 36%, #000 44%, #000 64%, rgba(0,0,0,.8) 72%, rgba(0,0,0,.5) 82%, rgba(0,0,0,.2) 92%, transparent 100%);
+    -webkit-mask-image:var(--hl-fade); mask-image:var(--hl-fade);}
+  /* while focus is in the band, the artwork fills the whole screen: a second copy, from above the screen's top edge,
+     solid down to the same bottom fade, fades in over the first (both are 1920 wide and sit on the same bottom edge, so
+     the picture doesn't move) and the top scrim stays off */
+  .hl-bg{background-size:1920px auto;background-position:center bottom;}
+  .hl-bg.band-full{top:-220px;z-index:0;opacity:0;   /* over the rail above, which would otherwise peek in at the screen's top edge */
+    transition:opacity .45s cubic-bezier(.2,0,0,1);
+    --hl-fade:linear-gradient(180deg, #000 0, #000 calc(100% - 365px), rgba(0,0,0,.8) calc(100% - 285px),
+      rgba(0,0,0,.5) calc(100% - 183px), rgba(0,0,0,.2) calc(100% - 81px), transparent 100%);}
+  .hl-row.band-on .hl-bg.band-full{opacity:1;}
+  .hl-row > .hl-info, .hl-row > .rail-viewport{position:relative;z-index:1;}
+  .hl-bg::after{content:'';position:absolute;inset:0;
+    background:linear-gradient(90deg, rgba(10,7,20,.6) 0%, rgba(10,7,20,.15) 55%, rgba(10,7,20,.15) 100%);}   /* dims it behind the text */
+  .hl-info{padding:0 110px;margin-bottom:80px;max-width:800px;}   /* text above a rail ends 80px over its cards, as the hero text does */
+  .hl-info h3{font-size:57px;font-weight:700;line-height:1.15;margin:0 0 24px;text-shadow:0 2px 12px rgba(0,0,0,.35);}
+  .hl-info p{width:700px;margin:0;font-size:24px;line-height:32px;color:#e8e8e8;text-shadow:0 0 6px rgba(0,0,0,.6);
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+  .hl-row .rail-track{align-items:stretch;}
+
+  /* Seasonal / Collection (Figma "seasonal" 3256:172487): 395 x 612 tall cards, the collection's name across the art */
+  .season-card{position:relative;width:395px;height:612px;border-radius:16px;overflow:hidden;flex:0 0 auto;background-size:cover;background-position:center;}
+  /* the title and a dark fade at the top behind it show on the focused card only; at rest, just the poster */
+  .season-card::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,.82) 0%, rgba(0,0,0,.55) 22%, rgba(0,0,0,0) 48%);
+    opacity:0;transition:opacity .25s ease;}
+  .season-card span{opacity:0;transform:translateY(-8px);transition:opacity .25s ease, transform .25s cubic-bezier(.2,0,0,1);}
+  .season-card.focused::after, .season-card.focused span{opacity:1;transform:none;}
+  .season-card span{position:absolute;left:35px;right:35px;top:40px;z-index:1;text-align:center;   /* the title at the top, centred */
+    font-size:52px;font-weight:700;line-height:1.15;color:rgba(255,255,255,.92);text-shadow:0 2px 12px rgba(0,0,0,.45);}
+  .seasonal-row .item.focused{transform:scale(1.05);}   /* tall cards: 5%, so they don't reach the rails around them */
+
+  /* Choose what you like (Figma 3256:172489): 12 topic tiles in two rows of six, then Continue / Skip */
+  .gc-head{padding-top:60px;padding-bottom:32px;}
+  .gc-row2{padding-bottom:60px;}
+  .gc-title{padding:0 110px;margin:0 0 60px;}
+  .gc-title h2{font-size:56px;font-weight:500;line-height:64px;color:#e8e8e8;margin:0 0 24px;}
+  .gc-title p{font-size:32px;line-height:32px;color:#a8a8a8;margin:0;}
+  .genre{position:relative;width:260px;height:146px;border-radius:10px;overflow:hidden;flex:0 0 auto;background-size:cover;background-position:center;}
+  .genre::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,.45);}
+  .genre > span:not(.gchk){position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;padding:44px 16px 10px;   /* centred under the check box's row */
+    text-align:center;font-size:32px;font-weight:500;line-height:1.15;color:#e8e8e8;text-shadow:0 1px 6px rgba(0,0,0,.6);}
+  /* check box: an empty ring at rest; picked, a filled white circle with a dark tick, and the tile gets a white rim */
+  .genre .gchk{position:absolute;left:12px;top:12px;z-index:2;width:36px;height:36px;border-radius:50%;box-sizing:border-box;
+    border:2px solid rgba(255,255,255,.85);background:rgba(0,0,0,.35);transition:background .15s ease, border-color .15s ease;}
+  .genre .gchk::after{content:'';position:absolute;left:11px;top:5px;width:8px;height:16px;border:solid #1b1b1b;border-width:0 3px 3px 0;
+    transform:rotate(45deg) scale(.4);opacity:0;transition:opacity .15s ease, transform .2s cubic-bezier(.2,0,0,1);}
+  .genre.on .gchk{background:#fff;border-color:#fff;}
+  .genre.on .gchk::after{opacity:1;transform:rotate(45deg);}
+  .genre::after{content:'';position:absolute;inset:0;z-index:2;border-radius:inherit;box-shadow:inset 0 0 0 3px #fff;opacity:0;transition:opacity .15s ease;pointer-events:none;}
+  .genre.on::after{opacity:1;}
+  /* the overlay behind the label: dark at rest, darker when focused; once picked, a white overlay instead */
+  .genre::before{transition:background .2s ease;}
+  .genre.focused::before{background:rgba(0,0,0,.68);}
+  .genre.on::before, .genre.on.focused::before{background:rgba(255,255,255,.3);}
+  .gc-actions .rail-track, .back-row .rail-track{justify-content:center;padding-right:110px;}
+  /* Continue (primary) and Skip (secondary): button-theme.css */
+  .gc-btn{--btn-w:auto;min-width:220px;padding:0 48px;font-size:28px;}
+  .gc-btn.off:not(.focused){opacity:.4;}   /* Continue: dimmed until 3 topics are picked; focused, the primary button's own focus */
+
+  /* Refreshing Your New Home (Figma PLAY epg 3299:86154): a full-screen loading after Continue in Choose what you like */
+  .refresh{position:absolute;inset:0;z-index:2000;background:#1e1e1e;opacity:0;pointer-events:none;transition:opacity .35s ease;}
+  .refresh.on{opacity:1;pointer-events:auto;}
+  .refresh .in{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px;padding:60px 90px;box-sizing:border-box;}
+  /* the spinner (Figma's 144px icon: 8 rounded spokes, 12 x 36, from 30px to 66px off the centre), drawn as 8 bars so
+     they can fade one after another: a bright spoke runs round with a fading tail */
+  .refresh .spin{position:relative;width:144px;height:144px;flex:0 0 auto;}
+  .refresh .spin i{position:absolute;left:66px;top:6px;width:12px;height:36px;border-radius:6px;background:#e8e8e8;
+    transform-origin:6px 66px;opacity:.2;animation:refreshSpoke .8s linear infinite;}
+  @keyframes refreshSpoke{0%{opacity:.85;} 100%{opacity:.15;}}
+  .refresh .txt{display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;font-family:'Plus Jakarta Sans', sans-serif;
+    text-shadow:0 0 4px rgba(0,0,0,.5);white-space:nowrap;}
+  .refresh h2{margin:0;font-size:40px;font-weight:600;color:#fff;}
+  .refresh p{margin:0;font-size:24px;font-weight:500;color:#d6d6d6;line-height:normal;}
+
+  /* Back to Top (Figma 3256:172509) */
+  .back-row{padding-bottom:40px;}
+  /* the primary button's states (button-theme.css), as News / Movie's Back to Top */
+  .back-top{--btn-w:auto;--btn-h:80px;padding:0 100px;font-size:24px;}
+  .back-top i{width:32px;height:32px;-webkit-mask:url('../icons/arrow-up.svg') center / contain no-repeat;mask:url('../icons/arrow-up.svg') center / contain no-repeat;}
+
+  .end-spacer{height:70px;}
+
+  #toast{
+    position:absolute;left:50%;bottom:110px;transform:translate(-50%,20px);
+    background:rgba(20,14,36,.92);border:1px solid rgba(255,255,255,.16);
+    color:#fff;padding:14px 26px;border-radius:999px;font-size:15px;
+    opacity:0;transition:opacity .25s ease, transform .25s ease;
+    z-index:200;pointer-events:none;white-space:nowrap;
+  }
+  #toast.show{opacity:1;transform:translate(-50%,0);}
+
+  /* ---------- universal focus affordance (covers chips, nav tabs, epg/partner/portrait cards, rank cards, banners) ---------- */
+  .item{cursor:pointer;transition:transform .22s cubic-bezier(.2,0,0,1), box-shadow .22s ease, border-color .22s ease;}
+  .item.focused{transform:scale(1.08);z-index:5;position:relative;}   /* every rail: 8% */
+  .topnav .item.focused{transform:scale(1.06);}   /* the top bar isn't a rail: unchanged */
+  .toppick-row .item.focused{transform:scale(1.05);}   /* AIS Play Exclusive: its big feature card would grow too far at 8% (expand-card.css) */
+
+  /* ---------- Sliding "glass" focus ring (same as the Choose a Demo page) ----------
+     ONE ring for the whole screen glides to whatever is focused (cards, chips, nav tabs, buttons), following the
+     rails as they slide and the page as it scrolls. 8px thick, right against the item, corners concentric with it;
+     filled with a blurred (4px), brightened (1.8), more saturated (1.4) copy of the item's artwork (two layers that crossfade when
+     focus moves; items without artwork get plain frosted glass), cut to a ring with padding + mask-composite;
+     a 1.2px white highlight (70%) on its outer edge and a soft glow. Placed by placeHomeRing(). */
+  .home-ring{
+    position:absolute; left:0; top:0; z-index:1001; pointer-events:none; opacity:0;   /* above the top bar (1000) too */
+    box-shadow:inset 0 0 0 1.2px rgba(255,255,255,.7), 0 0 15px rgba(255,255,255,.15), 0 0 26px var(--th-glow);
+    transition:opacity .2s ease; will-change:transform, width, height;
+  }
+  .home-ring.on{ opacity:1; }
+  .home-ring .glass{
+    position:absolute; inset:0; border-radius:inherit; overflow:hidden;
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;
+    mask:linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  }
+
+  /* This row sits flush against the bottom edge of the pinned hero (z-index:5,
+     always painted on top). A center-anchored scale on focus would push the
+     card's top edge upward into the hero's rectangle and get hidden behind it
+     (looks like the top is "cut off"). Anchoring the scale to the top edge
+     instead means focus growth only extends the card downward, so the top
+     never crosses into the hero and nothing gets covered. A bigger-than-usual
+     scale (vs. the generic 1.06) makes the grow/shrink between cards clearly
+     visible in this row — the top-anchored origin means the extra growth
+     only pushes the bottom edge down, never the top edge up. */
+  .hero-row .item.focused{transform-origin:50% 50%;transform:scale(1.05);}   /* the Play button grows 5% */
+  /* Even with the top-anchored scale above, the focus ring's box-shadow
+     spreads 4px outward past the card's own top edge, which used to sit
+     flush against the hero's bottom edge with zero clearance — that 4px
+     sliver of ring still poked behind the hero and got clipped. A small
+     real gap (not cancelled out like rail-viewport's padding trick) between
+     the hero and this row's content gives the ring room to fully clear it. */
+  /* First scene's buttons (Figma ctaRow): Detail above Play, 400px pills 24px apart; the page dots 58px under them
+     (y 878) and the category chips at y 942. The hero items are stacked Play buttons, one per hero slide: only the
+     current one shows, and Left / Right still step through them (the dots follow). */
+  .hero-row{padding-top:24px;padding-bottom:46px;}   /* 46px + the chips' 6px top padding: chips at y 942 */
+  .hero-row .rail-track{display:grid;justify-content:start;padding-right:0;}
+  .hero-row .rail-track > .item{grid-area:1 / 1;}
+  .hero-row .hero-play:not(.cur){visibility:hidden;}
+  /* the buttons' look and states come from the shared button theme (button-theme.css): Detail is a secondary
+     button, Play a primary one */
+  .hero-btn .ic-info{-webkit-mask:url('../icons/hero/info.svg') center / contain no-repeat;mask:url('../icons/hero/info.svg') center / contain no-repeat;}
+  .hero-btn .ic-play{-webkit-mask:url('../icons/hero/play.svg') center / contain no-repeat;mask:url('../icons/hero/play.svg') center / contain no-repeat;}
+  .hero-detail{margin:0 0 24px 110px;}
+  .hero-detail.focused{transform:scale(1.05);}
+  .hero-dots{display:flex;justify-content:center;gap:8px;margin-top:58px;}
+  .hero-dots i{width:12px;height:12px;border-radius:6px;background:#a8a8a8;transition:width .22s cubic-bezier(.2,0,0,1), background-color .22s ease;}
+  .hero-dots i.on{width:30px;background:#e8e8e8;}
+  /* the Live ribbon: live-ribbon.css */
+  /* a copy of the focused card's badge drawn inside the ring, so the badge sits ON TOP of the ring (placeHomeRing) */
+  .home-ring .ring-badge{position:absolute;left:0;top:0;transform-origin:0 0;opacity:0;transition:opacity .12s ease;}
+  .home-ring .ring-badge.on{opacity:1;}
+  .home-ring .ring-badge .card-badge-corner{position:absolute;color:#fff;}
+  .rail-provider{position:absolute;left:14px;bottom:14px;}
+  .rail-provider .platform{display:flex;align-items:center;height:36px;padding:0 12px;border-radius:6px;font-size:14px;font-weight:800;color:#fff;}
+  .rail-provider .badge-logo{height:22px;display:block;}   /* room for the centre-scaled card's top edge below the pinned hero */
+
+  @media (prefers-reduced-motion: reduce){
+    .card, .item, .rail-track, #toast{transition:none;}
+  }
+

@@ -1,0 +1,216 @@
+
+  :root{
+    color-scheme:dark;
+    /* Figma variables (default mode) */
+    /* Home's page: dark navy, Open Sans */
+    --bg-0:#070e16; --wash:10,8,24;
+    --surface:#070e16; --on-surface:#e8e8e8; --on-surface-variant:#a8a8a8; --surface-container-low:#070e16; --surface-container:#2a2a2a;
+    --surface-container-high:#3a3a3a; --surface-container-highest:#4a4a4a; --outline:#5a5a5a; --outline-variant:#4a4a4a;
+    --inverse-surface:#e8e8e8; --on-inverse-surface:#101010; --live:#ff1f1f;
+    --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%);
+    /* Home's focus fill: the frosted grey-blue glass of a focused top-bar tab, white text */
+    --focus-fill:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%), var(--th-pill);
+    /* resting buttons: Home's chip rail, white frosted glass over a strong blur; a picked tab a little brighter */
+    --idle-fill:rgba(255,255,255,.16); --idle-fill-on:rgba(255,255,255,.26);
+    --ease:cubic-bezier(.2,0,0,1);
+    --inter:'Open Sans', system-ui, sans-serif; --roboto:'Open Sans', system-ui, sans-serif;
+    --ph:url('../store-assets/placeholder.png');
+  }
+  html,body{ margin:0; height:100%; background:#000; overflow:hidden; color:var(--on-surface); font-family:var(--inter); -webkit-font-smoothing:antialiased; }
+  *{ box-sizing:border-box; }
+  #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:var(--bg-0); }
+  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; overflow:hidden;
+    background:radial-gradient(1400px 900px at 85% 110%, rgba(214,222,240,.12), transparent 70%), var(--bg-0); }   /* Home's page colour and glow */
+
+  /* ---------- hero background: Figma's placeholder at 20%, the package's artwork on the right (key art is square, so it
+     keeps Figma's spot instead of filling the screen), under Home's overlay: a dark wash behind the text on the left and
+     a fade into the page at the bottom ---------- */
+  .hero-bg{ position:absolute; left:0; top:0; width:1920px; height:1080px; z-index:0; overflow:hidden; transition:opacity .4s ease; }
+  .hero-bg .ph{ position:absolute; inset:0; background:url('../store-assets/hero-placeholder.png') center / cover no-repeat; opacity:.2; }
+  .hero-bg .art{ position:absolute; left:43.91%; top:-2.54%; width:56.09%; height:99.72%; background:center / cover no-repeat; opacity:0; transition:opacity .45s ease; }
+  .hero-bg .art.on{ opacity:1; }
+  .hero-bg .art{ -webkit-mask-image:linear-gradient(90deg, transparent 0%, #000 30%); mask-image:linear-gradient(90deg, transparent 0%, #000 30%); }   /* no hard edge where the art starts */
+  /* a 16:9 key art (wide): the whole screen, fading in from the left behind the text */
+  .hero-bg.wide .art{ left:0; top:0; width:100%; height:100%; -webkit-mask-image:linear-gradient(90deg, transparent 0%, rgba(0,0,0,.35) 30%, #000 55%); mask-image:linear-gradient(90deg, transparent 0%, rgba(0,0,0,.35) 30%, #000 55%); }
+  .hero-bg .down{ position:absolute; inset:0; background:linear-gradient(180deg, transparent 52%, rgba(var(--wash),.55) 74%, var(--bg-0) 96%); }
+  .hero-bg .side{ position:absolute; inset:0;
+    background:linear-gradient(90deg, rgba(var(--wash),.88) 0%, rgba(var(--wash),.62) 30%, rgba(var(--wash),.12) 58%, transparent 75%); }
+  body.static .hero-bg{ opacity:0; }
+  /* an OTT package (Figma Store 5472:228410 …): the brand's gradient over the whole screen, and its logo with AIS PLAYBOX
+     and the price on the right of the hero */
+  .hero-bg .brand{ position:absolute; inset:0; opacity:0; transition:opacity .45s ease, background .45s ease; }
+  .hero-bg.ott .brand{ opacity:1; }
+  .hero-bg.ott .ph{ opacity:0; }
+  .ott-hero{ position:absolute; left:1178px; top:255px; width:666px; display:flex; flex-direction:column; align-items:center; gap:24px; opacity:0; transition:opacity .35s ease; }
+  .hero-bg.ott .ott-hero{ opacity:1; }
+  .ott-hero .logos{ display:flex; align-items:center; gap:34px; }
+  .ott-hero .logos > img:first-child{ width:316px; height:120px; object-fit:contain; }   /* Figma: Netflix's wordmark 316 wide */
+  .ldisc{ position:relative; display:block; flex:0 0 auto; border-radius:50%; background:#fff; overflow:hidden; }
+  .sq .ott .lg .ldisc{ width:64px; height:64px; }
+  .ott-hero .logos .ldisc{ width:160px; height:160px; margin:0 78px; }   /* the 316px a wordmark takes */
+  .ott-hero .logos > img.solo{ width:560px; height:150px; object-fit:contain; mix-blend-mode:screen; }   /* its black box drops away */   /* a package's own logo, the pair's width */
+  .ott-hero .logos > img.icon{ width:auto; height:150px; border-radius:32px; margin:0 40px; }
+  .ott-hero .logos > img.tile{ width:260px; height:110px; border-radius:12px; }
+  .ott-hero .logos i{ width:3px; height:184px; background:#e8e8e8; opacity:.6; }
+  .ott-hero .logos .ais{ width:282px; }
+  .ott-hero .pr{ display:flex; align-items:center; gap:27px; font-size:36px; font-weight:300; line-height:32px; color:#fff; }
+  .ott-hero .pr i{ width:2px; height:49px; background:#fff; }
+  /* the package card: its OTT's logo | AIS PLAYBOX on black, the price under them */
+  .sq .pic.ott{ background:#000; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; }
+  .sq .pic.ott img{ position:static; }
+  .sq .ott .lg{ display:flex; align-items:center; gap:12px; height:64px; }
+  .sq .ott .lg > img:first-child{ max-width:112px; max-height:40px; }
+  .sq .ott .lg > img.icon{ max-height:none; height:56px; width:auto; border-radius:12px; }   /* a short drama app: its icon */
+  .sq .ott .lg > img.tile{ max-height:52px; border-radius:6px; }
+  .sq .ott .lg i{ width:1px; height:49px; background:#e8e8e8; opacity:.6; }
+  .sq .ott .lg .ais{ width:89px; }
+  .sq .ott .pr{ display:flex; align-items:center; gap:15px; font-size:36px; font-weight:500; line-height:32px; color:#fff; white-space:nowrap; }
+  .sq .ott .pr i{ width:3px; height:40px; background:#fff; }
+
+  /* ---------- hero text, as Home's: tags, title, price, description, ending 80px above the focused rail (placeHero) ---------- */
+  .hero{ position:absolute; left:110px; bottom:560px; width:1100px; z-index:3; display:flex; flex-direction:column; gap:14px;
+    transition:opacity .3s ease, transform .3s var(--ease); }
+  body.static .hero{ opacity:0; transform:translateY(-40px); pointer-events:none; }
+  .hero.swap{ animation:heroIn .3s var(--ease); }
+  @keyframes heroIn{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
+  .hero .tags{ display:flex; gap:8px; height:36px; overflow:hidden; }
+  .tag{ height:36px; padding:0 12px; border-radius:9999px; display:inline-flex; align-items:center; background:var(--surface-container);
+    font-weight:500; font-size:20px; color:var(--on-surface); white-space:nowrap; }
+  .hero h1{ margin:0; font-size:72px; font-weight:700; line-height:1.08; letter-spacing:-.01em; color:#fff; text-shadow:0 2px 12px rgba(0,0,0,.35);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .hero .price{ display:flex; gap:16px; align-items:baseline; white-space:nowrap; text-shadow:0 0 6px rgba(0,0,0,.6); }
+  .hero .price b{ font-weight:400; font-size:45px; line-height:52px; }
+  .hero .price span{ font-weight:500; font-size:28px; }
+  .hero .desc{ margin:0; max-width:760px; font-size:26px; line-height:1.4; color:#fff; opacity:.82; text-shadow:0 0 6px rgba(0,0,0,.6);
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+
+  /* ---------- the page: Figma's rails, 60px apart; it moves as a whole (translateY) ---------- */
+  #page{ position:absolute; left:0; top:0; width:1920px; z-index:1; padding:600px 0 0; display:flex; flex-direction:column; gap:60px;
+    transition:transform .45s var(--ease); }
+  .sec{ position:relative; transition:opacity .3s ease; }
+  body:not(.static) .sec.above{ opacity:0; }
+  .sec-title{ margin:0 110px; font-weight:500; font-size:29px; line-height:40px; color:#fff; white-space:nowrap; }   /* Home's row title */
+  .item{ cursor:pointer; }
+  .rail{ position:relative; margin-top:40px; }   /* 40px from the rail title to its cards, on every rail (room for a focused card and its ring too) */
+  .track{ display:flex; gap:32px; padding:0 110px; width:max-content; transition:transform .35s var(--ease); }
+
+  /* placeholder artwork (Figma's checkerboard at 50% over the card colour) and its ratio label */
+  .ph-bg{ background:var(--surface-container-high); }
+  .ph-bg::before{ content:''; position:absolute; inset:0; background:var(--ph) center / cover no-repeat; opacity:.5; }
+  .ratio{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); display:flex; flex-direction:column; align-items:center;
+    font-weight:500; font-size:11px; line-height:32px; color:var(--on-surface); }
+  .ratio span{ opacity:.5; }
+  .ratio img{ display:block; }
+  .ratio.row{ flex-direction:row; gap:4px; }
+  .ratio.big{ font-family:var(--roboto); font-size:24px; }
+  .ratio.huge{ font-size:36px; line-height:44px; }
+
+  /* card badges (Badge top) */
+  /* card badges (Recommend, Best Seller, a sale's countdown) and the PPV event's start time: the top tag (corner-tag.css) */
+
+  /* 1:1 package card (TV / Card), 250x250 */
+  .sq{ position:relative; width:250px; height:250px; flex:0 0 auto; border-radius:12px; overflow:hidden; }
+  .sq .pic{ position:absolute; inset:0; background:center / cover no-repeat; }
+  .sq .pic img{ position:absolute; max-width:none; display:block; }
+  .sq .pic.black{ background-color:#000; }
+  .sq .pic.contain{ background-size:contain; }
+
+  /* View All: Home's View All tile (its .clip-viewall), the rail's height, with the chip theme's states (chip-theme.css .tv-chip) */
+  .viewall{ width:220px; flex:0 0 auto; align-self:stretch; border-radius:38px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:#fff; }
+  .viewall b{ font-size:28px; font-weight:700; }
+
+  /* tab bar (TV / Chip): the picked tab is filled; the focused one turns light */
+  .tabs{ display:flex; gap:32px;   /* chips 32px apart, on every page */
+    padding:0 110px; margin-top:40px; width:max-content; transition:transform .35s var(--ease); }
+  .chip{ position:relative; display:flex; align-items:center; gap:16px; padding:12px 32px 12px 24px; border-radius:12px; flex:0 0 auto;
+    font-weight:500; font-size:24px; line-height:32px; color:var(--on-surface-variant); white-space:nowrap; transition:background .15s ease, color .15s ease; }
+  .chip::before{ content:''; position:absolute; inset:0; border-radius:inherit; border:2px solid var(--outline-variant); opacity:.5; transition:opacity .15s ease; }
+  .chip img{ width:48px; height:48px; border-radius:48px; display:block; }
+  .chip.txt{ padding:20px 32px; }
+  .chip .lgdisc{ position:relative; width:48px; height:48px; border-radius:50%; background:#fff; flex:0 0 auto; }   /* a league's disc (league-disc.css) */
+  .chip .lgdisc .lg-mono{ font-size:18px; }   /* no icon: the same 72px height, even sides */
+  .chip img.ott{ width:var(--ptag-w); height:var(--ptag-h); border-radius:6px; object-fit:contain; background:#000; }   /* the platform tag (platform-tag.css, 56 x 36; its brand fill) */
+  .chip.on{ background:var(--outline); color:var(--on-surface); }
+  .chip.on::before, .chip.focused::before{ opacity:0; }
+  .chip.focused{ background:var(--focus-fill); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+  .cat .rail{ margin-top:40px; }
+
+  /* Highlight you shouldn't miss (Gene rail): its own 500px band with Figma's picture at 40% */
+  .gene{ height:500px; padding:0 0 20px; display:flex; flex-direction:column; justify-content:center; gap:40px; }
+  /* (no backdrop picture: the rail sits on the page) */
+  .gene .sec-title, .gene .rail{ position:relative; margin-top:0; }
+
+  /* PPV Event: Home's AIS Play Exclusive cards (expand-card.css) with the event's own details (event-card.css); placeholder pictures until the events have art */
+
+  /* Rent or Buy: 2:3 posters, as Home's poster rails (no price, as in Figma) */
+  .pst{ position:relative; width:220px; height:330px; flex:0 0 auto; border-radius:12px; }   /* Home's / Movie's poster: 220 x 330, focus grows it 8% */
+  .pst .pic{ position:absolute; inset:0; border-radius:12px; overflow:hidden; }
+  .rent .viewall{ height:330px; align-self:auto; }
+
+  /* banner carousel */
+  .banner{ position:relative; width:1700px; height:500px; margin:0 110px; border-radius:12px; overflow:hidden; background:var(--surface-container-high); }
+  /* the slides sit side by side and slide under the frame; Left / Right (or the arrows) move one, wrapping round */
+  .banner .slides{ position:absolute; left:0; top:0; height:100%; display:flex; transition:transform .5s var(--ease); }
+  .banner .slide{ width:1700px; height:100%; flex:0 0 auto; background:center / cover no-repeat; }
+  /* Figma "TV / Carousel arrow": an 80px round button, 24px in from the card's sides, a 32px chevron; the chip theme's
+     states (chip-theme.css .tv-chip): frosted glass at rest, the chip's focused glass pill while pressed */
+  .carr{ position:absolute; top:50%; z-index:1; width:80px; height:80px; border-radius:40px; transform:translateY(-50%);
+    display:flex; align-items:center; justify-content:center; }
+  .carr img{ width:32px; height:32px; display:block; }
+  .carr.l{ left:24px; } .carr.r{ right:24px; }
+  .carr.tv-chip.press{ background:var(--chip-focus-fill); -webkit-backdrop-filter:blur(50px) saturate(1.4); backdrop-filter:blur(50px) saturate(1.4);
+    transform:translateY(-50%) scale(.92); }   /* the pressed side lights up for a moment (not .focused: the focus ring stays on the banner) */
+  .dots{ position:absolute; z-index:1; left:50%; top:464px; transform:translateX(-50%); display:flex; align-items:center; gap:8px; }
+  .dots i{ width:12px; height:12px; border-radius:6px; background:rgba(255,255,255,.5); transition:width .3s var(--ease), background .3s ease; }
+  .dots i.on{ width:34px; background:#fff; }
+
+  .btn{ display:flex; align-items:center; justify-content:center; gap:16px; border-radius:9999px; background:var(--surface-container); color:var(--on-surface);
+    font-weight:500; white-space:nowrap; transition:background .15s ease, color .15s ease; }
+  .btn.focused{ background:var(--focus-fill); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+
+  /* shortcuts */
+  .shorts{ display:flex; gap:32px; padding:0 110px; }
+  .quick-card{ --qc-w:545px; }   /* Home's Quick Access cards (quick-card.css, chip-theme.css), three across as Movie's */
+
+  /* Back to Top */
+  .totop{ padding-bottom:60px; display:flex; align-items:center; justify-content:center; }   /* the button ends 60px above the screen's bottom */
+  .totop .btn{ width:384px; height:80px; font-size:24px; line-height:32px; background:var(--surface-container-high); }
+  .totop .btn img{ width:32px; height:32px; filter:invert(1); }
+  .totop .btn.focused{ background:var(--focus-fill); }
+
+  /* ---------- top bar (Home's), Store is the current page; past the hero the rails get the full screen: the top bar steps
+     away until it gets focus, with the page colour fading in behind it ---------- */
+  .scrim{ position:absolute; left:0; top:0; width:1920px; height:170px; z-index:4; pointer-events:none; opacity:0; transition:opacity .3s ease;
+    background:linear-gradient(180deg, var(--bg-0) 0%, var(--bg-0) 45%, rgba(7,14,22,0) 100%); }
+  body.static.on-nav .scrim, body.past-first.on-nav .scrim{ opacity:1; }   /* full screen past the hero: no fade over the rails, only behind the top bar when it comes back */
+  .topnav{ position:absolute; left:0; top:0; z-index:5; width:1920px; padding:24px 110px 0; display:flex; align-items:center; transition:opacity .3s ease, translate .3s var(--ease); }
+  body.static:not(.on-nav) .topnav, body.past-first:not(.on-nav) .topnav{ opacity:0; translate:0 -40px; pointer-events:none; }
+  .profile{ width:60px; height:60px; border-radius:999px; overflow:hidden; flex:0 0 auto; }
+  .profile img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .center{ display:flex; align-items:center; gap:12px; margin-left:20px; }
+  .navsearch{ width:60px; height:60px; margin:0 8px; border-radius:999px; display:flex; align-items:center; justify-content:center; }
+  .navsearch img{ width:32px; height:32px; display:block; }
+  .navtab{ height:60px; padding:0 20px; border-radius:999px; display:flex; align-items:center; font-family:'Plus Jakarta Sans', var(--inter); font-size:24px; line-height:1.2;
+    color:#fff; text-shadow:0 0 6px rgba(0,0,0,.4); white-space:nowrap; }
+  .topnav .item:not(.tv-tab){ transition:background .15s ease; }
+  .topnav .item.focused:not(.tv-tab){ background:var(--th-pill); backdrop-filter:blur(12px) saturate(1.4); }   /* the tabs: button-theme.css */
+
+  #toast{ position:absolute; left:50%; bottom:80px; z-index:60; transform:translateX(-50%); padding:14px 26px; border-radius:999px;
+    background:rgba(20,20,24,.85); font-size:24px; opacity:0; transition:opacity .2s ease; pointer-events:none; }
+  #toast.on{ opacity:1; }
+  /* resting buttons and chips: Home's chip glass (the picked tab a little brighter); focus turns them to the glass pill */
+  .chip::before{ display:none; }
+  .chip:not(.focused), .btn:not(.focused){
+    background:var(--idle-fill); -webkit-backdrop-filter:blur(80px) saturate(1.5); backdrop-filter:blur(80px) saturate(1.5); color:var(--on-surface); }
+  .chip.on:not(.focused){ background:var(--idle-fill-on); color:#fff; }
+  /* the picked tab while focus is off its tab bar (on its cards or another rail): Active dim, the focused chip's glass pill
+     (its fill and white text), without the focus ring, which stays on the focused item */
+  .chip.on.active-dim:not(.focused){ background:var(--focus-fill); -webkit-backdrop-filter:blur(50px) saturate(1.4); backdrop-filter:blur(50px) saturate(1.4);
+    color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+  /* focused items grow: 8% on every rail, 6% in the top bar; the opened PPV Event 5%, as Home's AIS Play
+     Exclusive; the banner stays put, as Home's banners */
+  #screen .item{ transition:transform .22s var(--ease), background .15s ease, color .15s ease; }
+  #screen .item.focused{ transform:scale(1.08); z-index:2; }
+  #screen .topnav .item.focused{ transform:scale(1.06); }
+  #screen .xcard.focused{ transform:scale(1.05); }   /* as Home's AIS Play Exclusive */
+  #screen .banner.focused{ transform:none; }
