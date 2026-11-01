@@ -28,6 +28,10 @@
   Series (a title whose length reads "N Seasons"): MD.series(k), MD.seasons(k) (up to 3), MD.episodes(k, s) (8 a season:
     n, t, m minutes, d), MD.episode(k, s, e), MD.next(k, s, e) (the one after, or null); MD.cw(k) also gives s / e.
     MD.until(k) the rental's last day ({d, t}) for a rented title, else null.
+    MD.buyPrice(k), MD.rentPrice(k)   what Buy / Rent cost on its detail page (0: no such option); MD.price(k) the
+                    buy price, else the rent price. MD.rent(k) rent it (this session, 48 hours: MD.MY_RENTAL, MD.until)
+    m.buy, m.rent, m.pkg   a title's own options (its detail page: View Package if m.pkg, Buy, Rent); a title without
+                    them keeps its price from the lists below (For You, Rent or Buy, series)
     MD.metaHtml(m)  its meta row (genres, year, length, age pill, quality tag); MD.watched(k) how far in, or null
     MD.qtag(m)  its quality tag: 4K Dolby (m.q '4k') or the HD pill
     MD.bg(k)    the title's full-screen picture (its b, else w, else p): every page's screen text and its detail page
@@ -160,13 +164,18 @@
   ['d9', 'avatar', 'f1', 'topgun', 'john', 'venom', 'lotr', 'hobbit', 'house', 'got', 'loki', 'odyssey', 'spider', 'lastofus', 'vikings',
    'missuni', 'sophomores', 'bossckm', 'cityars', 'mufcche', 'mufcars']
     .forEach(function(k){ M[k].premium = true; });
+  // the titles with their own options, so a detail page has 1, 2 or 3 buttons (View Package, Buy N ฿, Rent N ฿); pkg 0:
+  // no package has it (Content.packageFor: none)
+  var OFFERS = { avatar:{ pkg:1, buy:399, rent:229 }, f1:{ pkg:1, buy:199 }, topgun:{ pkg:1, rent:149 }, john:{ pkg:0, buy:149, rent:99 },
+                 venom:{ pkg:1 }, lotr:{ pkg:0, buy:299 }, hobbit:{ pkg:0, rent:99 } };
+  for(var ok in OFFERS){ M[ok].pkg = !!OFFERS[ok].pkg; M[ok].buy = OFFERS[ok].buy || 0; M[ok].rent = OFFERS[ok].rent || 0; }
   // titles made from a card that had no data of its own (Content.open): back into the catalogue on every page
   try { var ADHOC = JSON.parse(sessionStorage.getItem('contentAdhoc') || '{}'); for(var ak in ADHOC) if(!M[ak]) M[ak] = ADHOC[ak]; } catch(e){}
   var CONTINUE = [{k:'sherlock', s:1, e:5, w:31, of:58}, {k:'endgame', w:122, of:181}, {k:'encanto', w:61, of:102}, {k:'brazil', s:1, e:2, w:20, of:55}, {k:'hailmary', w:101, of:156},
                   {k:'spider', w:41, of:148}, {k:'stranger', s:1, e:3, w:34, of:50}];
-  var FOR_YOU = [{k:'d9', price:199}, {k:'avatar', price:249}, {k:'f1', price:199}, {k:'topgun', price:149}, {k:'john', price:149}];
+  var FOR_YOU = [{k:'d9', price:199}, {k:'avatar', price:399}, {k:'f1', price:199}, {k:'topgun', price:149}, {k:'john', price:149}];
   var RENT = [{k:'avatar', b:'Recommend'}, {k:'f1', b:'Best Seller'}, {k:'topgun', b:'Best Seller'}, {k:'john'}, {k:'venom'}, {k:'lotr'}, {k:'hobbit'}];
-  var MY_RENTAL = ['odyssey', 'spider', 'd9', 'f1', 'topgun', 'lastofus', 'vikings'];
+  var MY_RENTAL = ['odyssey', 'spider', 'd9', 'lastofus', 'vikings'];   // (F1 and Top Gun are for sale: OFFERS)
   // series sold one by one (Figma "Series MD: First scene": View Package + Buy 279 baht)
   var SERIES_PRICE = { house:279, got:279, loki:199 };
   // a rental's last day (Figma "Package Available until")
@@ -187,6 +196,19 @@
   function episode(k, s, e){ return episodes(k, s)[e - 1]; }
   function next(k, s, e){ return e < 8 ? episode(k, s, e + 1) : s < seasons(k) ? episode(k, s + 1, 1) : null; }
   function until(k){ return MY_RENTAL.indexOf(k) >= 0 && UNTIL[k] || null; }
+  // rented this session (purchase.html, Rent): 48 hours from then, first in My Rental, with its last day
+  var RENT_HOURS = 48;
+  function fmtUntil(t){ var d = new Date(t), h = d.getHours();
+    return { d:d.getDate() + ' ' + 'January February March April May June July August September October November December'.split(' ')[d.getMonth()] + ' ' + d.getFullYear(),
+             t:((h % 12) || 12) + ':' + ('0' + d.getMinutes()).slice(-2) + ' ' + (h < 12 ? 'AM' : 'PM') }; }
+  function rented(){ try { return JSON.parse(sessionStorage.getItem('mdRented') || '{}'); } catch(e){ return {}; } }
+  (function(r){ Object.keys(r).forEach(function(k){ if(MY_RENTAL.indexOf(k) < 0) MY_RENTAL.unshift(k); UNTIL[k] = fmtUntil(r[k]); }); })(rented());
+  function rent(k){
+    var r = rented(); if(!r[k]) r[k] = Date.now() + RENT_HOURS * 36e5;
+    try { sessionStorage.setItem('mdRented', JSON.stringify(r)); } catch(e){}
+    if(MY_RENTAL.indexOf(k) < 0) MY_RENTAL.unshift(k);
+    UNTIL[k] = fmtUntil(r[k]);
+  }
 
   function owned(){ try { return JSON.parse(sessionStorage.getItem('mdOwned') || '[]'); } catch(e){ return []; } }
   function own(k){ var o = owned(); if(o.indexOf(k) < 0){ o.push(k); try { sessionStorage.setItem('mdOwned', JSON.stringify(o)); } catch(e){} } }
@@ -195,7 +217,11 @@
   function subscribed(plat){ return !!plat && subs().indexOf(plat) >= 0; }
   function subscribe(plat){ var s = subs(); if(plat && s.indexOf(plat) < 0){ s.push(plat); try { sessionStorage.setItem('ottSubscribed', JSON.stringify(s)); } catch(e){} } }
   function find(list, k){ for(var i = 0; i < list.length; i++) if(list[i].k === k) return list[i]; return null; }
-  function price(k){ var f = find(FOR_YOU, k); return f ? f.price : find(RENT, k) ? 149 : SERIES_PRICE[k] || (M[k] && M[k].price) || 0; }   // Rent or Buy titles: 149 baht
+  function listPrice(k){ var f = find(FOR_YOU, k); return f ? f.price : find(RENT, k) ? 149 : SERIES_PRICE[k] || (M[k] && M[k].price) || 0; }   // Rent or Buy titles: 149 baht
+  function offers(k){ return !!M[k] && 'pkg' in M[k]; }
+  function buyPrice(k){ return offers(k) ? M[k].buy : listPrice(k); }
+  function rentPrice(k){ return offers(k) ? M[k].rent : 0; }
+  function price(k){ return buyPrice(k) || rentPrice(k); }
   // titles that need a package (View Package opens the package view, then the purchase): District 9 (Monomax)
   var PACKAGE = ['d9'];
   function progress(){ try { return JSON.parse(sessionStorage.getItem('mdProgress') || '{}'); } catch(e){ return {}; } }
@@ -223,11 +249,11 @@
     // even if it was played before: progress alone never makes it theirs (Content.crown stays gold)
     var bought = owned().indexOf(k) >= 0 || !!(M[k] && M[k].premium && subscribed(M[k].plat));
     if(!bought && PACKAGE.indexOf(k) >= 0) return 'buy';
-    if(!bought && MY_RENTAL.indexOf(k) < 0 && price(k)) return 'buy';
+    if(!bought && MY_RENTAL.indexOf(k) < 0 && (price(k) || (offers(k) && M[k].pkg))) return 'buy';   // (View Package only: for sale too)
     return cw(k) ? 'resume' : 'play';
   }
   window.MD = { P:P, PP:PP, M:M, CONTINUE:CONTINUE, FOR_YOU:FOR_YOU, RENT:RENT, MY_RENTAL:MY_RENTAL, state:state, price:price, own:own, cw:cw, setProgress:setProgress, minutes:minutes,
-    subscribe:subscribe, subscribed:subscribed,
+    subscribe:subscribe, subscribed:subscribed, buyPrice:buyPrice, rentPrice:rentPrice, rent:rent,
     soon:soon, continueList:continueList, series:series, seasons:seasons, episodes:episodes, episode:episode, next:next, until:until,
     bg:function(k){ var m = M[k]; return m ? m.b || m.w || m.p : ''; },
     // the quality tag every page shows in a title's meta row: 4K Dolby (platform-tag.css .qtag), else the HD pill
@@ -468,6 +494,7 @@ window.Content = (function(){
     if(!info) return { n:'All Packages', url:'all-packages.html' };
     if(channelOf(info)) return ULTIMATE;
     var f = find(info), plat = f && f.s !== undefined ? window.SHORTS[f.s].plat : f ? window.MD.M[f.k].plat : '';
+    if(f && f.k && window.MD.M[f.k].pkg === false) return null;   // sold on its own only (MD OFFERS: no View Package)
     if(f && f.k && window.MD.M[f.k].ppv) plat = '';
     if(plat === 'ais') return ULTIMATE;
     var P = window.Packages;
@@ -485,12 +512,18 @@ window.Content = (function(){
     return 'package-suggest.html?' + q + '&ret=' + encodeURIComponent(ret || location.pathname.split('/').pop() + location.search);
   }
   // a title's or short's main button, as its detail page has it (a screen's own Play button says the same):
-  //   gold (premium, not the viewer's)  View Package (ic-pkg): its package, which comes back to the detail page bought
+  //   gold (premium, not the viewer's)  View Package (ic-pkg): its package, which comes back to the detail page bought;
+  //                                     a title no package has: Buy N ฿ / Rent N ฿ (its purchase)
   //   being watched                     Resume (a series: "Resume S1: Ep.5"), else Play (a short: "Play Ep.N")
   // {act:'package' | 'play', label, icon (the <i> class), url}
   function mainAction(info){
     var f = target(info);
-    if(crown(f) === 'gold') return { act:'package', label:'View Package', icon:'ic-pkg', url:packageUrl(f, detailUrl(f)) };
+    if(crown(f) === 'gold'){
+      // no package has it: its first own option, as its detail page's first button (Buy, else Rent)
+      var b = f.k && !packageFor(f) && (window.MD.buyPrice(f.k) ? 'buy' : window.MD.rentPrice(f.k) ? 'rent' : '');
+      if(b) return { act:b, label:(b === 'buy' ? 'Buy ' + window.MD.buyPrice(f.k) : 'Rent ' + window.MD.rentPrice(f.k)) + ' ฿', icon:'ic-pkg', url:'purchase.html?k=' + f.k + '&opt=' + b };
+      return { act:'package', label:'View Package', icon:'ic-pkg', url:packageUrl(f, detailUrl(f)) };
+    }
     if(f.s !== undefined){ var ep = (window.SHORT.at(f.s) || {}).ep || 1;
       return { act:'play', label:'Play Ep.' + ep, icon:'ic-play', url:'player.html?short=' + f.s + '&ep=' + ep }; }
     var c = window.MD.state(f.k) === 'resume' && window.MD.cw(f.k);

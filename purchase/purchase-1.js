@@ -11,16 +11,22 @@
   // ?ret=: bought from a detail page's View Package (package-detail.html passes it on): Done goes back there, subscribed
   var RET = (location.search.match(/[?&]ret=([^&#]+)/) || [])[1];
   RET = RET ? decodeURIComponent(RET) : '';
-  function leave(){ location.href = RET ? RET + (RET.indexOf('?') < 0 ? '?' : '&') + 'subscribed=1' : 'store.html'; }
+  // ?opt=buy / rent: a title's Buy or Rent on its detail page (its price: MD.buyPrice / MD.rentPrice); Done goes back
+  // there with ?bought=1 / ?rented=1
+  var OPT = OB ? '' : (location.search.match(/[?&]opt=(buy|rent)/) || [])[1] || '';
+  function leave(){ location.href = OPT ? 'movie-detail.html?k=' + K + '&' + (OPT === 'rent' ? 'rented' : 'bought') + '=1'
+    : RET ? RET + (RET.indexOf('?') < 0 ? '?' : '&') + 'subscribed=1' : 'store.html'; }
   // an OTT package is bought by the time this page opens (package-detail.html's OTP): its titles and shorts are the
   // viewer's now (content.js MD.subscribe: their crowns turn owned)
   if(OB) MD.subscribe(OK);
-  var price = OB ? OP.price : MD.price(K) || 0;
+  var price = OB ? OP.price : OPT === 'rent' ? MD.rentPrice(K) : OPT === 'buy' ? MD.buyPrice(K) : MD.price(K) || 0;
   function vat(p){ return (Math.round(p * 107) / 100).toLocaleString('en-US', { minimumFractionDigits:2 }); }
   function day(d){ return d.getDate() + ' ' + 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ')[d.getMonth()] + ' ' + d.getFullYear(); }
   var now = new Date(), end = new Date(now.getTime() + (OB && OP.card === '7 Days' ? 6 : 29) * 864e5);   // a 7-day pass, else 30 days
+  var RENT_H = 48, rentEnd = new Date(now.getTime() + RENT_H * 36e5);   // a rental: 48 hours from now (content.js MD.rent)
+  function hm(d){ return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
   var pic = OB ? null : m.b || m.w || m.p;
-  $('.c-nm, .d-nm').forEach(function(e){ e.textContent = m.t; });
+  $('.c-nm, .d-nm').forEach(function(e){ e.textContent = (OPT === 'rent' ? 'Rent: ' : OPT === 'buy' ? 'Buy: ' : '') + m.t; });
   $('.o-nm').forEach(function(e){ e.textContent = m.t; });
   // Premium beside the title's name, with its crown (content.js: gold until bought); an OTT package has none
   $('.prem').forEach(function(e){ var ic = OB ? '' : Content.crownIcon({k:K}); if(ic) e.innerHTML = ic + 'Premium'; else e.remove(); });
@@ -33,8 +39,10 @@
     ? '<span style="position:relative;display:block;width:100%;height:100%;border-radius:8px;overflow:hidden">' + Leagues.pic(Leagues.list.filter(function(l){ return l.id === OB.league; })[0]) + '</span>'
     : '<img src="' + OB.logo + '" alt="" style="width:100%;height:100%;object-fit:' + (OB.icon ? 'cover' : 'contain') + ';border-radius:8px">'; });
   else $('.c-pic, .d-pic').forEach(function(e){ e.style.background = pic ? "#3a3a3a url('" + pic + "') center / cover no-repeat" : "#000 url('icons/aisplay-mark.png') center / 60% auto no-repeat"; });
-  $('.c-until').forEach(function(e){ e.textContent = day(end) + ' | 23:59:59'; });
-  $('.d-dur').forEach(function(e){ e.textContent = day(now) + ' | 00:00:00 - ' + day(end) + ' | 23:59:59'; });
+  $('.c-until').forEach(function(e){ e.textContent = OPT === 'rent' ? day(rentEnd) + ' | ' + hm(rentEnd) + ' (' + RENT_H + ' hours)' : day(end) + ' | 23:59:59'; });
+  if(OPT === 'rent') $('.d-dur').forEach(function(e){ var l = e.previousElementSibling; if(l && l.lastChild) l.lastChild.textContent = 'Rental period'; });   // (the page says Package duration)
+  $('.d-dur').forEach(function(e){ e.textContent = OPT === 'rent' ? day(now) + ' | ' + hm(now) + ' - ' + day(rentEnd) + ' | ' + hm(rentEnd) + ' (' + RENT_H + ' hours)'
+    : day(now) + ' | 00:00:00 - ' + day(end) + ' | 23:59:59'; });
 
   var toastEl = document.getElementById('toast'), toastT;
   function toast(t){ toastEl.textContent = t; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove('on'); }, 1600); }
@@ -73,7 +81,7 @@
   }
   function finish(){
     clearInterval(timer);
-    MD.own(K);   // the title is now playable (its detail page shows Play)
+    if(OPT === 'rent') MD.rent(K); else MD.own(K);   // the title is now playable (its detail page shows Play); a rental for 48 hours
     go('done');
   }
   function act(a){
@@ -112,7 +120,7 @@
   });
   $('.s-confirm .item, .doneb').forEach(function(el){ el.addEventListener('click', function(){ act(el.dataset.act); }); });
   oKeys.forEach(function(el, i){ el.addEventListener('click', function(){ okey = i; type(el.dataset.key); }); });
-  if(RET) $('.doneb[data-act="store"]').forEach(function(b){ b.textContent = 'Done'; });   // back to the title, not the Store
+  if(RET || OPT) $('.doneb[data-act="store"]').forEach(function(b){ b.textContent = 'Done'; });   // back to the title, not the Store
   f.done = dBtns.length - 1;
   if(OB) go('done'); else paint();
 })();

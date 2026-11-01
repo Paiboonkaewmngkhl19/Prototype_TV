@@ -34,6 +34,12 @@
     if(!PROG) MD.own(K);
     history.replaceState(null, '', HERE);
   }
+  // back from Buy / Rent (purchase.html?opt=): bought, it is the viewer's (MD.own); rented, it is in My Rental until its
+  // last day (MD.rent, MD.until). Either way its crown is owned and its button Play
+  var BOUGHT = !PROG && /[?&]bought=1/.test(location.search), RENTED = !PROG && /[?&]rented=1/.test(location.search);
+  if(BOUGHT) MD.own(K);
+  if(RENTED) MD.rent(K);
+  if(BOUGHT || RENTED) history.replaceState(null, '', HERE);
   document.title = m.t + (SER ? ' · Series Detail' : ' · Movie Detail');
 
   // ---- the scene: picture, title, how far in, meta row, synopsis ----
@@ -50,6 +56,15 @@
       '<img src="' + img + '" alt=""><span class="tip"></span></div>';
   }
   var VIEW_PACKAGE = '<div class="tv-btn tv-btn--primary main item" data-label="View Package" data-ring-art=""><i class="ic-pkg"></i>View Package</div>';
+  function offerButtons(){
+    var o = [];
+    if(Content.packageFor(CI)) o.push(['View Package', '<i class="ic-pkg"></i>View Package']);
+    if(MD.buyPrice(K)) o.push(['Buy', 'Buy ' + MD.buyPrice(K) + ' ฿']);
+    if(MD.rentPrice(K)) o.push(['Rent', 'Rent ' + MD.rentPrice(K) + ' ฿']);
+    return o.map(function(b, i){
+      return '<div class="tv-btn ' + (i ? 'tv-btn--secondary buy' : 'tv-btn--primary main') + ' item" data-label="' + b[0] + '" data-ring-art="">' + b[1] + '</div>';
+    }).join('');
+  }
   var LIKE = icon('Like', 'icons/detail-like.svg', 'I like this', 'Remove like', 'You liked this|Like removed') +
              icon('Dislike', 'icons/detail-dislike.svg', 'Not for me', 'Remove dislike', 'You disliked this|Dislike removed');
   function render(){
@@ -62,8 +77,10 @@
     ue.hidden = !u;
     if(u) ue.innerHTML = 'Available until:<span class="when">' + u.d + '<i></i>' + u.t + '</span>';
     var resumeLbl = SER && cw ? 'Resume S' + cw.s + ': Ep.' + cw.e : 'Resume';
-    // gold (premium, not the viewer's): View Package (the package that has it) and Buy; owned or free: Play / Resume
-    var main = Content.crown(CI) === 'gold' && state !== 'soon' ? VIEW_PACKAGE + '<div class="tv-btn tv-btn--secondary buy item" data-label="Buy" data-ring-art="">Buy ' + MD.price(K) + ' ฿</div>'
+    // gold (premium, not the viewer's): its options, each only if it has it, in this order: View Package (a package
+    // has it: Content.packageFor), Buy N ฿ (MD.buyPrice), Rent N ฿ (MD.rentPrice); the first primary, the rest
+    // secondary. Owned or free: Play / Resume
+    var main = Content.crown(CI) === 'gold' && state !== 'soon' ? offerButtons()
       : state === 'resume' ? '<div class="tv-btn tv-btn--primary main item" data-label="Resume" data-ring-art=""><i class="ic-play"></i>' + resumeLbl + '</div>'
       : '<div class="tv-btn tv-btn--primary main item" data-label="Play" data-ring-art=""><i class="ic-play"></i>Play</div>';
     var MYLIST = icon('My List', 'icons/detail-plus.svg', 'Add to My List', 'Remove from My List', 'Added to My List|Removed from My List');
@@ -268,7 +285,7 @@
     if(L === 'Play' || L === 'Resume'){ play(false); return; }
     if(L === 'Start Over'){ play(true); return; }
     if(L === 'View Package'){ location.href = Content.packageUrl(PROG ? { tv:PROG.tv, prog:PROG } : CI, HERE); return; }   // the package that has it; bought, it comes back here (?subscribed=1)
-    if(L === 'Buy'){ location.href = 'purchase.html?k=' + K; return; }   // Confirm, OTP, Purchase complete; back here it plays
+    if(L === 'Buy' || L === 'Rent'){ location.href = 'purchase.html?k=' + K + (PROG ? '' : '&opt=' + L.toLowerCase()); return; }   // Confirm, OTP, done; back here (?bought=1 / ?rented=1) it plays
     if(el.dataset.k){ Content.open({k:el.dataset.k}); return; }
     if(el.dataset.tab){ cur.row = 2; cur.col = el.dataset.tab === 'eps' ? season - 1 : 0; paint(); return; }
     if(el.dataset.season){ season = +el.dataset.season; renderEps(); cur.row = 3; cur.col = 0; paint(); return; }
@@ -317,7 +334,9 @@
     rows().forEach(function(r, ri){ var c = r.indexOf(el); if(c >= 0){ cur.row = ri; cur.col = c; } });
     paint(); select(el);
   });
-  if(JUST_BOUGHT) setTimeout(function(){ var pn = Content.packageFor(CI).n; toast((pn === 'All Packages' ? 'Your package' : pn) + ' is active. Enjoy ' + m.t + '!'); }, 300);
+  if(JUST_BOUGHT) setTimeout(function(){ var pf = Content.packageFor(CI), pn = pf ? pf.n : 'All Packages'; toast((pn === 'All Packages' ? 'Your package' : pn) + ' is active. Enjoy ' + m.t + '!'); }, 300);
+  if(BOUGHT) setTimeout(function(){ toast('You bought ' + m.t + '. Enjoy!'); }, 300);
+  if(RENTED) setTimeout(function(){ var u = MD.until(K); toast('Rented: ' + m.t + (u ? ', available until ' + u.d + ' ' + u.t : '')); }, 300);
   if(location.hash === '#packages') history.replaceState(null, '', HERE);   // (an older link to the package view: now package-suggest.html, View Package's)
   if(PROG && !PROG.live) cur = { row:1, col:0 };   // Upcoming opens on its first LIVE card (Figma); its start button can't be focused
   paint();
