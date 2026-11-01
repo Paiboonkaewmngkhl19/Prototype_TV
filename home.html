@@ -284,7 +284,12 @@
   .hero-watched .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--live);}
   /* channel / provider logo, inline before the channel name */
   .hero-logo{width:var(--ptag-w);height:var(--ptag-h);object-fit:contain;border-radius:8px;display:block;flex:0 0 auto;margin-right:-8px;}   /* 8px to its channel name (Figma) */   /* the provider's tag logo, same as the rail cards' */
-  .hero-channel{font-size:20px;color:#e8e8e8;}
+  .hero-channel{font-size:20px;color:#e8e8e8;display:flex;align-items:center;gap:16px;white-space:nowrap;}
+  /* a title's meta row (content.js MD.metaHtml), as its detail page draws it: bold genres, year, length, the age pill,
+     the quality tag (platform-tag.css .qtag) */
+  .hero-channel strong{font-size:22px;font-weight:700;color:#fff;}
+  .hero-channel .pill, .hero-range{background:rgba(128,128,128,.15);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
+  .hero-channel .pill{height:36px;min-width:80px;justify-content:center;padding:0 12px;border:1px solid #5c5c5c;border-radius:18px;display:inline-flex;align-items:center;box-sizing:border-box;}
   /* a channel's programme (Live and Upcoming): the channel's own round logo (TV.logoHtml), where a title shows its OTT tag */
   .hero-logo.ais{background:#000;border-radius:6px;padding:6px 10px;box-sizing:border-box;}   /* AIS PLAY's own: its mark on black (platform-tag.css .ptag.ais) */
   .hero-chlogo{display:flex;margin-right:-8px;}
@@ -685,7 +690,8 @@
   <div class="top-scrim" aria-hidden="true"></div>
   <section class="hero">
     <div class="hero-content">
-      <h1 class="hero-title">Liverpool vs Brentford</h1>
+      <!-- filled from the first slide's data (content.js) on load: no title text here -->
+      <h1 class="hero-title"></h1>
       <div class="hero-watched" style="display:none"></div>
       <div class="hero-meta-row">
         <span class="badge-live"><span class="dot"></span>Live</span>
@@ -693,10 +699,10 @@
         <span class="hero-mbadge prem" style="display:none"><img src="icons/crown-gold.svg" alt="">Premium</span>
         <img class="hero-logo" src="badges/tag-monomax.png" alt="MONOMAX" style="display:none">
         <span class="hero-chlogo"></span>
-        <span class="hero-channel">Channel 501: MONOMAX 1</span>
+        <span class="hero-channel"></span>
         <span class="hero-range" style="display:none"></span>
       </div>
-      <p class="hero-desc">Liverpool host Brentford at Anfield in a big Premier League clash. Follow every moment live, from kick-off to the final whistle.</p>
+      <p class="hero-desc"></p>
     </div>
     <div class="hero-content hero-livetv-content">
       <h1 class="hero-title">Live TV</h1>
@@ -723,39 +729,10 @@
 (function(){
   "use strict";
 
-  var POSTER_POOL = [
-    'loki.jpg','last-of-us.jpg','wicked.jpg','superman.jpg','topgun-m.jpg','how-to-train.jpg',
-    'P10_Odyssey.jpg','P10-Devil.jpg','P10-spiderman.jpg','SC.jpg','all.jpg','arsenal.jpg','f1.jpg','maxresdefault.jpg'
-  ];
-  var _posterCursor = 0;
-  function posterStyle(i){
-    var f = (typeof i === 'number') ? POSTER_POOL[((i%POSTER_POOL.length)+POSTER_POOL.length)%POSTER_POOL.length] : POSTER_POOL[_posterCursor++ % POSTER_POOL.length];
-    return "background-image:url('posters/" + f + "');background-size:cover;background-position:center;";
-  }
-  var PORTRAIT_POOL = [
-    'F1.jpg','House.jpg','John.jpg','Venom.jpg','avatar.jpg','debt.jpg','topgun_m.jpg'
-  ];
-  var _portraitCursor = 0;
-  // the real title and synopsis behind each pool picture, so a card showing it can fill the screen text (updateHeroFromCard)
-  var ART_INFO = {
-    'F1.jpg':        {t:'F1: The Movie', d:'A once-promising Formula 1 driver returns to mentor a young rookie and chase one last shot at glory.'},
-    'House.jpg':     {t:'House of the Dragon', d:'Set 200 years before Game of Thrones, the Targaryen dynasty tears itself apart in a war for the Iron Throne.'},
-    'John.jpg':      {t:'John Wick: Chapter 4', d:'John Wick uncovers a path to defeating the High Table, but must face a powerful new enemy first.'},
-    'Venom.jpg':     {t:'Venom: Let There Be Carnage', d:'Eddie Brock and Venom face Cletus Kasady, a serial killer who becomes host to the symbiote Carnage.'},
-    'avatar.jpg':    {t:'Avatar: Fire and Ash', d:'Jake and Neytiri\'s family meet the Ash People, a fierce Na\'vi clan, in a new chapter on Pandora.'},
-    'debt.jpg':      {t:'The Debt Collector', d:'A debt collector with a violent past takes one last job that drags him back into Bangkok\'s underworld.'},
-    'topgun_m.jpg':  {t:'Top Gun: Maverick', d:'After thirty years, Maverick trains a new generation of Top Gun graduates for a dangerous mission.'},
-    'loki.jpg':      {t:'Loki', d:'The God of Mischief must fix a fractured timeline while pursued by the Time Variance Authority.'},
-    'last-of-us.jpg':{t:'The Last of Us', d:'Joel and Ellie journey across a post-pandemic United States, facing new threats and impossible choices.'},
-    'wicked.jpg':    {t:'Wicked', d:'The untold story of the witches of Oz: Elphaba and Glinda, long before Dorothy arrived.'},
-    'superman.jpg':  {t:'Superman', d:'The Man of Steel balances his Kryptonian heritage with his human upbringing as the ultimate protector of Earth.'},
-    'topgun-m.jpg':  {t:'Top Gun: Maverick', d:'After thirty years, Maverick trains a new generation of Top Gun graduates for a dangerous mission.'},
-    'how-to-train.jpg':{t:'How to Train Your Dragon', d:'Hiccup, a young Viking, befriends a dragon called Toothless and changes his village forever.'}
-  };
-  function posterStylePortrait(i){
-    var f = (typeof i === 'number') ? PORTRAIT_POOL[((i%PORTRAIT_POOL.length)+PORTRAIT_POOL.length)%PORTRAIT_POOL.length] : PORTRAIT_POOL[_portraitCursor++ % PORTRAIT_POOL.length];
-    return "background-image:url('posters_portrait/" + f + "');background-size:cover;background-position:center;";
-  }
+  // every card's title, synopsis, platform and picture are its catalogue entry's (content.js MD.M, by data-k): one place
+  function M(k){ return MD.M[k]; }
+  function pic(k){ var m = M(k); return m.p || m.w; }   // a poster card: the 2:3 poster, else its 16:9 picture
+  function cover(src){ return "background-image:url('" + src + "');background-size:cover;background-position:center;"; }
   // hero provider name ('HBO MAX', 'DISNEY+', ...) -> its tag logo file
   function heroTagFile(name){
     var n = (name || '').toUpperCase();
@@ -810,56 +787,26 @@
      This row also drives the dynamic hero banner above it: whichever card
      is focused here updates the hero background/title/description. */
   (function(){
-    var items = [
-      {img:'liver-ben.jpg', badge:'Live', plat:'monomax',
-        hero:{title:'Liverpool vs Brentford', logo:'MONOMAX', channel:'Channel 501: MONOMAX 1', live:true, tv:'MONOMAX 1',
-          desc:"Liverpool host Brentford at Anfield in a big Premier League clash. Follow every moment live, from kick-off to the final whistle."}},
-      {img:'loki.jpg', bg:'hero/loki.jpg', plat:'disney',
-        hero:{title:'Loki', logo:'DISNEY+', channel:'Marvel Studios · Season 2', live:false,
-          desc:'Loki, the God of Mischief, must fix a fractured timeline as he is relentlessly pursued by the Time Variance Authority.'}},
-      {img:'last-of-us.jpg', bg:'hero/last-of-us.jpg', plat:'hbo',
-        hero:{title:'The Last of Us', logo:'HBO MAX', channel:'HBO Original · Season 2', live:false,
-          desc:'Joel and Ellie journey across a post-pandemic United States, facing new threats and impossible choices together.'}},
-      {img:'wicked.jpg', bg:'hero/wicked.jpg', plat:'netflix',
-        hero:{title:'Wicked', logo:'NETFLIX', channel:'Movie · 2 hr 40 min', live:false,
-          desc:'The untold story of the witches of Oz: Elphaba and Glinda, long before Dorothy ever arrived in the Land of Oz.'}},
-      {img:'superman.jpg', bg:'hero/superman.jpg', plat:'hbo',
-        hero:{title:'Superman', logo:'HBO MAX', channel:'Movie · 2 hr 9 min', live:false,
-          desc:'The Man of Steel balances his Kryptonian heritage with his human upbringing as the ultimate protector of Earth.'}},
-      {img:'topgun-m.jpg', bg:'hero/topgun-m.jpg', plat:'prime',
-        hero:{title:'Top Gun: Maverick', logo:'PRIME VIDEO', channel:'Movie · 2 hr 11 min', live:false,
-          desc:'After thirty years of service, Pete "Maverick" Mitchell must confront the past while training a new generation of elite pilots.'}},
-      {img:'how-to-train.jpg', bg:'hero/how-to-train.jpg', plat:'netflix',
-        hero:{title:'How to Train Your Dragon', logo:'NETFLIX', channel:'Movie · 1 hr 44 min', live:false,
-          desc:"A young Viking forms an unlikely friendship with a dragon, challenging his tribe's deep-rooted fear of the creatures."}},
-      {img:'arsenal.jpg', bg:'hero/arsenal.jpg', badge:'Live', plat:'monomax',
-        hero:{title:'Arsenal vs Chelsea', logo:'MONOMAX', channel:'Channel 29: MONOMAX SPORTS', live:true, tv:'MONOMAX SPORTS',
-          desc:'A fierce London derby as Arsenal host Chelsea in a top-of-the-table Premier League showdown.'}},
-      {img:'f1.jpg', bg:'hero/f1.jpg', plat:'prime',
-        hero:{title:'F1: The Movie', logo:'PRIME VIDEO', channel:'Movie · 2 hr 35 min', live:false,
-          desc:'A once-promising Formula 1 driver returns to mentor a young rookie and chase one last shot at glory.'}}
-    ];
-    // one Play button per hero slide (stacked; the current one shows), carrying the slide's hero data as the cards did
+    // the slides: a live match (content.js LIVE, by its title) or a title (content.js MD.M, by its key); their words,
+    // tag and picture come from there, so the slide and the detail page it opens say the same
+    var SLIDES = [{live:'Liverpool vs Brentford'}, {k:'loki'}, {k:'lastofus'}, {k:'wicked'}, {k:'superman'}, {k:'topgun'}, {k:'dragon'},
+                  {live:'Arsenal vs Chelsea'}, {k:'f1'}];
     function attr(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }   // e.g. Pete "Maverick" Mitchell
-    // a live slide's words are its programme's (content.js LIVE): the detail page it opens says the same
-    items.forEach(function(it){ var p = it.hero.tv && LIVE.find(it.hero.title); if(p) it.hero.desc = p.d; });
-    // a title's slide: its words, OTT tag, genres / year / length and picture are its detail page's (content.js)
-    items.forEach(function(it){
-      if(it.hero.tv) return;
-      var h = Content.hero({t:it.hero.title, img:'posters/' + it.img});
-      it.hero.title = h.t; it.hero.desc = h.d; it.hero.logo = h.plat; it.hero.channel = h.meta; it.bg = h.bg.replace(/^posters\//, '');
+    var items = SLIDES.map(function(s){
+      if(s.live){ var p = LIVE.find(s.live); return { hero:{title:p.t, logo:'monomax', channel:'', live:true, tv:p.tv, desc:p.d}, bg:p.bg || p.img }; }
+      var h = Content.hero({k:s.k});
+      return { k:s.k, hero:{title:h.t, logo:h.plat, channel:h.meta, live:false, desc:h.d}, bg:h.bg };
     });
     var slides = items.map(function(it){
       return '<div class="hero-btn hero-play tv-btn tv-btn--primary item" data-title="'+attr(it.hero.title)+'" data-ring-art=""'+
         ' data-hero-title="'+attr(it.hero.title)+'" data-hero-logo="'+attr(it.hero.logo)+'" data-hero-channel="'+attr(it.hero.channel)+'"'+
-        ' data-hero-live="'+(it.hero.live?'1':'0')+'"'+(it.hero.tv?' data-hero-tv="'+attr(it.hero.tv)+'"':'')+' data-hero-desc="'+attr(it.hero.desc)+'" data-hero-img="posters/'+(it.bg || it.img)+'">'+
+        ' data-hero-live="'+(it.hero.live?'1':'0')+'"'+(it.hero.tv?' data-hero-tv="'+attr(it.hero.tv)+'"':'')+' data-hero-desc="'+attr(it.hero.desc)+'" data-hero-img="'+it.bg+'"'+(it.k ? ' data-k="'+it.k+'"' : '')+'>'+
         '<i class="ic-play"></i>Play</div>';
     }).join('');
     addRow('<div class="row-block hero-row">'+
       '<div class="hero-btn hero-detail tv-btn tv-btn--secondary" id="heroDetail" data-title="Detail" data-ring-art=""><i class="ic-info"></i>Detail</div>'+
       '<div class="rail-viewport"><div class="rail-track">'+slides+'</div></div>'+
       '<div class="hero-dots">'+items.map(function(){ return '<i></i>'; }).join('')+'</div></div>');
-    _posterCursor += items.length; // keep downstream rows' poster variety roughly unchanged
   })();
 
   /* ---------- Row: Quick menu chips ---------- */
@@ -877,24 +824,20 @@
   /* ---------- Row: Jump Right Back In (continue watching, with progress) ---------- */
   (function(){
     // Continue Watching from content.js: this session's viewing first, each with its real progress (and episode)
-    // full-screen art for the screen background while a card is focused (the card keeps its own thumbnail);
-    // only titles with this art are shown in the rail
-    var HERO_BG = {sherlock:'young-sherlock', endgame:'endgame', hailmary:'hailmary', spider:'spiderman', encanto:'encanto', stranger:'stranger-things'};
-    var items = MD.continueList().filter(function(c){ return HERO_BG[c.k]; }).map(function(c){
-      var m = MD.M[c.k], left = Math.max(1, c.of - c.w);
-      return {k:c.k, t:m.t + (c.s ? ' S' + c.s + ':E' + c.e : ''), plat:m.plat, img:m.w, d:m.d, pct:Math.round(c.w / c.of * 100), dur:c.of, s:left + ' mins left'};
+    // only titles with a full-screen picture of their own (MD.M b) are shown: it fills the screen while a card is focused
+    var items = MD.continueList().filter(function(c){ return M(c.k).b; }).map(function(c){
+      var m = M(c.k), left = Math.max(1, c.of - c.w);
+      return {k:c.k, t:m.t + (c.s ? ' S' + c.s + ':E' + c.e : ''), plat:m.plat, img:m.w || m.p, pct:Math.round(c.w / c.of * 100), dur:c.of, s:left + ' mins left'};
     });
     function q(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
     var cards = items.map(function(it,i){
-      var bg = HERO_BG[it.k] ? ' data-hero-bg="posters/hero/'+HERO_BG[it.k]+'.jpg"' : '';
-      return '<div class="card card-content item" data-k="'+it.k+'" data-title="'+q(it.t)+'" data-desc="'+q(it.d)+'"'+bg+'>'+
+      return '<div class="card card-content item" data-k="'+it.k+'" data-title="'+q(it.t)+'">'+
         '<div class="thumb" style="background-image:url(\''+it.img+'\');background-size:cover;background-position:center;">'+platformTag(it.plat)+
           '<span class="cw-left corner-tag s">'+it.s+'</span>'+
           '<div class="progress"><i class="play-prog" data-dur="'+it.dur+'" style="width:'+it.pct+'%"></i></div></div>'+
       '</div>';
     }).join('');
     addRow('<div class="row-block"><div class="row-title">Jump Right Back In</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
-    _posterCursor += 16;   // this row used to take 16 pool posters (8 cards + 8 mobile); keep later rows' posters unchanged
   })();
 
   /* ---------- Row: TV Guide ---------- */
@@ -976,29 +919,18 @@
   })();
 
   /* ---------- Generic poster rail helper ---------- */
-  function posterRail(title, items, paletteStart){
-    var cards = items.map(function(it,i){
-      var pool = posterStylePortrait();
-      return '<div class="card card-poster item" data-title="'+it.t+'" style="'+(it.img ? "background-image:url('"+it.img+"');background-size:cover;background-position:center;" : pool)+'"'+(it.d ? ' data-desc="'+it.d+'"' : '')+'>'+
-        (it.plat?platformPill(it.plat):'')+
-        (it.pill?'<span class="time-pill top-tag">'+it.pill+'</span>':'')+
-        (it.badge?'<span class="card-badge-corner" style="left:auto;right:0;top:0;border-radius:0 9px 0 9px;">'+it.badge+'</span>':'')+
-      '</div>';
+  // a rail of posters, each a catalogue title (content.js MD.M, by key): its poster and platform tag; badge: a top tag
+  // the rail adds ('Soon leaving', 'Top 10')
+  function posterRail(title, list){
+    var cards = list.map(function(x){
+      var k = x.k || x, m = M(k);
+      return '<div class="card card-poster item" data-k="'+k+'" data-title="'+m.t.replace(/"/g, '&quot;')+'" style="'+cover(pic(k))+'">'+
+        platformPill(m.plat)+(x.badge ? '<span class="time-pill top-tag">'+x.badge+'</span>' : '')+'</div>';
     }).join('');
     addRow('<div class="row-block"><div class="row-title">'+title+'</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
-    _portraitCursor += items.length;   // one pool step per card, as the removed phone copy took; keeps later rails' posters
   }
 
-  posterRail('Hot Off the Big Screen', [
-    {t:'New arrival feature', plat:'prime'},
-    {t:'Studio premiere', plat:'netflix'},
-    {t:'Weekend feature', plat:'netflix'},
-    {t:'Action feature', plat:'prime'},
-    {t:'Family feature', plat:'disney'},
-    {t:'Drama feature', plat:'netflix'},
-    {t:'Thriller feature', plat:'netflix'}
-  ], 1);
-  _portraitCursor += 8;   // the 4 removed cards (+ their mobile copies) used to take pool posters; keep later rows unchanged
+  posterRail('Hot Off the Big Screen', ['f1', 'house', 'john', 'venom', 'avatar', 'debt', 'topgun']);
 
   /* ---------- Row: Live and Upcoming ---------- */
   (function(){
@@ -1017,35 +949,16 @@
       '</div>';
     }).join('');
     addRow('<div class="row-block"><div class="row-title">Live and Upcoming</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
-    _posterCursor += 16;   // this row used to take 16 pool posters (8 cards + 8 mobile); keep later rows' posters unchanged
   })();
 
   /* ---------- Row: Top 10 in Thailand Today ---------- */
   (function(){
-    var titles = ['Netflix pick #1','Disney pick #2','Netflix pick #3','Disney pick #4','Netflix pick #5','Prime pick #6','HBO pick #7','Viu pick #8','Netflix pick #9','Disney pick #10'];
-    var plats = ['netflix','disney','netflix','disney','netflix','prime','hbo','viu','netflix','disney'];
-    // #8 to #10: fixed titles (the pool supplies the rest); the pool still advances for #1-#9 so later rows keep their posters
-    var TOP10_ART = {
-      7:{t:'The Evil Lawyer', img:'posters_portrait/legal/l1.jpg', bg:'evil-lawyer', plat:'netflix', d:'A ruthless Bangkok lawyer will defend anyone for the right price, until one case turns personal.'},
-      8:{t:'The Lord of the Rings: The Return of the King', img:'posters_portrait/lotr/r1.jpg', bg:'lotr', plat:'disney', d:'Gandalf and Aragorn lead the World of Men against Sauron\'s army as Frodo and Sam near Mount Doom.'},
-      9:{t:'One Dollar Lawyer', img:'posters_portrait/legal/l2.jpg', bg:'one-dollar-lawyer', plat:'disney', d:'A brilliant lawyer who charges just one dollar takes on the rich and powerful to protect ordinary people.'}
-    };
-    // full-screen art for the screen background while a pool poster is focused (by its file)
-    var POOL_BG = {'House.jpg':'house-of-the-dragon', 'John.jpg':'john-wick', 'Venom.jpg':'venom', 'topgun_m.jpg':'topgun-m', 'F1.jpg':'f1'};
-    function heroBgAttr(i, style){
-      var bg = TOP10_ART[i] ? TOP10_ART[i].bg : POOL_BG[(style.match(/([^\/']+)'\)/) || [])[1]];
-      return bg ? ' data-hero-bg="posters/hero/'+bg+'.jpg"' : '';
-    }
-    function rankArt(i){
-      var a = TOP10_ART[i], pool = i < 9 ? posterStylePortrait() : '';   // #10 came later: it leaves the pool alone
-      return a ? "background-image:url('"+a.img+"');background-size:cover;background-position:center;" : pool;
-    }
-    var cards = titles.map(function(t,i){
-      if(TOP10_ART[i]) t = TOP10_ART[i].t;
-      var style = rankArt(i);
-      return '<div class="rank-wrap item" data-title="#'+(i+1)+' '+t+'">'+
+    var TOP10 = ['f1', 'house', 'john', 'venom', 'avatar', 'debt', 'topgun', 'thailaw', 'lotr', 'dollar'];   // content.js MD.M
+    var cards = TOP10.map(function(k, i){
+      var m = M(k);
+      return '<div class="rank-wrap item" data-k="'+k+'" data-title="#'+(i+1)+' '+m.t.replace(/"/g, '&quot;')+'">'+
         Top10.numeral(i+1)+   // top10.js
-        '<div class="card card-poster rank-poster" style="'+style+'"'+heroBgAttr(i, style)+(TOP10_ART[i] ? ' data-desc="'+TOP10_ART[i].d+'"' : '')+'>'+platformPill(TOP10_ART[i] ? TOP10_ART[i].plat : plats[i])+'</div>'+
+        '<div class="card card-poster rank-poster" style="'+cover(pic(k))+'">'+platformPill(m.plat)+'</div>'+
       '</div>';
     }).join('');
     addRow('<div class="row-block">'+
@@ -1053,132 +966,66 @@
       '<div class="row-title">Top 10 in Thailand Today</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
     // size the numerals; again once their font arrives, when the ring may already sit on a Top 10 poster
     Top10.ready(document, function(){ try{ placeHomeRing(true); }catch(e){} });
-    _portraitCursor += 9;   // one pool step per card of the original nine, as the removed phone copy took; keeps later rails' posters
   })();
 
-  _portraitCursor += 12;   // Top Pick For You (removed) took 12 pool posters; keep later rows' posters unchanged
 
   /* ---------- Row: My List (landscape) ----------
      Each card keeps the pool picture it always had; the title, platform, meta line and synopsis behind each picture
      fill the screen text when it is focused (updateHeroFromCard: data-title / data-tag / data-meta / data-desc). */
   (function(){
-    var MY_LIST = {
-      'maxresdefault.jpg':{t:'Sir Alex Ferguson: Never Give In', tag:'prime', meta:'Documentary · Sport · 2021 · 1h 52m',
-        d:'The life of Manchester United\'s legendary manager, told by his son: from the Govan shipyards to 26 years at Old Trafford, and the fight back from a brain haemorrhage.'},
-      'loki.jpg':{t:'Loki', tag:'disney', meta:'Series · Fantasy · 2023 · 2 Seasons',
-        d:'The God of Mischief must fix a fractured timeline while pursued by the Time Variance Authority.'},
-      'last-of-us.jpg':{t:'The Last of Us', tag:'hbo', meta:'Series · Drama · 2025 · 2 Seasons',
-        d:'Joel and Ellie journey across a post-pandemic United States, facing new threats and impossible choices.'},
-      'wicked.jpg':{t:'Wicked', tag:'prime', meta:'Musical · Fantasy · 2024 · 2h 40m',
-        d:'The untold story of the witches of Oz: Elphaba and Glinda, long before Dorothy arrived.'},
-      'superman.jpg':{t:'Superman', tag:'hbo', meta:'Action · Sci-Fi · 2025 · 2h 9m',
-        d:'The Man of Steel balances his Kryptonian heritage with his human upbringing as the ultimate protector of Earth.'},
-      'topgun-m.jpg':{t:'Top Gun: Maverick', tag:'hbo', meta:'Action · Drama · 2022 · 2h 11m',
-        d:'After thirty years, Maverick trains a new generation of Top Gun graduates for a dangerous mission.'},
-      'how-to-train.jpg':{t:'How to Train Your Dragon', tag:'prime', meta:'Family · Adventure · 2025 · 2h 5m',
-        d:'A young Viking and an injured dragon form an unlikely friendship that changes their island for ever.'},
-      'P10_Odyssey.jpg':{t:'The Odyssey', tag:'prime', meta:'Adventure · Fantasy · 2026 · 2h 40m',
-        d:'Odysseus fights his way home across a hostile sea after the fall of Troy, ten years from his family.'},
-      'P10-Devil.jpg':{t:'The Devil Wears Prada 2', tag:'disney', meta:'Comedy · Drama · 2026 · 1h 59m',
-        d:'Miranda Priestly faces the decline of print, and an old assistant who now holds the purse strings.'},
-      'P10-spiderman.jpg':{t:'Spider-Man: No Way Home', tag:'disney', meta:'Action · Adventure · 2021 · 2h 28m',
-        d:'With his identity revealed, Peter Parker asks Doctor Strange for help, and the multiverse breaks open.'},
-      'f1.jpg':{t:'F1: The Movie', tag:'prime', meta:'Action · Sport · 2025 · 2h 35m',
-        d:'A once-promising Formula 1 driver returns to mentor a young rookie and chase one last shot at glory.'}
-    };
+    var MY_LIST = ['siralex', 'loki', 'lastofus', 'wicked', 'superman', 'topgun', 'dragon', 'odyssey'];   // content.js MD.M
     function attr(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
-    var items = [{}, {}, {}, {}, {}, {}, {}, {}];
-    var cards = items.map(function(it,i){
-      var style = posterStyle(), f = (style.match(/posters\/([^']+)'/) || [])[1], c = MY_LIST[f] || {t:'My List item #'+(i+1)};
-      return '<div class="card card-landscape'+(it.wide?' wide':'')+' item" data-title="'+attr(c.t)+'"'+
-        (c.tag ? ' data-tag="tag-'+c.tag+'.png"' : '')+(c.meta ? ' data-meta="'+attr(c.meta)+'"' : '')+(c.d ? ' data-desc="'+attr(c.d)+'"' : '')+
-        ' style="'+style+'">'+
-        (it.badge ? '<span class="card-badge-corner dim">'+it.badge+'</span>' : '') +
-      '</div>';
+    var cards = MY_LIST.map(function(k){
+      var m = M(k);
+      return '<div class="card card-landscape item" data-k="'+k+'" data-title="'+attr(m.t)+'" style="'+cover(m.w || m.p)+'"></div>';
     }).join('');
     addRow('<div class="row-block"><div class="row-title">My List</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
-    _posterCursor += items.length;   // one pool step per card, as the removed phone copy took; keeps later rails' posters
   })();
 
   /* ---------- Row: Shorts (Figma For-PBR "Short", 718:92507) ----------
      A dim artwork band behind the rail (30% opacity, fading into the page top and bottom), 220 x 330 short-drama
      poster cards, then a View All pill. Same band spacing as before: 56px above the title, cards centred. */
   (function(){
-    var shorts = [
-      {t:'Seven Days Back, Old Love Ends', img:'s1.jpg'}, {t:'Grandma Takes Over the Family II', img:'s2.jpg'},
-      {t:'Ink and Rain', img:'s3.jpg'}, {t:"The Secretary's Forbidden Love", img:'s4.jpg'},
-      {t:"The Mafia Boss's Spoiled Secretary", img:'s5.jpg'}, {t:"The Healer's Comeback", img:'s6.jpg'},
-      {t:'Back to the Moonlight Promise', img:'s7.jpg'}, {t:'Short Drama #8', img:'s8.jpg'}
-    ];
-    var cards = shorts.map(function(c, i){
-      // each opens its short drama page (short-detail.html, Figma Movies "Short Movies VOD")
-      return '<div class="card clip-card item" data-title="'+c.t+'" data-href="short-detail.html?s='+i+'" style="background-image:url(\'posters/shorts/'+c.img+'\');"></div>';
+    // the first eight short dramas (content.js SHORTS, by data-s): Enter opens each one's page (Content.detailUrl)
+    var cards = SHORTS.slice(0, 8).map(function(c, i){
+      return '<div class="card clip-card item" data-s="'+i+'" data-title="'+c.t.replace(/"/g, '&quot;')+'" style="background-image:url(\'posters/shorts/'+c.img+'\');"></div>';
     }).join('') + '<div class="clip-viewall tv-chip item" data-title="Shorts – View All" data-ring-art=""><b>Shorts</b><span>View All</span></div>';
     addRow('<div class="row-block clips-row"><div class="clips-bg"></div><div class="clips-bg band-full"></div><div class="row-title">Shorts</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
   })();
 
-  _portraitCursor += 24;   // Anti-Hero Legal Drama (removed) took 24 pool posters; keep later rows' posters unchanged
 
-  posterRail('Because You Watched “The Lord of the Rings: The Fellowship of the Ring”', [
-    {t:'The Lord of the Rings: The Return of the King', plat:'disney', img:'posters_portrait/lotr/r1.jpg', d:'Gandalf and Aragorn lead the World of Men against Sauron\'s army as Frodo and Sam near Mount Doom.'},
-    {t:'The Lord of the Rings: The Two Towers', plat:'disney', img:'posters_portrait/lotr/r2.jpg', d:'The Fellowship is broken, but its members fight on to defend Middle-earth against Saruman and Sauron.'},
-    {t:'The Hobbit: The Battle of the Five Armies', plat:'disney', img:'posters_portrait/lotr/r3.jpg', d:'Bilbo and the dwarves are caught in a battle of five armies over the treasure of the Lonely Mountain.'},
-    {t:'The Hobbit: The Desolation of Smaug', plat:'disney', img:'posters_portrait/lotr/r4.jpg', d:'Bilbo, Gandalf and the dwarves press on toward Erebor, where the dragon Smaug guards a lost kingdom.'},
-    {t:'The Last Kingdom', plat:'disney', img:'posters_portrait/lotr/r5.jpg', d:'Born a Saxon and raised by Danes, Uhtred fights to reclaim his birthright as England is forged.'},
-    {t:'Vikings', plat:'disney', img:'posters_portrait/lotr/r6.jpg', d:'Farmer Ragnar Lothbrok rises to become a legendary Viking king, raiding the lands to the west.'},
-    {t:'Game of Thrones', plat:'disney', img:'posters_portrait/lotr/r7.jpg', d:'Noble families fight for control of the Iron Throne while an ancient enemy returns in the north.'}
-  ], 5);
-  _portraitCursor += 10;   // this rail lost 5 cards (+ their mobile copies); keep later rows' posters unchanged
+  posterRail('Because You Watched “The Lord of the Rings: The Fellowship of the Ring”', ['lotr', 'twotowers', 'hobbit', 'smaug', 'lastking', 'vikings', 'got']);
 
   /* ---------- Row: AIS Play Exclusive ---------- */
   (function(){
     // Expanding cards, like Top Pick For You: portrait posters that widen into the feature card when focused
     var PREMIUM = '<span class="xc-premium"><img src="icons/crown-gold.svg" alt="">Premium</span>';
+    // each a catalogue title (content.js MD.M, AIS PLAY's own): its name, synopsis, genres, length, rating and pictures;
+    // the rail adds its badges, a match's kick-off (when) and where the pictures sit
     var picks = [
-      {t:'Miss Universe Thailand 2026', portrait:'posters/miss-universe.jpg', ppos:'30% center', wide:'posters/miss-universe.jpg', pos:'center',
-        badges:['#1 in thailand'], chips:['1 hr. 55 min','Pageant, Live Event','G'],
-        d:'The Miss Universe Thailand 2026 pageant is underway with provincial preliminaries and delegate selections, highlighted by Tharina Botes winning Miss Universe Krung Thep Maha Nakhon (Bangkok).'},
-      {t:'Happy Boss Day: The Sophomores – D-Day', portrait:'posters_portrait/ex1.jpg', wide:'posters/hero/ex-sophomores.jpg', pos:'center',
-        badges:['Rerun'], chips:['2 hr. 30 min','Concert','G'],
-        d:'Relive The Sophomores\' sold-out D-Day concert, exclusively on AIS PLAY. Rerun from 1 February to 30 April 2026.'},
-      {t:'BossCKM: Dream Warrior Concert', portrait:'posters_portrait/ex2.jpg', wide:'posters/hero/ex-bossckm.jpg', pos:'center',
-        badges:['New Arrival'], chips:['2 hr. 05 min','Concert, Music','G'],
-        d:'BossCKM takes the stage for Dream Warrior, a night of rock anthems, fan favourites and a few surprises.'},
-      {t:'Man City vs Arsenal', portrait:'posters_portrait/ex3.jpg', wide:'posters_portrait/ex3.jpg', pos:'center 40%',
-        badges:['Premier League'], chips:['Sun 22:30','Football','G'],
-        d:'Haaland\'s Manchester City host Arsenal at the Etihad in a title clash that could decide the Premier League race.'},
-      {t:'Match Day: Man Utd vs Chelsea', portrait:'posters_portrait/ex4.jpg', wide:'posters/hero/ex-mufc-chelsea.jpg', pos:'center',
-        badges:['Emirates FA Cup'], chips:['Sat 19:30','Football','G'],
-        d:'Manchester United welcome Chelsea at Old Trafford for a place in the next round of the Emirates FA Cup.'},
-      {t:'Match Day: Man Utd vs Arsenal', portrait:'posters_portrait/ex5.jpg', wide:'posters/hero/ex-mufc-arsenal.jpg', pos:'center',
-        badges:['Premier League'], chips:['Sat 23:00','Football','G'],
-        d:'Manchester United face Arsenal under the Old Trafford lights in one of the Premier League\'s fiercest rivalries.'}
+      {k:'missuni', badges:['#1 in thailand'], ppos:'30% center'}, {k:'sophomores', badges:['Rerun']}, {k:'bossckm', badges:['New Arrival']},
+      {k:'cityars', badges:['Premier League'], when:'Sun 22:30', pos:'center 40%'}, {k:'mufcche', badges:['Emirates FA Cup'], when:'Sat 19:30'},
+      {k:'mufcars', badges:['Premier League'], when:'Sat 23:00'}
     ];
+    function hrs(len){ var h = /(\d+)h/.exec(len), mm = /(\d+)m/.exec(len); return (h ? h[1] + ' hr. ' : '') + (mm ? (mm[1].length < 2 ? '0' : '') + mm[1] + ' min' : ''); }
     var cards = picks.map(function(it){
-      // its detail page (content.js) says what the card says: AIS PLAY's own, its length, genres, rating, synopsis and picture
-      var len = /(\d+) hr\. (\d+) min/.exec(it.chips[0]);
-      return '<div class="card xcard item" data-title="'+it.t+'" data-ring-art="url(&quot;'+it.wide+'&quot;)" data-plat="ais"'+
-        ' data-g="'+it.chips[1].split(/,\s*/).join(',')+'" data-age="'+it.chips[2]+'"'+(len ? ' data-len="'+len[1]+'h '+(+len[2])+'m"' : '')+
-        ' data-desc="'+it.d.replace(/"/g, '&quot;')+'" data-hero-bg="'+it.wide+'">'+
-        '<div class="xc-portrait" style="background-image:url(\''+it.portrait+'\');'+(it.ppos?'background-position:'+it.ppos+';':'')+'"></div>'+
-        '<div class="xc-wide" style="background-image:url(\''+it.wide+'\');background-position:'+it.pos+';"></div>'+
+      var m = M(it.k), wide = MD.bg(it.k), chips = [it.when || hrs(m.len), m.g.join(', '), m.age];
+      return '<div class="card xcard item" data-k="'+it.k+'" data-title="'+m.t+'" data-ring-art="url(&quot;'+wide+'&quot;)">'+
+        '<div class="xc-portrait" style="background-image:url(\''+m.p+'\');'+(it.ppos?'background-position:'+it.ppos+';':'')+'"></div>'+
+        '<div class="xc-wide" style="background-image:url(\''+wide+'\');background-position:'+(it.pos || 'center')+';"></div>'+
         '<div class="xc-scrim"></div>'+
         '<div class="xc-content">'+
           '<div class="xc-badges">'+it.badges.map(function(b){ return '<span class="xc-badge">'+b+'</span>'; }).join('')+'</div>'+
-          '<h3 class="xc-title">'+it.t+'</h3>'+
-          '<p class="xc-desc">'+it.d+'</p>'+
-          '<div class="xc-chips">'+PREMIUM+it.chips.map(function(c){ return '<span class="xc-chip">'+c+'</span>'; }).join('')+'</div>'+
+          '<h3 class="xc-title">'+m.t+'</h3>'+
+          '<p class="xc-desc">'+m.d+'</p>'+
+          '<div class="xc-chips">'+PREMIUM+chips.map(function(c){ return '<span class="xc-chip">'+c+'</span>'; }).join('')+'</div>'+
         '</div>'+
       '</div>';
     }).join('');
     addRow('<div class="row-block toppick-row"><div class="row-title">AIS Play Exclusive</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
   })();
 
-  posterRail('Grab The Mic!', [
-    {t:'Sabai Sabi – Thongchai McIntyre'}, {t:'Mae – Loso'},
-    {t:'Do You Want Me to Stay With You – Asanee-Wasan'}, {t:'Let It Be – The Beatles'},
-    {t:'Take Me Home, Country Roads – John Denver'}, {t:'Wanipok – Carabao'}
-  ], 7);
+  addRow('<div class="row-block"><div class="row-title">Grab The Mic!</div><div class="rail-viewport"><div class="rail-track"></div></div></div>');
   /* replace last row's plain posters with karaoke styled cards */
   (function(){
     var last = rowDefs[rowDefs.length-1];
@@ -1198,18 +1045,6 @@
     last.track.classList.add('karaoke-track');
   })();
 
-  // House of the Dragon and Top Gun: Maverick are on HBO Max here: wherever their posters land, the provider tag is HBO
-  document.querySelectorAll('[style*="posters_portrait/House.jpg"], [style*="posters_portrait/topgun_m.jpg"]').forEach(function(card){
-    card.querySelectorAll('img[src*="badges/tag-"]').forEach(function(img){ img.src = 'badges/tag-hbo.png'; img.alt = 'hbo'; });
-  });
-  // John Wick 4, Venom and The Debt Collector are Netflix titles
-  document.querySelectorAll('[style*="posters_portrait/John.jpg"], [style*="posters_portrait/Venom.jpg"], [style*="posters_portrait/debt.jpg"]').forEach(function(card){
-    card.querySelectorAll('img[src*="badges/tag-"]').forEach(function(img){ img.src = 'badges/tag-netflix.png'; img.alt = 'netflix'; });
-  });
-  // F1: The Movie is a Prime Video title
-  document.querySelectorAll('[style*="posters_portrait/F1.jpg"], [style*="posters/f1.jpg"]').forEach(function(card){
-    card.querySelectorAll('img[src*="badges/tag-"]').forEach(function(img){ img.src = 'badges/tag-prime.png'; img.alt = 'prime'; });
-  });
 
   /* ---------- Row: Quick Access (Figma "Rail - My Subscription", 3258:337279) ----------
      Four 407 x 180 cards: a short status line, then the icon and the name. */
@@ -1232,35 +1067,18 @@
      The News page's programme pictures (news-assets/), with their titles, channels and descriptions there; focused,
      a card's picture and text fill the screen (updateHeroFromCard: data-meta / data-desc). */
   (function(){
-    var N = 'news-assets/';
-    var progs = [
-      {t:'CNN News', img:'dm-cnn.png', logo:1, ch:'Channel 603: CNN',
-       d:'CNN Primetime brings the day\u2019s biggest stories from around the world, with live reports from CNN\u2019s correspondents and in-depth analysis.'},
-      {t:'Morning Stories', img:'dm-rueng.png', ch:'Channel 33: 3 HD',
-       d:'The morning news that tells the stories around you, with every hot topic from the crack of dawn.'},
-      {t:'BBC News', img:'dm-bbc.png', ch:'Channel 604: BBC News',
-       d:'The latest from BBC News: the stories that matter in the UK and around the world, live.'},
-      {t:'Channel 7 News Insight', img:'dm-sanam7.png', ch:'Channel 35: CH7 HD',
-       d:'Follow every move in the day\u2019s biggest stories, live every day on Channel 7.'},
-      {t:'World Update with Thai PBS', img:'lc-1.png', ch:'Channel 3: TPBS',
-       d:'The day\u2019s international news in one round-up, digging into the stories the whole world is watching.'},
-      {t:'Open News Desk', img:'lc-2.png', ch:'Channel 36: PPTV HD',
-       d:'The PPTV news team opens the desk on every hot topic of the day.'},
-      {t:'Komchadluek', img:'lc-4.png', ch:'Channel 22: Nation TV',
-       d:'Komchadluek goes straight to the heart of Thai politics and society, with frank, in-depth interviews.'}
-    ];
+    // the programmes: content.js LIVE.hot, each on its TV Guide channel (number, name, round logo and Premium)
     function attrQ(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
-    var cards = progs.map(function(p){
-      var pic = "background-image:url('"+N+p.img+"');background-position:center;" +
+    var cards = LIVE.hot.map(function(p){
+      var pic = "background-image:url('"+p.img+"');background-position:center;" +
         (p.logo ? 'background-size:67% auto;background-repeat:no-repeat;background-color:#fff;' : 'background-size:cover;');   // CNN: its logo on white, as on News
-      // its channel (TV Guide's): number, name, round logo and Premium; Enter as any channel's programme (content.js
-      // LIVE.href: a Movie / Sport channel's detail page, else the channel in the Live TV player)
-      var chName = p.ch.replace(/^Channel \d+: /, ''), tv = window.TV.byName(chName), prog = {t:p.t, img:N + p.img, tv:chName, live:true, d:p.d};
+      // Enter as any channel's programme (content.js LIVE.href: a Movie / Sport channel's detail page, else the channel
+      // in the Live TV player)
+      var chName = p.tv, tv = window.TV.byName(chName), prog = p;
       return '<div class="card card-landscape item" data-title="'+attrQ(p.t)+'" data-live="1" data-href="'+attrQ(LIVE.href(prog, 'home'))+'"'+
-        (tv ? ' data-ch="'+attrQ(tv.n)+'" data-meta="'+attrQ('Channel '+tv.no+': '+tv.n)+'"' : ' data-meta="'+attrQ(p.ch)+'"')+' data-desc="'+attrQ(p.d)+'" style="'+pic+'">'+
+        (tv ? ' data-ch="'+attrQ(tv.n)+'" data-meta="'+attrQ('Channel '+tv.no+': '+tv.n)+'"' : '')+' data-desc="'+attrQ(p.d)+'" style="'+pic+'">'+
         (LIVE.premium(chName) ? '<img class="crown-tag" src="icons/crown-gold.svg" alt="Premium">' : '')+'</div>';
     }).join('');
-    _posterCursor += progs.length;   // the pool pictures these cards used to take: later rails keep theirs
     addRow('<div class="row-block"><div class="row-title">Hot Channel Program</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
   })();
 
@@ -1279,16 +1097,11 @@
 
   /* ---------- Row: Highlight (LPGA golf) ---------- */
   (function(){
-    var P = {
-      h1:{t:'Honda LPGA Thailand 2024', img:'h1.jpg'}, h2:{t:'BGC Betagro Match Play', img:'h2.jpg'},
-      h3:{t:'The Champion', img:'h3.jpg'}, h4:{t:'LPGA Lotte Championship', img:'h4.jpg'},
-      h5:{t:'DP World Tour: Career Grand Slam', img:'h5.jpg'}, h6:{t:'Masters Tournament', img:'h6.jpg'},
-      h7:{t:'Masters Tournament: Round Highlights', img:'h7.jpg'}
-    };
-    var list = [['h1'], ['h2','Top 10'], ['h5'], ['h3','New'], ['h4'], ['h6','New'], ['h7','Top 10']];
+    // the golf highlights (content.js MD.M, AIS PLAY's own), with the rail's badges
+    var list = [['hl1'], ['hl2','Top 10'], ['hl5'], ['hl3','New'], ['hl4'], ['hl6','New'], ['hl7','Top 10']];
     var cards = list.map(function(x){
-      var it = P[x[0]];
-      return '<div class="card card-poster item" data-title="'+it.t+'" style="background-image:url(\'posters/highlight/'+it.img+'\');background-size:cover;background-position:center;">'+
+      var m = M(x[0]);
+      return '<div class="card card-poster item" data-k="'+x[0]+'" data-title="'+m.t+'" style="'+cover(m.p)+'">'+
         (x[1] ? '<span class="time-pill top-tag">'+x[1]+'</span>' : '')+'</div>';
     }).join('') + '<div class="clip-viewall tv-chip item" data-title="LPGA Golf – View All" data-ring-art=""><b>View All</b></div>';
     addRow('<div class="row-block hl-row"><div class="hl-bg"></div><div class="hl-bg band-full"></div>'+
@@ -1297,21 +1110,9 @@
   })();
 
   /* ---------- Rows: genre rails ---------- */
-  posterRail('Ray Macdonald', [
-    {t:'Ray Macdonald pick #1', plat:'netflix'}, {t:'Ray Macdonald pick #2'}, {t:'Ray Macdonald pick #3', pill:'Soon leaving'},
-    {t:'Ray Macdonald pick #4', plat:'netflix'}, {t:'Ray Macdonald pick #5', pill:'Soon leaving', plat:'netflix'},
-    {t:'Ray Macdonald pick #6', pill:'Top 10'}, {t:'Ray Macdonald pick #7'}
-  ]);
-  _portraitCursor += 3;   // the pool has 7 posters and a rail takes 14 (cards + mobile copies): start each genre rail elsewhere
-  posterRail('We think you’ll love this', [
-    {t:'Recommended #1'}, {t:'Recommended #2'}, {t:'Recommended #3', pill:'Soon leaving'}, {t:'Recommended #4'},
-    {t:'Recommended #5', pill:'Soon leaving'}, {t:'Recommended #6', pill:'Top 10'}, {t:'Recommended #7', pill:'Top 10'}
-  ]);
-  _portraitCursor += 3;
-  posterRail('Date night Selected', [
-    {t:'Date night #1'}, {t:'Date night #2'}, {t:'Date night #3', pill:'Soon leaving'}, {t:'Date night #4'},
-    {t:'Date night #5', pill:'Soon leaving'}, {t:'Date night #6', pill:'Top 10'}, {t:'Date night #7', pill:'Top 10'}
-  ]);
+  posterRail('Ray Macdonald', ['khemjira', 'medium', 'thailaw', {k:'debt', badge:'Soon leaving'}, 'judge', {k:'bigmouth', badge:'Soon leaving'}, {k:'vincenzo', badge:'Top 10'}]);
+  posterRail('We think you’ll love this', ['got', 'house', {k:'lastking', badge:'Soon leaving'}, 'vikings', {k:'avatar', badge:'Soon leaving'}, {k:'venom', badge:'Top 10'}, {k:'john', badge:'Top 10'}]);
+  posterRail('Date night Selected', ['dollar', 'family', {k:'again', badge:'Soon leaving'}, 'lawless', {k:'topgun', badge:'Soon leaving'}, {k:'f1', badge:'Top 10'}, {k:'hobbit', badge:'Top 10'}]);
 
   /* ---------- Row: Seasonal / Collection ---------- */
   (function(){
@@ -1504,12 +1305,12 @@
   }
   var heroWatchedEl = document.querySelector('.hero-watched');
   // a Jump Right Back In card in the hero: its bar and "33m of 58m" under the title (null: none shown)
-  function showHeroWatched(el){
-    var bar = el && el.querySelector('.play-prog[data-dur]');
-    heroWatchedEl.style.display = bar ? '' : 'none';
-    if(!bar) return;
-    var w = parseFloat(bar.style.width), dur = +bar.dataset.dur;
-    heroWatchedEl.innerHTML = '<span class="bar"><i style="width:' + w + '%"></i></span>' + Math.round(dur * w / 100) + 'm of ' + dur + 'm';
+  // how far in: a title being watched (content.js MD.watched, as its detail page), else the card's own bar
+  function showHeroWatched(el, k){
+    var wd = k && MD.watched(k), bar = !wd && el && el.querySelector('.play-prog[data-dur]');
+    if(bar){ var dur = +bar.dataset.dur, pct = parseFloat(bar.style.width); wd = { w:Math.round(dur * pct / 100), of:dur, pct:pct }; }
+    heroWatchedEl.style.display = wd ? '' : 'none';
+    if(wd) heroWatchedEl.innerHTML = '<span class="bar"><i style="width:' + wd.pct + '%"></i></span>' + wd.w + 'm of ' + wd.of + 'm';
   }
   var heroLiveEl = document.querySelector('.hero .badge-live');
   var currentHeroImgKey = 'posters/liver-ben.jpg';
@@ -1621,7 +1422,8 @@
       heroLogoEl.classList.toggle('ais', h.plat === 'ais');
       heroLogoEl.src = h.plat === 'ais' ? 'icons/aisplay-mark.png' : 'badges/' + heroTagFile(h.plat);
       heroLogoEl.style.display = '';
-      heroChannelEl.textContent = el.querySelector('.play-prog[data-dur]') ? '' : h.meta;   // the bar above says how far in
+      if(h.k){ heroChannelEl.innerHTML = MD.metaHtml(MD.M[h.k]); showHeroWatched(el, h.k); }   // as the detail page (content.js)
+      else heroChannelEl.innerHTML = Content.metaHtml({s:h.s});   // a short: as its page (content.js)
       heroLiveEl.style.display = 'none';
       heroChannelEl.parentElement.style.display = '';
       heroDescEl.textContent = h.d; heroDescEl.style.display = '';
@@ -1630,10 +1432,9 @@
     }
     if(el.dataset.heroBg) setHeroBg(el.dataset.heroBg, "url('" + el.dataset.heroBg + "')");
     else setHeroBg(art, art);
-    var info = ART_INFO[(art.match(/([^\/'"]+)['"]?\)$/) || [])[1]] || {};
+    // a channel's programme (data-ch: Live and Upcoming, Hot Channel Program): its own words (content.js LIVE)
     var ownTitle = (el.dataset.title || (el.parentElement && el.parentElement.dataset.title) || '').replace(/^#\d+\s+/, '');
-    var t = el.dataset.desc ? ownTitle : (info.t || ownTitle);
-    if(heroTitleEl && t) heroTitleEl.textContent = t;
+    if(heroTitleEl && ownTitle) heroTitleEl.textContent = ownTitle;
     // tag: the card's provider tag logo (or a data-tag); info line: data-meta, else the card's "mins left" / time
     var tagImg = el.querySelector('img[src*="badges/tag-"]');
     var tag = el.dataset.tag ? 'badges/' + el.dataset.tag : (tagImg ? tagImg.getAttribute('src') : '');
@@ -1651,7 +1452,7 @@
     if(el.querySelector('.play-prog[data-dur]')) heroChannelEl.textContent = '';   // the bar above says how far in: no "mins left" again
     heroLiveEl.style.display = el.querySelector('.live-ribbon') || (prog && prog.live) ? '' : 'none';
     heroChannelEl.parentElement.style.display = tag || chc || heroChannelEl.textContent || heroLiveEl.style.display === '' ? '' : 'none';   // nothing to say: no empty line
-    var desc = el.dataset.desc || info.d || '';
+    var desc = el.dataset.desc || '';
     heroDescEl.textContent = desc;
     heroDescEl.style.display = desc ? '' : 'none';
     heroSection.classList.add('card-mode');
@@ -1669,7 +1470,9 @@
     if(heroChannelEl) heroChannelEl.parentElement.style.display = '';
     if(heroTitleEl) heroTitleEl.textContent = item.dataset.heroTitle;
     if(heroLogoEl){ heroLogoEl.classList.remove('ais'); heroLogoEl.src = 'badges/' + heroTagFile(item.dataset.heroLogo); heroLogoEl.alt = item.dataset.heroLogo; }
-    if(heroChannelEl) heroChannelEl.textContent = item.dataset.heroChannel;
+    // a title's slide: its meta row and how far in, as its detail page (content.js); a live slide: below
+    if(heroChannelEl){ if(item.dataset.k) heroChannelEl.innerHTML = MD.metaHtml(MD.M[item.dataset.k]); else heroChannelEl.textContent = item.dataset.heroChannel; }
+    if(item.dataset.k) showHeroWatched(null, item.dataset.k);
     if(heroDescEl) heroDescEl.textContent = item.dataset.heroDesc;
     if(heroLiveEl) heroLiveEl.style.display = (item.dataset.heroLive === '1') ? '' : 'none';
     // a live slide is a channel's programme: the channel's round logo and its TV Guide number and name, not an OTT tag

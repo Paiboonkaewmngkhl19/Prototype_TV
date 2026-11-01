@@ -318,7 +318,7 @@
   /* ---------- markup ---------- */
   function ptag(m){ return m.plat === 'ais' ? '<span class="ptag ais"></span>' : '<img class="ptag" src="badges/tag-' + m.plat + '.png" alt="">'; }
   function metaRow(m){
-    return ptag(m) + '<strong>' + esc(genres(m)) + '</strong><span>' + m.y + '</span><span>' + m.len + '</span><span class="pill">' + m.age + '</span><span class="pill">HD</span>';
+    return ptag(m) + MD.metaHtml(m);   // content.js: the detail page shows the same
   }
   function wide(k, i, set, extra){
     return '<div class="card item"' + attrs({kind:'title', k:k, set:set, i:i}) + '><div class="thumb" style="background-image:url(\'' + (M[k].w || M[k].p) + '\')">' + (extra || '') + '</div></div>';
@@ -440,7 +440,7 @@
       h.watched = '<span class="bar"><i style="width:' + Math.round(cw.w / cw.of * 100) + '%"></i></span>' + cw.w + 'm of ' + cw.of + 'm';
       return h;
     }
-    if(kind === 'short'){ var s = window.SHORTS[i]; return { t:s.t, meta:ptag(s) + '<strong>' + esc(s.gen.join(' · ')) + '</strong><span class="pill">' + s.rate + '</span><span class="pill">HD</span>', d:s.d, bg:'posters/shorts/' + s.img }; }
+    if(kind === 'short'){ var s = window.SHORTS[i]; return { t:s.t, meta:Content.metaHtml({s:i}, true), d:s.d, bg:'posters/shorts/' + s.img }; }
     if(el && el.dataset.k) return titleHero(el.dataset.k);
     return null;
   }

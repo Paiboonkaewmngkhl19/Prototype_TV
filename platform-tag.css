@@ -16,5 +16,9 @@ img[src*="badges/tag-viu"]{ background:#ffbf00 !important; }
 img[src*="badges/tag-monomax"]{ background:#fff !important; }
 /* the short drama apps (ReelShort, DramaBox): their square app icon, filling the tag */
 img[src*="badges/tag-reelshort"], img[src*="badges/tag-dramabox"]{ object-fit:cover !important; background:#ff2a5f !important; }
+/* quality: a 4K title's Dolby Atmos mark (icons/tag-dolby.svg, MD.qtag), after its 4K pill, at the text's height */
+.qtag{ height:26px; width:auto; display:block; flex:0 0 auto; }
+/* the outline pill tags (age, HD, 4K, time on air), on every page: a frosted fill, grey at 15%, under each page's outline */
+.pill{ background:rgba(128,128,128,.15); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); }
 /* AIS PLAY's own titles: no tag picture, so its mark on black, at the same 56 x 36 (<span class="ptag ais">) */
 .ptag.ais{ border-radius:6px; background:#000 url('icons/aisplay-mark.png') center / auto 64% no-repeat; }

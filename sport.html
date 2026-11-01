@@ -23,6 +23,7 @@
 <link rel="stylesheet" href="chip-theme.css">
 <link rel="stylesheet" href="tvguide-card.css">
 <link rel="stylesheet" href="league-disc.css">
+<link rel="stylesheet" href="platform-tag.css">
 <link rel="stylesheet" href="button-theme.css">
 <link rel="stylesheet" href="corner-tag.css">
 <link rel="stylesheet" href="live-ribbon.css">
@@ -81,7 +82,7 @@
   .meta .ch{ display:inline-flex; align-items:center; gap:8px; color:var(--on-surface); white-space:nowrap; }
   .meta .ch > img, .meta .ch > .ch-logo{ width:36px; height:36px; border-radius:40px; object-fit:cover; }
   .pill{ height:36px; padding:0 12px; border:1px solid var(--outline); border-radius:18px; display:inline-flex; align-items:center; font-weight:500; white-space:nowrap; }
-  .meta b{ font-weight:700; color:#fff; }
+  .meta b, .meta strong{ font-weight:700; color:#fff; }
 
   /* ---------- the page: Figma's rows, 60px apart, starting at y=600 (under Home's 600px hero); it moves as a whole ---------- */
   #page{ position:absolute; left:0; top:0; width:1920px; z-index:1; padding:600px 0 44px; display:flex; flex-direction:column; gap:60px;
@@ -661,7 +662,7 @@
     if(rowKey === 'leagues'){ var l = SHOWN_LEAGUES[i]; return { t:l.t, d:'Follow ' + l.t + ' for live matches, fixtures, results and highlights, all in one place.', bg:l.img }; }
     if(k === 'vod'){
       var v = vodInfo(el), c = Content.hero(v);   // its detail page's words (content.js)
-      return { t:c.t, meta:'<span class="ch"><img src="sport-assets/channel-aisplay.jpg" alt="">AIS PLAY</span><b>' + v.g.join(' · ') + '</b><span>' + v.y + '</span><span>' + v.len + '</span><span class="pill">' + v.age + '</span><span class="pill">HD</span>',
+      return { t:c.t, meta:Content.metaHtml(v, true),   // its detail page's meta row (content.js)
                d:c.d, bg:SETS[set][i].img };
     }
     if(rowKey === 'guide') return { t:'TV Guide', d:'See what’s on now and next across every sports channel, set reminders, and jump straight into a live match.', bg:'posters/tvguide-bg.jpg' };

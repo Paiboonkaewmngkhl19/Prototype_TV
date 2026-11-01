@@ -291,7 +291,7 @@
   if(bgPic) document.getElementById('bg').style.backgroundImage = "url('" + bgPic + "')";   // a title made from a placeholder card has none
   document.getElementById('title').textContent = m.t;
   document.getElementById('meta').innerHTML = ptag('ptag') + (m.ppv ? '<span class="mbadge prem"><img src="icons/crown-gold.svg" alt="">Premium</span>' : '') +
-    '<strong>' + esc(m.g.join(' · ')) + '</strong><span>' + m.y + '</span><span>' + m.len + '</span><span class="pill">' + m.age + '</span><span class="pill">HD</span>';
+    MD.metaHtml(m);   // content.js: Home's and the Movie page's screen text show the same
   document.getElementById('desc').innerHTML = esc(m.d) + ' <span class="more">More</span>';
   var ctasEl = document.getElementById('ctas'), state, cw = MD.cw(K);
   function icon(label, img, tip, tipOn, toggle){
@@ -356,7 +356,7 @@
       '<span class="pill">' + progRange() + '</span>';
     var old = document.querySelector('.uposter'); if(old) old.remove();
     if(up) document.getElementById('title').insertAdjacentHTML('beforebegin', '<div class="uposter" style="background-image:url(\'' + PROG.img + '\')"></div>');
-    var others = LIVE.list.filter(function(p){ return p.t !== PROG.t; });
+    var others = Content.related({t:PROG.t}, 10);   // other LIVE / Upcoming programmes only, same league / sport first (content.js)
     if(up){
       state = 'up';
       var REMIND = icon('Remind', 'icons/tv-guide/bell.svg', 'Remind me', 'Stop reminding', 'We’ll remind you when ' + PROG.t + ' starts|Reminder off');
@@ -381,10 +381,11 @@
   }
   render();
 
-  // ---- You May Also Like: other titles, 2:3 posters (a title with only a 16:9 picture shows its centre) ----
-  var others = Object.keys(MD.M).filter(function(k){ return k !== K && MD.M[k].p; });
-  if(!PROG) document.getElementById('ymal').innerHTML = others.slice(0, 18).map(function(k){
-    return '<div class="pst item" data-k="' + k + '" data-ring-art="" style="background-image:url(\'' + MD.M[k].p + '\')"></div>';
+  // ---- You May Also Like: titles of the same type (a movie: movies; a series: series), content.js Content.related;
+  // 2:3 posters (a title with only a 16:9 picture shows its centre) ----
+  if(!PROG) document.getElementById('ymal').innerHTML = Content.related({k:K}, 18).map(function(r){
+    var o = MD.M[r.k];
+    return '<div class="pst item" data-k="' + r.k + '" data-ring-art="" style="background-image:url(\'' + (o.p || o.w) + '\')"></div>';
   }).join('');
 
   // ---- a series: the Episodes tab first; season chips over that season's episode cards ----
@@ -494,7 +495,7 @@
     if(L === 'Start Over'){ play(true); return; }
     if(L === 'View Package'){ setView('pkg'); return; }
     if(L === 'Buy'){ location.href = 'purchase.html?k=' + K; return; }   // Confirm, OTP, Purchase complete; back here it plays
-    if(el.dataset.k){ location.href = 'movie-detail.html?k=' + el.dataset.k; return; }
+    if(el.dataset.k){ Content.open({k:el.dataset.k}); return; }
     if(el.dataset.tab){ cur.row = 2; cur.col = el.dataset.tab === 'eps' ? season - 1 : 0; paint(); return; }
     if(el.dataset.season){ season = +el.dataset.season; renderEps(); cur.row = 3; cur.col = 0; paint(); return; }
     if(el.dataset.e){

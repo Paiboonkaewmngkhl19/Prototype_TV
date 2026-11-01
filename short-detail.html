@@ -63,6 +63,7 @@
     display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
   .metarow{ height:40px; display:flex; align-items:center; gap:16px; white-space:nowrap; }
   /* AIS PLAY's platform tag: platform-tag.css (.ptag.ais, 56 x 36) */
+  .metarow strong{ font-weight:700; font-size:22px; line-height:28px; color:#fff; }   /* its genres (content.js Content.metaHtml) */
   .metarow .gen{ display:flex; align-items:center; gap:8px; font-weight:700; font-size:22px; line-height:28px; color:#fff; }
   .metarow .gen i{ width:4px; height:4px; border-radius:50%; background:#fff; }
   .metarow span{ font-size:20px; }
@@ -271,24 +272,18 @@
   document.title = S.t;
   $('.top .pic')[0].style.backgroundImage = "url('posters/shorts/" + S.img + "')";
   $('.hero h1')[0].textContent = S.t;
-  $('.metarow .plat')[0].outerHTML = '<img class="plat ptag" src="badges/tag-' + S.plat + '.png" alt="">';   // its app (ReelShort / DramaBox)
-  $('.metarow .gen')[0].innerHTML = S.gen.map(esc).join('<i></i>');
-  $('.metarow .yr')[0].textContent = '2026';
-  $('.metarow .len')[0].textContent = EPS + ' Episodes';
-  $('.metarow .rate')[0].textContent = S.rate;
+  $('.metarow')[0].innerHTML = Content.metaHtml({s:si}, true);   // content.js: Home's and the Movie page's screen text say the same
   $('.syn')[0].innerHTML = esc(S.d) + ' <b>More</b>';
   // Play: the episode the player left off on (SHORT.at), else Ep.1
   var playEp = (window.SHORT && SHORT.at(si) || {}).ep || 1;
   $('.actions .main span')[0].textContent = 'Play Ep.' + playEp;
 
-  // You May Also Like: the other shorts, then Home's portrait posters
-  var MORE = ['House.jpg', 'Venom.jpg', 'John.jpg', 'F1.jpg', 'avatar.jpg', 'debt.jpg', 'topgun_m.jpg', 'ex1.jpg', 'ex2.jpg', 'ex3.jpg', 'ex4.jpg', 'ex5.jpg'];
-  var LIKES = SHORTS.map(function(x, i){ return { t:x.t, img:'posters/shorts/' + x.img, s:i }; }).filter(function(x){ return x.s !== si; })
-    .concat(MORE.map(function(m){ return { t:m.replace(/\.jpg$/, ''), img:'posters_portrait/' + m }; })).slice(0, 18);
+  // You May Also Like: other short dramas only (content.js Content.related), never a movie in their place
+  var LIKES = Content.related({s:si}, 18).map(function(r){ return { t:SHORTS[r.s].t, img:'posters/shorts/' + SHORTS[r.s].img, s:r.s }; });
   var likesEl = $('.likes')[0];
   for(var r = 0; r < LIKES.length; r += 6){
     likesEl.insertAdjacentHTML('beforeend', '<div class="likerow">' + LIKES.slice(r, r + 6).map(function(x, j){
-      return '<div class="poster item" data-l="' + (r + j) + '" style="background-image:url(\'' + x.img + '\')"></div>';
+      return '<div class="poster item" data-l="' + (r + j) + '" data-s="' + x.s + '" style="background-image:url(\'' + x.img + '\')"></div>';
     }).join('') + '</div>');
   }
 
@@ -459,9 +454,7 @@
       return;
     }
     if(el.classList.contains('poster')){
-      var x = LIKES[+el.dataset.l];
-      if(x.s !== undefined){ location.href = 'short-detail.html?s=' + x.s; return; }
-      toast('Now playing: ' + x.t); return;
+      Content.open({s:LIKES[+el.dataset.l].s}); return;
     }
   }
   // leaving for All Packages: coming back lands on the same tab, range and episode

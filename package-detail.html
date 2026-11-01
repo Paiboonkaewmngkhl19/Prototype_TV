@@ -193,6 +193,7 @@
   .tdetails .meta{ width:613px; display:flex; flex-wrap:wrap; align-items:center; gap:16px; white-space:nowrap; }
   /* AIS PLAY's platform tag: platform-tag.css (.ptag.ais, 56 x 36) */
   .tdetails .gen{ display:flex; align-items:center; gap:8px; font-weight:700; font-size:22px; line-height:28px; }
+  .tdetails .meta strong{ font-weight:700; font-size:22px; line-height:28px; color:#fff; }
   .tdetails .gen i{ width:4px; height:4px; border-radius:50%; background:#fff; }
   .tdetails .meta span{ font-size:20px; color:var(--on); }
   .tdetails .pill{ height:36px; min-width:80px; box-sizing:border-box; padding:0 12px; border:1px solid #5a5a5a; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:20px; }
@@ -359,8 +360,7 @@
     document.querySelector('.left > h1').textContent = 'Title Details';
     document.querySelector('.tdetails .poster').style.backgroundImage = "url('posters/shorts/" + SH.img + "')";
     document.querySelector('.tdetails .nm').textContent = SH.t;
-    document.querySelector('.tdetails .meta').innerHTML = '<img class="plat ptag" src="badges/tag-' + SH.plat + '.png" alt="">' + '<span class="gen">' + SH.gen.join('<i></i>') + '</span>' +
-      '<span>160 Episodes</span><span class="pill">' + SH.rate + '</span><span class="pill">HD</span>';
+    document.querySelector('.tdetails .meta').innerHTML = Content.metaHtml({s:+SHORT}, true);   // content.js: as the short's own page
     document.querySelector('.tdetails .syn').textContent = SH.d;
     // the passes are the right column's prices (no package prices on this page)
     $('.prices .price').forEach(function(p){ p.remove(); });

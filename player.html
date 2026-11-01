@@ -290,10 +290,13 @@
         (ep.n === E ? '<span class="np"></span>' : '') + '</div><div class="nm">E' + ep.n + ' : ' + ep.t.replace(/</g, '&lt;') + '</div><div class="len">' + mins(ep.m) + '</div></div>';
     }).join('');
   } else {
-    var others = Object.keys(MD.M).filter(function(k){ return k !== K && MD.M[k].w; }).slice(0, 10);
-    byId('ymalRow').innerHTML = others.map(function(k){
-      var o = MD.M[k];
-      return '<div class="card item" data-k="' + k + '" data-ring-art=""><div class="pic" style="background-image:url(\'' + o.w + '\')"></div>' +
+    // You may also like: the same type only (a movie: movies; a short: shorts), content.js Content.related
+    byId('ymalRow').innerHTML = Content.related(SHORT_ON ? {s:SI} : {k:K}, 10).map(function(r){
+      if(r.s !== undefined){ var x = SHORTS[r.s];
+        return '<div class="card item" data-s="' + r.s + '" data-ring-art=""><div class="pic" style="background-image:url(\'posters/shorts/' + x.img + '\')"></div>' +
+          '<div class="nm">' + x.t.replace(/</g, '&lt;') + '</div><div class="len">' + x.gen.join(' · ') + '</div></div>'; }
+      var o = MD.M[r.k];
+      return '<div class="card item" data-k="' + r.k + '" data-ring-art=""><div class="pic" style="background-image:url(\'' + (o.w || o.p) + '\')"></div>' +
         '<div class="nm">' + o.t.replace(/</g, '&lt;') + '</div><div class="len">' + o.len + '</div></div>';
     }).join('');
   }
@@ -407,7 +410,8 @@
       if(+el.dataset.e === E && +el.dataset.s === S){ setView('player'); return; }
       playEp(MD.episode(K, +el.dataset.s, +el.dataset.e)); return;
     }
-    if(el.dataset.k){ save(); location.replace('player.html?k=' + el.dataset.k); return; }   // play that title instead
+    if(el.dataset.k){ save(); Content.open({k:el.dataset.k}); return; }   // its detail page (content.js)
+    if(el.dataset.s !== undefined){ save(); Content.open({s:+el.dataset.s}); return; }   // a short (an episode card has data-e too: above)
     toast(el.querySelector('.lbl').textContent + ' (demo)');
   }
   addEventListener('keydown', function(e){

@@ -5,7 +5,8 @@
                     episodes, locks and progress, below
     window.Content  the router: any card → its detail page (movie-detail.html for a movie or series, short-detail.html
                     for a short), and a title's player (player.html); Content.hero(info) what the card's screen text
-                    shows, word for word what that detail page shows. See the end of the file.
+                    shows, word for word what that detail page shows; Content.related(info, n) its You May Also
+                    Like (the same type only); Content.metaHtml(info, tag) its meta row. See the end of the file.
 */
 /*
   MD: the Movie page's titles and lists, shared by movie.html and movie-detail.html (the detail page of any title).
@@ -23,6 +24,8 @@
   Series (a title whose length reads "N Seasons"): MD.series(k), MD.seasons(k) (up to 3), MD.episodes(k, s) (8 a season:
     n, t, m minutes, d), MD.episode(k, s, e), MD.next(k, s, e) (the one after, or null); MD.cw(k) also gives s / e.
     MD.until(k) the rental's last day ({d, t}) for a rented title, else null.
+    MD.metaHtml(m)  its meta row (genres, year, length, age pill, quality tag); MD.watched(k) how far in, or null
+    MD.qtag(m)  its quality tag: 4K Dolby (m.q '4k') or the HD pill
     MD.bg(k)    the title's full-screen picture (its b, else w, else p): every page's screen text and its detail page
 */
 (function(){
@@ -101,6 +104,41 @@
              d:'A young man haunted by a curse on his family\'s bloodline turns to an ancient ritual, and the spirit it wakes will not let him go.'},
     medium: {t:'The Medium', p:PP + 'the-medium.jpg', plat:'monomax', g:['Horror', 'Mystery'], y:2021, len:'2h 10m', age:'18+',
              d:'A documentary crew follows a shaman in rural north-east Thailand, until her niece starts to show signs of something far darker.'},
+    // The Lord of the Rings / The Hobbit (Home's Because You Watched)
+    twotowers:{t:'The Lord of the Rings: The Two Towers', p:PP + 'lotr/r2.jpg', plat:'disney', g:['Fantasy', 'Adventure'], y:2002, len:'2h 59m', age:'13+',
+             d:'The Fellowship is broken, but its members fight on to defend Middle-earth against Saruman and Sauron.'},
+    smaug:  {t:'The Hobbit: The Desolation of Smaug', p:PP + 'lotr/r4.jpg', plat:'hbo', g:['Fantasy', 'Adventure'], y:2013, len:'2h 41m', age:'13+',
+             d:'Bilbo, Gandalf and the dwarves press on toward Erebor, where the dragon Smaug guards a lost kingdom.'},
+    siralex:{t:'Sir Alex Ferguson: Never Give In', w:P + 'maxresdefault.jpg', plat:'prime', g:['Documentary', 'Sport'], y:2021, len:'1h 52m', age:'13+',
+             d:'The life of Manchester United\'s legendary manager, told by his son: from the Govan shipyards to 26 years at Old Trafford, and the fight back from a brain haemorrhage.'},
+    // AIS PLAY Exclusive (Home): AIS PLAY's own; p its poster, b its wide picture
+    missuni:{t:'Miss Universe Thailand 2026', p:P + 'miss-universe.jpg', b:P + 'miss-universe.jpg', plat:'ais', g:['Pageant', 'Live Event'], y:2026, len:'1h 55m', age:'G',
+             d:'The Miss Universe Thailand 2026 pageant is underway with provincial preliminaries and delegate selections, highlighted by Tharina Botes winning Miss Universe Krung Thep Maha Nakhon (Bangkok).'},
+    sophomores:{t:'Happy Boss Day: The Sophomores – D-Day', p:PP + 'ex1.jpg', b:P + 'hero/ex-sophomores.jpg', plat:'ais', g:['Concert'], y:2026, len:'2h 30m', age:'G',
+             d:'Relive The Sophomores\' sold-out D-Day concert, exclusively on AIS PLAY. Rerun from 1 February to 30 April 2026.'},
+    bossckm:{t:'BossCKM: Dream Warrior Concert', p:PP + 'ex2.jpg', b:P + 'hero/ex-bossckm.jpg', plat:'ais', g:['Concert', 'Music'], y:2026, len:'2h 5m', age:'G',
+             d:'BossCKM takes the stage for Dream Warrior, a night of rock anthems, fan favourites and a few surprises.'},
+    cityars:{t:'Man City vs Arsenal', p:PP + 'ex3.jpg', b:PP + 'ex3.jpg', plat:'ais', g:['Football'], y:2026, len:'1h 55m', age:'G',
+             d:'Haaland\'s Manchester City host Arsenal at the Etihad in a title clash that could decide the Premier League race.'},
+    mufcche:{t:'Match Day: Man Utd vs Chelsea', p:PP + 'ex4.jpg', b:P + 'hero/ex-mufc-chelsea.jpg', plat:'ais', g:['Football'], y:2026, len:'1h 55m', age:'G',
+             d:'Manchester United welcome Chelsea at Old Trafford for a place in the next round of the Emirates FA Cup.'},
+    mufcars:{t:'Match Day: Man Utd vs Arsenal', p:PP + 'ex5.jpg', b:P + 'hero/ex-mufc-arsenal.jpg', plat:'ais', g:['Football'], y:2026, len:'1h 55m', age:'G',
+             d:'Manchester United face Arsenal under the Old Trafford lights in one of the Premier League\'s fiercest rivalries.'},
+    // LPGA golf highlights (Home's Highlight band): AIS PLAY's own
+    hl1:    {t:'Honda LPGA Thailand 2024', p:P + 'highlight/h1.jpg', plat:'ais', g:['Golf', 'Highlights'], y:2024, len:'15m', age:'G',
+             d:'The best shots from Siam Country Club in Pattaya, as the world\'s top women battle for the Honda LPGA Thailand title.'},
+    hl2:    {t:'BGC Betagro Match Play', p:P + 'highlight/h2.jpg', plat:'ais', g:['Golf', 'Highlights'], y:2024, len:'12m', age:'G',
+             d:'Head-to-head drama from the BGC Betagro Match Play: every hole won, halved and conceded on the way to the final.'},
+    hl3:    {t:'The Champion', p:P + 'highlight/h3.jpg', plat:'ais', g:['Golf', 'Documentary'], y:2025, len:'48m', age:'G',
+             d:'A season with a champion: the practice, the pressure and the putt that won it all.'},
+    hl4:    {t:'LPGA Lotte Championship', p:P + 'highlight/h4.jpg', plat:'ais', g:['Golf', 'Highlights'], y:2024, len:'14m', age:'G',
+             d:'Final-round highlights from Hawaii at the LPGA Lotte Championship, from the opening tee shot to the winning putt.'},
+    hl5:    {t:'DP World Tour: Career Grand Slam', p:P + 'highlight/h5.jpg', plat:'ais', g:['Golf', 'Highlights'], y:2025, len:'18m', age:'G',
+             d:'The rounds that completed a career Grand Slam, and the DP World Tour stars chasing the same history.'},
+    hl6:    {t:'Masters Tournament', p:P + 'highlight/h6.jpg', plat:'ais', g:['Golf', 'Highlights'], y:2025, len:'20m', age:'G',
+             d:'Four days at Augusta National: Amen Corner, the back-nine charges and the green jacket ceremony.'},
+    hl7:    {t:'Masters Tournament: Round Highlights', p:P + 'highlight/h7.jpg', plat:'ais', g:['Golf', 'Highlights'], y:2025, len:'10m', age:'G',
+             d:'Round-by-round highlights from the Masters, with every eagle, chip-in and clutch putt.'},
     odyssey:{t:'The Odyssey', w:P + 'P10_Odyssey.jpg', plat:'prime', g:['Adventure', 'Fantasy'], y:2026, len:'2h 40m', age:'13+',
              d:'Odysseus fights his way home across a hostile sea after the fall of Troy, ten years from his family.'}
   };
@@ -110,6 +148,9 @@
             dragon:'how-to-train', john:'john-wick', venom:'venom', f1:'f1', lotr:'lotr', thailaw:'evil-lawyer', dollar:'one-dollar-lawyer',
             sherlock:'young-sherlock', endgame:'endgame', hailmary:'hailmary', encanto:'encanto', stranger:'stranger-things', spider:'spiderman' };
   for(var bk in B) M[bk].b = P + 'hero/' + B[bk] + '.jpg';
+  // q: the titles in 4K with Dolby Atmos (a 4K pill and the Dolby mark, MD.qtag); every other title is HD
+  ['avatar', 'topgun', 'f1', 'house', 'got', 'lotr', 'spider', 'endgame', 'odyssey', 'superman', 'stranger', 'wicked']
+    .forEach(function(k){ M[k].q = '4k'; });
   // titles made from a card that had no data of its own (Content.open): back into the catalogue on every page
   try { var ADHOC = JSON.parse(sessionStorage.getItem('contentAdhoc') || '{}'); for(var ak in ADHOC) if(!M[ak]) M[ak] = ADHOC[ak]; } catch(e){}
   var CONTINUE = [{k:'sherlock', s:1, e:5, w:31, of:58}, {k:'endgame', w:122, of:181}, {k:'encanto', w:61, of:102}, {k:'brazil', s:1, e:2, w:20, of:55}, {k:'hailmary', w:101, of:156},
@@ -170,7 +211,15 @@
   }
   window.MD = { P:P, PP:PP, M:M, CONTINUE:CONTINUE, FOR_YOU:FOR_YOU, RENT:RENT, MY_RENTAL:MY_RENTAL, state:state, price:price, own:own, cw:cw, setProgress:setProgress, minutes:minutes,
     continueList:continueList, series:series, seasons:seasons, episodes:episodes, episode:episode, next:next, until:until,
-    bg:function(k){ var m = M[k]; return m ? m.b || m.w || m.p : ''; } };
+    bg:function(k){ var m = M[k]; return m ? m.b || m.w || m.p : ''; },
+    // the quality tag every page shows in a title's meta row: 4K Dolby (platform-tag.css .qtag), else the HD pill
+    // a title's meta row, the same on every page (Home's screen text, the Movie page's hero, the detail page): its
+    // genres, year, length, age pill and quality tag (the platform tag goes before it, as each page draws it)
+    metaHtml:function(m){ return '<strong>' + m.g.join(' · ') + '</strong><span>' + m.y + '</span><span>' + m.len + '</span><span class="pill">' + m.age + '</span>' + window.MD.qtag(m); },
+    // how far in a title is (a title being watched: MD.state 'resume'), else null: {w, of, pct}
+    watched:function(k){ var c = state(k) === 'resume' && cw(k); return c ? { w:c.w, of:c.of, pct:Math.round(c.w / c.of * 100) } : null; },
+    // 4K: the same pill as the age's, then the Dolby Atmos mark (icons/tag-dolby.svg)
+    qtag:function(m){ return m && m.q === '4k' ? '<span class="pill">4K</span><img class="qtag" src="icons/tag-dolby.svg" alt="Dolby Atmos">' : '<span class="pill">HD</span>'; } };
 })();
 
 /*
@@ -192,8 +241,8 @@ window.SHORTS = [
     d:'Cast out of the imperial clinic, a young healer comes back under a new name to cure the court and expose the ones who framed her.' },
   { t:'Back to the Moonlight Promise', img:'s7.jpg', plat:'reelshort', gen:['Romance', 'Drama'], rate:'13+',
     d:'Two strangers keep meeting under the same full moon, until they remember the promise they made in another life.' },
-  { t:'Short Drama #8', img:'s8.jpg', plat:'dramabox', gen:['Romance', 'Drama'], rate:'13+',
-    d:'A short drama in bite-size episodes: new episodes every day, the first ten free.' }
+  { t:'The Contract Bride\'s Revenge', img:'s8.jpg', plat:'dramabox', gen:['Romance', 'Drama'], rate:'13+',
+    d:'Married by contract to the heir who ruined her family, a quiet bride plays the perfect wife while she plans her revenge.' }
 ];
 
 /*
@@ -303,7 +352,50 @@ window.Content = (function(){
     var m = window.MD.M[f.k];
     return { t:m.t, d:m.d, plat:m.plat, meta:m.g.join(' · ') + ' · ' + m.y + ' · ' + m.len + ' · ' + m.age, bg:window.MD.bg(f.k), k:f.k };
   }
-  return { find:find, info:info, hero:hero, detailUrl:detailUrl, playUrl:playUrl,
+  // You May Also Like: up to n items of the SAME type as `info`, never another type (fewer if there aren't n):
+  //   a short ({s}) → other shorts; a series ({k}, MD.series) → other series; a movie ({k}) → other movies;
+  //   a LIVE / Upcoming programme ({t} of content.js LIVE) → other programmes, same league, then same sport, first.
+  // Titles rank by most shared genres, then the same platform, then the newest. Never the item itself, no repeats.
+  // Returns [{k}] / [{s}] / [programme], each for Content.open / LIVE.href.
+  function related(info, n){
+    n = n || 18;
+    function shared(a, b){ return (a || []).filter(function(x){ return (b || []).indexOf(x) >= 0; }).length; }
+    function rank(list, me, g, plat, y){
+      return list.map(function(x, i){ return { x:x, i:i, g:shared(g(x), g(me)), p:plat(x) === plat(me) ? 1 : 0, y:y(x) || 0 }; })
+        .sort(function(a, b){ return b.g - a.g || b.p - a.p || b.y - a.y || a.i - b.i; }).map(function(r){ return r.x; });
+    }
+    if(info && info.s !== undefined && info.s !== '' && window.SHORTS[+info.s]){   // a short drama
+      var me = +info.s, shorts = window.SHORTS.map(function(x, i){ return i; }).filter(function(i){ return i !== me; });
+      return rank(shorts, me, function(i){ return window.SHORTS[i].gen; }, function(i){ return window.SHORTS[i].plat; }, function(){ return 0; })
+        .slice(0, n).map(function(i){ return { s:i }; });
+    }
+    if(info && info.k && window.MD.M[info.k]){   // a movie or a series: the same kind only
+      var K = info.k, SER = window.MD.series(K), M = window.MD.M;
+      var keys = Object.keys(M).filter(function(k){ return k !== K && !M[k].adhoc && window.MD.series(k) === SER; });
+      return rank(keys, K, function(k){ return M[k].g; }, function(k){ return M[k].plat; }, function(k){ return M[k].y; })
+        .slice(0, n).map(function(k){ return { k:k }; });
+    }
+    if(info && info.t && window.LIVE){   // a LIVE / Upcoming programme: the others, same league then same sport first
+      var p = window.LIVE.find(info.t) || info;
+      return window.LIVE.list.filter(function(q){ return q.t !== p.t; }).map(function(q, i){
+        return { q:q, i:i, s:(p.lg && q.lg === p.lg ? 2 : 0) + (p.sp && q.sp === p.sp ? 1 : 0) };
+      }).sort(function(a, b){ return b.s - a.s || (b.q.live ? 1 : 0) - (a.q.live ? 1 : 0) || a.i - b.i; }).slice(0, n).map(function(r){ return r.q; });
+    }
+    return [];
+  }
+  // a title's or short's meta row, the same on every screen and its detail page: (tag: its platform tag first) then
+  // a title's genres, year, length, age pill and quality tag (MD.metaHtml), or a short's genres, year, episodes, rating
+  // pill and HD
+  function ptag(plat){ return plat === 'ais' ? '<span class="ptag ais" aria-label="AIS PLAY"></span>' : '<img class="ptag" src="badges/tag-' + plat + '.png" alt="">'; }
+  function metaHtml(info, tag){
+    var f = target(info);
+    if(f.s !== undefined){ var sh = window.SHORTS[f.s];
+      return (tag ? ptag(sh.plat) : '') + '<strong>' + sh.gen.join(' · ') + '</strong><span>2026</span><span>' + window.SHORT.EPS + ' Episodes</span>' +
+        '<span class="pill">' + sh.rate + '</span><span class="pill">HD</span>'; }
+    var m = window.MD.M[f.k];
+    return (tag ? ptag(m.plat) : '') + window.MD.metaHtml(m);
+  }
+  return { find:find, info:info, hero:hero, metaHtml:metaHtml, related:related, detailUrl:detailUrl, playUrl:playUrl,
     open:function(i){ location.href = detailUrl(i); }, play:function(i){ location.href = playUrl(i); } };
 })();
 
@@ -319,23 +411,24 @@ window.Content = (function(){
     LIVE.hasMD(tv)     whether the channel's programmes have a detail page: a Sports channel, or a Movies one that isn't Digital
                        TV (channels-data.js)
     LIVE.href(p, from) the card's link: its detail page, else the channel in the Live TV player (via the TV Guide)
+    LIVE.hot          Home's Hot Channel Program: news channels' programmes on now (t, img, logo, tv, d)
     LIVE.premium(tv), LIVE.range(p), LIVE.find(title)   Premium, its time on air, a programme by its title (Home's
                        screen text and the detail page's meta row say the same)
 */
 window.LIVE = (function(){
   var U = 'posters/upcoming/';
   var list = [
-    {t:'Liverpool vs Brentford', img:U + 'live.jpg', bg:'posters/liver-ben.jpg', tv:'MONOMAX 1', live:true,   // bg: Home's first scene and the detail page
+    {t:'Liverpool vs Brentford', img:U + 'live.jpg', bg:'posters/liver-ben.jpg', tv:'MONOMAX 1', live:true, sp:'football', lg:'epl',   // bg: Home's first scene and the detail page
      d:'Liverpool host Brentford at Anfield in a big Premier League clash. Follow every moment live, from kick-off to the final whistle.'},
-    {t:'Arsenal vs Chelsea', img:'posters/arsenal.jpg', bg:'posters/hero/arsenal.jpg', tv:'MONOMAX SPORTS', live:true, heroOnly:true,   // Home's first scene only
+    {t:'Arsenal vs Chelsea', img:'posters/arsenal.jpg', bg:'posters/hero/arsenal.jpg', tv:'MONOMAX SPORTS', live:true, heroOnly:true, sp:'football', lg:'epl',   // Home's first scene only
      d:'A fierce London derby as Arsenal host Chelsea in a top-of-the-table Premier League showdown.'},
-    {t:'Masterchef Thailand', img:U + 'u1.jpg', tv:'CH7 HD', in:58.2,
+    {t:'Masterchef Thailand', img:U + 'u1.jpg', tv:'CH7 HD', in:58.2, sp:'', lg:'',
      d:'Thailand\'s best home cooks battle it out in the kitchen for the title of MasterChef. Season 7 premieres soon.'},
-    {t:'Leipzig vs Gladbach', img:U + 'u2.jpg', tv:'PLAY SPORTS (Football)', in:150,
+    {t:'Leipzig vs Gladbach', img:U + 'u2.jpg', tv:'PLAY SPORTS (Football)', in:150, sp:'football', lg:'bundesliga',
      d:'RB Leipzig welcome Borussia Mönchengladbach in a Bundesliga clash with European places on the line.'},
-    {t:'Dortmund vs Hamburg', img:U + 'u3.jpg', tv:'PLAY SPORTS (Football)', in:180,
+    {t:'Dortmund vs Hamburg', img:U + 'u3.jpg', tv:'PLAY SPORTS (Football)', in:180, sp:'football', lg:'bundesliga',
      d:'The Yellow Wall awaits as Borussia Dortmund host Hamburger SV at Signal Iduna Park.'},
-    {t:'CT14 Eala vs Jovic (R1)', img:U + 'u4.png', tv:'FutureChannel Tennis', in:1260,
+    {t:'CT14 Eala vs Jovic (R1)', img:U + 'u4.png', tv:'FutureChannel Tennis', in:1260, sp:'tennis', lg:'wta',
      d:'Alex Eala takes on Iva Jovic in the first round, live from the WTA tour.'}
   ];
   var LOADED = Date.now();   // "Start in" counts from when the page was opened, as the card's label does
@@ -386,5 +479,18 @@ window.LIVE = (function(){
     var t = start(p); return hm(t) + ' – ' + hm(t + 135 * 60000);
   }
   function find(t){ return list.filter(function(p){ return p.t === t; })[0] || null; }
-  return { list:list, start:start, label:label, hasMD:hasMD, href:href, premium:premium, range:range, find:find };
+  // Hot Channel Program (Home): what's on now on the news channels, pictures from the News page (news-assets/); logo: a
+  // logo on white rather than a photo
+  var N = 'news-assets/';
+  var hot = [
+    {t:'CNN News', img:N + 'dm-cnn.png', logo:1, tv:'CNN', live:true,
+     d:'CNN Primetime brings the day\u2019s biggest stories from around the world, with live reports from CNN\u2019s correspondents and in-depth analysis.'},
+    {t:'Morning Stories', img:N + 'dm-rueng.png', tv:'3 HD', live:true, d:'The morning news that tells the stories around you, with every hot topic from the crack of dawn.'},
+    {t:'BBC News', img:N + 'dm-bbc.png', tv:'BBC News', live:true, d:'The latest from BBC News: the stories that matter in the UK and around the world, live.'},
+    {t:'Channel 7 News Insight', img:N + 'dm-sanam7.png', tv:'CH7 HD', live:true, d:'Follow every move in the day\u2019s biggest stories, live every day on Channel 7.'},
+    {t:'World Update with Thai PBS', img:N + 'lc-1.png', tv:'TPBS', live:true, d:'The day\u2019s international news in one round-up, digging into the stories the whole world is watching.'},
+    {t:'Open News Desk', img:N + 'lc-2.png', tv:'PPTV HD', live:true, d:'The PPTV news team opens the desk on every hot topic of the day.'},
+    {t:'Komchadluek', img:N + 'lc-4.png', tv:'Nation TV', live:true, d:'Komchadluek goes straight to the heart of Thai politics and society, with frank, in-depth interviews.'}
+  ];
+  return { list:list, hot:hot, start:start, label:label, hasMD:hasMD, href:href, premium:premium, range:range, find:find };
 })();
