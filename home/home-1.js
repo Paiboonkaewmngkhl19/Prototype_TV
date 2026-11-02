@@ -402,22 +402,33 @@
     }).join('')+'</div></div></div>');
   })();
 
-  /* ---------- Rows: Choose what you like (two rows of six topics, then Continue / Skip) ---------- */
+  /* ---------- Row: Choose what you like (genre tabs on the left, a five-column grid on the right, then Skip / Continue) ---------- */
   (function(){
-    var topics = ['Action','Thriller & Horror','Romance & Drama','Sci-Fi & Fantasy','Comedy','Music & Concert',
-                  'Sport','Documentary','Tech & Business','Food & Travel','Variety & Reality','Asian Series & Movies'];
-    function tile(t, i){
-      return '<div class="genre item" data-act="genre" data-title="'+t+'" style="background-image:url(\'posters/genres/g'+(i+1)+'.jpg\');">'+
-        '<span class="gchk" aria-hidden="true"></span><span>'+t+'</span></div>';
-    }
-    addRow('<div class="row-block gc-head"><div class="gc-title"><h2>Choose what you like</h2>'+
-      '<p>Pick 3 or more. Your Home will show rails for the topics you choose.</p></div>'+
-      '<div class="rail-viewport"><div class="rail-track">'+topics.slice(0,6).map(tile).join('')+'</div></div></div>');
-    addRow('<div class="row-block gc-row2"><div class="rail-viewport"><div class="rail-track">'+
-      topics.slice(6).map(function(t, i){ return tile(t, i + 6); }).join('')+'</div></div></div>');
-    addRow('<div class="row-block gc-actions"><div class="rail-viewport"><div class="rail-track">'+
-      '<div class="gc-btn tv-btn tv-btn--primary off item" data-act="genre-continue" data-title="Continue" data-ring-art="">Continue</div>'+
-      '<div class="gc-btn tv-btn tv-btn--secondary item" data-act="genre-skip" data-title="Skip" data-ring-art="">Skip</div></div></div></div>');
+    // each genre reuses the closest of the 12 topic pictures (posters/genres/g1..g12)
+    var cats = [
+      {name:'Entertainment', items:[['Action',1],['Adult',3],['Animal',8],['Anime',12],['Cartoon',5],['Classic',3],['Comedy',5],['Concert',6],
+        ['Crime',1],['Dark',2],['Drama',3],['Esports',9],['Family',11],['Fantasy',4],['Food',10],['Game show',11],['History',8],['Horror',2],
+        ['LGBTQ',3],['Martial arts',12],['Music',6],['Musical',6],['Mystery',2],['Reality',11],['Religious',8],['Romance',3],['Sci-fi',4],
+        ['Sports',7],['Talk show',9],['Thriller',2],['Travel',10],['Variety',11]]},
+      {name:'Sports', items:[['Football',7],['Tennis',7],['Golf',7],['Basketball',7],['Boxing',7],['NFL',7],['Rugby',7],['International Tournament',7],['Other',7]]},
+      {name:'Live TV', items:[['Movies & Series',12],['Cartoons',5],['Variety',11],['Sports',7],['News',9],['Education',8],['Shopping',10],['Documentary',8]]}
+    ];
+    function esc(t){ return t.replace(/&/g,'&amp;'); }
+    addRow('<div class="row-block gc-picker"><div class="gc-title"><h2>Choose what you like</h2>'+
+      '<p>Pick up to 7 in each category. Your Home will show rails for the topics you choose.</p></div>'+
+      '<div class="gc-body"><div class="gc-tabs">'+cats.map(function(c, i){
+        return '<div class="gc-tab tv-tab item'+(i ? '' : ' active-dim')+'" data-act="genre-tab" data-cat="'+i+'" data-title="'+c.name+'" data-ring-art=""><b>'+c.name+'</b><small></small></div>';
+      }).join('')+'</div>'+
+      '<div class="gc-pane"><div class="gc-vp">'+cats.map(function(c, ci){
+        return '<div class="gc-grid'+(ci ? '' : ' cur')+'">'+c.items.map(function(g, i){
+          return '<div class="genre item" data-act="genre" data-cat="'+ci+'" data-i="'+i+'" data-title="'+esc(g[0])+'" style="background-image:url(\'posters/genres/g'+g[1]+'.jpg\');">'+
+            '<span class="gchk" aria-hidden="true"></span><span>'+esc(g[0])+'</span></div>';
+        }).join('')+'</div>';
+      }).join('')+'</div></div></div>'+
+      '<div class="gc-actions">'+
+        '<div class="gc-btn tv-btn tv-btn--secondary item" data-act="genre-skip" data-title="Skip" data-ring-art="">Skip</div>'+
+        '<div class="gc-btn tv-btn tv-btn--primary off item" data-act="genre-continue" data-title="Continue" data-ring-art="">Continue</div>'+
+      '</div></div>');
   })();
 
   /* ---------- Row: Back to Top ---------- */
@@ -432,7 +443,7 @@
     var ORDER = ['.hero-row', '.chip-row', 'Jump Right Back In', 'Top 10 in Thailand Today', '.partner-row', '.epg-row',
       'Live and Upcoming', 'Hot Channel Program', 'Hot Off the Big Screen', 'My List', 'Recommended Apps',
       'AIS Play Exclusive', '.clips-row', '.hl-row', 'Worlds in Chaos', 'We think you', 'Date night Selected',
-      'Because You Watched', '.seasonal-row', '.karaoke-track', '.gc-head', '.gc-row2', '.gc-actions', '.quick-row', '.back-row'];
+      'Because You Watched', '.seasonal-row', '.karaoke-track', '.gc-picker', '.quick-row', '.back-row'];
     function rank(d){
       var t = d.el.querySelector('.row-title'), title = t ? t.textContent.trim() : '';
       for(var i = 0; i < ORDER.length; i++){
@@ -491,11 +502,11 @@
   var navFrom = 0;
   function ctxRow(){ return curRow === 0 && navFrom ? navFrom : curRow; }
   var colByRow = rows.map(function(){ return 0; });
-  // Choose what you like: once Continue (after the loading) or Skip is pressed, its three rows (title + topics, topics,
-  // Continue / Skip) leave the page; they are back the next time Home loads (nothing is remembered, so the demo repeats)
+  // Choose what you like: once Continue (after the loading) or Skip is pressed, its row leaves the page; it is back the
+  // next time Home loads (nothing is remembered, so the demo repeats)
   function removePicker(){
     for(var i = rows.length - 1; i > 0; i--){
-      if(rows[i].el && rows[i].el.matches('.gc-head, .gc-row2, .gc-actions')){ rows[i].el.remove(); rows.splice(i, 1); colByRow.splice(i, 1); }
+      if(isPicker(i)){ rows[i].el.remove(); rows.splice(i, 1); colByRow.splice(i, 1); }
     }
   }
   colByRow[0] = NAV_HOME_COL;
@@ -516,8 +527,6 @@
     var viewport = r.track.parentElement;
     var item = r.items[colByRow[rowIdx]];
     if(!item) return;
-    // Choose what you like is a grid (six topics that fit on screen): its rows never slide
-    if(r.el && r.el.closest('.gc-head, .gc-row2')){ r.track.style.transform = ''; return; }
     // "Fixed focus": the focused item sits at the first item's slot (the anchor) and the rail slides under it. The
     // rail stops at maxScroll, where the last item ends the same distance from the right edge as the first starts
     // from the left (the rail's left inset), allowing for its focus scale-up and ring; past that the focus (and
@@ -736,6 +745,7 @@
   }
 
   function updateFocus(prevRow){
+    if(isPicker(curRow)) gcSync();
     rows.forEach(function(r,ri){
       r.items.forEach(function(it,ci){
         it.classList.toggle('focused', profAt < 0 && ri===curRow && ci===colByRow[ri]);
@@ -825,10 +835,9 @@
         if(Math.abs(lockDelta) > 1){
           scrollStageBy(lockDelta);
         }
-      } else if(rowEl.closest('.gc-head, .gc-row2, .gc-actions')){
-        // Choose what you like: the whole picker shows at once (title, both rows of topics, Continue / Skip), its title
-        // 40px from the top, and stays put while the focus moves inside it
-        var gcDelta = rowScreenBox(document.querySelector('.gc-head')).top - 40 * stageScale;
+      } else if(isPicker(curRow)){
+        // Choose what you like fills the screen and stays put while the focus moves inside it
+        var gcDelta = rowScreenBox(rowEl).top;
         if(Math.abs(gcDelta) > 1) scrollStageBy(gcDelta);
       } else if(rowEl.querySelector('.band-full')){
         // an artwork band (Shorts, LPGA) fills the screen: its cards always end 121px above the screen's bottom edge
@@ -847,16 +856,76 @@
     }
   }
 
-  // Choose what you like: its two rows are one grid of topics. Up / Down stay in the column; Right past a row's end goes
-  // on to the other row's first topic (the last topic back to the first), Left off the second row to the first's last
-  function isTopicRow(i){ return !!(rows[i].el && rows[i].el.matches('.gc-head, .gc-row2')); }
+  // Choose what you like: one row whose items are the tabs, every tab's tiles and the two buttons. Moving on a tab switches
+  // the grid; Right or OK enters it. In the grid, the left edge returns to the tab, the right edge and the bottom row go
+  // to the buttons. Each tab takes up to GC_MAX picks; Continue can be reached from the first pick. Up off the top and Down off the buttons leave for the
+  // rails around the picker.
+  var GC_COLS = 5, GC_ROWS = 4, GC_MAX = 7, gc = { cat:0, last:[0,0,0], top:[0,0,0], from:null };
+  function isPicker(i){ var el = rows[i] && rows[i].el; return !!(el && el.classList.contains('gc-picker')); }
+  function gcEl(sel){ return rows[curRow].el.querySelector(sel); }
+  function gcTiles(c){ return rows[curRow].el.querySelectorAll('.gc-grid')[c].children; }
+  function gcPicked(){ return document.querySelectorAll('.genre.on').length; }
+  function gcNextBtn(){ return gcEl(gcPicked() ? '[data-act="genre-continue"]' : '[data-act="genre-skip"]'); }
+  function gcGo(el){
+    var from = rows[curRow].items[colByRow[curRow]];
+    if(el.classList.contains('gc-btn') && !from.classList.contains('gc-btn')) gc.from = from;
+    colByRow[curRow] = rows[curRow].items.indexOf(el);
+    updateFocus();
+    return true;
+  }
+  function gcBackFromBtn(){ return gc.from || gcTiles(gc.cat)[gc.last[gc.cat]]; }
+  // shows the focused item's tab (Active while the D-pad is on it, Active dim while it's in the grid or on the buttons:
+  // button-theme.css tv-tab) and keeps a focused tile inside the grid's four visible rows
+  function gcSync(){
+    var r = rows[curRow], el = r.items[colByRow[curRow]], c = el.dataset.cat, onTab = el.classList.contains('gc-tab');
+    if(c !== undefined) gc.cat = +c;
+    Array.prototype.forEach.call(r.el.querySelectorAll('.gc-tab'), function(t, i){
+      t.classList.toggle('active', onTab && i === gc.cat);
+      t.classList.toggle('active-dim', !onTab && i === gc.cat);
+    });
+    Array.prototype.forEach.call(r.el.querySelectorAll('.gc-grid'), function(g, i){ g.classList.toggle('cur', i === gc.cat); });
+    if(!el.classList.contains('genre')) return;
+    gc.last[gc.cat] = +el.dataset.i;
+    var row = Math.floor(gc.last[gc.cat] / GC_COLS), tiles = gcTiles(gc.cat);
+    if(row < gc.top[gc.cat]) gc.top[gc.cat] = row;
+    else if(row > gc.top[gc.cat] + GC_ROWS - 1) gc.top[gc.cat] = row - GC_ROWS + 1;
+    el.parentElement.style.transform = 'translateY(' + -gc.top[gc.cat] * (tiles[GC_COLS].offsetTop - tiles[0].offsetTop) + 'px)';
+  }
+  // returns true when the move stayed in the picker (false: Up / Down leaves for the rail above / below)
+  function gcMove(d){
+    var el = rows[curRow].items[colByRow[curRow]], c = +el.dataset.cat;
+    if(el.classList.contains('genre')){
+      var i = +el.dataset.i, tiles = gcTiles(c), n = tiles.length, col = i % GC_COLS, row = Math.floor(i / GC_COLS), lastRow = Math.floor((n - 1) / GC_COLS);
+      if(d === 'left') return gcGo(col > 0 ? tiles[i - 1] : gcEl('.gc-tab[data-cat="' + c + '"]'));
+      if(d === 'right') return gcGo(col < GC_COLS - 1 && i + 1 < n ? tiles[i + 1] : gcNextBtn());
+      if(d === 'up') return row > 0 ? gcGo(tiles[i - GC_COLS]) : false;
+      return gcGo(row < lastRow ? tiles[Math.min(i + GC_COLS, n - 1)] : gcNextBtn());
+    }
+    if(el.classList.contains('gc-tab')){
+      if(d === 'right') return gcGo(gcTiles(c)[gc.last[c]]);
+      if(d === 'up') return c > 0 ? gcGo(gcEl('.gc-tab[data-cat="' + (c - 1) + '"]')) : false;
+      if(d === 'down') return c < 2 ? gcGo(gcEl('.gc-tab[data-cat="' + (c + 1) + '"]')) : gcGo(gcEl('[data-act="genre-skip"]'));
+      // Left: the top bar, as on a rail's first card (only the focus moves; the tab dims)
+      el.classList.remove('active'); el.classList.add('active-dim');
+      navFrom = curRow; curRow = 0; colByRow[0] = NAV_HOME_COL; updateFocus();
+      return true;
+    }
+    var onSkip = el.dataset.act === 'genre-skip';
+    if(d === 'right') return onSkip && gcPicked() ? gcGo(gcEl('[data-act="genre-continue"]')) : true;
+    if(d === 'left') return gcGo(onSkip ? gcBackFromBtn() : gcEl('[data-act="genre-skip"]'));
+    if(d === 'up') return gcGo(gcBackFromBtn());
+    return false;
+  }
+  // Back steps out of the picker's levels (buttons to grid to tab); on a tab it is Home's own Back (returns false)
+  function gcBack(){
+    var el = rows[curRow].items[colByRow[curRow]];
+    if(el.classList.contains('gc-btn')) return gcGo(gcBackFromBtn());
+    if(el.classList.contains('genre')) return gcGo(gcEl('.gc-tab[data-cat="' + el.dataset.cat + '"]'));
+    return false;
+  }
   function moveCol(dir){
     var r = rows[curRow];
-    if(isTopicRow(curRow)){
-      var second = r.el.matches('.gc-row2');
-      if(dir > 0 && colByRow[curRow] === r.items.length - 1){ curRow += second ? -1 : 1; colByRow[curRow] = 0; updateFocus(); return; }
-      if(dir < 0 && colByRow[curRow] === 0 && second){ curRow--; colByRow[curRow] = rows[curRow].items.length - 1; updateFocus(); return; }
-    }
+    if(isPicker(curRow)){ gcMove(dir > 0 ? 'right' : 'left'); return; }
     // Left on a rail's first card jumps up to the top nav bar (its Home tab)
     // (only the focus moves: the page stays where it is, and Down returns to this rail)
     if(dir < 0 && curRow > 0 && colByRow[curRow] === 0){
@@ -868,12 +937,13 @@
     updateFocus();
   }
   function moveRow(dir){
+    if(isPicker(curRow) && gcMove(dir > 0 ? 'down' : 'up')) return;
     var n = clamp(curRow + dir, 0, rows.length-1);
     if(curRow === 0 && navFrom){ if(dir < 0) return; n = navFrom; }
     navFrom = 0;
     if(n === curRow) return;
-    if(isTopicRow(curRow) && isTopicRow(n)) colByRow[n] = colByRow[curRow];
     curRow = n;
+    if(isPicker(n) && dir < 0) colByRow[n] = rows[n].items.indexOf(gcNextBtn());   // from the rail below: onto the buttons
     updateFocus();
   }
   function keepPlace(){ try { sessionStorage.setItem('homeReturn', JSON.stringify({row:curRow, col:colByRow[curRow]})); } catch(e){} }
@@ -887,16 +957,23 @@
     // Back to Top: the first rail, hero showing (as Back does)
     var act = it.getAttribute('data-act');
     if(act === 'top'){ navFrom = 0; curRow = HERO_ROW_INDEX; updateFocus(); return; }
-    // Choose what you like: Enter picks / unpicks a topic; Continue wakes up at 3 picks
+    // Choose what you like: Enter on a tab enters its grid; on a tile picks / unpicks it (up to GC_MAX per tab); Continue wakes up at the first pick
+    if(act === 'genre-tab'){ gcMove('right'); return; }
     if(act === 'genre'){
+      var tabEl = gcEl('.gc-tab[data-cat="' + it.dataset.cat + '"]');
+      if(!it.classList.contains('on') && it.parentElement.querySelectorAll('.genre.on').length >= GC_MAX){
+        toast('You can pick up to ' + GC_MAX + ' in ' + tabEl.dataset.title);
+        return;
+      }
       it.classList.toggle('on');
-      var picked = document.querySelectorAll('.genre.on').length;
-      document.querySelector('[data-act="genre-continue"]').classList.toggle('off', picked < 3);
+      var inTab = it.parentElement.querySelectorAll('.genre.on').length;
+      tabEl.querySelector('small').textContent = inTab ? 'Selected ' + inTab + '/' + GC_MAX : '';
+      gcEl('[data-act="genre-continue"]').classList.toggle('off', !gcPicked());
       return;
     }
     if(act === 'genre-continue'){
-      var n = document.querySelectorAll('.genre.on').length;
-      if(n < 3){ toast('Pick ' + (3 - n) + ' more to continue'); return; }
+      var n = gcPicked();
+      if(!n){ toast('Pick at least one to continue'); return; }
       // the full-screen loading, then Home again from the top without the picker
       var rf = document.getElementById('refresh');
       rf.querySelector('.in').style.transform = 'scale(' + (tvFrame.clientWidth / 1920) + ')';
@@ -906,12 +983,12 @@
         navFrom = 0; curRow = HERO_ROW_INDEX;
         stage.style.transition = 'none'; updateFocus(); stage.offsetHeight; stage.style.transition = '';
         rf.classList.remove('on'); refreshing = false;
-        toast('Your Home now shows rails for your ' + n + ' topics');
+        toast('Your Home now shows rails for your ' + n + (n === 1 ? ' topic' : ' topics'));
       }, 2800);
       return;
     }
     // Skip: the picker goes away and the focus moves on to the rail after it
-    if(act === 'genre-skip'){ var at = curRow; finishPicker(); curRow = Math.min(at - 2, rows.length - 1); updateFocus(); toast('You can choose topics any time in Settings'); return; }
+    if(act === 'genre-skip'){ var at = curRow; finishPicker(); curRow = Math.min(at, rows.length - 1); updateFocus(); toast('You can choose topics any time in Settings'); return; }
     // cards with a detail page open it: their own link, else the title's page (content.js: a movie or series, a short,
     // or a title made from the card). Live cards still play live.
     // Grab The Mic! (karaoke) and Seasonal / Collection cards have no page: a mockup, OK only presses them.
@@ -930,6 +1007,7 @@
     if(refreshing){ e.preventDefault(); return; }   // the loading screen: the remote waits
     if(profKey(e.key)){ e.preventDefault(); return; }
     if(e.key === 'Escape' || e.key === 'Backspace'){
+      if(isPicker(curRow) && gcBack()){ e.preventDefault(); return; }
       // scrolled down the page: Back first returns to the top (the first rail, hero showing)
       if(ctxRow() > HERO_ROW_INDEX){ navFrom = 0; curRow = HERO_ROW_INDEX; updateFocus(); e.preventDefault(); return; }
       // at the top Back leaves the app for the TV's home screen (launcher.html), which comes back to the AIS PLAY tile
@@ -952,6 +1030,7 @@
       it.addEventListener('click', function(){
         navFrom = 0; curRow = ri; colByRow[ri] = ci;
         updateFocus();
+        if(it.dataset.act === 'genre-tab') return;   // the mouse: clicking a tab only opens it
         selectCurrent();
       });
     });
@@ -987,7 +1066,7 @@
       var row = b.parentElement, on = !!(rows[cr] && rows[cr].el === row);
       row.classList.toggle('band-on', on); bandOn = bandOn || on;
     });
-    if(topScrim) topScrim.classList.toggle('on', heroHiddenNow() && !bandOn);
+    if(topScrim) topScrim.classList.toggle('on', heroHiddenNow() && !bandOn && !isPicker(cr));   // the picker fills the screen too: nothing above it to hide
   }
   var TV_RATIO = 16 / 9;
 
@@ -1214,6 +1293,8 @@
     var dx = 0, dy = 0;
     var track = el.closest('.rail-track');
     if(track) dx += (tx(track.style.transform) - liveTranslate(track).x / 1) * sc;
+    var grid = el.closest('.gc-grid');
+    if(grid) dy += (ty(grid.style.transform) - liveTranslate(grid).y) * sc;
     if(el.closest('#stage')) dy += ty(stage.style.transform) - liveTranslate(stage).y;
     var target = el.classList.contains('card') && el.parentElement.classList.contains('rank-wrap') ? el.parentElement : el;
     var fs = focusScale(target);

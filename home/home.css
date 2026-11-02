@@ -491,33 +491,42 @@
     font-size:52px;font-weight:700;line-height:1.15;color:rgba(255,255,255,.92);text-shadow:0 2px 12px rgba(0,0,0,.45);}
   .seasonal-row .item.focused{transform:scale(1.05);}   /* tall cards: 5%, so they don't reach the rails around them */
 
-  /* Choose what you like (Figma 3256:172489): 12 topic tiles in two rows of six, then Continue / Skip */
-  .gc-head{padding-top:60px;padding-bottom:32px;}
-  .gc-row2{padding-bottom:60px;}
-  .gc-title{padding:0 110px;margin:0 0 60px;}
-  .gc-title h2{font-size:56px;font-weight:500;line-height:64px;color:#e8e8e8;margin:0 0 24px;}
+  /* Choose what you like: one full screen (1080px) of genre tabs on the left, a five-column grid on the right, Skip / Continue below */
+  .gc-picker{height:1080px;box-sizing:border-box;padding:100px 110px 0;}
+  .gc-title{margin:0 0 40px;}
+  .gc-title h2{font-size:56px;font-weight:500;line-height:64px;color:#fff;margin:0 0 24px;}
   .gc-title p{font-size:32px;line-height:32px;color:#a8a8a8;margin:0;}
-  .genre{position:relative;width:260px;height:146px;border-radius:10px;overflow:hidden;flex:0 0 auto;background-size:cover;background-position:center;}
-  .genre::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,.45);}
-  .genre > span:not(.gchk){position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;padding:44px 16px 10px;   /* centred under the check box's row */
-    text-align:center;font-size:32px;font-weight:500;line-height:1.15;color:#e8e8e8;text-shadow:0 1px 6px rgba(0,0,0,.6);}
-  /* check box: an empty ring at rest; picked, a filled white circle with a dark tick, and the tile gets a white rim */
+  .gc-body{display:flex;gap:56px;}
+  .gc-tabs{width:380px;flex:none;display:flex;flex-direction:column;gap:18px;}
+  .gc-tab{height:116px;box-sizing:border-box;padding:20px 30px;border-radius:22px;border:2px solid #3a4146;display:flex;flex-direction:column;justify-content:center;gap:4px;}
+  .gc-tab b{font-size:34px;font-weight:600;line-height:1.2;}
+  .gc-tab small{font-size:22px;line-height:1.2;color:#a8a8a8;}
+  .gc-tab small:empty{display:none;}
+  /* its states: button-theme.css tv-tab (Active focus on the tab, Active dim with focus in the grid), without the resting outline */
+  .gc-tab.active, .gc-tab.active-dim{border-color:transparent;}
+  .gc-picker .gc-tab.active-dim{background:rgba(255,255,255,.2);color:#fff;}   /* lighter than the top bar's Active dim: it marks the open tab next to the grid */
+  /* the grid scrolls inside a window of four rows; the padding leaves room for a focused tile's growth */
+  .gc-pane{flex:1;min-width:0;}
+  .gc-vp{overflow:hidden;padding:18px;margin:-18px;height:636px;box-sizing:border-box;}
+  .gc-grid{display:none;position:relative;grid-template-columns:repeat(5,1fr);gap:24px;transition:transform .22s cubic-bezier(.2,0,0,1);}
+  .gc-grid.cur{display:grid;}
+  .genre{position:relative;height:132px;border-radius:16px;overflow:hidden;background-color:#1a1d20;background-size:cover;background-position:center;}
+  .genre::before{content:'';position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.5),rgba(0,0,0,.64));transition:background .2s ease;}
+  .genre.on::before{background:linear-gradient(rgba(0,0,0,.1),rgba(0,0,0,.3));}
+  .genre > span:not(.gchk){position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;padding:28px 20px 0;   /* clear of the check badge, even on two lines */
+    text-align:center;font-size:28px;font-weight:600;line-height:1.15;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.65);}
+  /* check badge: an empty ring at rest; picked, a filled white circle with a dark tick */
   .genre .gchk{position:absolute;left:12px;top:12px;z-index:2;width:36px;height:36px;border-radius:50%;box-sizing:border-box;
-    border:2px solid rgba(255,255,255,.85);background:rgba(0,0,0,.35);transition:background .15s ease, border-color .15s ease;}
-  .genre .gchk::after{content:'';position:absolute;left:11px;top:5px;width:8px;height:16px;border:solid #1b1b1b;border-width:0 3px 3px 0;
+    border:3px solid rgba(255,255,255,.6);background:rgba(70,70,74,.75);transition:background .15s ease, border-color .15s ease;}
+  .genre .gchk::after{content:'';position:absolute;left:10px;top:4px;width:8px;height:16px;border:solid #0a0f12;border-width:0 3px 3px 0;
     transform:rotate(45deg) scale(.4);opacity:0;transition:opacity .15s ease, transform .2s cubic-bezier(.2,0,0,1);}
   .genre.on .gchk{background:#fff;border-color:#fff;}
   .genre.on .gchk::after{opacity:1;transform:rotate(45deg);}
-  .genre::after{content:'';position:absolute;inset:0;z-index:2;border-radius:inherit;box-shadow:inset 0 0 0 3px #fff;opacity:0;transition:opacity .15s ease;pointer-events:none;}
-  .genre.on::after{opacity:1;}
-  /* the overlay behind the label: dark at rest, darker when focused; once picked, a white overlay instead */
-  .genre::before{transition:background .2s ease;}
-  .genre.focused::before{background:rgba(0,0,0,.68);}
-  .genre.on::before, .genre.on.focused::before{background:rgba(255,255,255,.3);}
-  .gc-actions .rail-track, .back-row .rail-track{justify-content:center;padding-right:110px;}
-  /* Continue (primary) and Skip (secondary): button-theme.css */
-  .gc-btn{--btn-w:auto;min-width:220px;padding:0 48px;font-size:28px;}
-  .gc-btn.off:not(.focused){opacity:.4;}   /* Continue: dimmed until 3 topics are picked; focused, the primary button's own focus */
+  .back-row .rail-track{justify-content:center;padding-right:110px;}
+  /* Skip (secondary) and Continue (primary): button-theme.css */
+  .gc-actions{position:absolute;right:110px;bottom:80px;display:flex;gap:24px;}
+  .gc-btn{--btn-w:auto;min-width:230px;padding:0 52px;font-size:30px;}
+  .gc-btn.off:not(.focused){opacity:.4;}   /* Continue: dimmed until the first pick */
 
   /* Refreshing Your New Home (Figma PLAY epg 3299:86154): a full-screen loading after Continue in Choose what you like */
   .refresh{position:absolute;inset:0;z-index:2000;background:#1e1e1e;opacity:0;pointer-events:none;transition:opacity .35s ease;}
