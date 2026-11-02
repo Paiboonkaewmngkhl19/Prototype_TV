@@ -250,9 +250,8 @@
       linear-gradient(90deg, rgba(10,8,24,.88) 0%, rgba(10,8,24,.62) 30%, rgba(10,8,24,.12) 58%, transparent 75%),
       linear-gradient(180deg, transparent 52%, rgba(10,8,24,.55) 74%, var(--bg-0) 96%);
   }
-  /* First scene (Figma PLAY:home_mainPage 3256:175115): title, meta row and synopsis sit right on top of the Detail /
-     Play buttons (the hero row), so the block is anchored to the hero's bottom edge. A rail's own card (card-mode)
-     shows its text from the top instead, as before. */
+  /* Title, meta row and synopsis: a rail's focused card (card-mode, the first scene's too) shows its text 80px above
+     that rail (home-1.js placeHeroText). */
   .hero-content{
     position:absolute;z-index:1;left:110px;bottom:0;width:800px;   /* the hero row's 24px top padding is the gap to Detail */
     transition:opacity .25s ease;
@@ -358,7 +357,7 @@
 
   /* poster card */
   .card-poster{width:220px;height:330px;border-radius:12px;display:flex;align-items:flex-end;}   /* Figma 2:3 card */
-  .card-poster .platform{position:absolute;right:6px;top:6px;height:34px;padding:0 10px;border-radius:6px;background:rgba(0,0,0,.55);display:flex;align-items:center;font-size:13px;font-weight:700;}
+  .card-poster .platform{position:absolute;left:12px;bottom:12px;height:34px;padding:0 10px;border-radius:6px;background:rgba(0,0,0,.55);display:flex;align-items:center;font-size:13px;font-weight:700;}
 
   /* top10 rank card: top10.css (and top10.js) */
 
@@ -432,7 +431,7 @@
     width:220px;height:140px;box-sizing:border-box;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:6px;   /* Figma "All app" button */
     font-size:28px;font-weight:700;flex:0 0 auto;
   }
-  /* the View All tiles (All Apps, TV Guide, Shorts, LPGA): the chip theme's default and focus (chip-theme.css .tv-chip) */
+  /* the View All tiles (All Apps, TV Guide, Shorts): the chip theme's default and focus (chip-theme.css .tv-chip) */
   .partner-logo-tile{ width:250px !important; height:140px !important; border-radius:12px; overflow:hidden; background:#000; }
   .partner-logo-tile img{ width:100%; height:100%; object-fit:cover; display:block; }
   .partner-card{width:200px;height:96px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;letter-spacing:.02em;flex:0 0 auto;}
@@ -444,7 +443,7 @@
   .exclusive-card{width:369px !important;height:553px !important;border-radius:17px;}
   .exclusive-card img{width:100%;height:100%;object-fit:cover;display:block;}
 
-  /* Hot Channel Program (Figma 3256:172436): 16:9 programme cards, a gold crown on premium ones */
+  /* Hot Channel Program (Figma 3256:172436): the Live and Upcoming cards (.card-content), a gold crown on premium ones */
   /* the premium crown: corner-tag.css .crown-tag */
 
   /* Recommended Apps (Figma 3256:172467): 250 x 140 app tiles, then All Apps */
@@ -492,33 +491,42 @@
     font-size:52px;font-weight:700;line-height:1.15;color:rgba(255,255,255,.92);text-shadow:0 2px 12px rgba(0,0,0,.45);}
   .seasonal-row .item.focused{transform:scale(1.05);}   /* tall cards: 5%, so they don't reach the rails around them */
 
-  /* Choose what you like (Figma 3256:172489): 12 topic tiles in two rows of six, then Continue / Skip */
-  .gc-head{padding-top:60px;padding-bottom:32px;}
-  .gc-row2{padding-bottom:60px;}
-  .gc-title{padding:0 110px;margin:0 0 60px;}
-  .gc-title h2{font-size:56px;font-weight:500;line-height:64px;color:#e8e8e8;margin:0 0 24px;}
+  /* Choose what you like: one full screen (1080px) of genre tabs on the left, a five-column grid on the right, Skip / Continue below */
+  .gc-picker{height:1080px;box-sizing:border-box;padding:100px 110px 0;}
+  .gc-title{margin:0 0 40px;}
+  .gc-title h2{font-size:56px;font-weight:500;line-height:64px;color:#fff;margin:0 0 24px;}
   .gc-title p{font-size:32px;line-height:32px;color:#a8a8a8;margin:0;}
-  .genre{position:relative;width:260px;height:146px;border-radius:10px;overflow:hidden;flex:0 0 auto;background-size:cover;background-position:center;}
-  .genre::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,.45);}
-  .genre > span:not(.gchk){position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;padding:44px 16px 10px;   /* centred under the check box's row */
-    text-align:center;font-size:32px;font-weight:500;line-height:1.15;color:#e8e8e8;text-shadow:0 1px 6px rgba(0,0,0,.6);}
-  /* check box: an empty ring at rest; picked, a filled white circle with a dark tick, and the tile gets a white rim */
+  .gc-body{display:flex;gap:56px;}
+  .gc-tabs{width:380px;flex:none;display:flex;flex-direction:column;gap:18px;}
+  .gc-tab{height:116px;box-sizing:border-box;padding:20px 30px;border-radius:22px;border:2px solid #3a4146;display:flex;flex-direction:column;justify-content:center;gap:4px;}
+  .gc-tab b{font-size:34px;font-weight:600;line-height:1.2;}
+  .gc-tab small{font-size:22px;line-height:1.2;color:#a8a8a8;}
+  .gc-tab small:empty{display:none;}
+  /* its states: button-theme.css tv-tab (Active focus on the tab, Active dim with focus in the grid), without the resting outline */
+  .gc-tab.active, .gc-tab.active-dim{border-color:transparent;}
+  .gc-picker .gc-tab.active-dim{background:rgba(255,255,255,.2);color:#fff;}   /* lighter than the top bar's Active dim: it marks the open tab next to the grid */
+  /* the grid scrolls inside a window of four rows; the padding leaves room for a focused tile's growth */
+  .gc-pane{flex:1;min-width:0;}
+  .gc-vp{overflow:hidden;padding:18px;margin:-18px;height:636px;box-sizing:border-box;}
+  .gc-grid{display:none;position:relative;grid-template-columns:repeat(5,1fr);gap:24px;transition:transform .22s cubic-bezier(.2,0,0,1);}
+  .gc-grid.cur{display:grid;}
+  .genre{position:relative;height:132px;border-radius:16px;overflow:hidden;background-color:#1a1d20;background-size:cover;background-position:center;}
+  .genre::before{content:'';position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.5),rgba(0,0,0,.64));transition:background .2s ease;}
+  .genre.on::before{background:linear-gradient(rgba(0,0,0,.1),rgba(0,0,0,.3));}
+  .genre > span:not(.gchk){position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;padding:28px 20px 0;   /* clear of the check badge, even on two lines */
+    text-align:center;font-size:28px;font-weight:600;line-height:1.15;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.65);}
+  /* check badge: an empty ring at rest; picked, a filled white circle with a dark tick */
   .genre .gchk{position:absolute;left:12px;top:12px;z-index:2;width:36px;height:36px;border-radius:50%;box-sizing:border-box;
-    border:2px solid rgba(255,255,255,.85);background:rgba(0,0,0,.35);transition:background .15s ease, border-color .15s ease;}
-  .genre .gchk::after{content:'';position:absolute;left:11px;top:5px;width:8px;height:16px;border:solid #1b1b1b;border-width:0 3px 3px 0;
+    border:3px solid rgba(255,255,255,.6);background:rgba(70,70,74,.75);transition:background .15s ease, border-color .15s ease;}
+  .genre .gchk::after{content:'';position:absolute;left:10px;top:4px;width:8px;height:16px;border:solid #0a0f12;border-width:0 3px 3px 0;
     transform:rotate(45deg) scale(.4);opacity:0;transition:opacity .15s ease, transform .2s cubic-bezier(.2,0,0,1);}
   .genre.on .gchk{background:#fff;border-color:#fff;}
   .genre.on .gchk::after{opacity:1;transform:rotate(45deg);}
-  .genre::after{content:'';position:absolute;inset:0;z-index:2;border-radius:inherit;box-shadow:inset 0 0 0 3px #fff;opacity:0;transition:opacity .15s ease;pointer-events:none;}
-  .genre.on::after{opacity:1;}
-  /* the overlay behind the label: dark at rest, darker when focused; once picked, a white overlay instead */
-  .genre::before{transition:background .2s ease;}
-  .genre.focused::before{background:rgba(0,0,0,.68);}
-  .genre.on::before, .genre.on.focused::before{background:rgba(255,255,255,.3);}
-  .gc-actions .rail-track, .back-row .rail-track{justify-content:center;padding-right:110px;}
-  /* Continue (primary) and Skip (secondary): button-theme.css */
-  .gc-btn{--btn-w:auto;min-width:220px;padding:0 48px;font-size:28px;}
-  .gc-btn.off:not(.focused){opacity:.4;}   /* Continue: dimmed until 3 topics are picked; focused, the primary button's own focus */
+  .back-row .rail-track{justify-content:center;padding-right:110px;}
+  /* Skip (secondary) and Continue (primary): button-theme.css */
+  .gc-actions{position:absolute;right:110px;bottom:80px;display:flex;gap:24px;}
+  .gc-btn{--btn-w:auto;min-width:230px;padding:0 52px;font-size:30px;}
+  .gc-btn.off:not(.focused){opacity:.4;}   /* Continue: dimmed until the first pick */
 
   /* Refreshing Your New Home (Figma PLAY epg 3299:86154): a full-screen loading after Continue in Choose what you like */
   .refresh{position:absolute;inset:0;z-index:2000;background:#1e1e1e;opacity:0;pointer-events:none;transition:opacity .35s ease;}
@@ -580,39 +588,8 @@
     mask:linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
   }
 
-  /* This row sits flush against the bottom edge of the pinned hero (z-index:5,
-     always painted on top). A center-anchored scale on focus would push the
-     card's top edge upward into the hero's rectangle and get hidden behind it
-     (looks like the top is "cut off"). Anchoring the scale to the top edge
-     instead means focus growth only extends the card downward, so the top
-     never crosses into the hero and nothing gets covered. A bigger-than-usual
-     scale (vs. the generic 1.06) makes the grow/shrink between cards clearly
-     visible in this row — the top-anchored origin means the extra growth
-     only pushes the bottom edge down, never the top edge up. */
-  .hero-row .item.focused{transform-origin:50% 50%;transform:scale(1.05);}   /* the Play button grows 5% */
-  /* Even with the top-anchored scale above, the focus ring's box-shadow
-     spreads 4px outward past the card's own top edge, which used to sit
-     flush against the hero's bottom edge with zero clearance — that 4px
-     sliver of ring still poked behind the hero and got clipped. A small
-     real gap (not cancelled out like rail-viewport's padding trick) between
-     the hero and this row's content gives the ring room to fully clear it. */
-  /* First scene's buttons (Figma ctaRow): Detail above Play, 400px pills 24px apart; the page dots 58px under them
-     (y 878) and the category chips at y 942. The hero items are stacked Play buttons, one per hero slide: only the
-     current one shows, and Left / Right still step through them (the dots follow). */
-  .hero-row{padding-top:24px;padding-bottom:46px;}   /* 46px + the chips' 6px top padding: chips at y 942 */
-  .hero-row .rail-track{display:grid;justify-content:start;padding-right:0;}
-  .hero-row .rail-track > .item{grid-area:1 / 1;}
-  .hero-row .hero-play:not(.cur){visibility:hidden;}
-  /* the buttons' look and states come from the shared button theme (button-theme.css): Detail is a secondary
-     button, Play a primary one */
-  .hero-btn .ic-info{-webkit-mask:url('../icons/hero/info.svg') center / contain no-repeat;mask:url('../icons/hero/info.svg') center / contain no-repeat;}
-  .hero-btn .ic-play{-webkit-mask:url('../icons/hero/play.svg') center / contain no-repeat;mask:url('../icons/hero/play.svg') center / contain no-repeat;}
-  .hero-btn .ic-pkg{-webkit-mask:url('../icons/player/crown-dark.svg') center / contain no-repeat;mask:url('../icons/player/crown-dark.svg') center / contain no-repeat;}   /* View Package (Movie Detail's) */
-  .hero-detail{margin:0 0 24px 110px;}
-  .hero-detail.focused{transform:scale(1.05);}
-  .hero-dots{display:flex;justify-content:center;gap:8px;margin-top:58px;}
-  .hero-dots i{width:12px;height:12px;border-radius:6px;background:#a8a8a8;transition:width .22s cubic-bezier(.2,0,0,1), background-color .22s ease;}
-  .hero-dots i.on{width:30px;background:#e8e8e8;}
+  /* First scene's cards, as Sport's first rail: 35px under the hero (y 635), the category chips at y 942 */
+  .hero-row{padding-top:35px;padding-bottom:61px;}
   /* the Live ribbon: live-ribbon.css */
   /* a copy of the focused card's badge drawn inside the ring, so the badge sits ON TOP of the ring (placeHomeRing) */
   .home-ring .ring-badge{position:absolute;left:0;top:0;transform-origin:0 0;opacity:0;transition:opacity .12s ease;}

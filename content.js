@@ -121,8 +121,10 @@
     siralex:{t:'Sir Alex Ferguson: Never Give In', w:P + 'maxresdefault.jpg', plat:'prime', g:['Documentary', 'Sport'], y:2021, len:'1h 52m', age:'13+',
              d:'The life of Manchester United\'s legendary manager, told by his son: from the Govan shipyards to 26 years at Old Trafford, and the fight back from a brain haemorrhage.'},
     // AIS PLAY Exclusive (Home): AIS PLAY's own; p its poster, b its wide picture
-    missuni:{t:'Miss Universe Thailand 2026', p:P + 'miss-universe.jpg', b:P + 'miss-universe.jpg', plat:'ais', g:['Pageant', 'Live Event'], y:2026, len:'1h 55m', age:'G',
+    missuni:{t:'Miss Universe Thailand 2026', p:'login-assets/ppv/universe-bg.webp', b:'login-assets/ppv/universe-bg.webp', plat:'ais', g:['Pageant', 'Live Event'], y:2026, len:'1h 55m', age:'G',
              d:'The Miss Universe Thailand 2026 pageant is underway with provincial preliminaries and delegate selections, highlighted by Tharina Botes winning Miss Universe Krung Thep Maha Nakhon (Bangkok).'},
+    assanee:{t:'Asanee-Wasan Farewell Concert', p:'login-assets/ppv/assanee-bg.webp', b:'login-assets/ppv/assanee-bg.webp', w:'login-assets/ppv/assanee-card.webp', plat:'ais', g:['Concert', 'Music'], y:2026, len:'2h 30m', age:'G',
+             d:'Asanee-Wasan say goodbye in their farewell concert, live from Impact Arena, Muang Thong Thani on 3, 5 and 6 September 2026.'},
     sophomores:{t:'Happy Boss Day: The Sophomores – D-Day', p:PP + 'ex1.jpg', b:P + 'hero/ex-sophomores.jpg', plat:'ais', g:['Concert'], y:2026, len:'2h 30m', age:'G',
              d:'Relive The Sophomores\' sold-out D-Day concert, exclusively on AIS PLAY. Rerun from 1 February to 30 April 2026.'},
     bossckm:{t:'BossCKM: Dream Warrior Concert', p:PP + 'ex2.jpg', b:P + 'hero/ex-bossckm.jpg', plat:'ais', g:['Concert', 'Music'], y:2026, len:'2h 5m', age:'G',
@@ -163,7 +165,7 @@
   // premium: the titles sold on their own or in a package (For You, Rent or Buy, the series sold one by one, District 9's
   // package, the rentals) and AIS PLAY Exclusive; Content.crown(info) their crown (Premium on the detail page)
   ['d9', 'avatar', 'f1', 'topgun', 'john', 'venom', 'lotr', 'hobbit', 'house', 'got', 'loki', 'odyssey', 'spider', 'lastofus', 'vikings',
-   'missuni', 'sophomores', 'bossckm', 'cityars', 'mufcche', 'mufcars',
+   'missuni', 'assanee', 'sophomores', 'bossckm', 'cityars', 'mufcche', 'mufcars',
    // more of the Movie page's titles premium, so most of what it shows is for sale (a gold crown), not free
    'debt', 'khemjira', 'medium', 'prada', 'superman', 'wicked', 'dragon', 'vincenzo', 'thailaw', 'dollar', 'judge', 'lawless', 'lastking', 'again']
     .forEach(function(k){ M[k].premium = true; });
@@ -181,7 +183,7 @@
                  lastking:{ pkg:1 }, again:{ pkg:1 },
                  // AIS PLAY Exclusive (Home's rail): premium, bought on its own like a PPV event (the Store's price), or with PLAY ULTIMATE
                  // (ev: an event, bought as an Event Pass: package-detail.html, Figma "PPV Event")
-                 missuni:{ pkg:1, buy:199, ev:1 }, sophomores:{ pkg:1, buy:199, ev:1 }, bossckm:{ pkg:1, buy:199, ev:1 }, cityars:{ pkg:1, buy:199, ev:1 },
+                 missuni:{ pkg:1, buy:199, ev:1 }, assanee:{ pkg:1, buy:199, ev:1 }, sophomores:{ pkg:1, buy:199, ev:1 }, bossckm:{ pkg:1, buy:199, ev:1 }, cityars:{ pkg:1, buy:199, ev:1 },
                  mufcche:{ pkg:1, buy:199, ev:1 }, mufcars:{ pkg:1, buy:199, ev:1 } };
   for(var ok in OFFERS){ M[ok].pkg = !!OFFERS[ok].pkg; M[ok].buy = OFFERS[ok].buy || 0; M[ok].rent = OFFERS[ok].rent || 0; if(OFFERS[ok].ev) M[ok].ev = 1; }
   // titles made from a card that had no data of its own (Content.open): back into the catalogue on every page

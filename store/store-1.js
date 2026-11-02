@@ -99,10 +99,10 @@
       .concat(pick(function(p){ return LEAGUE(p) && p.card === 'Month'; }))                              // Asian Games: PLAY ALL Asian Games, PLAY ALL, then the leagues
   ];
   ROWS.value = VALUE[0];
-  // PPV Event: AIS PLAY's own events (content.js MD.M: its words, pictures and price), as Home's AIS Play Exclusive rail;
-  // a match not played yet carries its kick-off (Home's), the others their badge
-  var EVENTS = [{ k:'missuni', badge:'#1 in Thailand', ppos:'30% center' }, { k:'cityars', when:'Sun 22:30', pos:'center 40%' },
-    { k:'sophomores', badge:'Rerun' }, { k:'mufcche', when:'Sat 19:30' }, { k:'bossckm', badge:'New Arrival' }, { k:'mufcars', when:'Sat 23:00' }];
+  // PPV Event: AIS PLAY's own events (content.js MD.M: its words, pictures and price), as Home's AIS Play Exclusive rail,
+  // each with its badge
+  var EVENTS = [{ k:'assanee', badge:'New Arrival', ppos:'88% center' }, { k:'missuni', badge:'#1 in Thailand', ppos:'90% center' },
+    { k:'sophomores', badge:'Rerun' }, { k:'bossckm', badge:'New Arrival' }];
   // Rent or Buy: content.js's list (its badges), then the titles sold on their own only (MD OFFERS pkg 0)
   var RENTALS = MD.RENT.map(function(r){ return { k:r.k, badge:r.b }; })
     .concat(['superman', 'wicked', 'dragon', 'prada', 'debt', 'medium', 'khemjira'].map(function(k){ return { k:k }; }));
@@ -164,7 +164,7 @@
       (TAB_LOGO[t] ? '<img class="ott" src="' + TAB_LOGO[t] + '" alt="">' : i ? '<span class="lgdisc">' + Leagues.pic(Leagues.find(t) || { t:t }) + '</span>' : '') + esc(t) + '</div>';
   }
   function eventCard(e, i){
-    var m = MD.M[e.k], wide = MD.bg(e.k), pr = MD.price(e.k);
+    var m = MD.M[e.k], wide = m.w || MD.bg(e.k), pr = MD.price(e.k);
     return '<div class="xcard item"' + attrs({ kind:'event', i:i, k:e.k }) + ' data-ring-art="">' +
       '<div class="xc-portrait" style="background-image:url(\'' + m.p + '\')' + (e.ppos ? ';background-position:' + e.ppos : '') + '"></div>' +
       '<div class="xc-wide" style="background-image:url(\'' + wide + '\');background-position:' + (e.pos || 'center') + '"></div>' +

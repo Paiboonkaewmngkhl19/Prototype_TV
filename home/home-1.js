@@ -56,31 +56,31 @@
     rowDefs.push({ el: node, track: node.querySelector('.rail-track') || null });
   }
 
-  /* ---------- Row: Jump Right Back In (landscape, no title shown) ----------
+  /* ---------- Row: the first scene's cards (as Sport's first rail) ----------
      This row also drives the dynamic hero banner above it: whichever card
      is focused here updates the hero background/title/description. */
   (function(){
     // the slides: a live match (content.js LIVE, by its title) or a title (content.js MD.M, by its key); their words,
     // tag and picture come from there, so the slide and the detail page it opens say the same
-    var SLIDES = [{live:'Liverpool vs Brentford'}, {k:'loki'}, {k:'lastofus'}, {k:'wicked'}, {k:'superman'}, {k:'topgun'}, {k:'dragon'},
+    var SLIDES = [{live:'Liverpool vs Brentford'}, {k:'d9'}, {k:'loki'}, {k:'lastofus'}, {k:'wicked'}, {k:'superman'}, {k:'topgun'}, {k:'dragon'},
                   {live:'Arsenal vs Chelsea'}, {k:'f1'}];
     function attr(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }   // e.g. Pete "Maverick" Mitchell
     var items = SLIDES.map(function(s){
-      if(s.live){ var p = LIVE.find(s.live); return { hero:{title:p.t, logo:'monomax', channel:'', live:true, tv:p.tv, desc:p.d}, bg:p.bg || p.img }; }
-      var h = Content.hero({k:s.k});
-      return { k:s.k, hero:{title:h.t, logo:h.plat, channel:h.meta, live:false, desc:h.d}, bg:h.bg };
+      if(s.live){ var p = LIVE.find(s.live); return { t:p.t, img:p.img, crown:{tv:p.tv}, href:LIVE.href(p, 'home'), hero:{logo:'monomax', channel:'', live:true, tv:p.tv, desc:p.d}, bg:p.bg || p.img }; }
+      var h = Content.hero({k:s.k}), m = M(s.k);
+      return { k:s.k, t:h.t, img:m.w || h.bg, crown:{k:s.k}, hero:{logo:h.plat, channel:h.meta, live:false, desc:h.d}, bg:h.bg };
     });
-    var slides = items.map(function(it){
-      return '<div class="hero-btn hero-play tv-btn tv-btn--primary item" data-title="'+attr(it.hero.title)+'" data-ring-art=""'+
-        ' data-hero-title="'+attr(it.hero.title)+'" data-hero-logo="'+attr(it.hero.logo)+'" data-hero-channel="'+attr(it.hero.channel)+'"'+
-        ' data-hero-live="'+(it.hero.live?'1':'0')+'"'+(it.hero.tv?' data-hero-tv="'+attr(it.hero.tv)+'"':'')+' data-hero-desc="'+attr(it.hero.desc)+'" data-hero-img="'+it.bg+'"'+(it.k ? ' data-k="'+it.k+'"' : '')+'>'+
-        // a title's slide: its detail page's main button (content.js: View Package, Resume or Play); a live one: Play
-        (function(a){ return '<i class="'+a.icon+'"></i>'+a.label; })(it.k ? Content.mainAction({k:it.k}) : {icon:'ic-play', label:'Play'})+'</div>';
+    var cards = items.map(function(it){
+      return '<div class="card card-content item'+(it.hero.live ? ' has-ribbon' : '')+'" data-title="'+attr(it.t)+'"'+
+        ' data-hero-title="'+attr(it.t)+'" data-hero-logo="'+attr(it.hero.logo)+'" data-hero-channel="'+attr(it.hero.channel)+'"'+
+        ' data-hero-live="'+(it.hero.live?'1':'0')+'"'+(it.hero.tv?' data-hero-tv="'+attr(it.hero.tv)+'"':'')+' data-hero-desc="'+attr(it.hero.desc)+'" data-hero-img="'+it.bg+'"'+
+        (it.k ? ' data-k="'+it.k+'"' : ' data-href="'+attr(it.href)+'"')+'>'+   // Enter: its detail page (content.js)
+        '<div class="thumb" style="background-image:url(\''+it.img+'\');background-size:cover;background-position:center;">'+Content.crownIcon(it.crown, 0, 'crown-tag')+'</div>'+
+        '<div class="strip"><div class="t">'+it.t+'</div></div>'+
+        (it.hero.live ? '<span class="live-ribbon">Live</span>' : '')+
+      '</div>';
     }).join('');
-    addRow('<div class="row-block hero-row">'+
-      '<div class="hero-btn hero-detail tv-btn tv-btn--secondary" id="heroDetail" data-title="Detail" data-ring-art=""><i class="ic-info"></i>Detail</div>'+
-      '<div class="rail-viewport"><div class="rail-track">'+slides+'</div></div>'+
-      '<div class="hero-dots">'+items.map(function(){ return '<i></i>'; }).join('')+'</div></div>');
+    addRow('<div class="row-block hero-row"><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
   })();
 
   /* ---------- Row: Quick menu chips ---------- */
@@ -227,7 +227,7 @@
 
   /* ---------- Row: Top 10 in Thailand Today ---------- */
   (function(){
-    var TOP10 = ['f1', 'house', 'john', 'venom', 'avatar', 'debt', 'topgun', 'thailaw', 'lotr', 'dollar'];   // content.js MD.M
+    var TOP10 = ['d9', 'house', 'john', 'venom', 'avatar', 'debt', 'topgun', 'thailaw', 'lotr', 'dollar'];   // content.js MD.M
     var cards = TOP10.map(function(k, i){
       var m = M(k);
       return '<div class="rank-wrap item" data-k="'+k+'" data-title="#'+(i+1)+' '+m.t.replace(/"/g, '&quot;')+'">'+
@@ -278,13 +278,12 @@
     // Premium with its crown, as the PPV card, gold until bought) and synopsis.
     // Each a catalogue title (content.js MD.M, AIS PLAY's own); the rail adds its badge, kick-off and where the pictures sit
     var picks = [
-      {k:'missuni', badges:['#1 in thailand'], ppos:'30% center'}, {k:'sophomores', badges:['Rerun']}, {k:'bossckm', badges:['New Arrival']},
-      {k:'cityars', badges:['Premier League'], when:'Sun 22:30', pos:'center 40%'}, {k:'mufcche', badges:['Emirates FA Cup'], when:'Sat 19:30'},
-      {k:'mufcars', badges:['Premier League'], when:'Sat 23:00'}
+      {k:'assanee', badges:['New Arrival'], ppos:'88% center'}, {k:'missuni', badges:['#1 in Thailand'], ppos:'90% center'},
+      {k:'sophomores', badges:['Rerun']}, {k:'bossckm', badges:['New Arrival']}
     ];
     function vat(n){ return (Math.round(n * 107) / 100).toLocaleString('en-US', { minimumFractionDigits:2 }); }
     var cards = picks.map(function(it){
-      var m = M(it.k), wide = MD.bg(it.k);
+      var m = M(it.k), wide = m.w || MD.bg(it.k);
       return '<div class="card xcard item" data-k="'+it.k+'" data-title="'+m.t+'" data-ring-art="url(&quot;'+wide+'&quot;)">'+
         '<div class="xc-portrait" style="background-image:url(\''+m.p+'\');'+(it.ppos?'background-position:'+it.ppos+';':'')+'"></div>'+
         '<div class="xc-wide" style="background-image:url(\''+wide+'\');background-position:'+(it.pos || 'center')+';"></div>'+
@@ -305,14 +304,14 @@
   (function(){
     var last = rowDefs[rowDefs.length-1];
     var songs = [
-      ['Sabai Sabi','Thongchai McIntyre'], ['Mae','Loso'],
-      ['Do You Want Me to Stay With You','Asanee-Wasan'], ['Let It Be','The Beatles'],
-      ['Take Me Home, Country Roads','John Denver'], ['Wanipok','Carabao'],
-      ['First Love','Nont Tanont'], ['Polaroid','Unknown Artist'], ['Recently Deleted','Atom']
+      ['First Love','Nont Tanont',7], ['Polaroid','Unknown Artist',8], ['Recently Deleted','Atom',9],
+      ['Sabai Sabi','Thongchai McIntyre',1], ['Mae','Loso',2],
+      ['Do You Want Me to Stay With You','Asanee-Wasan',3], ['Let It Be','The Beatles',4],
+      ['Take Me Home, Country Roads','John Denver',5], ['Wanipok','Carabao',6]
     ];
-    var cards = songs.map(function(s,i){
+    var cards = songs.map(function(s){
       return '<div class="card-karaoke tv-glass item" data-title="'+s[0]+' – '+s[1]+'">'+
-        '<img class="art" src="posters/karaoke/k'+(i+1)+'.jpg" alt="">'+
+        '<img class="art" src="posters/karaoke/k'+s[2]+'.jpg" alt="">'+
         '<div class="meta"><div class="song">'+s[0]+'</div><div class="artist">'+s[1]+'</div></div>'+
       '</div>';
     }).join('');
@@ -338,7 +337,7 @@
      Built after every older rail, so the pool posters those take stay where they were; the rail order below puts
      each one in its place. */
 
-  /* ---------- Row: Hot Channel Program (16:9 programme cards, crown on premium, the Live ribbon: all on now) ----------
+  /* ---------- Row: Hot Channel Program (Live and Upcoming's cards, crown on premium, the Live ribbon: all on now) ----------
      The News page's programme pictures (news-assets/), with their titles, channels and descriptions there; focused,
      a card's picture and text fill the screen (updateHeroFromCard: data-meta / data-desc). */
   (function(){
@@ -350,9 +349,10 @@
       // Enter as any channel's programme (content.js LIVE.href: a Movie / Sport channel's detail page, else the channel
       // in the Live TV player)
       var chName = p.tv, tv = window.TV.byName(chName), prog = p;
-      return '<div class="card card-landscape item has-ribbon" data-title="'+attrQ(p.t)+'" data-live="1" data-href="'+attrQ(LIVE.href(prog, 'home'))+'"'+
-        (tv ? ' data-ch="'+attrQ(tv.n)+'" data-meta="'+attrQ('Channel '+tv.no+': '+tv.n)+'"' : '')+' data-desc="'+attrQ(p.d)+'" style="'+pic+'">'+
-        Content.crownIcon({tv:chName}, 0, 'crown-tag')+
+      return '<div class="card card-content item has-ribbon" data-title="'+attrQ(p.t)+'" data-live="1" data-href="'+attrQ(LIVE.href(prog, 'home'))+'"'+
+        (tv ? ' data-ch="'+attrQ(tv.n)+'" data-meta="'+attrQ('Channel '+tv.no+': '+tv.n)+'"' : '')+' data-desc="'+attrQ(p.d)+'">'+
+        '<div class="thumb" style="'+pic+'">'+Content.crownIcon({tv:chName}, 0, 'crown-tag')+'</div>'+
+        '<div class="strip"><div class="t">'+p.t+'</div></div>'+   // the Live and Upcoming card
         '<span class="live-ribbon">Live</span></div>';   // on now, as its hero's LIVE: the Live and Upcoming cards' ribbon
     }).join('');
     addRow('<div class="row-block"><div class="row-title">Hot Channel Program</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
@@ -379,14 +379,14 @@
       var m = M(x[0]);
       return '<div class="card card-poster item" data-k="'+x[0]+'" data-title="'+m.t+'" style="'+cover(m.p)+'">'+
         (x[1] ? '<span class="time-pill top-tag">'+x[1]+'</span>' : '')+'</div>';
-    }).join('') + '<div class="clip-viewall tv-chip item" data-title="LPGA Golf – View All" data-ring-art=""><b>View All</b></div>';
+    }).join('');
     addRow('<div class="row-block hl-row"><div class="hl-bg"></div><div class="hl-bg band-full"></div>'+
       '<div class="hl-info"><h3>LPGA Golf</h3><p>Every round from the LPGA tour in Thailand and beyond: Honda LPGA Thailand 2024, the LPGA Lotte Championship and the season\'s best match-play moments.</p></div>'+
       '<div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
   })();
 
   /* ---------- Rows: genre rails ---------- */
-  posterRail('Ray Macdonald', ['khemjira', 'medium', 'thailaw', {k:'debt', badge:'Soon leaving'}, 'judge', {k:'bigmouth', badge:'Soon leaving'}, {k:'vincenzo', badge:'Top 10'}]);
+  posterRail('Worlds in Chaos', ['khemjira', 'medium', 'thailaw', {k:'debt', badge:'Soon leaving'}, 'judge', {k:'bigmouth', badge:'Soon leaving'}, {k:'vincenzo', badge:'Top 10'}]);
   posterRail('We think you’ll love this', ['got', 'house', {k:'lastking', badge:'Soon leaving'}, 'vikings', {k:'avatar', badge:'Soon leaving'}, {k:'venom', badge:'Top 10'}, {k:'john', badge:'Top 10'}]);
   posterRail('Date night Selected', ['dollar', 'family', {k:'again', badge:'Soon leaving'}, 'lawless', {k:'topgun', badge:'Soon leaving'}, {k:'f1', badge:'Top 10'}, {k:'hobbit', badge:'Top 10'}]);
 
@@ -397,27 +397,38 @@
       {t:'Fantasy Worlds', img:'posters_portrait/collection/fantasy.jpg'}, {t:'Action Collection', img:'posters_portrait/collection/action.jpg'},
       {t:'Speed & Racing', img:'posters_portrait/collection/racing.jpg'}
     ];
-    addRow('<div class="row-block seasonal-row"><div class="rail-viewport"><div class="rail-track">'+sets.map(function(c){
+    addRow('<div class="row-block seasonal-row"><div class="row-title">Seasonal/Collection</div><div class="rail-viewport"><div class="rail-track">'+sets.map(function(c){
       return '<div class="season-card item" data-title="'+c.t+'" style="background-image:url(\''+c.img+'\');"><span>'+c.t+'</span></div>';
     }).join('')+'</div></div></div>');
   })();
 
-  /* ---------- Rows: Choose what you like (two rows of six topics, then Continue / Skip) ---------- */
+  /* ---------- Row: Choose what you like (genre tabs on the left, a five-column grid on the right, then Skip / Continue) ---------- */
   (function(){
-    var topics = ['Action','Thriller & Horror','Romance & Drama','Sci-Fi & Fantasy','Comedy','Music & Concert',
-                  'Sport','Documentary','Tech & Business','Food & Travel','Variety & Reality','Asian Series & Movies'];
-    function tile(t, i){
-      return '<div class="genre item" data-act="genre" data-title="'+t+'" style="background-image:url(\'posters/genres/g'+(i+1)+'.jpg\');">'+
-        '<span class="gchk" aria-hidden="true"></span><span>'+t+'</span></div>';
-    }
-    addRow('<div class="row-block gc-head"><div class="gc-title"><h2>Choose what you like</h2>'+
-      '<p>Pick 3 or more. Your Home will show rails for the topics you choose.</p></div>'+
-      '<div class="rail-viewport"><div class="rail-track">'+topics.slice(0,6).map(tile).join('')+'</div></div></div>');
-    addRow('<div class="row-block gc-row2"><div class="rail-viewport"><div class="rail-track">'+
-      topics.slice(6).map(function(t, i){ return tile(t, i + 6); }).join('')+'</div></div></div>');
-    addRow('<div class="row-block gc-actions"><div class="rail-viewport"><div class="rail-track">'+
-      '<div class="gc-btn tv-btn tv-btn--primary off item" data-act="genre-continue" data-title="Continue" data-ring-art="">Continue</div>'+
-      '<div class="gc-btn tv-btn tv-btn--secondary item" data-act="genre-skip" data-title="Skip" data-ring-art="">Skip</div></div></div></div>');
+    // each genre reuses the closest of the 12 topic pictures (posters/genres/g1..g12)
+    var cats = [
+      {name:'Entertainment', items:[['Action',1],['Adult',3],['Animal',8],['Anime',12],['Cartoon',5],['Classic',3],['Comedy',5],['Concert',6],
+        ['Crime',1],['Dark',2],['Drama',3],['Esports',9],['Family',11],['Fantasy',4],['Food',10],['Game show',11],['History',8],['Horror',2],
+        ['LGBTQ',3],['Martial arts',12],['Music',6],['Musical',6],['Mystery',2],['Reality',11],['Religious',8],['Romance',3],['Sci-fi',4],
+        ['Sports',7],['Talk show',9],['Thriller',2],['Travel',10],['Variety',11]]},
+      {name:'Sports', items:[['Football',7],['Tennis',7],['Golf',7],['Basketball',7],['Boxing',7],['NFL',7],['Rugby',7],['International Tournament',7],['Other',7]]},
+      {name:'Live TV', items:[['Movies & Series',12],['Cartoons',5],['Variety',11],['Sports',7],['News',9],['Education',8],['Shopping',10],['Documentary',8]]}
+    ];
+    function esc(t){ return t.replace(/&/g,'&amp;'); }
+    addRow('<div class="row-block gc-picker"><div class="gc-title"><h2>Choose what you like</h2>'+
+      '<p>Pick up to 7 in each category. Your Home will show rails for the topics you choose.</p></div>'+
+      '<div class="gc-body"><div class="gc-tabs">'+cats.map(function(c, i){
+        return '<div class="gc-tab tv-tab item'+(i ? '' : ' active-dim')+'" data-act="genre-tab" data-cat="'+i+'" data-title="'+c.name+'" data-ring-art=""><b>'+c.name+'</b><small></small></div>';
+      }).join('')+'</div>'+
+      '<div class="gc-pane"><div class="gc-vp">'+cats.map(function(c, ci){
+        return '<div class="gc-grid'+(ci ? '' : ' cur')+'">'+c.items.map(function(g, i){
+          return '<div class="genre item" data-act="genre" data-cat="'+ci+'" data-i="'+i+'" data-title="'+esc(g[0])+'" style="background-image:url(\'posters/genres/g'+g[1]+'.jpg\');">'+
+            '<span class="gchk" aria-hidden="true"></span><span>'+esc(g[0])+'</span></div>';
+        }).join('')+'</div>';
+      }).join('')+'</div></div></div>'+
+      '<div class="gc-actions">'+
+        '<div class="gc-btn tv-btn tv-btn--secondary item" data-act="genre-skip" data-title="Skip" data-ring-art="">Skip</div>'+
+        '<div class="gc-btn tv-btn tv-btn--primary off item" data-act="genre-continue" data-title="Continue" data-ring-art="">Continue</div>'+
+      '</div></div>');
   })();
 
   /* ---------- Row: Back to Top ---------- */
@@ -431,8 +442,8 @@
   (function(){
     var ORDER = ['.hero-row', '.chip-row', 'Jump Right Back In', 'Top 10 in Thailand Today', '.partner-row', '.epg-row',
       'Live and Upcoming', 'Hot Channel Program', 'Hot Off the Big Screen', 'My List', 'Recommended Apps',
-      'AIS Play Exclusive', '.clips-row', '.hl-row', 'Ray Macdonald', 'We think you', 'Date night Selected',
-      'Because You Watched', '.seasonal-row', '.karaoke-track', '.gc-head', '.gc-row2', '.gc-actions', '.quick-row', '.back-row'];
+      'AIS Play Exclusive', '.clips-row', '.hl-row', 'Worlds in Chaos', 'We think you', 'Date night Selected',
+      'Because You Watched', '.seasonal-row', '.karaoke-track', '.gc-picker', '.quick-row', '.back-row'];
     function rank(d){
       var t = d.el.querySelector('.row-title'), title = t ? t.textContent.trim() : '';
       for(var i = 0; i < ORDER.length; i++){
@@ -491,11 +502,11 @@
   var navFrom = 0;
   function ctxRow(){ return curRow === 0 && navFrom ? navFrom : curRow; }
   var colByRow = rows.map(function(){ return 0; });
-  // Choose what you like: once Continue (after the loading) or Skip is pressed, its three rows (title + topics, topics,
-  // Continue / Skip) leave the page; they are back the next time Home loads (nothing is remembered, so the demo repeats)
+  // Choose what you like: once Continue (after the loading) or Skip is pressed, its row leaves the page; it is back the
+  // next time Home loads (nothing is remembered, so the demo repeats)
   function removePicker(){
     for(var i = rows.length - 1; i > 0; i--){
-      if(rows[i].el && rows[i].el.matches('.gc-head, .gc-row2, .gc-actions')){ rows[i].el.remove(); rows.splice(i, 1); colByRow.splice(i, 1); }
+      if(isPicker(i)){ rows[i].el.remove(); rows.splice(i, 1); colByRow.splice(i, 1); }
     }
   }
   colByRow[0] = NAV_HOME_COL;
@@ -507,7 +518,6 @@
   function focusScale(el){
     if(el.matches('.prof-btn')) return 1;
     if(el.closest('.topnav')) return 1.06;
-    if(el.closest('.hero-row')) return 1.05;
     if(el.closest('.toppick-row, .seasonal-row')) return 1.05;
     return 1.08;   // every rail item, Top 10 posters included
   }
@@ -517,8 +527,6 @@
     var viewport = r.track.parentElement;
     var item = r.items[colByRow[rowIdx]];
     if(!item) return;
-    // Choose what you like is a grid (six topics that fit on screen): its rows never slide
-    if(r.el && r.el.closest('.gc-head, .gc-row2')){ r.track.style.transform = ''; return; }
     // "Fixed focus": the focused item sits at the first item's slot (the anchor) and the rail slides under it. The
     // rail stops at maxScroll, where the last item ends the same distance from the right edge as the first starts
     // from the left (the rail's left inset), allowing for its focus scale-up and ring; past that the focus (and
@@ -594,27 +602,8 @@
   var currentHeroImgKey = 'posters/liver-ben.jpg';
   var heroVideo = document.querySelector('.hero-bg-video');
 
-  /* First scene carousel: while Play or Detail has focus the slides move on by themselves, back to the first after
-     the last. A slide with the video (Liverpool vs Brentford) stays until its video has played to the end; a picture
-     slide stays HERO_SLIDE_MS. Left / Right (or any key in the scene) restarts the slide's time. */
-  var HERO_SLIDE_MS = 8000;
-  var heroAutoTimer = 0, heroAutoCol = -1;
   function isVideoSlide(it){ return !!(heroVideo && it && it.dataset.heroImg === 'posters/liver-ben.jpg'); }
-  function scheduleHeroAuto(){
-    clearTimeout(heroAutoTimer);
-    syncHeroSound();
-    if(curRow !== HERO_ROW_INDEX){ heroAutoCol = -1; return; }   // paused while focus is anywhere else
-    var col = colByRow[HERO_ROW_INDEX], it = rows[HERO_ROW_INDEX].items[col];
-    var arrived = col !== heroAutoCol;
-    heroAutoCol = col;
-    if(isVideoSlide(it)){
-      // a fresh visit (or a video that already ended) plays it from the start; its end moves the carousel on
-      if(arrived || heroVideo.ended){ heroVideo.currentTime = 0; heroVideo.play().catch(function(){}); }
-      return;
-    }
-    heroAutoTimer = setTimeout(advanceHero, HERO_SLIDE_MS);
-  }
-  // The video's sound: on while its slide is on screen in the first scene (focus on Play / Detail, or on the top bar
+  // The video's sound: on while its slide is on screen in the first scene (focus on its card, or on the top bar
   // above it), muted anywhere else, on another slide, or in another tab. Browsers only allow sound after a key press or
   // click on the page, so it comes on with the first one; until then the video plays muted.
   var heroSoundOk = false;
@@ -631,15 +620,6 @@
   addEventListener('pointerdown', allowHeroSound, true);
   document.addEventListener('visibilitychange', syncHeroSound);
   addEventListener('pagehide', function(){ if(heroVideo) heroVideo.muted = true; });
-  function advanceHero(){
-    if(curRow !== HERO_ROW_INDEX) return;
-    colByRow[HERO_ROW_INDEX] = (colByRow[HERO_ROW_INDEX] + 1) % rows[HERO_ROW_INDEX].items.length;
-    updateFocus();
-  }
-  if(heroVideo) heroVideo.addEventListener('ended', function(){
-    if(curRow === HERO_ROW_INDEX && isVideoSlide(rows[HERO_ROW_INDEX].items[colByRow[HERO_ROW_INDEX]])) advanceHero();
-  });
-
   // crossfade the screen background to a new picture (key: anything identifying it, css: a CSS url(...))
   function setHeroBg(key, css){
     if(!key || key === currentHeroImgKey || !heroBgA || !heroBgB) return;
@@ -743,7 +723,7 @@
     showHeroWatched(null);
     var img = item.dataset.heroImg;
     if(img) setHeroBg(img, "url('" + img + "')");
-    if(heroSection) heroSection.classList.remove('card-mode');
+    if(heroSection) heroSection.classList.add('card-mode');
     if(heroLogoEl) heroLogoEl.style.display = '';
     if(heroDescEl) heroDescEl.style.display = '';
     if(heroChannelEl) heroChannelEl.parentElement.style.display = '';
@@ -765,17 +745,12 @@
   }
 
   function updateFocus(prevRow){
-    if(curRow !== HERO_ROW_INDEX) heroOnDetail = false;
+    if(isPicker(curRow)) gcSync();
     rows.forEach(function(r,ri){
       r.items.forEach(function(it,ci){
-        it.classList.toggle('focused', profAt < 0 && !(heroOnDetail && ri === HERO_ROW_INDEX) && ri===curRow && ci===colByRow[ri]);
+        it.classList.toggle('focused', profAt < 0 && ri===curRow && ci===colByRow[ri]);
       });
     });
-    // first scene: the current slide's Play button shows, its dot is the long one; Detail has focus when heroOnDetail
-    var heroCol = colByRow[HERO_ROW_INDEX];
-    rows[HERO_ROW_INDEX].items.forEach(function(it, i){ it.classList.toggle('cur', i === heroCol); });
-    heroDots.forEach(function(d, i){ d.classList.toggle('on', i === heroCol); });
-    heroDetailEl.classList.toggle('focused', heroOnDetail);
     // top bar: the current page (Home) is Active while the D-pad is on the bar, Active dim while it's in the content
     var homeTab = navItems[NAV_HOME_COL];
     homeTab.classList.toggle('active', curRow === 0);
@@ -810,7 +785,7 @@
     if(curRow === HERO_ROW_INDEX){
       updateHeroFromItem(rows[HERO_ROW_INDEX].items[colByRow[HERO_ROW_INDEX]]);
     }
-    scheduleHeroAuto();
+    syncHeroSound();
     // Three scroll modes, split by where the row sits relative to the dynamic
     // hero-background zone (rows[1..HERO_ZONE_LAST_ROW]):
     //  - The hero-linked row itself (row 1): minimal, edge-based scrolling —
@@ -860,10 +835,9 @@
         if(Math.abs(lockDelta) > 1){
           scrollStageBy(lockDelta);
         }
-      } else if(rowEl.closest('.gc-head, .gc-row2, .gc-actions')){
-        // Choose what you like: the whole picker shows at once (title, both rows of topics, Continue / Skip), its title
-        // 40px from the top, and stays put while the focus moves inside it
-        var gcDelta = rowScreenBox(document.querySelector('.gc-head')).top - 40 * stageScale;
+      } else if(isPicker(curRow)){
+        // Choose what you like fills the screen and stays put while the focus moves inside it
+        var gcDelta = rowScreenBox(rowEl).top;
         if(Math.abs(gcDelta) > 1) scrollStageBy(gcDelta);
       } else if(rowEl.querySelector('.band-full')){
         // an artwork band (Shorts, LPGA) fills the screen: its cards always end 121px above the screen's bottom edge
@@ -882,39 +856,76 @@
     }
   }
 
-  // First scene: Up from Play focuses Detail (in the same row, like the profile panel's buttons); Up again goes on to
-  // the top bar, Down comes back to Play. Left / Right on Detail still change the slide. Returns true when handled.
-  var heroDetailEl = document.getElementById('heroDetail');
-  var heroDots = Array.prototype.slice.call(document.querySelectorAll('.hero-dots i'));
-  var heroOnDetail = false;
-  function heroKey(k){
-    if(curRow !== HERO_ROW_INDEX) return false;
-    if(!heroOnDetail){
-      if(k === 'ArrowUp'){ heroOnDetail = true; updateFocus(); return true; }
-      return false;
+  // Choose what you like: one row whose items are the tabs, every tab's tiles and the two buttons. Moving on a tab switches
+  // the grid; Right or OK enters it. In the grid, the left edge returns to the tab, the right edge and the bottom row go
+  // to the buttons. Each tab takes up to GC_MAX picks; Continue can be reached from the first pick. Up off the top and Down off the buttons leave for the
+  // rails around the picker.
+  var GC_COLS = 5, GC_ROWS = 4, GC_MAX = 7, gc = { cat:0, last:[0,0,0], top:[0,0,0], from:null };
+  function isPicker(i){ var el = rows[i] && rows[i].el; return !!(el && el.classList.contains('gc-picker')); }
+  function gcEl(sel){ return rows[curRow].el.querySelector(sel); }
+  function gcTiles(c){ return rows[curRow].el.querySelectorAll('.gc-grid')[c].children; }
+  function gcPicked(){ return document.querySelectorAll('.genre.on').length; }
+  function gcNextBtn(){ return gcEl(gcPicked() ? '[data-act="genre-continue"]' : '[data-act="genre-skip"]'); }
+  function gcGo(el){
+    var from = rows[curRow].items[colByRow[curRow]];
+    if(el.classList.contains('gc-btn') && !from.classList.contains('gc-btn')) gc.from = from;
+    colByRow[curRow] = rows[curRow].items.indexOf(el);
+    updateFocus();
+    return true;
+  }
+  function gcBackFromBtn(){ return gc.from || gcTiles(gc.cat)[gc.last[gc.cat]]; }
+  // shows the focused item's tab (Active while the D-pad is on it, Active dim while it's in the grid or on the buttons:
+  // button-theme.css tv-tab) and keeps a focused tile inside the grid's four visible rows
+  function gcSync(){
+    var r = rows[curRow], el = r.items[colByRow[curRow]], c = el.dataset.cat, onTab = el.classList.contains('gc-tab');
+    if(c !== undefined) gc.cat = +c;
+    Array.prototype.forEach.call(r.el.querySelectorAll('.gc-tab'), function(t, i){
+      t.classList.toggle('active', onTab && i === gc.cat);
+      t.classList.toggle('active-dim', !onTab && i === gc.cat);
+    });
+    Array.prototype.forEach.call(r.el.querySelectorAll('.gc-grid'), function(g, i){ g.classList.toggle('cur', i === gc.cat); });
+    if(!el.classList.contains('genre')) return;
+    gc.last[gc.cat] = +el.dataset.i;
+    var row = Math.floor(gc.last[gc.cat] / GC_COLS), tiles = gcTiles(gc.cat);
+    if(row < gc.top[gc.cat]) gc.top[gc.cat] = row;
+    else if(row > gc.top[gc.cat] + GC_ROWS - 1) gc.top[gc.cat] = row - GC_ROWS + 1;
+    el.parentElement.style.transform = 'translateY(' + -gc.top[gc.cat] * (tiles[GC_COLS].offsetTop - tiles[0].offsetTop) + 'px)';
+  }
+  // returns true when the move stayed in the picker (false: Up / Down leaves for the rail above / below)
+  function gcMove(d){
+    var el = rows[curRow].items[colByRow[curRow]], c = +el.dataset.cat;
+    if(el.classList.contains('genre')){
+      var i = +el.dataset.i, tiles = gcTiles(c), n = tiles.length, col = i % GC_COLS, row = Math.floor(i / GC_COLS), lastRow = Math.floor((n - 1) / GC_COLS);
+      if(d === 'left') return gcGo(col > 0 ? tiles[i - 1] : gcEl('.gc-tab[data-cat="' + c + '"]'));
+      if(d === 'right') return gcGo(col < GC_COLS - 1 && i + 1 < n ? tiles[i + 1] : gcNextBtn());
+      if(d === 'up') return row > 0 ? gcGo(tiles[i - GC_COLS]) : false;
+      return gcGo(row < lastRow ? tiles[Math.min(i + GC_COLS, n - 1)] : gcNextBtn());
     }
-    if(k === 'ArrowDown'){ heroOnDetail = false; updateFocus(); return true; }
-    if(k === 'ArrowUp'){ heroOnDetail = false; moveRow(-1); return true; }
-    if(k === 'ArrowLeft' || k === 'ArrowRight'){
-      var n = clamp(colByRow[curRow] + (k === 'ArrowRight' ? 1 : -1), 0, rows[curRow].items.length - 1);
-      if(n !== colByRow[curRow]){ colByRow[curRow] = n; updateFocus(); }
+    if(el.classList.contains('gc-tab')){
+      if(d === 'right') return gcGo(gcTiles(c)[gc.last[c]]);
+      if(d === 'up') return c > 0 ? gcGo(gcEl('.gc-tab[data-cat="' + (c - 1) + '"]')) : false;
+      if(d === 'down') return c < 2 ? gcGo(gcEl('.gc-tab[data-cat="' + (c + 1) + '"]')) : gcGo(gcEl('[data-act="genre-skip"]'));
+      // Left: the top bar, as on a rail's first card (only the focus moves; the tab dims)
+      el.classList.remove('active'); el.classList.add('active-dim');
+      navFrom = curRow; curRow = 0; colByRow[0] = NAV_HOME_COL; updateFocus();
       return true;
     }
-    if(k === 'Enter'){   // the slide's detail page (content.js); a live match: its LIVE detail page (content.js LIVE)
-      var sl = rows[curRow].items[colByRow[curRow]];
-      if(sl.dataset.heroLive === '1'){
-        var lp = LIVE.find(sl.dataset.title);
-        if(lp){ keepPlace(); location.href = LIVE.href(lp, 'home'); } else toast('Detail: ' + sl.dataset.title);
-        return true;
-      }
-      keepPlace(); Content.open(Content.info(sl)); return true;
-    }
+    var onSkip = el.dataset.act === 'genre-skip';
+    if(d === 'right') return onSkip && gcPicked() ? gcGo(gcEl('[data-act="genre-continue"]')) : true;
+    if(d === 'left') return gcGo(onSkip ? gcBackFromBtn() : gcEl('[data-act="genre-skip"]'));
+    if(d === 'up') return gcGo(gcBackFromBtn());
     return false;
   }
-  heroDetailEl.addEventListener('click', function(){ navFrom = 0; curRow = HERO_ROW_INDEX; heroOnDetail = true; updateFocus(); heroKey('Enter'); });
-
+  // Back steps out of the picker's levels (buttons to grid to tab); on a tab it is Home's own Back (returns false)
+  function gcBack(){
+    var el = rows[curRow].items[colByRow[curRow]];
+    if(el.classList.contains('gc-btn')) return gcGo(gcBackFromBtn());
+    if(el.classList.contains('genre')) return gcGo(gcEl('.gc-tab[data-cat="' + el.dataset.cat + '"]'));
+    return false;
+  }
   function moveCol(dir){
     var r = rows[curRow];
+    if(isPicker(curRow)){ gcMove(dir > 0 ? 'right' : 'left'); return; }
     // Left on a rail's first card jumps up to the top nav bar (its Home tab)
     // (only the focus moves: the page stays where it is, and Down returns to this rail)
     if(dir < 0 && curRow > 0 && colByRow[curRow] === 0){
@@ -926,11 +937,13 @@
     updateFocus();
   }
   function moveRow(dir){
+    if(isPicker(curRow) && gcMove(dir > 0 ? 'down' : 'up')) return;
     var n = clamp(curRow + dir, 0, rows.length-1);
     if(curRow === 0 && navFrom){ if(dir < 0) return; n = navFrom; }
     navFrom = 0;
     if(n === curRow) return;
     curRow = n;
+    if(isPicker(n) && dir < 0) colByRow[n] = rows[n].items.indexOf(gcNextBtn());   // from the rail below: onto the buttons
     updateFocus();
   }
   function keepPlace(){ try { sessionStorage.setItem('homeReturn', JSON.stringify({row:curRow, col:colByRow[curRow]})); } catch(e){} }
@@ -939,43 +952,48 @@
     var it = r.items[colByRow[curRow]];
     if(!it) return;
     var label = it.getAttribute('data-title') || it.textContent.trim() || 'Selected';
-    // the Home tab: we're already here, so the focus goes to the first scene's primary button (Play), page back at the top
-    if(curRow === 0 && colByRow[0] === NAV_HOME_COL){ navFrom = 0; heroOnDetail = false; curRow = HERO_ROW_INDEX; updateFocus(); return; }
+    // the Home tab: we're already here, so the focus goes to the first scene's first card, page back at the top
+    if(curRow === 0 && colByRow[0] === NAV_HOME_COL){ navFrom = 0; curRow = HERO_ROW_INDEX; updateFocus(); return; }
     // Back to Top: the first rail, hero showing (as Back does)
     var act = it.getAttribute('data-act');
     if(act === 'top'){ navFrom = 0; curRow = HERO_ROW_INDEX; updateFocus(); return; }
-    // Choose what you like: Enter picks / unpicks a topic; Continue wakes up at 3 picks
+    // Choose what you like: Enter on a tab enters its grid; on a tile picks / unpicks it (up to GC_MAX per tab); Continue wakes up at the first pick
+    if(act === 'genre-tab'){ gcMove('right'); return; }
     if(act === 'genre'){
+      var tabEl = gcEl('.gc-tab[data-cat="' + it.dataset.cat + '"]');
+      if(!it.classList.contains('on') && it.parentElement.querySelectorAll('.genre.on').length >= GC_MAX){
+        toast('You can pick up to ' + GC_MAX + ' in ' + tabEl.dataset.title);
+        return;
+      }
       it.classList.toggle('on');
-      var picked = document.querySelectorAll('.genre.on').length;
-      document.querySelector('[data-act="genre-continue"]').classList.toggle('off', picked < 3);
+      var inTab = it.parentElement.querySelectorAll('.genre.on').length;
+      tabEl.querySelector('small').textContent = inTab ? 'Selected ' + inTab + '/' + GC_MAX : '';
+      gcEl('[data-act="genre-continue"]').classList.toggle('off', !gcPicked());
       return;
     }
     if(act === 'genre-continue'){
-      var n = document.querySelectorAll('.genre.on').length;
-      if(n < 3){ toast('Pick ' + (3 - n) + ' more to continue'); return; }
+      var n = gcPicked();
+      if(!n){ toast('Pick at least one to continue'); return; }
       // the full-screen loading, then Home again from the top without the picker
       var rf = document.getElementById('refresh');
       rf.querySelector('.in').style.transform = 'scale(' + (tvFrame.clientWidth / 1920) + ')';
       rf.classList.add('on'); refreshing = true;
       setTimeout(function(){
         finishPicker();
-        navFrom = 0; curRow = HERO_ROW_INDEX; heroOnDetail = false;
+        navFrom = 0; curRow = HERO_ROW_INDEX;
         stage.style.transition = 'none'; updateFocus(); stage.offsetHeight; stage.style.transition = '';
         rf.classList.remove('on'); refreshing = false;
-        toast('Your Home now shows rails for your ' + n + ' topics');
+        toast('Your Home now shows rails for your ' + n + (n === 1 ? ' topic' : ' topics'));
       }, 2800);
       return;
     }
     // Skip: the picker goes away and the focus moves on to the rail after it
-    if(act === 'genre-skip'){ var at = curRow; finishPicker(); curRow = Math.min(at - 2, rows.length - 1); updateFocus(); toast('You can choose topics any time in Settings'); return; }
+    if(act === 'genre-skip'){ var at = curRow; finishPicker(); curRow = Math.min(at, rows.length - 1); updateFocus(); toast('You can choose topics any time in Settings'); return; }
     // cards with a detail page open it: their own link, else the title's page (content.js: a movie or series, a short,
-    // or a title made from the card); the first scene's Play goes straight to the player. Live cards still play live.
+    // or a title made from the card). Live cards still play live.
     // Grab The Mic! (karaoke) and Seasonal / Collection cards have no page: a mockup, OK only presses them.
     var href = it.getAttribute('data-href'), ci = Content.info(it);
-    if(!href && it.classList.contains('hero-play') && it.dataset.heroTv) href = 'tv-guide.html?play=' + encodeURIComponent(it.dataset.heroTv) + '&from=home&t=' + encodeURIComponent(it.dataset.title);   // a LIVE slide: its channel, live
-    else if(!href && ci && it.classList.contains('hero-play') && it.dataset.heroLive !== '1') href = Content.mainAction(ci).url;   // the player, or its package (content.js)
-    else if(!href && ci && it.matches('.card, .rank-wrap')) href = Content.detailUrl(ci);
+    if(!href && ci && it.matches('.card, .rank-wrap')) href = Content.detailUrl(ci);
     if(href){
       keepPlace();   // Back from there lands on the same card
       it.animate([{transform:getComputedStyle(it).transform},{transform:'scale(0.97)'}], {duration:140, easing:'ease-out'}); setTimeout(function(){ window.location.href = href; }, 140); return; }
@@ -989,6 +1007,7 @@
     if(refreshing){ e.preventDefault(); return; }   // the loading screen: the remote waits
     if(profKey(e.key)){ e.preventDefault(); return; }
     if(e.key === 'Escape' || e.key === 'Backspace'){
+      if(isPicker(curRow) && gcBack()){ e.preventDefault(); return; }
       // scrolled down the page: Back first returns to the top (the first rail, hero showing)
       if(ctxRow() > HERO_ROW_INDEX){ navFrom = 0; curRow = HERO_ROW_INDEX; updateFocus(); e.preventDefault(); return; }
       // at the top Back leaves the app for the TV's home screen (launcher.html), which comes back to the AIS PLAY tile
@@ -996,7 +1015,6 @@
       window.location.href = 'launcher.html';
       return;
     }
-    if(heroKey(e.key)){ e.preventDefault(); return; }
     switch(e.key){
       case 'ArrowRight': moveCol(1); e.preventDefault(); break;
       case 'ArrowLeft': moveCol(-1); e.preventDefault(); break;
@@ -1012,6 +1030,7 @@
       it.addEventListener('click', function(){
         navFrom = 0; curRow = ri; colByRow[ri] = ci;
         updateFocus();
+        if(it.dataset.act === 'genre-tab') return;   // the mouse: clicking a tab only opens it
         selectCurrent();
       });
     });
@@ -1047,7 +1066,7 @@
       var row = b.parentElement, on = !!(rows[cr] && rows[cr].el === row);
       row.classList.toggle('band-on', on); bandOn = bandOn || on;
     });
-    if(topScrim) topScrim.classList.toggle('on', heroHiddenNow() && !bandOn);
+    if(topScrim) topScrim.classList.toggle('on', heroHiddenNow() && !bandOn && !isPicker(cr));   // the picker fills the screen too: nothing above it to hide
   }
   var TV_RATIO = 16 / 9;
 
@@ -1208,12 +1227,12 @@
     placeHomeRing();
   };
   // A rail's own hero text (card-mode, or the chips' Live TV screen) ends 80px above the focused rail's first line
-  // (its title, else its cards), whatever the text's length. The first scene keeps its text on the Detail / Play buttons.
+  // (its title, else its cards), whatever the text's length.
   var HERO_TEXT_GAP = 80;
   var cardTextEl = document.querySelector('.hero-content:not(.hero-livetv-content)'), chipTextEl = document.querySelector('.hero-livetv-content');
   function placeHeroText(){
     var cr = ctxRow(), r = rows[cr], el = null;
-    if(cr > HERO_ROW_INDEX && r && r.el) el = r.el.querySelector('.row-title') || r.items[0];
+    if(cr >= HERO_ROW_INDEX && r && r.el) el = r.el.querySelector('.row-title') || r.items[0];
     var on = heroSection.classList.contains('card-mode') || heroSection.classList.contains('livetv');
     [cardTextEl, chipTextEl].forEach(function(t){ t.style.top = ''; t.style.bottom = ''; });
     if(!el || !on) return;
@@ -1245,7 +1264,6 @@
 
   function ringTarget(){
     if(profAt >= 0) return profBtns[profAt];   // inside the profile panel
-    if(heroOnDetail && curRow === HERO_ROW_INDEX) return heroDetailEl;   // first scene's Detail button
     var r = rows[curRow]; if(!r) return null;
     var el = r.items[colByRow[curRow]]; if(!el) return null;
     if(el.classList.contains('rank-wrap')) el = el.querySelector('.card') || el;   // the poster, not the numeral
@@ -1275,6 +1293,8 @@
     var dx = 0, dy = 0;
     var track = el.closest('.rail-track');
     if(track) dx += (tx(track.style.transform) - liveTranslate(track).x / 1) * sc;
+    var grid = el.closest('.gc-grid');
+    if(grid) dy += (ty(grid.style.transform) - liveTranslate(grid).y) * sc;
     if(el.closest('#stage')) dy += ty(stage.style.transform) - liveTranslate(stage).y;
     var target = el.classList.contains('card') && el.parentElement.classList.contains('rank-wrap') ? el.parentElement : el;
     var fs = focusScale(target);

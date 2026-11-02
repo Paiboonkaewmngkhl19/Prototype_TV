@@ -37,6 +37,7 @@
   .btn.focused{ background:var(--pill-hi), var(--th-pill); }
   .btn.focused::before{ opacity:0; }
   .btn.focused .lbl{ color:#fff; opacity:1; font-weight:600; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+  .btn.focused .ic{ filter:brightness(0) invert(1) drop-shadow(0 1px 3px rgba(0,0,0,.35)); }   /* the icon white, as the label */
 
   .or{ display:flex; align-items:center; gap:12px; height:28px; }
   .or .line{ flex:1 0 0; min-width:1px; height:1px; display:block; }
@@ -94,7 +95,7 @@
   .btn.off{ opacity:.4; cursor:default; }
   .btn.off::before{ border:0; background:var(--surface-container-high); }
 
-  /* Pay per view: the focused title's key art fills the page (each placed as in its Figma frame, with its own shade),
+  /* Pay Per View: the focused title's key art fills the page (each placed as in its Figma frame, with its own shade),
      crossfading from one to the next; the poster wall makes way */
   .ppv-bgs{ position:absolute; inset:0; overflow:hidden; }
   .ppv-bg{ position:absolute; overflow:hidden; opacity:0; transition:opacity .45s var(--ease); }
@@ -108,8 +109,8 @@
   body.ppv-on .ppv{ opacity:1; }
   body.ppv-on .ppv-card{ pointer-events:auto; }
   .ppv h3{ position:absolute; left:974.5px; top:646px; transform:translateX(-50%); margin:0; font:400 32px/normal var(--roboto); color:#fff; white-space:nowrap; }
-  /* TV / Card, 420 x 268: an 8px inset round the 16:9 picture. The focused one is always in the first place (x 891);
-     the others follow 24px apart and slide along as focus loops round */
+  /* TV / Card, 420 x 268: an 8px inset round the 16:9 picture. The first sits at x 891, the others follow 24px apart;
+     they move as Home's rails do (login-1.js placeCards) */
   .ppv-card{ position:absolute; left:891px; top:712px; width:420px; height:268px; box-sizing:border-box; padding:8px; border-radius:17px;
     transition:transform .4s var(--ease), opacity .4s var(--ease); }
   .ppv-card .shot{ width:100%; height:100%; border-radius:12px; overflow:hidden; background:var(--surface-container-high); cursor:pointer;

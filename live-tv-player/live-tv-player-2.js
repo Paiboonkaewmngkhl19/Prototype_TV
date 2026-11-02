@@ -229,19 +229,21 @@
      after the 3rd). The channel list lives in the TV Guide, so tuning goes through it: tv-guide.html?tune=N opens that
      channel here in this player's place, or comes back with ?nochan=N when there is no such channel ---------- */
   var chBuf = '', chT;
-  function chPaint(){ var el = byId('chIn'); el.innerHTML = esc(chBuf) + '<i>' + '–––'.slice(chBuf.length) + '</i>'; el.classList.toggle('on', !!chBuf); }
+  var zapAt = null;   // Up / Down in progress: where it has got to in the channel list (see zap)
+  function chPaint(){ var el = byId('chIn'); el.innerHTML = esc(chBuf) + (zapAt === null ? '<i>' + '–––'.slice(chBuf.length) + '</i>' : ''); el.classList.toggle('on', !!chBuf); }
   function chKey(d){
     clearTimeout(chShowT);
+    if(zapAt !== null){ zapAt = null; chBuf = ''; }   // a digit takes over from Up / Down
     if(chBuf.length >= 3) chBuf = '';
     chBuf += d; chPaint();
     clearTimeout(chT); chT = setTimeout(tune, chBuf.length === 3 ? 500 : 2000);
   }
-  function chCancel(){ clearTimeout(chT); chBuf = ''; chPaint(); }
+  function chCancel(){ clearTimeout(chT); chBuf = ''; zapAt = null; chPaint(); }
   function tune(){
     clearTimeout(chT);
-    var n = parseInt(chBuf, 10); chBuf = '';
+    var n = parseInt(chBuf, 10), zapped = zapAt !== null; chBuf = ''; zapAt = null;
     if(!n){ chPaint(); return; }
-    if(String(n) === C.no){ chPaint(); toast('You are watching channel ' + n); return; }
+    if(String(n) === C.no){ chPaint(); if(!zapped) toast('You are watching channel ' + n); return; }   // (Up / Down back round to this channel: just stay)
     // no such channel (the TV Guide's list, when it opened this player): say so and keep playing, without reloading
     var nos = null; try { nos = JSON.parse(sessionStorage.getItem('tvChannelNos')); } catch(e){}
     if(nos && nos.indexOf(n) < 0){ chPaint(); toast('Channel ' + n + ' is not available'); return; }
@@ -257,7 +259,25 @@
     markWatching();
     location.href = 'tv-guide.html';
   }
-  function zap(dir){ location.replace('tv-guide.html?zap=' + dir + '&cur=' + encodeURIComponent(C.n)); }
+  // Up / Down with the controls away: the next / previous channel by number (wrapping round; the Exclusive channels have
+  // no number, so they are left out). A single press tunes at once. Pressed again within ZAP_RAPID of the last press (the
+  // time is kept across the reload a tune makes), it only moves the number, shown top right, and tunes 2s after the last
+  var ZAP_RAPID = 1000;
+  function zap(dir){
+    var nums = TV.CHANNELS.filter(function(c){ return !c.excl; }).sort(function(a, b){ return a.no - b.no; }),
+        last = 0, now = Date.now();
+    try { last = +sessionStorage.getItem('tvZapAt') || 0; sessionStorage.setItem('tvZapAt', now); } catch(e){}
+    var rapid = zapAt !== null || now - last < ZAP_RAPID;
+    if(zapAt === null){
+      zapAt = nums.map(function(c){ return c.n; }).indexOf(C.n);
+      if(zapAt < 0) zapAt = dir > 0 ? -1 : 0;
+    }
+    zapAt = (zapAt + dir + nums.length) % nums.length;
+    clearTimeout(chShowT); chBuf = String(nums[zapAt].no);
+    if(!rapid){ tune(); return; }
+    chPaint();
+    clearTimeout(chT); chT = setTimeout(tune, 2000);
+  }
 
   /* ---------- mini EPG: the channels come from the TV Guide (tvMini in sessionStorage, written when it opened this
      player). Up / Down move along the channels, Left / Right between them and the category bar (moving along the bar
@@ -444,6 +464,7 @@
     if(/^[0-9]$/.test(k)){ e.preventDefault(); chKey(k); return; }
     if(chBuf && (k === 'Enter' || k === ' ')){ e.preventDefault(); tune(); return; }
     if(chBuf && back_){ e.preventDefault(); chCancel(); return; }
+    if(zapAt !== null && (k === 'ArrowLeft' || k === 'ArrowRight')) chCancel();   // moved on: stay on this channel
     if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', ' '].indexOf(k) < 0 && !back_) return;
     e.preventDefault();
     if(mini){ miniKey(k); return; }

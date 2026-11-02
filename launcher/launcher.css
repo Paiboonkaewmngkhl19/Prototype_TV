@@ -53,9 +53,7 @@
 
   /* the AIS PLAY logo (aisLogo() below): on its app tile, its channel icon and the launch screen */
   .ais{ display:block; width:100%; height:auto; }
-  .tile.app.aisplay{ background:linear-gradient(135deg, #2a2b30 0%, #121215 60%, #1c1d21 100%); }
-  .tile.app.aisplay::after{ content:""; position:absolute; inset:0; pointer-events:none;
-    background:linear-gradient(115deg, transparent 30%, rgba(255,255,255,.12) 45%, transparent 60%); }
+  .tile.app.aisplay{ background:#000; }
   .tile.app.aisplay .ais{ position:absolute; left:14px; width:calc(100% - 28px); top:50%; transform:translateY(-50%); }
 
   /* row 2: AIS PLAY's channel, wide pictures with the app's mark in the corner; the focused one shows its title */

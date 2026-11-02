@@ -7,20 +7,13 @@
   // Quick sign in: its two buttons (0 Refresh, 1 Back); inQr is where focus is in it (-1: on the options)
   var qrBtns = [document.getElementById('qrRefresh'), document.getElementById('qrBack')], inQr = -1;
   var timerEl = document.getElementById('qrTimer'), qrLeft = 300, qrT = 0;
-  // Pay per view: four titles in a loop. bg: the key art's box in the page and the picture's place in it, both in %
+  // Pay Per View: two titles. bg: the key art's box in the page and the picture's place in it, both in %
   // as in each Figma frame (box: left, top, width, height in px); shade: that frame's darkening over it
   var ppvBtn = document.querySelector('.btn[data-act="ppv"]'), inPpv = false, ppvAt = 0;
   var SHADE = 'linear-gradient(81.96deg, rgba(0,0,0,.768) 1.7%, rgba(0,0,0,.8) 12.76%, rgba(0,0,0,0) 76.43%)';
   var PPV = [
-    // (the UCL art's own deep blue instead of black, so the side with the options stays blue)
-    {t:'UEFA Champions League', card:'login-assets/ppv/ucl-card.jpg', bg:'login-assets/ppv/ucl-bg.jpg', box:[0, 0, 1920, 1080], img:[0, 0, 100, 100],
-      shade:'linear-gradient(81.96deg, rgba(12,26,120,.78) 1.7%, rgba(14,32,150,.62) 20%, rgba(16,40,176,.3) 50%, rgba(16,40,176,0) 76.43%)'},
-    {t:'Mo Yu Yun Jian', card:'login-assets/ppv/drama.png', bg:'login-assets/ppv/drama.png', box:[0, -196, 2199, 1276], img:[.02, 14.49, 123.49, 119.78],
-      shade:'linear-gradient(82.2deg, rgba(0,0,0,.768) 1.7%, rgba(0,0,0,.8) 12.76%, rgba(0,0,0,0) 76.43%)'},
-    {t:'F1 The Movie', card:'login-assets/ppv/f1-card.png', bg:'login-assets/ppv/f1-bg.png', box:[-346, -63, 2316, 1344], img:[1.98, 3.39, 95.96, 92.37],
-      shade:'linear-gradient(69.1deg, rgba(0,0,0,.8) 52.51%, rgba(0,0,0,0) 73.97%)'},
-    {t:'PLAY Ultimate', card:'login-assets/ppv/play-card.png', bg:'login-assets/ppv/play-bg.png', box:[0, 0, 1920, 1080], img:[-2.22, -1.51, 102.22, 101.51],
-      shade:'linear-gradient(-1.28deg, #000 9.23%, rgba(0,0,0,0) 35.21%), ' + SHADE}
+    {t:'Asanee-Wasan Farewell Concert', card:'login-assets/ppv/assanee-card.webp', bg:'login-assets/ppv/assanee-bg.webp', box:[0, 0, 1920, 1080], img:[0, 0, 100, 100], shade:SHADE},
+    {t:'Miss Universe', card:'login-assets/ppv/universe-card.png', bg:'login-assets/ppv/universe-bg.webp', box:[0, 0, 1920, 1080], img:[0, 0, 100, 100], shade:SHADE}
   ];
   var ppvBgs = PPV.map(function(c){
     var el = document.createElement('div'), b = c.box, i = c.img;
@@ -36,12 +29,17 @@
     el.querySelector('.shot').addEventListener('click', function(){ ppvAt = i; inPpv = true; paint(); placeCards(); location.href = 'store.html'; });
     document.getElementById('ppvRow').appendChild(el); return el;
   });
-  // each card's place: 0 is the focused one's, then 1, 2, 3 to the right (3 is past the screen's edge). No loop: the
-  // row stops at either end; cards before the focused one slide out to the left and fade
-  var SLOT = 444;
-  function setCard(el, slot){ el.style.transform = 'translateX(' + slot * SLOT + 'px)'; el.style.opacity = slot < 0 ? 0 : 1; }
+  // "Fixed focus", as Home's rails (updateTrackTransform): the focused card sits at the first card's place and the rail
+  // slides under it, stopping where the last card ends 110px (Home's rail inset) from the right edge, allowing for the
+  // ring's 12px; past that the focus moves on alone. A short rail never slides. Cards before the first place fade out
+  var SLOT = 444, CARD_LEFT = 891, CARD_W = 420;
+  var MAX_SCROLL = Math.max(0, CARD_LEFT + (PPV.length - 1) * SLOT + CARD_W + 12 + 110 - 1920);
   function placeCards(){
-    ppvCards.forEach(function(el, i){ setCard(el, i - ppvAt); });
+    var scroll = Math.min(ppvAt * SLOT, MAX_SCROLL);
+    ppvCards.forEach(function(el, i){
+      var x = i * SLOT - scroll;
+      el.style.transform = 'translateX(' + x + 'px)'; el.style.opacity = x < 0 ? 0 : 1;
+    });
     ppvBgs.forEach(function(el, i){ el.classList.toggle('on', i === ppvAt); });
   }
   placeCards();

@@ -130,7 +130,7 @@
       (a.img ? '' : ini) + '</div><div class="nm">' + esc(a.n) + '</div></div>';
   }).join(''), 'actors');
   html += sec('leaving', 'Soon Leaving', LEAVING.map(function(k, i){ return poster(k, i, 'leaving', 'Soon Leaving'); }).join(''), 'tall-rail');
-  html += sec('seasonal', '', SEASONAL.map(function(c, i){
+  html += sec('seasonal', 'Movie Collection', SEASONAL.map(function(c, i){
     return '<div class="season-card item"' + attrs({kind:'season', i:i}) + ' style="background-image:url(\'' + c.img + '\')"><span>' + esc(c.t) + '</span></div>';
   }).join(''), 'seasonal');
   html += '<section class="sec" data-row="channels"><h2 class="sec-title">Movie Channel</h2><div class="rail"><div class="track chan-track">' + CHANNELS.map(function(c, i){
