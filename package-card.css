@@ -2,6 +2,7 @@
   Package card (Figma "card_Package"): badge, logo + title, the channel / service logos, the features (resolution,
   audio, screens) and the price; focused, it grows 17px (the card 8px inside the focus ring, no rim of its own) and shows Subscribe.
   Shared by package-suggest.html (View Package's 3 cards) and all-packages.html; packages.js Packages.cardHtml makes it.
+  tv-guide.html takes only its theme (the --pc-* colours) for View Program Guide's columns.
   The page sets the width (--pc-w, 354px by default) and the heights; the features block gives up its spare space when
   a focused card needs room for Subscribe. Colours: Home's default theme (navy, its glow, the chip's frosted glass;
   Figma 162:49956's greys mapped onto it, below); Subscribe is button-theme.css's Primary focus pill.
