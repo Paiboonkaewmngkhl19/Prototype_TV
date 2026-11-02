@@ -121,8 +121,8 @@
   html += sec('movies', 'Movies', MOVIES.map(function(k, i){ return poster(k, i, 'movies'); }).join(''), 'tall-rail');
   html += sec('series', 'Series', SERIES.map(function(k, i){ return poster(k, i, 'series'); }).join(''), 'tall-rail');
   html += sec('mylist', 'My List', MY_LIST.map(function(k, i){ return wide(k, i, 'mylist'); }).join(''));
-  html += sec('rent', 'Rent or Buy', RENT.map(function(r, i){ return poster(r.k, i, 'rent', r.b); }).join(''), 'tall-rail');
   html += sec('myrental', 'My Rentals and Purchases', MY_RENTAL.map(function(k, i){ return wide(k, i, 'myrental'); }).join(''));
+  html += sec('rent', 'Rent or Buy', RENT.map(function(r, i){ return poster(r.k, i, 'rent', r.b); }).join(''), 'tall-rail');
   html += sec('actor', 'Actor', ACTORS.map(function(a, i){
     var ini = a.n.split(' ').map(function(w){ return w[0]; }).join('').slice(0, 2);
     // the photo takes the focus, so the ring circles it (the name stays under it)
