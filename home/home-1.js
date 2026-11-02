@@ -56,31 +56,31 @@
     rowDefs.push({ el: node, track: node.querySelector('.rail-track') || null });
   }
 
-  /* ---------- Row: Jump Right Back In (landscape, no title shown) ----------
+  /* ---------- Row: the first scene's cards (as Sport's first rail) ----------
      This row also drives the dynamic hero banner above it: whichever card
      is focused here updates the hero background/title/description. */
   (function(){
     // the slides: a live match (content.js LIVE, by its title) or a title (content.js MD.M, by its key); their words,
     // tag and picture come from there, so the slide and the detail page it opens say the same
-    var SLIDES = [{live:'Liverpool vs Brentford'}, {k:'loki'}, {k:'lastofus'}, {k:'wicked'}, {k:'superman'}, {k:'topgun'}, {k:'dragon'},
+    var SLIDES = [{live:'Liverpool vs Brentford'}, {k:'d9'}, {k:'loki'}, {k:'lastofus'}, {k:'wicked'}, {k:'superman'}, {k:'topgun'}, {k:'dragon'},
                   {live:'Arsenal vs Chelsea'}, {k:'f1'}];
     function attr(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }   // e.g. Pete "Maverick" Mitchell
     var items = SLIDES.map(function(s){
-      if(s.live){ var p = LIVE.find(s.live); return { hero:{title:p.t, logo:'monomax', channel:'', live:true, tv:p.tv, desc:p.d}, bg:p.bg || p.img }; }
-      var h = Content.hero({k:s.k});
-      return { k:s.k, hero:{title:h.t, logo:h.plat, channel:h.meta, live:false, desc:h.d}, bg:h.bg };
+      if(s.live){ var p = LIVE.find(s.live); return { t:p.t, img:p.img, crown:{tv:p.tv}, href:LIVE.href(p, 'home'), hero:{logo:'monomax', channel:'', live:true, tv:p.tv, desc:p.d}, bg:p.bg || p.img }; }
+      var h = Content.hero({k:s.k}), m = M(s.k);
+      return { k:s.k, t:h.t, img:m.w || h.bg, crown:{k:s.k}, hero:{logo:h.plat, channel:h.meta, live:false, desc:h.d}, bg:h.bg };
     });
-    var slides = items.map(function(it){
-      return '<div class="hero-btn hero-play tv-btn tv-btn--primary item" data-title="'+attr(it.hero.title)+'" data-ring-art=""'+
-        ' data-hero-title="'+attr(it.hero.title)+'" data-hero-logo="'+attr(it.hero.logo)+'" data-hero-channel="'+attr(it.hero.channel)+'"'+
-        ' data-hero-live="'+(it.hero.live?'1':'0')+'"'+(it.hero.tv?' data-hero-tv="'+attr(it.hero.tv)+'"':'')+' data-hero-desc="'+attr(it.hero.desc)+'" data-hero-img="'+it.bg+'"'+(it.k ? ' data-k="'+it.k+'"' : '')+'>'+
-        // a title's slide: its detail page's main button (content.js: View Package, Resume or Play); a live one: Play
-        (function(a){ return '<i class="'+a.icon+'"></i>'+a.label; })(it.k ? Content.mainAction({k:it.k}) : {icon:'ic-play', label:'Play'})+'</div>';
+    var cards = items.map(function(it){
+      return '<div class="card card-content item'+(it.hero.live ? ' has-ribbon' : '')+'" data-title="'+attr(it.t)+'"'+
+        ' data-hero-title="'+attr(it.t)+'" data-hero-logo="'+attr(it.hero.logo)+'" data-hero-channel="'+attr(it.hero.channel)+'"'+
+        ' data-hero-live="'+(it.hero.live?'1':'0')+'"'+(it.hero.tv?' data-hero-tv="'+attr(it.hero.tv)+'"':'')+' data-hero-desc="'+attr(it.hero.desc)+'" data-hero-img="'+it.bg+'"'+
+        (it.k ? ' data-k="'+it.k+'"' : ' data-href="'+attr(it.href)+'"')+'>'+   // Enter: its detail page (content.js)
+        '<div class="thumb" style="background-image:url(\''+it.img+'\');background-size:cover;background-position:center;">'+Content.crownIcon(it.crown, 0, 'crown-tag')+'</div>'+
+        '<div class="strip"><div class="t">'+it.t+'</div></div>'+
+        (it.hero.live ? '<span class="live-ribbon">Live</span>' : '')+
+      '</div>';
     }).join('');
-    addRow('<div class="row-block hero-row">'+
-      '<div class="hero-btn hero-detail tv-btn tv-btn--secondary" id="heroDetail" data-title="Detail" data-ring-art=""><i class="ic-info"></i>Detail</div>'+
-      '<div class="rail-viewport"><div class="rail-track">'+slides+'</div></div>'+
-      '<div class="hero-dots">'+items.map(function(){ return '<i></i>'; }).join('')+'</div></div>');
+    addRow('<div class="row-block hero-row"><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
   })();
 
   /* ---------- Row: Quick menu chips ---------- */
@@ -227,7 +227,7 @@
 
   /* ---------- Row: Top 10 in Thailand Today ---------- */
   (function(){
-    var TOP10 = ['f1', 'house', 'john', 'venom', 'avatar', 'debt', 'topgun', 'thailaw', 'lotr', 'dollar'];   // content.js MD.M
+    var TOP10 = ['d9', 'house', 'john', 'venom', 'avatar', 'debt', 'topgun', 'thailaw', 'lotr', 'dollar'];   // content.js MD.M
     var cards = TOP10.map(function(k, i){
       var m = M(k);
       return '<div class="rank-wrap item" data-k="'+k+'" data-title="#'+(i+1)+' '+m.t.replace(/"/g, '&quot;')+'">'+
@@ -278,13 +278,12 @@
     // Premium with its crown, as the PPV card, gold until bought) and synopsis.
     // Each a catalogue title (content.js MD.M, AIS PLAY's own); the rail adds its badge, kick-off and where the pictures sit
     var picks = [
-      {k:'missuni', badges:['#1 in thailand'], ppos:'30% center'}, {k:'sophomores', badges:['Rerun']}, {k:'bossckm', badges:['New Arrival']},
-      {k:'cityars', badges:['Premier League'], when:'Sun 22:30', pos:'center 40%'}, {k:'mufcche', badges:['Emirates FA Cup'], when:'Sat 19:30'},
-      {k:'mufcars', badges:['Premier League'], when:'Sat 23:00'}
+      {k:'assanee', badges:['New Arrival'], ppos:'88% center'}, {k:'missuni', badges:['#1 in Thailand'], ppos:'90% center'},
+      {k:'sophomores', badges:['Rerun']}, {k:'bossckm', badges:['New Arrival']}
     ];
     function vat(n){ return (Math.round(n * 107) / 100).toLocaleString('en-US', { minimumFractionDigits:2 }); }
     var cards = picks.map(function(it){
-      var m = M(it.k), wide = MD.bg(it.k);
+      var m = M(it.k), wide = m.w || MD.bg(it.k);
       return '<div class="card xcard item" data-k="'+it.k+'" data-title="'+m.t+'" data-ring-art="url(&quot;'+wide+'&quot;)">'+
         '<div class="xc-portrait" style="background-image:url(\''+m.p+'\');'+(it.ppos?'background-position:'+it.ppos+';':'')+'"></div>'+
         '<div class="xc-wide" style="background-image:url(\''+wide+'\');background-position:'+(it.pos || 'center')+';"></div>'+
@@ -305,14 +304,14 @@
   (function(){
     var last = rowDefs[rowDefs.length-1];
     var songs = [
-      ['Sabai Sabi','Thongchai McIntyre'], ['Mae','Loso'],
-      ['Do You Want Me to Stay With You','Asanee-Wasan'], ['Let It Be','The Beatles'],
-      ['Take Me Home, Country Roads','John Denver'], ['Wanipok','Carabao'],
-      ['First Love','Nont Tanont'], ['Polaroid','Unknown Artist'], ['Recently Deleted','Atom']
+      ['First Love','Nont Tanont',7], ['Polaroid','Unknown Artist',8], ['Recently Deleted','Atom',9],
+      ['Sabai Sabi','Thongchai McIntyre',1], ['Mae','Loso',2],
+      ['Do You Want Me to Stay With You','Asanee-Wasan',3], ['Let It Be','The Beatles',4],
+      ['Take Me Home, Country Roads','John Denver',5], ['Wanipok','Carabao',6]
     ];
-    var cards = songs.map(function(s,i){
+    var cards = songs.map(function(s){
       return '<div class="card-karaoke tv-glass item" data-title="'+s[0]+' – '+s[1]+'">'+
-        '<img class="art" src="posters/karaoke/k'+(i+1)+'.jpg" alt="">'+
+        '<img class="art" src="posters/karaoke/k'+s[2]+'.jpg" alt="">'+
         '<div class="meta"><div class="song">'+s[0]+'</div><div class="artist">'+s[1]+'</div></div>'+
       '</div>';
     }).join('');
@@ -338,7 +337,7 @@
      Built after every older rail, so the pool posters those take stay where they were; the rail order below puts
      each one in its place. */
 
-  /* ---------- Row: Hot Channel Program (16:9 programme cards, crown on premium, the Live ribbon: all on now) ----------
+  /* ---------- Row: Hot Channel Program (Live and Upcoming's cards, crown on premium, the Live ribbon: all on now) ----------
      The News page's programme pictures (news-assets/), with their titles, channels and descriptions there; focused,
      a card's picture and text fill the screen (updateHeroFromCard: data-meta / data-desc). */
   (function(){
@@ -350,9 +349,10 @@
       // Enter as any channel's programme (content.js LIVE.href: a Movie / Sport channel's detail page, else the channel
       // in the Live TV player)
       var chName = p.tv, tv = window.TV.byName(chName), prog = p;
-      return '<div class="card card-landscape item has-ribbon" data-title="'+attrQ(p.t)+'" data-live="1" data-href="'+attrQ(LIVE.href(prog, 'home'))+'"'+
-        (tv ? ' data-ch="'+attrQ(tv.n)+'" data-meta="'+attrQ('Channel '+tv.no+': '+tv.n)+'"' : '')+' data-desc="'+attrQ(p.d)+'" style="'+pic+'">'+
-        Content.crownIcon({tv:chName}, 0, 'crown-tag')+
+      return '<div class="card card-content item has-ribbon" data-title="'+attrQ(p.t)+'" data-live="1" data-href="'+attrQ(LIVE.href(prog, 'home'))+'"'+
+        (tv ? ' data-ch="'+attrQ(tv.n)+'" data-meta="'+attrQ('Channel '+tv.no+': '+tv.n)+'"' : '')+' data-desc="'+attrQ(p.d)+'">'+
+        '<div class="thumb" style="'+pic+'">'+Content.crownIcon({tv:chName}, 0, 'crown-tag')+'</div>'+
+        '<div class="strip"><div class="t">'+p.t+'</div></div>'+   // the Live and Upcoming card
         '<span class="live-ribbon">Live</span></div>';   // on now, as its hero's LIVE: the Live and Upcoming cards' ribbon
     }).join('');
     addRow('<div class="row-block"><div class="row-title">Hot Channel Program</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
@@ -379,14 +379,14 @@
       var m = M(x[0]);
       return '<div class="card card-poster item" data-k="'+x[0]+'" data-title="'+m.t+'" style="'+cover(m.p)+'">'+
         (x[1] ? '<span class="time-pill top-tag">'+x[1]+'</span>' : '')+'</div>';
-    }).join('') + '<div class="clip-viewall tv-chip item" data-title="LPGA Golf – View All" data-ring-art=""><b>View All</b></div>';
+    }).join('');
     addRow('<div class="row-block hl-row"><div class="hl-bg"></div><div class="hl-bg band-full"></div>'+
       '<div class="hl-info"><h3>LPGA Golf</h3><p>Every round from the LPGA tour in Thailand and beyond: Honda LPGA Thailand 2024, the LPGA Lotte Championship and the season\'s best match-play moments.</p></div>'+
       '<div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
   })();
 
   /* ---------- Rows: genre rails ---------- */
-  posterRail('Ray Macdonald', ['khemjira', 'medium', 'thailaw', {k:'debt', badge:'Soon leaving'}, 'judge', {k:'bigmouth', badge:'Soon leaving'}, {k:'vincenzo', badge:'Top 10'}]);
+  posterRail('Worlds in Chaos', ['khemjira', 'medium', 'thailaw', {k:'debt', badge:'Soon leaving'}, 'judge', {k:'bigmouth', badge:'Soon leaving'}, {k:'vincenzo', badge:'Top 10'}]);
   posterRail('We think you’ll love this', ['got', 'house', {k:'lastking', badge:'Soon leaving'}, 'vikings', {k:'avatar', badge:'Soon leaving'}, {k:'venom', badge:'Top 10'}, {k:'john', badge:'Top 10'}]);
   posterRail('Date night Selected', ['dollar', 'family', {k:'again', badge:'Soon leaving'}, 'lawless', {k:'topgun', badge:'Soon leaving'}, {k:'f1', badge:'Top 10'}, {k:'hobbit', badge:'Top 10'}]);
 
@@ -397,7 +397,7 @@
       {t:'Fantasy Worlds', img:'posters_portrait/collection/fantasy.jpg'}, {t:'Action Collection', img:'posters_portrait/collection/action.jpg'},
       {t:'Speed & Racing', img:'posters_portrait/collection/racing.jpg'}
     ];
-    addRow('<div class="row-block seasonal-row"><div class="rail-viewport"><div class="rail-track">'+sets.map(function(c){
+    addRow('<div class="row-block seasonal-row"><div class="row-title">Seasonal/Collection</div><div class="rail-viewport"><div class="rail-track">'+sets.map(function(c){
       return '<div class="season-card item" data-title="'+c.t+'" style="background-image:url(\''+c.img+'\');"><span>'+c.t+'</span></div>';
     }).join('')+'</div></div></div>');
   })();
@@ -431,7 +431,7 @@
   (function(){
     var ORDER = ['.hero-row', '.chip-row', 'Jump Right Back In', 'Top 10 in Thailand Today', '.partner-row', '.epg-row',
       'Live and Upcoming', 'Hot Channel Program', 'Hot Off the Big Screen', 'My List', 'Recommended Apps',
-      'AIS Play Exclusive', '.clips-row', '.hl-row', 'Ray Macdonald', 'We think you', 'Date night Selected',
+      'AIS Play Exclusive', '.clips-row', '.hl-row', 'Worlds in Chaos', 'We think you', 'Date night Selected',
       'Because You Watched', '.seasonal-row', '.karaoke-track', '.gc-head', '.gc-row2', '.gc-actions', '.quick-row', '.back-row'];
     function rank(d){
       var t = d.el.querySelector('.row-title'), title = t ? t.textContent.trim() : '';
@@ -507,7 +507,6 @@
   function focusScale(el){
     if(el.matches('.prof-btn')) return 1;
     if(el.closest('.topnav')) return 1.06;
-    if(el.closest('.hero-row')) return 1.05;
     if(el.closest('.toppick-row, .seasonal-row')) return 1.05;
     return 1.08;   // every rail item, Top 10 posters included
   }
@@ -594,27 +593,8 @@
   var currentHeroImgKey = 'posters/liver-ben.jpg';
   var heroVideo = document.querySelector('.hero-bg-video');
 
-  /* First scene carousel: while Play or Detail has focus the slides move on by themselves, back to the first after
-     the last. A slide with the video (Liverpool vs Brentford) stays until its video has played to the end; a picture
-     slide stays HERO_SLIDE_MS. Left / Right (or any key in the scene) restarts the slide's time. */
-  var HERO_SLIDE_MS = 8000;
-  var heroAutoTimer = 0, heroAutoCol = -1;
   function isVideoSlide(it){ return !!(heroVideo && it && it.dataset.heroImg === 'posters/liver-ben.jpg'); }
-  function scheduleHeroAuto(){
-    clearTimeout(heroAutoTimer);
-    syncHeroSound();
-    if(curRow !== HERO_ROW_INDEX){ heroAutoCol = -1; return; }   // paused while focus is anywhere else
-    var col = colByRow[HERO_ROW_INDEX], it = rows[HERO_ROW_INDEX].items[col];
-    var arrived = col !== heroAutoCol;
-    heroAutoCol = col;
-    if(isVideoSlide(it)){
-      // a fresh visit (or a video that already ended) plays it from the start; its end moves the carousel on
-      if(arrived || heroVideo.ended){ heroVideo.currentTime = 0; heroVideo.play().catch(function(){}); }
-      return;
-    }
-    heroAutoTimer = setTimeout(advanceHero, HERO_SLIDE_MS);
-  }
-  // The video's sound: on while its slide is on screen in the first scene (focus on Play / Detail, or on the top bar
+  // The video's sound: on while its slide is on screen in the first scene (focus on its card, or on the top bar
   // above it), muted anywhere else, on another slide, or in another tab. Browsers only allow sound after a key press or
   // click on the page, so it comes on with the first one; until then the video plays muted.
   var heroSoundOk = false;
@@ -631,15 +611,6 @@
   addEventListener('pointerdown', allowHeroSound, true);
   document.addEventListener('visibilitychange', syncHeroSound);
   addEventListener('pagehide', function(){ if(heroVideo) heroVideo.muted = true; });
-  function advanceHero(){
-    if(curRow !== HERO_ROW_INDEX) return;
-    colByRow[HERO_ROW_INDEX] = (colByRow[HERO_ROW_INDEX] + 1) % rows[HERO_ROW_INDEX].items.length;
-    updateFocus();
-  }
-  if(heroVideo) heroVideo.addEventListener('ended', function(){
-    if(curRow === HERO_ROW_INDEX && isVideoSlide(rows[HERO_ROW_INDEX].items[colByRow[HERO_ROW_INDEX]])) advanceHero();
-  });
-
   // crossfade the screen background to a new picture (key: anything identifying it, css: a CSS url(...))
   function setHeroBg(key, css){
     if(!key || key === currentHeroImgKey || !heroBgA || !heroBgB) return;
@@ -743,7 +714,7 @@
     showHeroWatched(null);
     var img = item.dataset.heroImg;
     if(img) setHeroBg(img, "url('" + img + "')");
-    if(heroSection) heroSection.classList.remove('card-mode');
+    if(heroSection) heroSection.classList.add('card-mode');
     if(heroLogoEl) heroLogoEl.style.display = '';
     if(heroDescEl) heroDescEl.style.display = '';
     if(heroChannelEl) heroChannelEl.parentElement.style.display = '';
@@ -765,17 +736,11 @@
   }
 
   function updateFocus(prevRow){
-    if(curRow !== HERO_ROW_INDEX) heroOnDetail = false;
     rows.forEach(function(r,ri){
       r.items.forEach(function(it,ci){
-        it.classList.toggle('focused', profAt < 0 && !(heroOnDetail && ri === HERO_ROW_INDEX) && ri===curRow && ci===colByRow[ri]);
+        it.classList.toggle('focused', profAt < 0 && ri===curRow && ci===colByRow[ri]);
       });
     });
-    // first scene: the current slide's Play button shows, its dot is the long one; Detail has focus when heroOnDetail
-    var heroCol = colByRow[HERO_ROW_INDEX];
-    rows[HERO_ROW_INDEX].items.forEach(function(it, i){ it.classList.toggle('cur', i === heroCol); });
-    heroDots.forEach(function(d, i){ d.classList.toggle('on', i === heroCol); });
-    heroDetailEl.classList.toggle('focused', heroOnDetail);
     // top bar: the current page (Home) is Active while the D-pad is on the bar, Active dim while it's in the content
     var homeTab = navItems[NAV_HOME_COL];
     homeTab.classList.toggle('active', curRow === 0);
@@ -810,7 +775,7 @@
     if(curRow === HERO_ROW_INDEX){
       updateHeroFromItem(rows[HERO_ROW_INDEX].items[colByRow[HERO_ROW_INDEX]]);
     }
-    scheduleHeroAuto();
+    syncHeroSound();
     // Three scroll modes, split by where the row sits relative to the dynamic
     // hero-background zone (rows[1..HERO_ZONE_LAST_ROW]):
     //  - The hero-linked row itself (row 1): minimal, edge-based scrolling —
@@ -882,39 +847,16 @@
     }
   }
 
-  // First scene: Up from Play focuses Detail (in the same row, like the profile panel's buttons); Up again goes on to
-  // the top bar, Down comes back to Play. Left / Right on Detail still change the slide. Returns true when handled.
-  var heroDetailEl = document.getElementById('heroDetail');
-  var heroDots = Array.prototype.slice.call(document.querySelectorAll('.hero-dots i'));
-  var heroOnDetail = false;
-  function heroKey(k){
-    if(curRow !== HERO_ROW_INDEX) return false;
-    if(!heroOnDetail){
-      if(k === 'ArrowUp'){ heroOnDetail = true; updateFocus(); return true; }
-      return false;
-    }
-    if(k === 'ArrowDown'){ heroOnDetail = false; updateFocus(); return true; }
-    if(k === 'ArrowUp'){ heroOnDetail = false; moveRow(-1); return true; }
-    if(k === 'ArrowLeft' || k === 'ArrowRight'){
-      var n = clamp(colByRow[curRow] + (k === 'ArrowRight' ? 1 : -1), 0, rows[curRow].items.length - 1);
-      if(n !== colByRow[curRow]){ colByRow[curRow] = n; updateFocus(); }
-      return true;
-    }
-    if(k === 'Enter'){   // the slide's detail page (content.js); a live match: its LIVE detail page (content.js LIVE)
-      var sl = rows[curRow].items[colByRow[curRow]];
-      if(sl.dataset.heroLive === '1'){
-        var lp = LIVE.find(sl.dataset.title);
-        if(lp){ keepPlace(); location.href = LIVE.href(lp, 'home'); } else toast('Detail: ' + sl.dataset.title);
-        return true;
-      }
-      keepPlace(); Content.open(Content.info(sl)); return true;
-    }
-    return false;
-  }
-  heroDetailEl.addEventListener('click', function(){ navFrom = 0; curRow = HERO_ROW_INDEX; heroOnDetail = true; updateFocus(); heroKey('Enter'); });
-
+  // Choose what you like: its two rows are one grid of topics. Up / Down stay in the column; Right past a row's end goes
+  // on to the other row's first topic (the last topic back to the first), Left off the second row to the first's last
+  function isTopicRow(i){ return !!(rows[i].el && rows[i].el.matches('.gc-head, .gc-row2')); }
   function moveCol(dir){
     var r = rows[curRow];
+    if(isTopicRow(curRow)){
+      var second = r.el.matches('.gc-row2');
+      if(dir > 0 && colByRow[curRow] === r.items.length - 1){ curRow += second ? -1 : 1; colByRow[curRow] = 0; updateFocus(); return; }
+      if(dir < 0 && colByRow[curRow] === 0 && second){ curRow--; colByRow[curRow] = rows[curRow].items.length - 1; updateFocus(); return; }
+    }
     // Left on a rail's first card jumps up to the top nav bar (its Home tab)
     // (only the focus moves: the page stays where it is, and Down returns to this rail)
     if(dir < 0 && curRow > 0 && colByRow[curRow] === 0){
@@ -930,6 +872,7 @@
     if(curRow === 0 && navFrom){ if(dir < 0) return; n = navFrom; }
     navFrom = 0;
     if(n === curRow) return;
+    if(isTopicRow(curRow) && isTopicRow(n)) colByRow[n] = colByRow[curRow];
     curRow = n;
     updateFocus();
   }
@@ -939,8 +882,8 @@
     var it = r.items[colByRow[curRow]];
     if(!it) return;
     var label = it.getAttribute('data-title') || it.textContent.trim() || 'Selected';
-    // the Home tab: we're already here, so the focus goes to the first scene's primary button (Play), page back at the top
-    if(curRow === 0 && colByRow[0] === NAV_HOME_COL){ navFrom = 0; heroOnDetail = false; curRow = HERO_ROW_INDEX; updateFocus(); return; }
+    // the Home tab: we're already here, so the focus goes to the first scene's first card, page back at the top
+    if(curRow === 0 && colByRow[0] === NAV_HOME_COL){ navFrom = 0; curRow = HERO_ROW_INDEX; updateFocus(); return; }
     // Back to Top: the first rail, hero showing (as Back does)
     var act = it.getAttribute('data-act');
     if(act === 'top'){ navFrom = 0; curRow = HERO_ROW_INDEX; updateFocus(); return; }
@@ -960,7 +903,7 @@
       rf.classList.add('on'); refreshing = true;
       setTimeout(function(){
         finishPicker();
-        navFrom = 0; curRow = HERO_ROW_INDEX; heroOnDetail = false;
+        navFrom = 0; curRow = HERO_ROW_INDEX;
         stage.style.transition = 'none'; updateFocus(); stage.offsetHeight; stage.style.transition = '';
         rf.classList.remove('on'); refreshing = false;
         toast('Your Home now shows rails for your ' + n + ' topics');
@@ -970,12 +913,10 @@
     // Skip: the picker goes away and the focus moves on to the rail after it
     if(act === 'genre-skip'){ var at = curRow; finishPicker(); curRow = Math.min(at - 2, rows.length - 1); updateFocus(); toast('You can choose topics any time in Settings'); return; }
     // cards with a detail page open it: their own link, else the title's page (content.js: a movie or series, a short,
-    // or a title made from the card); the first scene's Play goes straight to the player. Live cards still play live.
+    // or a title made from the card). Live cards still play live.
     // Grab The Mic! (karaoke) and Seasonal / Collection cards have no page: a mockup, OK only presses them.
     var href = it.getAttribute('data-href'), ci = Content.info(it);
-    if(!href && it.classList.contains('hero-play') && it.dataset.heroTv) href = 'tv-guide.html?play=' + encodeURIComponent(it.dataset.heroTv) + '&from=home&t=' + encodeURIComponent(it.dataset.title);   // a LIVE slide: its channel, live
-    else if(!href && ci && it.classList.contains('hero-play') && it.dataset.heroLive !== '1') href = Content.mainAction(ci).url;   // the player, or its package (content.js)
-    else if(!href && ci && it.matches('.card, .rank-wrap')) href = Content.detailUrl(ci);
+    if(!href && ci && it.matches('.card, .rank-wrap')) href = Content.detailUrl(ci);
     if(href){
       keepPlace();   // Back from there lands on the same card
       it.animate([{transform:getComputedStyle(it).transform},{transform:'scale(0.97)'}], {duration:140, easing:'ease-out'}); setTimeout(function(){ window.location.href = href; }, 140); return; }
@@ -996,7 +937,6 @@
       window.location.href = 'launcher.html';
       return;
     }
-    if(heroKey(e.key)){ e.preventDefault(); return; }
     switch(e.key){
       case 'ArrowRight': moveCol(1); e.preventDefault(); break;
       case 'ArrowLeft': moveCol(-1); e.preventDefault(); break;
@@ -1208,12 +1148,12 @@
     placeHomeRing();
   };
   // A rail's own hero text (card-mode, or the chips' Live TV screen) ends 80px above the focused rail's first line
-  // (its title, else its cards), whatever the text's length. The first scene keeps its text on the Detail / Play buttons.
+  // (its title, else its cards), whatever the text's length.
   var HERO_TEXT_GAP = 80;
   var cardTextEl = document.querySelector('.hero-content:not(.hero-livetv-content)'), chipTextEl = document.querySelector('.hero-livetv-content');
   function placeHeroText(){
     var cr = ctxRow(), r = rows[cr], el = null;
-    if(cr > HERO_ROW_INDEX && r && r.el) el = r.el.querySelector('.row-title') || r.items[0];
+    if(cr >= HERO_ROW_INDEX && r && r.el) el = r.el.querySelector('.row-title') || r.items[0];
     var on = heroSection.classList.contains('card-mode') || heroSection.classList.contains('livetv');
     [cardTextEl, chipTextEl].forEach(function(t){ t.style.top = ''; t.style.bottom = ''; });
     if(!el || !on) return;
@@ -1245,7 +1185,6 @@
 
   function ringTarget(){
     if(profAt >= 0) return profBtns[profAt];   // inside the profile panel
-    if(heroOnDetail && curRow === HERO_ROW_INDEX) return heroDetailEl;   // first scene's Detail button
     var r = rows[curRow]; if(!r) return null;
     var el = r.items[colByRow[curRow]]; if(!el) return null;
     if(el.classList.contains('rank-wrap')) el = el.querySelector('.card') || el;   // the poster, not the numeral

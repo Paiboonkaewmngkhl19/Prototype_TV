@@ -1,1 +1,1 @@
-if(/[?&](tune|zap|play)=/.test(location.search)) document.documentElement.style.visibility = 'hidden';
+if(/[?&](tune|play)=/.test(location.search)) document.documentElement.style.visibility = 'hidden';

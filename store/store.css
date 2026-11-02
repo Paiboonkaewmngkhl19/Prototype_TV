@@ -146,7 +146,7 @@
   .pst{ position:relative; width:220px; height:330px; flex:0 0 auto; border-radius:12px; }   /* Home's / Movie's poster: 220 x 330, focus grows it 8% */
   .pst .pic{ position:absolute; inset:0; border-radius:12px; overflow:hidden; }
   .pst .pic{ background:var(--surface-container-high) center / cover no-repeat; }   /* the title's poster (content.js) */
-  .pst .ptag{ position:absolute; right:12px; top:12px; }   /* its app's tag (platform-tag.css: 56 x 36), top right (its badge: top left) */
+  .pst .ptag{ position:absolute; left:12px; bottom:12px; }   /* its app's tag (platform-tag.css: 56 x 36), bottom left (its badge: top left) */
   .rent .viewall{ height:330px; align-self:auto; }
 
   /* banner carousel */

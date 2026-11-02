@@ -97,7 +97,7 @@
   /* Top 10: Home's rank cards (top10.css), the focus on the poster so the ring wraps the poster only */
   .top10 .track{ gap:0; }
   .rank-poster{ width:220px; height:330px; border-radius:12px; background:var(--surface-container-high) center / cover no-repeat; }
-  .rank-poster .ptag{ position:absolute; right:12px; top:12px; }
+  .rank-poster .ptag{ position:absolute; left:12px; bottom:12px; }
   .top10 .rank-wrap + .rank-wrap{ margin-left:32px; }
 
   /* For You: Home's AIS Play Exclusive cards (expand-card.css), the movie's poster opening up to its picture */

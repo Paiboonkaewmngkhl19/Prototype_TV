@@ -20,6 +20,8 @@ img[src*="badges/tag-reelshort"], img[src*="badges/tag-dramabox"]{ object-fit:co
 .qtag{ height:26px; width:auto; display:block; flex:0 0 auto; }
 /* the outline pill tags (age, HD, 4K, time on air), on every page: a frosted fill, grey at 15%, under each page's outline */
 .pill{ background:rgba(128,128,128,.15); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); }
+/* their outline: white at 80%, over each page's own border colour */
+.pill, .hero-range{ border-color:rgba(255,255,255,.8) !important; }
 /* Premium in a title's or short's meta row (content.js Content.metaHtml), on its detail page and every screen that shows
    it: Movie Detail's badge (.mbadge.prem), its crown gold (not the viewer's yet) or owned (the green play mark) */
 .mbadge.prem{ height:36px; box-sizing:border-box; padding:0 12px; border-radius:9999px; display:inline-flex; align-items:center; gap:4px; flex:0 0 auto;

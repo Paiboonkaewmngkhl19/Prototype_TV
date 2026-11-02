@@ -608,23 +608,12 @@
   // ?tune=N: the player asked for channel N (typed on the remote). This page only passes through: it opens that channel
   // in the player in its place (so Back from there still comes here), or sends the viewer back to the player they came
   // from (?from=) when there is no such channel
-  // ?zap=1 / -1 & cur=<name>: Down / Up in the player, the next / previous channel by number (wrapping round; the
-  // Exclusive channels have no number, so they are left out)
   // ?play=<name>: a channel picked in the player's mini EPG (by name: Exclusive channels have no number), or a channel
   // card on Home (&from=home: opened with the controls showing, and Back returns to Home; &t=: a LIVE card's event name)
   var pick = /[?&]play=([^&]*)/.exec(location.search);
   if(pick){
     var pc = CHANNELS.filter(function(c){ return c.n === decodeURIComponent(pick[1]); })[0];
     if(pc){ document.body.style.visibility = 'hidden'; openPlayer(pc, true, /[?&]from=home/.test(location.search), decodeURIComponent((/[?&]t=([^&]*)/.exec(location.search) || [])[1] || '')); return; }
-  }
-  var zap = /[?&]zap=(-?1)/.exec(location.search);
-  if(zap){
-    var nums = CHANNELS.filter(function(c){ return !c.excl; }).sort(function(a, b){ return a.no - b.no; }),   // in number order
-        cur = decodeURIComponent((/[?&]cur=([^&]*)/.exec(location.search) || [])[1] || '');
-    var at = nums.map(function(c){ return c.n; }).indexOf(cur), dir = +zap[1];
-    if(at < 0) at = dir > 0 ? -1 : 0;
-    document.body.style.visibility = 'hidden';
-    openPlayer(nums[(at + dir + nums.length) % nums.length], true); return;
   }
   var tune = /[?&]tune=(\d+)/.exec(location.search);
   if(tune){

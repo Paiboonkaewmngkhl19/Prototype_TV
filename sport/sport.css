@@ -174,7 +174,7 @@
   /* Documentary: 2:3 posters */
   .poster{ width:220px; height:330px; flex:0 0 auto; border-radius:12px; background:var(--surface-container-high) center / cover no-repeat; }
   .poster{ position:relative; }
-  .poster .ptag{ position:absolute; right:12px; top:12px; }   /* its app's tag (platform-tag.css: 56 x 36), top right, as the Movie page's Top 10 posters */
+  .poster .ptag{ position:absolute; left:12px; bottom:12px; }   /* its app's tag (platform-tag.css: 56 x 36), bottom left, as the Movie page's posters */
   .docs .track{ margin-top:32px; }   /* the 2:3 posters grow 13px up when focused, plus the ring and its gap: room under the title */
 
   /* Sport Channel: 142px discs (160 focused, no shade); no rim, the round focus ring is the outline */

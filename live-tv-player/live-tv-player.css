@@ -1,16 +1,16 @@
 
 
   /* the controls: scrims top and bottom, then the two bars; they fade out together when idle, except on a free preview,
-     where the free-preview chip and Explore Package stay and slide down to the bottom edge (seek bar + buttons + gaps:
-     32 + 32 + 90 + 80 = 234px) */
+     where the free-preview chip and Explore Package stay and slide down to 60px above the screen's bottom edge (from their
+     236px with the controls up: 176px) */
   .ui{ position:absolute; inset:0; }
   body.idle .no-preview .cta-row{ opacity:0; }   /* the shared controls fade in player.css */
   .cta-row{ transition:transform .35s cubic-bezier(.2,0,0,1), opacity .35s ease; }
-  body.idle .cta-row{ transform:translateY(234px); }
+  body.idle .cta-row{ transform:translateY(176px); }
   /* opened by a channel change: hidden from the very first frame, with no fade (the script below the page makes it idle
      and then drops this) */
   html.quiet-start .scrim, html.quiet-start .top, html.quiet-start .seek, html.quiet-start .btns, html.quiet-start .no-preview .cta-row{ opacity:0; }
-  html.quiet-start .cta-row{ transform:translateY(234px); }
+  html.quiet-start .cta-row{ transform:translateY(176px); }
   html.quiet-start *{ transition:none !important; }
   .ui{ pointer-events:none; }   /* clicks go through to the picture (play / pause), except on the controls */
   .ui .item, .ui .play{ pointer-events:auto; }
