@@ -59,6 +59,7 @@
   .card{ position:relative; width:320px; flex:0 0 auto; display:flex; flex-direction:column; gap:8px; border-radius:12px; }
   .thumb{ position:relative; width:320px; height:180px; border-radius:12px; overflow:hidden; background:var(--surface-container-high) center / cover no-repeat; }
   .thumb.logo{ background-color:#fff; background-size:67% auto; }   /* a channel logo on white, as Figma's CNN card */
+  .thumb.fit{ background-color:#fff; background-size:contain; }   /* the whole picture on white, as Figma's SKY card */
   .card .t{ padding:8px 12px 0; margin-bottom:16px;   /* with the card's 8px gap: 16px under the picture, 16px below, 12px from the sides */ font-size:20px; font-weight:500; color:var(--on-surface); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
   /* category chips: the chip theme (chip-theme.css) at Home's chip size */
@@ -73,7 +74,7 @@
   .chan-track{ align-items:stretch; }
 
   /* episode rails (Figma "Hot of big screen"): 2:3 posters, the episode's date and name under them */
-  .ep{ width:220px; flex:0 0 auto; display:flex; flex-direction:column; gap:8px; }
+  .ep{ width:220px; flex:0 0 auto; display:flex; flex-direction:column; gap:8px; border-radius:12px; }
   .ep .poster{ width:220px; height:330px; border-radius:12px; background:#000 center / cover no-repeat; }
   .ep .poster.contain{ background-size:contain; }
   .ep .t{ padding:8px 12px 0; margin-bottom:16px; font-size:20px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }

@@ -181,7 +181,7 @@
     // its 230 x 111 card (object-fit: cover)
     var LOGO_TILES = [
       {t:'Netflix', img:'netflix.png'}, {t:'HBO Max', img:'hbo.png'}, {t:'Disney+ Hotstar', img:'disney.png'},
-      {t:'Prime Video', img:'prime.png'}, {t:'Viu', img:'viu.png'}, {t:'Monomax', img:'monomax.png'},
+      {t:'Prime Video', img:'prime.png'}, {t:'Viu', img:'viu.png'}, {t:'MONOMAX', img:'monomax.png'},
       {t:'WeTV', img:'wetv.png'}, {t:'YouTube', img:'youtube.png'}, {t:'iQIYI', img:'iqiyi.png'}, {t:'TrueID', img:'trueid.png'}
     ];
     var cards = LOGO_TILES.map(function(a){
@@ -194,7 +194,7 @@
 
   /* ---------- Generic poster rail helper ---------- */
   // a rail of posters, each a catalogue title (content.js MD.M, by key): its poster and platform tag; badge: a top tag
-  // the rail adds ('Soon leaving', 'Top 10')
+  // the rail adds ('Leaving Soon', 'Top 10')
   function posterRail(title, list){
     var cards = list.map(function(x){
       var k = x.k || x, m = M(k);
@@ -247,7 +247,7 @@
      Each card keeps the pool picture it always had; the title, platform, meta line and synopsis behind each picture
      fill the screen text when it is focused (updateHeroFromCard: data-title / data-tag / data-meta / data-desc). */
   (function(){
-    var MY_LIST = ['siralex', 'loki', 'lastofus', 'wicked', 'superman', 'topgun', 'dragon', 'odyssey'];   // content.js MD.M
+    var MY_LIST = ['loki', 'lastofus', 'wicked', 'superman', 'topgun', 'dragon', 'odyssey', 'siralex'];   // content.js MD.M
     function attr(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
     var cards = MY_LIST.map(function(k){
       var m = M(k);
@@ -270,7 +270,7 @@
 
   posterRail('Because You Watched “The Lord of the Rings: The Fellowship of the Ring”', ['lotr', 'twotowers', 'hobbit', 'smaug', 'lastking', 'vikings', 'got']);
 
-  /* ---------- Row: AIS Play Exclusive ---------- */
+  /* ---------- Row: AIS PLAY Exclusive ---------- */
   (function(){
     // Expanding cards, like Top Pick For You: portrait posters that widen into the feature card when focused; open, the
     // Store's PPV Event details (event-card.css): a tag top left (a match's kick-off, else the rail's badge), then over a
@@ -296,10 +296,10 @@
         '</div>'+
       '</div>';
     }).join('');
-    addRow('<div class="row-block toppick-row"><div class="row-title">AIS Play Exclusive</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
+    addRow('<div class="row-block toppick-row"><div class="row-title">AIS PLAY Exclusive</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
   })();
 
-  addRow('<div class="row-block"><div class="row-title">Grab The Mic!</div><div class="rail-viewport"><div class="rail-track"></div></div></div>');
+  addRow('<div class="row-block"><div class="row-title">Grab the Mic!</div><div class="rail-viewport"><div class="rail-track"></div></div></div>');
   /* replace last row's plain posters with karaoke styled cards */
   (function(){
     var last = rowDefs[rowDefs.length-1];
@@ -324,8 +324,8 @@
      Four 407 x 180 cards: a short status line, then the icon and the name. */
   (function(){
     var cards = [
-      {t:'My Subscription', sub:'4 Subscriptions', ic:'subscription'}, {t:'My Rental', sub:'8 items', ic:'rental'},
-      {t:'FAQs', sub:'Billing, devices, how to watch', ic:'faqs'}, {t:'Setting', sub:'Manage your account and preferences', ic:'setting'}
+      {t:'My Subscription', sub:'4 Subscriptions', ic:'subscription'}, {t:'My Rentals', sub:'8 items', ic:'rental'},
+      {t:'FAQs', sub:'Billing, devices, how to watch', ic:'faqs'}, {t:'Settings', sub:'Manage your account and preferences', ic:'setting'}
     ];
     addRow('<div class="row-block quick-row"><div class="rail-viewport"><div class="rail-track">'+
       cards.map(function(c){ return '<div class="quick-card tv-chip item" data-title="'+c.t+'" data-ring-art="">'+
@@ -368,7 +368,7 @@
       return '<div class="partner-card partner-logo-tile item'+(a.white?' on-white':'')+'" data-title="'+a.t+'"><img src="partners/'+a.img+'" alt="'+a.t+'"></div>';
     }).join('');
     addRow('<div class="row-block recapps-row"><div class="row-title">Recommended Apps</div><div class="rail-viewport"><div class="rail-track">'+
-      cards+'<div class="partner-allapps tv-chip item" data-title="All Apps">All Apps</div></div></div></div>');
+      cards+'</div></div></div>');
   })();
 
   /* ---------- Row: Highlight (LPGA golf) ---------- */
@@ -386,9 +386,9 @@
   })();
 
   /* ---------- Rows: genre rails ---------- */
-  posterRail('Worlds in Chaos', ['khemjira', 'medium', 'thailaw', {k:'debt', badge:'Soon leaving'}, 'judge', {k:'bigmouth', badge:'Soon leaving'}, {k:'vincenzo', badge:'Top 10'}]);
-  posterRail('We think you’ll love this', ['got', 'house', {k:'lastking', badge:'Soon leaving'}, 'vikings', {k:'avatar', badge:'Soon leaving'}, {k:'venom', badge:'Top 10'}, {k:'john', badge:'Top 10'}]);
-  posterRail('Date night Selected', ['dollar', 'family', {k:'again', badge:'Soon leaving'}, 'lawless', {k:'topgun', badge:'Soon leaving'}, {k:'f1', badge:'Top 10'}, {k:'hobbit', badge:'Top 10'}]);
+  posterRail('Worlds in Chaos', ['khemjira', 'medium', 'thailaw', {k:'debt', badge:'Leaving Soon'}, 'judge', {k:'bigmouth', badge:'Leaving Soon'}, {k:'vincenzo', badge:'Top 10'}]);
+  posterRail('We think you’ll love this', ['got', 'house', {k:'lastking', badge:'Leaving Soon'}, 'vikings', {k:'avatar', badge:'Leaving Soon'}, {k:'venom', badge:'Top 10'}, {k:'john', badge:'Top 10'}]);
+  posterRail('Date Night Picks', ['dollar', 'family', {k:'again', badge:'Leaving Soon'}, 'lawless', {k:'topgun', badge:'Leaving Soon'}, {k:'f1', badge:'Top 10'}, {k:'hobbit', badge:'Top 10'}]);
 
   /* ---------- Row: Seasonal / Collection ---------- */
   (function(){
@@ -442,7 +442,7 @@
   (function(){
     var ORDER = ['.hero-row', '.chip-row', 'Jump Right Back In', 'Top 10 in Thailand Today', '.partner-row', '.epg-row',
       'Live and Upcoming', 'Hot Channel Program', 'Hot Off the Big Screen', 'My List', 'Recommended Apps',
-      'AIS Play Exclusive', '.clips-row', '.hl-row', 'Worlds in Chaos', 'We think you', 'Date night Selected',
+      'AIS PLAY Exclusive', '.clips-row', '.hl-row', 'Worlds in Chaos', 'We think you', 'Date Night Picks',
       'Because You Watched', '.seasonal-row', '.karaoke-track', '.gc-picker', '.quick-row', '.back-row'];
     function rank(d){
       var t = d.el.querySelector('.row-title'), title = t ? t.textContent.trim() : '';
@@ -555,10 +555,10 @@
   var HERO_ROW_INDEX = 1;
   // rows[1..]: the hero cards, the category chips, Continue watching, Top 10, Apps, TV Guide, Live and Upcoming,
   // Hot Channel Program, Hot Off the Big Screen, My List and Recommended Apps — the "dynamic background" zone.
-  // AIS Play Exclusive onward has no dynamic background driving the screen, so center-lock scrolling takes over.
+  // AIS PLAY Exclusive onward has no dynamic background driving the screen, so center-lock scrolling takes over.
   // FULLSCREEN_FROM: the first rail that takes the whole screen (hero picture and text fade out); every rail above it
   // sits over the pinned hero picture. Found by its title, so adding rows above it keeps working.
-  var FULLSCREEN_FROM_TITLE = 'AIS Play Exclusive';
+  var FULLSCREEN_FROM_TITLE = 'AIS PLAY Exclusive';
   var FULLSCREEN_FROM = (function(){
     for(var i = 0; i < rows.length; i++){
       var t = rows[i].el && rows[i].el.querySelector('.row-title');
@@ -663,7 +663,7 @@
       heroLogoEl.style.display = 'none';
       heroLiveEl.style.display = 'none';
       heroChannelEl.parentElement.style.display = 'none';
-      heroDescEl.textContent = isApps ? 'All your favourite streaming apps in one place.\nNetflix, HBO Max, Disney+ Hotstar, Prime Video and more, ready to watch.'
+      heroDescEl.textContent = isApps ? 'All your favorite streaming apps in one place.\nNetflix, HBO Max, Disney+ Hotstar, Prime Video and more, ready to watch.'
                                       : 'Open ' + el.dataset.title + ' and pick up right where you left off.';
       heroDescEl.style.display = '';
       heroSection.classList.add('card-mode');
@@ -991,7 +991,7 @@
     if(act === 'genre-skip'){ var at = curRow; finishPicker(); curRow = Math.min(at, rows.length - 1); updateFocus(); toast('You can choose topics any time in Settings'); return; }
     // cards with a detail page open it: their own link, else the title's page (content.js: a movie or series, a short,
     // or a title made from the card). Live cards still play live.
-    // Grab The Mic! (karaoke) and Seasonal / Collection cards have no page: a mockup, OK only presses them.
+    // Grab the Mic! (karaoke) and Seasonal / Collection cards have no page: a mockup, OK only presses them.
     var href = it.getAttribute('data-href'), ci = Content.info(it);
     if(!href && ci && it.matches('.card, .rank-wrap')) href = Content.detailUrl(ci);
     if(href){
@@ -1195,15 +1195,15 @@
     'Movies':      {d:'Blockbusters, new releases and timeless classics.<br>Find your next movie night, all in one place.'},
     'News':        {d:'Breaking stories and in-depth coverage.<br>Follow local and world news around the clock.'},
     'Short':       {d:'Bite-size dramas you can binge in minutes.<br>New episodes of the most talked-about short series every day.'},
-    'Kids':        {d:'Cartoons, adventures and learning fun.<br>Safe, colourful shows the whole family can enjoy.'},
+    'Kids':        {d:'Cartoons, adventures and learning fun.<br>Safe, colorful shows the whole family can enjoy.'},
     'IoT':         {d:'Your smart home on the big screen.<br>Check cameras, lights and devices without leaving the sofa.'},
     'Game':        {d:'Esports tournaments, game shows and live streams.<br>Watch the biggest plays as they happen.'},
-    'Lifestyle':   {d:'Food, travel, home and wellbeing.<br>Fresh ideas and inspiration for everyday living.'},
+    'Lifestyle':   {d:'Food, travel, home and well-being.<br>Fresh ideas and inspiration for everyday living.'},
     'Music':       {d:'Concerts, music videos and karaoke hits.<br>Turn it up with the artists you love.'},
     'Documentary': {d:'Real stories that move and inspire.<br>Explore nature, history, science and the people behind them.'},
     'Comedy':      {d:'Sitcoms, stand-up and feel-good films.<br>Sit back and enjoy a good laugh.'},
     'Horror':      {d:'Chilling thrillers and spine-tingling scares.<br>Dare to watch with the lights off.'},
-    'Anime':       {d:'Top series and films from Japan.<br>From epic adventures to slice-of-life favourites.'}
+    'Anime':       {d:'Top series and films from Japan.<br>From epic adventures to slice-of-life favorites.'}
   };
   function updateLiveTvBg(){
     var cr = ctxRow(), r = rows[cr], el = r && r.items[colByRow[cr]];

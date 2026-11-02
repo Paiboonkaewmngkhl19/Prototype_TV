@@ -143,6 +143,7 @@
   .shorts{ display:flex; gap:32px; padding:0 110px; }
   .short{ position:relative; height:570px; border-radius:32px; overflow:hidden; flex:0 0 auto; background:var(--surface-container-high); }
   .short.wide{ width:1254px; } .short.tall{ width:414px; }
+  .short.full{ width:100%; }   /* the rail's whole width */
   .short span{ position:absolute; left:32px; top:482px; font-family:var(--roboto); font-weight:500; font-size:48px; line-height:56px; color:var(--on-surface); }
 
   /* ---------- a league's landing page (?league=; Figma Sports 3011:44457): no dynamic background or pinned text; its own

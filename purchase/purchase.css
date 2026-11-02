@@ -68,31 +68,40 @@
   @keyframes okRise{ from{ opacity:0; transform:translateY(12px); } to{ opacity:1; transform:none; } }
   @media (prefers-reduced-motion: reduce){ .result .head img, .result .head h1{ animation:none; } }
   .result .head h1{ margin:0; font:400 45px/52px var(--roboto); }
-  .guide{ background:var(--card); border-radius:16px; padding:24px; display:flex; gap:24px; }
-  .guide .txt{ flex:1; display:flex; flex-direction:column; gap:24px; }
-  .guide h2{ margin:0; display:flex; gap:10px; align-items:center; font:400 32px/40px var(--roboto); color:var(--on); }
-  .guide h2 img{ width:40px; height:40px; }
-  .guide p{ margin:0; font:400 22px/28px var(--roboto); color:var(--on); }
-  .guide p.dim{ opacity:.6; }
-  .guide .qr{ display:flex; flex-direction:column; gap:8px; align-items:center; font:400 22px/28px var(--roboto); color:var(--on); }
-  .qrbox{ position:relative; width:250px; height:250px; box-sizing:border-box; padding:16px; border-radius:16px; background:#fff; }
-  .qrbox > img:first-child{ width:100%; height:100%; display:block; }
-  .qrbox .app{ position:absolute; left:93px; top:93px; width:67px; height:67px; border-radius:20px; }
-  /* a package of AIS PLAY's: the activation card (the guide card's look): its title with the SMS icon, then the two
-     lines centred, the first dimmed */
-  .actcard{ background:var(--card); border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:16px; }
-  .actcard h2{ margin:0 0 8px; display:flex; gap:10px; align-items:center; font:400 32px/40px var(--roboto); color:var(--on); }
-  .actcard h2 img{ width:40px; height:40px; }
-  .actcard p{ margin:0; text-align:center; font:400 22px/28px var(--roboto); color:var(--on); }
-  .actcard p + p{ margin-top:-8px; }
-  .actcard p.dim{ opacity:.6; }
-  .receipt{ display:flex; flex-direction:column; gap:12px; }
-  .receipt .hero{ display:flex; gap:16px; align-items:center; justify-content:center; }
-  .receipt .hero .pic{ width:80px; height:80px; border-radius:8px; background:#000 center / cover no-repeat; flex:0 0 auto; }
-  .receipt .hero .nm{ font:400 24px/32px var(--roboto); }
-  .receipt .hero .pr{ display:flex; gap:16px; align-items:center; }
-  .receipt .hero .pr b{ font:500 32px/44px var(--inter); }
-  .receipt .hero .pr span{ font:400 22px/28px var(--inter); color:var(--on); }
+  .result.no{ gap:56px; }
+  /* the receipt: Home's frosted card; its hero, then the period and payment (Have Activate: two rows, No Activate: one line) */
+  .rcpt{ background:var(--card); border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:32px; }
+  .r-hero{ display:flex; gap:16px; align-items:center; }
+  .r-hero .pic{ width:80px; height:80px; border-radius:8px; background:#000 center / cover no-repeat; flex:0 0 auto; }
+  .r-l{ flex:1; min-width:0; display:flex; flex-direction:column; gap:12px; align-items:flex-start; }
+  .r-nm{ display:flex; gap:8px; font:400 22px/28px var(--roboto); color:#fff; white-space:nowrap; }
+  .r-nm .d-nm{ overflow:hidden; text-overflow:ellipsis; max-width:420px; }
+  .r-badge{ display:inline-flex; align-items:center; height:36px; padding:0 12px; border-radius:999px; background:var(--fill); font:500 20px/1 var(--inter); color:var(--on); }
+  .r-r{ display:flex; flex-direction:column; gap:4px; align-items:flex-end; white-space:nowrap; }
+  .r-r b{ font:500 32px/40px var(--roboto); color:#fff; }
+  .r-r span{ font:400 22px/28px var(--roboto); color:#fff; }
+  .r-rows{ display:flex; flex-direction:column; gap:24px; }
+  .r-rows .row{ color:var(--on); }
+  .r-line{ display:flex; gap:16px; justify-content:center; font:400 22px/28px var(--roboto); color:var(--on); }
+  /* the apps it brings: square logos, as the package cards' */
+  .apps{ display:flex; gap:16px; }
+  .app-t{ position:relative; width:56px; height:56px; border-radius:16px; background:#000; overflow:hidden; flex:0 0 auto; }
+  .app-t img{ width:100%; height:100%; display:block; object-fit:contain; box-sizing:border-box; padding:6px; }
+  .app-t.cover img{ object-fit:cover; padding:0; }
+  .app-t.white{ background:#fff; }
+  .app-t .disc{ position:absolute; inset:0; display:block; }
+  /* Have Activate: the Next Step card, its one action across it */
+  .nextstep{ background:var(--card); border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:16px; align-items:flex-start; }
+  .nextstep h2{ margin:0 0 8px; font:500 32px/40px var(--roboto); color:var(--on); }
+  .nextstep p{ margin:0; font:400 22px/28px var(--roboto); color:var(--on); }
+  .nextstep .apps{ margin-top:16px; }   /* with the card's gap: 32px above and below the logos */
+  .nextstep .tv-btn{ --btn-w:100%; --btn-h:80px; margin-top:16px; }
+  /* No Activate: what happens next, centred */
+  .noact{ display:flex; flex-direction:column; gap:24px; align-items:center; }
+  .noact .lead{ margin:0; font:400 28px/36px var(--roboto); color:var(--on); }
+  .noact .apps .app-t{ width:64px; height:64px; border-radius:8px; }
+  .noact .sms{ margin:0; display:flex; gap:16px; align-items:center; font:400 22px/28px var(--roboto); color:var(--on); opacity:.8; }
+  .noact .sms img{ width:40px; height:40px; }
   .done-acts{ display:flex; gap:24px; justify-content:center; padding-top:8px; }
   .done-acts .tv-btn{ --btn-w:300px; --btn-h:80px; }
 

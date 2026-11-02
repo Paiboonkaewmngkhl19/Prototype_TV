@@ -93,7 +93,7 @@
   </section>
   <footer class="foot">
     <div class="info"><svg width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="none" stroke="#e8e8e8" stroke-width="2"/><path d="M16 14.5v8" stroke="#e8e8e8" stroke-width="2.4" stroke-linecap="round"/><circle cx="16" cy="10" r="1.6" fill="#e8e8e8"/></svg>
-      <span>View activation steps anytime in <b>Package Activation Guide Menu</b></span></div>
+      <span>View activation steps anytime in <b>the Package Activation Guide menu</b></span></div>
     <div class="tv-btn tv-btn--secondary home">Back to Home</div>
   </footer>
 </div></div>
@@ -103,21 +103,21 @@
   var G = 'store-assets/guide/';
   // the steps (Figma): VIU's own three; HBO Max's seven, which the other apps share until they have their own
   var VIU = [
-    { img:G + 'viu-1.png', t:'1. รอรับ SMS ยืนยันสิทธิ์การรับชม VIU และกดลิงก์เพื่อรับสิทธิ์' },
+    { img:G + 'viu-1.png', t:'1. รอรับ SMS ยืนยันสิทธิ์การรับชม Viu และกดลิงก์เพื่อรับสิทธิ์' },
     { img:G + 'viu-2.png', t:'2. ใส่หมายเลขโทรศัพท์ที่ทำการสมัครแพ็กเกจโดยใส่รหัส OTP ที่ได้รับผ่าน SMS แล้วกดเปิดใช้งาน' },
-    { img:G + 'viu-3.png', t:'3. ผูกบัญชีกับ VIU สำเร็จทำตามขั้นตอนของ Application VIU และเริ่มใช้งาน' }];
+    { img:G + 'viu-3.png', t:'3. ผูกบัญชีกับ Viu สำเร็จทำตามขั้นตอนของ Application Viu และเริ่มใช้งาน' }];
   function std(app){
     return [
       { img:G + 'hbo-1.png', t:'1. Activate your ' + app + ' subscription by clicking the link in the SMS you receive' },
-      { img:G + 'hbo-2.png', t:'2. Enter your AIS number or your AIS Fiber3 home internet number, then click "Receive OTP"' },
+      { img:G + 'hbo-2.png', t:'2. Enter your AIS number or your AIS Fibre 3 home internet number, then click "Receive OTP"' },
       { img:G + 'hbo-3.png', t:'3. Enter the OTP you received, then click "Confirm"' },
       { img:G + 'hbo-4.png', t:'4. Click "Continue watching on ' + app + '"' },
-      { img:G + 'hbo-5.png', t:'5. Enter the email for registration then click \'Continue\'' },
+      { img:G + 'hbo-5.png', t:'5. Enter the email for registration, then click \'Continue\'' },
       { img:G + 'hbo-6.png', t:'6. Enter the details and click \'Create Account\' (If you already have an account, you will receive a One-Time Code via email to activate)' },
       { img:G + 'hbo-7.png', t:'7. Account activated! You can now download ' + app + ' from the App Store or Google Play to start enjoying entertainment' }];
   }
   var APPS = [
-    { id:'viu', n:'VIU Premium', steps:VIU }, { id:'netflix', n:'Netflix', steps:std('Netflix') }, { id:'hbo', n:'HBO Max', steps:std('HBO Max') },
+    { id:'viu', n:'Viu Premium', steps:VIU }, { id:'netflix', n:'Netflix', steps:std('Netflix') }, { id:'hbo', n:'HBO Max', steps:std('HBO Max') },
     { id:'iqiyi', n:'iQIYI', steps:std('iQIYI') }, { id:'wetv', n:'WE TV', steps:std('WeTV') }, { id:'disney', n:'Disney+', steps:std('Disney+') }];
   var PER = 5, STEP_W = 209 + 32;
 

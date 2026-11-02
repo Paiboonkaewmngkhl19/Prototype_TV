@@ -25,18 +25,18 @@
     {t:'BBC News', img:A + 'dm-bbc.png', ch:CH.bbc, time:'07:00 – 08:00', d:'The latest from BBC News: the stories that matter in the UK and around the world, live.'},
     {t:'สนามข่าว 7 สี', img:A + 'dm-sanam7.png', ch:CH.ch7, time:'08:00 – 09:00', d:'สนามข่าว 7 สี ติดตามทุกความเคลื่อนไหวของข่าวสำคัญ สดทุกวัน'},
     {t:'One News', img:A + 'ch-one.png', ch:CH.one, time:'09:00 – 10:00', d:'ข่าวสด ข่าวด่วน ทันทุกเหตุการณ์ จาก One News'},
-    {t:'SKY News Live', img:A + 'ch-sky.png', ch:CH.sky, time:'10:00 – 11:00', d:'Sky News: breaking news, politics and business from the UK and around the world.'}
+    {t:'SKY News Live', img:A + 'ch-sky.png', fit:1, ch:CH.sky, time:'10:00 – 11:00', d:'Sky News: breaking news, politics and business from the UK and around the world.'}
   ];
   // the category chips filter the rails below them (cat: the categories each card / rail carries in `cats`)
   var CATS = [
-    {t:'All', cat:'', d:'Every story in one place: live channels, programmes and the latest episodes from home and abroad.'},
+    {t:'All', cat:'', d:'Every story in one place: live channels, programs and the latest episodes from home and abroad.'},
     {t:'World', cat:'world', d:'International news from every continent, live from the world’s biggest newsrooms.'},
     {t:'Business', cat:'business', d:'Markets, companies and the deals that move them, with live coverage of the business day.'},
     {t:'Economics', cat:'economics', d:'The economy explained: growth, inflation, jobs and what they mean for you.'},
     {t:'Politics', cat:'politics', d:'Parliament, elections and policy, at home and around the world.'},
     {t:'Entertainment', cat:'entertainment', d:'Celebrity news, film, music and culture, from red carpets to premieres.'},
-    {t:'IT & Tech', cat:'tech', d:'Gadgets, start-ups and the technology shaping tomorrow.'},
-    {t:'Thai News', cat:'thai', d:'ข่าวไทยทุกช่อง สดตลอดวัน: Thai news from every Thai channel, live, with the programmes and episodes made at home.'}
+    {t:'IT & Tech', cat:'tech', d:'Gadgets, startups and the technology shaping tomorrow.'},
+    {t:'Thai News', cat:'thai', d:'ข่าวไทยทุกช่อง สดตลอดวัน: Thai news from every Thai channel, live, with the programs and episodes made at home.'}
   ];
   // what's on now on each news channel: the TV Guide's own channels (channels-data.js, `tv`), so the card, the TV Guide
   // and the player show the same programme, time, Time Shift and favourite
@@ -45,8 +45,8 @@
   var NEWS_CATS = {
     'FOX News':'politics economics', 'Bloomberg':'business economics', 'CNBC News':'business economics tech', 'SKY News':'world politics business',
     'NHK World Japan':'world tech', 'CNN':'world politics entertainment', 'BBC News':'world politics tech', 'CCTV 4':'world', 'CGTN':'world economics',
-    'CNA':'world business', 'Euro News':'world politics', 'DW':'world politics', 'France 24':'world politics', 'News 1':'world',
-    'FOX Business':'business economics', 'Aljazeera':'world politics', 'Top News':'world politics', 'RT Channel':'world politics', 'TVBS':'world entertainment',
+    'CNA':'world business', 'Euronews':'world politics', 'DW':'world politics', 'France 24':'world politics', 'News 1':'world',
+    'FOX Business':'business economics', 'Al Jazeera':'world politics', 'Top News':'world politics', 'RT Channel':'world politics', 'TVBS':'world entertainment',
     'NBT 2 HD':'politics', 'TPBS':'politics world', 'CH5 HD':'politics', 'T Sports 7':'entertainment', 'Parliament':'politics', 'TNN':'business economics tech',
     'JKN 18':'business world', 'Nation TV':'politics business', 'GMM25':'entertainment', 'CH 8':'entertainment', 'MCOT HD':'politics economics',
     'ONE 31 HD':'entertainment', 'Thairath TV HD':'politics entertainment', '3 HD':'politics entertainment', 'AmarinTV HD':'entertainment',
@@ -65,16 +65,23 @@
     {t:'เข้าข่าวค่ำ PPTV', cats:'economics business', img:A + 'lc-5.png', ch:CH.pptv, time:'18:00 – 19:00', d:'สรุปข่าวรอบวันในช่วงค่ำ ครบทุกประเด็นสำคัญ'},
     {t:'แสงจากพ่อ', cats:'entertainment', img:A + 'lc-6.png', ch:CH.thaipbs, time:'19:00 – 20:00', d:'สารคดีเล่าเรื่องแรงบันดาลใจจากพระราชกรณียกิจ'}
   ];
-  // episode rails: the latest episodes, newest first (Figma: one poster per show, the date and name under it)
-  function eps(name, img, dates, contain){ return dates.map(function(d){ return {t:d + ' - ' + name, img:img, contain:contain}; }); }
+  // episode rails: the latest episodes, newest first (Figma: each with its own poster, the date and name under it).
+  // pics: the posters in order, a file, or {f, w, left, contain}: Figma's crop (w: the picture's width, left: its offset,
+  // both % of the poster) or the whole picture on black
+  function eps(name, dir, pics, dates){ return dates.map(function(d, i){
+    var p = pics[i], f = p.f || p, w = p.w;
+    return {t:d + ' - ' + name, img:A + dir + f, contain:p.contain, crop:w ? 'background-size:' + w + '% 100%;background-position:' + (p.left / (w - 100) * 100).toFixed(2) + '% 0;' : ''};
+  }); }
   var EPISODES = [
-    {title:'Hone-Krasae (โหนกระแส) EP', cats:'entertainment politics thai', show:'Hone-Krasae (โหนกระแส)', items:eps('โหนกระแส', A + 'ep-honkrasae.png',
-      ['23/10/26', '22/10/26', '21/10/26', '20/10/26', '19/10/26', '16/10/26', '15/10/26', '14/10/26'], 1),
+    {title:'Hone-Krasae (โหนกระแส) EP', cats:'entertainment politics thai', show:'Hone-Krasae (โหนกระแส)', items:eps('โหนกระแส', 'ep-honkrasae',
+      [{f:'-1.png', w:252.48, left:105.22}, {f:'-2.png', w:267.33, left:102.31}, {f:'-3.jpg', w:266.58, left:101.01}, {f:'-4.jpg', w:266.58, left:105.89},
+       {f:'-5.jpg', w:266.58, left:115.58}, {f:'-6.jpg', w:266.58, left:105.08}, {f:'-7.jpg', w:266.58, left:104.28}, {f:'.png', contain:1}],
+      ['23/10/26', '22/10/26', '21/10/26', '20/10/26', '19/10/26', '16/10/26', '15/10/26', '14/10/26']),
       d:'โหนกระแส ทุกประเด็นร้อนที่สังคมพูดถึง ถามตรง ตอบจริง กับหนุ่ม กรรชัย'},
-    {title:'BBC The Global Story EP', cats:'world politics economics tech', show:'BBC The Global Story', items:eps('The Global Story', A + 'ep-globalstory.png',
+    {title:'BBC The Global Story EP', cats:'world politics economics tech', show:'BBC The Global Story', items:eps('The Global Story', 'ep-globalstory', ['-1.jpg', '-2.jpg', '-3.jpg', '-4.jpg', '-5.jpg', '-6.jpg', '-7.jpg', '.png'],
       ['23/10/26', '13/10/26', '03/10/26', '23/09/26', '13/09/26', '03/09/26', '23/08/26', '13/08/26']),
       d:'One story, every weekday: the BBC’s journalists go behind the headline to explain what it means for the world.'},
-    {title:'An Aje Witness Documentary', cats:'world', show:'Witness', items:eps('Witness', A + 'ep-witness.png',
+    {title:'An Aje Witness Documentary', cats:'world', show:'Witness', items:eps('Witness', 'ep-witness', ['-1.jpg', '-2.jpg', '-3.jpg', '-4.jpg', '-5.jpg', '-6.jpg', '-7.jpg', '.png'],
       ['23/10/26', '23/09/26', '23/08/26', '23/07/26', '23/06/26', '23/05/26', '23/04/26', '23/03/26']),
       d:'Witness: award-winning documentaries that tell the human stories behind the news.'}
   ];
@@ -82,7 +89,7 @@
   /* ---------- markup ---------- */
   // a premium channel's programme: the crown tag bottom-left (corner-tag.css), as Home's and Sport's cards
   function liveCard(it, i, set){
-    return '<div class="card item"' + attrs({kind:'live', set:set, i:i}) + '><div class="thumb' + (it.logo ? ' logo' : '') + '" style="background-image:url(\'' + it.img + '\')">' +
+    return '<div class="card item"' + attrs({kind:'live', set:set, i:i}) + '><div class="thumb' + (it.logo ? ' logo' : '') + (it.fit ? ' fit' : '') + '" style="background-image:url(\'' + it.img + '\')">' +
       (it.ch && it.ch.d ? Content.crownIcon({ch:it.ch.d}, 0, 'crown-tag') : '') + '</div><span class="live-ribbon" data-ring-top="styled">Live</span><div class="t">' + esc(it.t) + '</div></div>';   // Home's Live ribbon
   }
   function epgIcons(o){ return (o.ts ? '<img class="epg-ts" src="icons/tv-guide/timeshift.svg" alt="Time Shift">' : '') + (o.fav ? '<span class="epg-heart"><img src="icons/epg/heart.svg" alt="Favorite"></span>' : ''); }
@@ -109,16 +116,16 @@
     DONT_MISS.map(function(it, i){ return liveCard(it, i, 'dontmiss'); }).join('') + '</div></div></section>';
   html += '<section class="sec" data-row="cats"><div class="rail"><div class="chips">' + CATS.map(function(c, i){
     return '<div class="chip tv-chip item' + (i === PICK ? ' sel' : '') + '"' + attrs({kind:'cat', i:i}) + ' data-ring-art="">' +
-      (c.cat ? '<img class="chip-ic" src="icons/chips/' + c.cat + '.svg" alt="">' : '') + esc(c.t) + '</div>';   // Sport's filter chip: its icon (icons/chips/), then the label (chip-theme.css)
+      esc(c.t) + '</div>';
   }).join('') + '</div></div></section>';
   html += chanRail('intl', 'International News Channel', INTL);
   html += chanRail('thai', 'Thai News Channel', THAI);
-  html += '<section class="sec" data-row="local"><h2 class="sec-title">Localized Program News</h2><div class="rail"><div class="track">' +
+  html += '<section class="sec" data-row="local"><h2 class="sec-title">Local News Programs</h2><div class="rail"><div class="track">' +
     LOCAL.map(function(it, i){ return liveCard(it, i, 'local'); }).join('') + '</div></div></section>';
   EPISODES.forEach(function(r, ri){
     html += '<section class="sec eps" data-row="ep' + ri + '"><h2 class="sec-title">' + esc(r.title) + '</h2><div class="rail"><div class="track">' +
       r.items.map(function(it, i){
-        return '<div class="ep item"' + attrs({kind:'ep', set:ri, i:i}) + '><div class="poster' + (it.contain ? ' contain' : '') + '" style="background-image:url(\'' + it.img + '\')"></div>' +
+        return '<div class="ep item"' + attrs({kind:'ep', set:ri, i:i}) + '><div class="poster' + (it.contain ? ' contain' : '') + '" style="background-image:url(\'' + it.img + '\');' + it.crop + '"></div>' +
           '<div class="t">' + esc(it.t) + '</div></div>';
       }).join('') + '</div></div></section>';
   });
