@@ -1,7 +1,7 @@
 /*
   leagues.js: the leagues and tournaments (Sport's League & Tournament rail and landing pages, Store's sport chips),
   and their logo in a round disc, the same everywhere:
-    Leagues.list        every league: id, t, sp, name, logo, box / fitc, fav, img
+    Leagues.list        every league: id, t, sp, name, logo, box / fitc, fav, img, bg (Sport's screen picture while its disc has focus)
     Leagues.find(t)     a league by its title ('Premier League', 'NBA', ...), else null
     Leagues.pic(l)      the disc's picture (league-disc.css): the logo placed by its box, else filling the disc (cover /
                         zoom / inset); a league without a logo (or l.mono) its initials
@@ -11,13 +11,13 @@ window.Leagues = (function(){
   // UCL, Bundesliga and RWS fill theirs (cover / zoom). fav: followed (the heart shows)
   // id: its landing page (sport.html?league=id, Figma Sports 3011:44457)
   var list = [
-    {id:'ucl', t:'UEFA Champions League', sp:'football', name:'UEFA<br>Champions League', logo:'sport-assets/league-ucl.jpg', fitc:'zoom', fav:1, img:'sport-assets/ucl-bg.jpg'},
-    {id:'bundesliga', t:'Bundesliga', sp:'football', name:'Bundesliga', logo:'sport-assets/league-bundesliga.png', fitc:'inset', fav:1, img:'posters/upcoming/u3.jpg'},
-    {id:'europa', t:'UEFA Europa League', sp:'football', name:'UEFA<br>Europa League', logo:'sport-assets/league-europa.png', box:[21.95,10,56.1,80], fav:1},
+    {id:'ucl', bg:'sport-assets/main-page/sportMainPage_leagueTournament_No1-2.webp', t:'UEFA Champions League', sp:'football', name:'UEFA<br>Champions League', logo:'sport-assets/league-ucl.jpg', fitc:'zoom', fav:1, img:'sport-assets/ucl-bg.jpg'},
+    {id:'bundesliga', bg:'sport-assets/main-page/sportMainPage_leagueTournament_No2-2.webp', t:'Bundesliga', sp:'football', name:'Bundesliga', logo:'sport-assets/league-bundesliga.png', fitc:'inset', fav:1, img:'posters/upcoming/u3.jpg'},
+    {id:'europa', bg:'sport-assets/main-page/sportMainPage_leagueTournament_No3-2.webp', t:'UEFA Europa League', sp:'football', name:'UEFA<br>Europa League', logo:'sport-assets/league-europa.png', box:[21.95,10,56.1,80], fav:1},
     {id:'motogp', t:'MotoGP', sp:'motorsport', name:'MotoGP', logo:'sport-assets/league-motogp.png', box:[5,24.69,90,50.62]},
     {id:'nfl', t:'NFL', sp:'rugby', name:'NFL', logo:'sport-assets/league-nfl.png', box:[19.08,7.5,61.84,85]},   // American football: under Rugby
     {id:'nba', t:'NBA', sp:'basketball', name:'NBA', logo:'sport-assets/league-nba.png', box:[-28.13,6.05,156.25,87.89]},
-    {id:'conference', t:'UEFA Conference League', sp:'football', name:'UEFA Conference League', logo:'sport-assets/league-conference.png', box:[11.13,11.24,78.18,77.53]},
+    {id:'conference', bg:'sport-assets/main-page/sportMainPage_leagueTournament_No4-2.webp', t:'UEFA Conference League', sp:'football', name:'UEFA Conference League', logo:'sport-assets/league-conference.png', box:[11.13,11.24,78.18,77.53]},
     {id:'rws', t:'RWS', sp:'boxing', name:'RWS', logo:'sport-assets/league-rws.png'},   // Rajadamnern World Series (Muay Thai): under Boxing
     {id:'pga', t:'PGA Tour', sp:'golf', name:'PGA<br>Tour', logo:'sport-assets/league-pga.png', box:[-18.13,11.68,136.25,76.64]},
     {id:'atp', t:'ATP Tour', sp:'tennis', name:'ATP<br>Tour', logo:'sport-assets/league-atp.png', box:[8.5,30.5,83,39.01]},

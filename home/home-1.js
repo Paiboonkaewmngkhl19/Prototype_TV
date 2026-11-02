@@ -361,11 +361,11 @@
   /* ---------- Row: Recommended Apps ---------- */
   (function(){
     var apps = [
-      {t:'Google Play', img:'google-play.png'}, {t:'YouTube', img:'youtube-white.jpg', white:true},
-      {t:'YouTube Music', img:'youtube-music.jpg'}, {t:'Google Play Games', img:'google-play-games.jpg'}
+      {t:'Google Play', img:'google-play.png', bg:'app-google-play.webp'}, {t:'YouTube', img:'youtube-white.jpg', white:true, bg:'app-youtube.webp'},
+      {t:'YouTube Music', img:'youtube-music.jpg', bg:'app-youtube-music.webp'}, {t:'Google Play Games', img:'google-play-games.jpg', bg:'app-google-play-games.webp'}
     ];
     var cards = apps.map(function(a){
-      return '<div class="partner-card partner-logo-tile item'+(a.white?' on-white':'')+'" data-title="'+a.t+'"><img src="partners/'+a.img+'" alt="'+a.t+'"></div>';
+      return '<div class="partner-card partner-logo-tile item'+(a.white?' on-white':'')+'" data-title="'+a.t+'" data-app-bg="posters/hero/'+a.bg+'"><img src="partners/'+a.img+'" alt="'+a.t+'"></div>';
     }).join('');
     addRow('<div class="row-block recapps-row"><div class="row-title">Recommended Apps</div><div class="rail-viewport"><div class="rail-track">'+
       cards+'</div></div></div>');
@@ -656,7 +656,7 @@
     }
     // All Apps rail: the apps backdrop; the "All Apps" tile introduces the apps, a logo tile names its app
     if(el.closest('.partner-row, .recapps-row')){
-      if(el.closest('.recapps-row')) setHeroBg('googleapps', "url('posters/hero/google-apps.jpg')");   // Recommended Apps: Google's own backdrop
+      if(el.dataset.appBg) setHeroBg(el.dataset.appBg, "url('" + el.dataset.appBg + "')");   // Recommended Apps: each app's own backdrop
       else setHeroBg('allapps', "url('posters/allapps-bg.jpg?v=2')");
       var isApps = el.classList.contains('partner-allapps');
       heroTitleEl.textContent = isApps ? 'All Apps' : el.dataset.title;

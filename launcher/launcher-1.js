@@ -57,8 +57,7 @@
   byId('playRow').innerHTML = PLAY.map(function(a){
     return '<div class="tile wide item" data-name="' + esc(a.n) + '"><img class="fill" src="' + a.img + '" alt=""></div>';
   }).join('');
-  byId('launch').innerHTML = '<div class="glow"></div><div class="stage">' +
-    '<img class="tri" src="icons/aisplay-mark.png" alt=""><img class="word" src="icons/aisplay-logo.png" alt="AIS PLAY"><div class="shine"></div></div>';
+  byId('launch').innerHTML = '<video src="video/Splash.mp4" preload="auto" playsinline></video>';
 
   // the clock, as the box shows it in Thai ("10:19 น.")
   function clock(){ var d = new Date(); byId('clock').textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0') + ' น.'; }
@@ -105,11 +104,22 @@
       try { sessionStorage.setItem('launcherFocus', JSON.stringify({row:row, cols:cols})); } catch(e){}
       launching = true;
       byId('launch').classList.add('on');
-      // the splash plays through (a short fade in with reduced motion), then the app
-      var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
       // then the app's sign-in page, which goes on to Home (or the title picked here) once signed in
       var to = 'login.html' + (el.dataset.href ? '?next=' + encodeURIComponent(el.dataset.href) : '');
-      setTimeout(function(){ location.href = to; }, reduced ? 900 : 3500);
+      var left = false;
+      function go(){ if(!left){ left = true; location.href = to; } }
+      var vid = byId('launch').querySelector('video');
+      // reduced motion: only the video's last picture, the finished logo, for a moment
+      if(matchMedia('(prefers-reduced-motion: reduce)').matches){
+        vid.currentTime = 3.8;
+        setTimeout(go, 900);
+        return;
+      }
+      // the splash plays through with its sound (muted if the browser refuses), then the app; it never holds the app up
+      vid.onended = vid.onerror = go;
+      setTimeout(go, 8000);
+      vid.currentTime = 0; vid.muted = false;
+      vid.play().catch(function(){ vid.muted = true; vid.play().catch(go); });
       return;
     }
     var act = el.dataset.act;
@@ -139,7 +149,7 @@
     });
   });
   // back here from the app through the browser's cache: the launch screen is still up, so put it away
-  addEventListener('pageshow', function(){ launching = false; byId('launch').classList.remove('on'); });
+  addEventListener('pageshow', function(){ launching = false; byId('launch').classList.remove('on'); byId('launch').querySelector('video').pause(); });
 
   paint();
 })();

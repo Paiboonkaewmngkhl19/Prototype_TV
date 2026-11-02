@@ -582,7 +582,8 @@ window.Content = (function(){
   their detail pages). A programme on a Movie or Sport channel has a detail page (movie-detail.html?prog=, Figma "MD LIVE
   State" / "Upcoming Has Access (MD)"), opened only from a picture card; the TV Guide and the EPGs always play the channel.
     LIVE.list          the programmes: t, img, tv (the TV Guide channel), live, or in (minutes from when the page opened,
-                       so the demo's upcoming ones are always upcoming), d; heroOnly: shown in Home's first scene, not its rail
+                       so the demo's upcoming ones are always upcoming), d; heroOnly: shown in Home's first scene, not its rail;
+                       sportRail: also Sport's Live and Upcoming, in this order
     LIVE.start(p)      when an upcoming programme starts (ms): from in, or a label ("Starts in 16:12", "Today 8:30 PM",
                        "Tomorrow 2:30 AM"; a time today that has gone by is taken as tomorrow's)
     LIVE.label(p)      its card's label: "Starts in 58:12" in the last hour, else "Today 8:30 PM" / "Tomorrow 6:00 PM" / "2 Nov 8:30 PM"
@@ -594,10 +595,14 @@ window.Content = (function(){
                        page's meta row say the same); its Premium: Content.crown({tv:p.tv})
 */
 window.LIVE = (function(){
-  var U = 'posters/upcoming/';
+  var U = 'posters/upcoming/', SP = 'sport-assets/main-page/sportMainPage_liveUpcoming_No';
   var list = [
-    {t:'Liverpool vs Brentford', img:U + 'live.jpg', bg:'posters/liver-ben.jpg', v:'posters/homapage.mp4', tv:'MONOMAX 1', live:true, sp:'football', lg:'epl',   // bg: Home's first scene and the detail page; v: its video, Home's and the player's
+    {t:'Liverpool vs Brentford', img:U + 'liverpool-brentford.webp', bg:'posters/liver-ben.jpg', v:'posters/homapage.mp4', tv:'MONOMAX 1', live:true, sp:'football', lg:'epl',   // bg: Home's first scene and the detail page; v: its video, Home's and the player's
      d:'Liverpool hosts Brentford at Anfield in a big Premier League clash. Follow every moment live, from kick-off to the final whistle.'},
+    {t:'Bayern München vs Arsenal', img:SP + '1.webp', bg:SP + '1-2.webp', v:'video/Bayern Munchen vs Arsenal.mp4', tv:'PLAY SPORTS (Football)', live:true, sportRail:1, sp:'football', lg:'ucl', range:'02:00 – 04:00',   // v: its video, Sport's screen and the player's
+     d:'Live from the UEFA Champions League. Every touch in Full HD with Thai and English commentary, plus the build-up and post-match analysis.'},
+    {t:'Real Madrid vs RB Leipzig', img:SP + '2.webp', tv:'Real Madrid TV', live:true, sportRail:1, sp:'football', lg:'ucl', range:'02:00 – 04:00',
+     d:'Live from the UEFA Champions League. Every touch in Full HD with Thai and English commentary, plus the build-up and post-match analysis.'},
     {t:'Arsenal vs Chelsea', img:'posters/arsenal.jpg', bg:'posters/hero/arsenal.jpg', tv:'MONOMAX SPORTS', live:true, heroOnly:true, sp:'football', lg:'epl',   // Home's first scene only
      d:'A fierce London derby as Arsenal hosts Chelsea in a top-of-the-table Premier League showdown.'},
     {t:'MasterChef Thailand', img:U + 'u1.jpg', tv:'CH7 HD', in:58.2, sp:'', lg:'',
@@ -607,7 +612,23 @@ window.LIVE = (function(){
     {t:'Dortmund vs Hamburg', img:U + 'u3.jpg', tv:'PLAY SPORTS (Football)', in:180, sp:'football', lg:'bundesliga',
      d:'The Yellow Wall awaits as Borussia Dortmund hosts Hamburger SV at Signal Iduna Park.'},
     {t:'CT14 Eala vs Jovic (R1)', img:U + 'u4.png', tv:'FutureChannel Tennis', in:1260, sp:'tennis', lg:'wta',
-     d:'Alex Eala takes on Iva Jovic in the first round, live from the WTA tour.'}
+     d:'Alex Eala takes on Iva Jovic in the first round, live from the WTA tour.'},
+    {t:'Portland Trail Blazers vs Utah Jazz', img:SP + '3.webp', bg:SP + '3-2.webp', tv:'PLAY SPORTS (NBA)', when:'Today 6:00 PM', sportRail:1, sp:'basketball', lg:'nba', range:'18:00 – 20:30',
+     d:'Portland visits the Delta Center in Salt Lake City in Week 2 of the NBA season. Live in Full HD with Thai and English commentary.'},
+    {t:'Philadelphia 76ers vs Charlotte Hornets', img:SP + '4.webp', bg:SP + '4-2.webp', tv:'PLAY SPORTS (NBA)', when:'Today 7:00 PM', sportRail:1, sp:'basketball', lg:'nba', range:'19:00 – 21:30',
+     d:'The 76ers take on the Hornets at the Spectrum Center in Charlotte in Week 2 of the NBA season. Live in Full HD with Thai and English commentary.'},
+    {t:'Arizona Cardinals vs Dallas Cowboys', img:SP + '5.webp', bg:SP + '5-2.webp', tv:'PLAY SPORTS (NFL)', when:'Tomorrow 1:00 AM', sportRail:1, sp:'rugby', lg:'nfl', range:'01:00 – 04:00',
+     d:'The Cardinals visit AT&T Stadium in Arlington in Week 8 of the NFL season. Live in Full HD with Thai and English commentary.'},
+    {t:'Cleveland Browns vs Pittsburgh Steelers', img:SP + '6.webp', bg:SP + '6-2.webp', tv:'PLAY SPORTS (NFL)', when:'Tomorrow 4:00 AM', sportRail:1, sp:'rugby', lg:'nfl', range:'04:00 – 07:00',
+     d:'An AFC North rivalry at Acrisure Stadium in Pittsburgh in Week 8 of the NFL season. Live in Full HD with Thai and English commentary.'},
+    {t:'Bayer Leverkusen vs VfB Stuttgart', img:SP + '7.webp', bg:SP + '7-2.webp', tv:'PLAY SPORTS (Football)', when:'Today 8:30 PM', sportRail:1, sp:'football', lg:'bundesliga', range:'20:30 – 22:30',
+     d:'Leverkusen hosts Stuttgart at the BayArena on Bundesliga Matchday 8. Live in Full HD with Thai and English commentary.'},
+    {t:'FC Schalke 04 vs RB Leipzig', img:SP + '8.webp', bg:SP + '8-2.webp', tv:'PLAY SPORTS (Football)', when:'Today 9:00 PM', sportRail:1, sp:'football', lg:'bundesliga', range:'21:00 – 23:00',
+     d:'Schalke hosts RB Leipzig at the VELTINS-Arena in Gelsenkirchen on Bundesliga Matchday 8. Live in Full HD with Thai and English commentary.'},
+    {t:'Bayern München vs Borussia Dortmund', img:SP + '9.webp', bg:SP + '9-2.webp', tv:'PLAY SPORTS (Football)', when:'Today 9:00 PM', sportRail:1, sp:'football', lg:'bundesliga', range:'21:00 – 23:00',
+     d:'Der Klassiker on Bundesliga Matchday 8: Bayern München hosts Borussia Dortmund at the Allianz Arena, Munich. Live in Full HD with Thai and English commentary.'},
+    {t:'Crystal Palace vs Hoffenheim', img:SP + '10.webp', bg:SP + '10-2.webp', tv:'PLAY SPORTS (Football)', when:'Tomorrow 3:00 PM', sportRail:1, sp:'football', lg:'', range:'15:00 – 17:00',
+     d:'Crystal Palace hosts Hoffenheim at Selhurst Park, London, on Matchday 4. Live in Full HD with Thai and English commentary.'}
   ];
   var LOADED = Date.now();   // "Start in" counts from when the page was opened, as the card's label does
   function start(p){

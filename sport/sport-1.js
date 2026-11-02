@@ -41,32 +41,13 @@
     var p = !m.synced && window.LIVE.find(m.t);
     if(!p) return m;
     var c = Object.keys(CH).map(function(k){ return CH[k]; }).filter(function(c){ return c.tv === p.tv; })[0] || mkCh({tv:p.tv});
-    m.live = !!p.live; m.when = p.live ? '' : p.when; m.ch = c; m.time = window.LIVE.range(p); m.d = p.d; m.img = p.img; m.bg = p.bg || p.img;
+    m.live = !!p.live; m.when = p.live ? '' : p.when; m.ch = c; m.time = window.LIVE.range(p); m.d = p.d; m.img = p.img; m.bg = p.bg || p.img; m.video = p.v;
     m.synced = 1;
     return m;
   }
   var MATCH_DESC = 'Live from the UEFA Champions League. Every touch in Full HD with Thai and English commentary, plus the build-up and post-match analysis.';
   // sp: a sport's own Live and Upcoming takes its matches from here (NBA and NFL: All Sports only)
-  var LIVE = [
-    mp('liveUpcoming', 1, {sp:'football', t:'Bayern München vs Arsenal', live:true, bg:'posters/arsenal.jpg', ch:CH.play, time:'02:00 – 04:00'}, 1),
-    mp('liveUpcoming', 2, {sp:'football', t:'Real Madrid vs RB Leipzig', live:true, bg:'posters/upcoming/u2.jpg', ch:CH.rm, time:'02:00 – 04:00'}, 1),
-    mp('liveUpcoming', 3, {t:'Portland Trail Blazers vs Utah Jazz', when:'Today 6:00 PM', ch:CH.nba, time:'18:00 – 20:30',
-     d:'Portland visits the Delta Center in Salt Lake City in Week 2 of the NBA season. Live in Full HD with Thai and English commentary.'}),
-    mp('liveUpcoming', 4, {t:'Philadelphia 76ers vs Charlotte Hornets', when:'Today 7:00 PM', ch:CH.nba, time:'19:00 – 21:30',
-     d:'The 76ers take on the Hornets at the Spectrum Center in Charlotte in Week 2 of the NBA season. Live in Full HD with Thai and English commentary.'}),
-    mp('liveUpcoming', 5, {t:'Arizona Cardinals vs Dallas Cowboys', when:'Tomorrow 1:00 AM', ch:CH.nfl, time:'01:00 – 04:00',
-     d:'The Cardinals visit AT&T Stadium in Arlington in Week 8 of the NFL season. Live in Full HD with Thai and English commentary.'}),
-    mp('liveUpcoming', 6, {t:'Cleveland Browns vs Pittsburgh Steelers', when:'Tomorrow 4:00 AM', ch:CH.nfl, time:'04:00 – 07:00',
-     d:'An AFC North rivalry at Acrisure Stadium in Pittsburgh in Week 8 of the NFL season. Live in Full HD with Thai and English commentary.'}),
-    mp('liveUpcoming', 7, {sp:'football', t:'Bayer Leverkusen vs VfB Stuttgart', when:'Today 8:30 PM', ch:CH.play, time:'20:30 – 22:30',
-     d:'Leverkusen hosts Stuttgart at the BayArena on Bundesliga Matchday 8. Live in Full HD with Thai and English commentary.'}),
-    mp('liveUpcoming', 8, {sp:'football', t:'FC Schalke 04 vs RB Leipzig', when:'Today 9:00 PM', ch:CH.play, time:'21:00 – 23:00',
-     d:'Schalke hosts RB Leipzig at the VELTINS-Arena in Gelsenkirchen on Bundesliga Matchday 8. Live in Full HD with Thai and English commentary.'}),
-    mp('liveUpcoming', 9, {sp:'football', t:'Bayern München vs Borussia Dortmund', when:'Today 9:00 PM', ch:CH.play, time:'21:00 – 23:00',
-     d:'Der Klassiker on Bundesliga Matchday 8: Bayern München hosts Borussia Dortmund at the Allianz Arena, Munich. Live in Full HD with Thai and English commentary.'}),
-    mp('liveUpcoming', 10, {sp:'football', t:'Crystal Palace vs Hoffenheim', when:'Tomorrow 3:00 PM', ch:CH.play, time:'15:00 – 17:00',
-     d:'Crystal Palace hosts Hoffenheim at Selhurst Park, London, on Matchday 4. Live in Full HD with Thai and English commentary.'})
-  ];
+  var LIVE = window.LIVE.list.filter(function(p){ return p.sportRail; }).map(function(p){ return {sp:p.sp, t:p.t}; });   // sync() fills in the rest
   var UCL = [
     mp('UCL', 1, {t:'Bayern München vs Arsenal', live:true, ch:CH.play, time:'02:00 – 04:00'}, 1),
     mp('UCL', 2, {t:'Real Madrid vs RB Leipzig', live:true, ch:CH.rm, time:'02:00 – 04:00'}, 1),
@@ -386,6 +367,22 @@
     picFront = 1 - picFront;
     if(img){ pics[picFront].style.backgroundImage = 'url(\'' + img + '\')'; pics[picFront].classList.add('on'); }
   }
+  // a match with video plays it behind the screen text (Home's football video, poster and sound rule): muted until the
+  // first key press, then with sound while it shows
+  var heroVid = document.querySelector('.hero-bg .vid'), vidOk = false, vidOn = false;
+  function syncVid(){ heroVid.muted = !(vidOk && vidOn && !document.hidden); }
+  function setVideo(src){
+    vidOn = !!src;
+    if(src && heroVid.getAttribute('src') !== src) heroVid.src = src;
+    heroVid.classList.toggle('on', vidOn);
+    syncVid();
+    if(vidOn) heroVid.play().catch(function(){}); else heroVid.pause();
+  }
+  function allowVid(){ if(!vidOk){ vidOk = true; setTimeout(syncVid, 0); } }
+  addEventListener('keydown', allowVid, true);
+  addEventListener('pointerdown', allowVid, true);
+  document.addEventListener('visibilitychange', syncVid);
+  addEventListener('pagehide', function(){ heroVid.muted = true; });
   function chMeta(c){ return '<span class="ch">' + TV.logoHtml(c.d) + 'Channel ' + c.no + ': ' + esc(c.d.n) + '</span>'; }   // the TV Guide's name, as its detail page
   // a highlight / full match: what its screen text and its detail page (content.js, AIS PLAY's own) both say
   function vodInfo(el){
@@ -404,11 +401,11 @@
     if(k === 'match'){
       var m = SETS[set][i];
       var p = matchProg(m);   // its detail page's meta row and words (content.js LIVE): LIVE / Upcoming, Premium, the channel, the time
-      return { t:p.t, meta:(m.live ? '<span class="badge live">LIVE</span>' : '<span class="badge">Upcoming</span>') + (Content.crown({tv:p.tv}) ? '<span class="badge">' + Content.crownIcon({tv:p.tv}) + 'Premium</span>' : '') + chMeta(m.ch) + '<span class="pill">' + window.LIVE.range(p) + '</span>', d:p.d, bg:p.bg };
+      return { video:m.video, t:p.t, meta:(m.live ? '<span class="badge live">LIVE</span>' : '<span class="badge">Upcoming</span>') + (Content.crown({tv:p.tv}) ? '<span class="badge">' + Content.crownIcon({tv:p.tv}) + 'Premium</span>' : '') + chMeta(m.ch) + '<span class="pill">' + window.LIVE.range(p) + '</span>', d:p.d, bg:p.bg };
     }
     if(k === 'uclava') return { t:BAND.t, d:BAND.d, bg:null };
     if(rowKey === 'chips'){ var c = CHIPS[i]; return { t:c.t, d:c.d, bg:c.img }; }
-    if(rowKey === 'leagues'){ var l = SHOWN_LEAGUES[i]; return { t:l.t, d:'Follow ' + l.t + ' for live matches, fixtures, results and highlights, all in one place.', bg:l.img }; }
+    if(rowKey === 'leagues'){ var l = SHOWN_LEAGUES[i]; return { t:l.t, d:'Follow ' + l.t + ' for live matches, fixtures, results and highlights, all in one place.', bg:l.bg || l.img }; }
     if(k === 'vod'){
       var v = vodInfo(el), c = Content.hero(v);   // its detail page's words (content.js)
       return { t:c.t, meta:Content.metaHtml(v, true),   // its detail page's meta row (content.js)
@@ -429,6 +426,7 @@
       heroEl.classList.remove('swap'); void heroEl.offsetWidth; heroEl.classList.add('swap');
     }
     setBg(h.bg);
+    setVideo(h.video);
   }
 
   // ---- keep the focused item in view ----
