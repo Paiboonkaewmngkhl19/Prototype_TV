@@ -1,0 +1,26 @@
+/*
+  The focus ring's look, for Home's ring (.home-ring) and every other page's (.fring, focus-ring.js). Tune it here.
+  Band: the focused item's artwork, blurred, brightened and saturated. Rim: 1.2px white. Glow: the artwork's dominant
+  colour, which RingColor (focus-ring.js) sets on the ring as --ring-color, an "r,g,b" list, along with .ring-tinted.
+  An item without artwork, or whose picture can't be read, keeps the fixed glow; without artwork also the plain glass.
+*/
+:root{
+  --ring-brightness:1.15;
+  --ring-saturate:2.2;
+  --ring-glow-size:32px;
+  --ring-glow-alpha:.55;
+}
+.home-ring, .fring{
+  --ring-glow:0 0 15px rgba(255,255,255,.15), 0 0 26px var(--th-glow, rgba(214,222,240,.12));
+  box-shadow:inset 0 0 0 1.2px rgba(255,255,255,.7), var(--ring-glow);
+  transition:opacity .2s ease, box-shadow .22s cubic-bezier(.2,0,0,1);   /* the glow changes with the band's crossfade */
+}
+.home-ring.ring-tinted, .fring.ring-tinted{
+  --ring-glow:0 0 var(--ring-glow-size) rgba(var(--ring-color), var(--ring-glow-alpha));
+}
+.home-ring .glass i, .fring .glass i{
+  filter:blur(4px) brightness(var(--ring-brightness)) saturate(var(--ring-saturate));
+}
+.home-ring .glass i.ring-plain, .fring .glass i.ring-plain{
+  filter:blur(4px) brightness(1.8) saturate(1.4);   /* the plain frosted glass */
+}

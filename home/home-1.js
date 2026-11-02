@@ -1351,6 +1351,8 @@
     if(art !== ringArt){
       if(ringCur && !snap) ringFront = 1 - ringFront;
       ringLayers[ringFront].style.setProperty('--img', art || 'linear-gradient(135deg, #9aa3b5, #5c6478)');
+      ringLayers[ringFront].classList.toggle('ring-plain', !art);
+      RingColor.tint(homeRing, art);
       ringLayers[ringFront].style.opacity = 1;
       ringLayers[1 - ringFront].style.opacity = 0;
       ringArt = art;
