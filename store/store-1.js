@@ -10,8 +10,8 @@
      Every card is real: the packages (packages.js), the events and titles (content.js MD.M) and AIS's own art (store-assets/). */
   var SA = 'store-assets/', PK = SA + 'pkg/';
   // art: how the card shows its picture; hero: the picture behind the hero (a logo on black keeps Figma's placeholder hero)
-  var ULTIMATE = { badge:'Recommend', dark:1, t:'PLAY ULTIMATE', price:999, per:'Month', tags:['Monthly', 'Recurring', 'Recommend'],
-    d:'Netflix, HBO Max, Disney+ Hotstar, iQIYI, oneD and WeTV in one package, with AIS PLAY Premium channels and live sport. Watch on your TV, phone and tablet.',
+  var ULTIMATE = { badge:'Recommended', dark:1, t:'PLAY ULTIMATE', price:999, per:'Month', tags:['Monthly', 'Recurring', 'Recommended'],
+    d:'Netflix, HBO Max, Disney+ Hotstar, iQIYI, oneD and WeTV in one package, with AIS PLAY Premium channels and live sports. Watch on your TV, phone and tablet.',
     art:{ img:SA + 'foryou-play-ultimate.png', crop:'height:123.75%;left:-60%;top:-17.17%;width:220%' }, hero:SA + 'hero-play-ultimate.png', pkg:1 };
   var OTT = Packages.OTT, PKG = Packages.PKG;   // packages.js (Package Detail shows the same)
   // the Movies tabs: Popular, then each OTT's own packages
@@ -61,8 +61,8 @@
         d:'Raeng Ngao on oneD, with iQIYI, Viu and WeTV: four apps of Asian drama in one package.',
         art:{ img:PK + 'asian-plus-rang-ngao.jpg' }, pkg:1 }],
     sports:[
-      { badge:'Recommend', t:'PLAY ALL', price:299, per:'Month', tags:['Monthly', 'Recurring', 'Recommend'],
-        d:'All the sport on AIS PLAY in one package: Premier League, Bundesliga, Formula 1, NBA and the AIS PLAY Sports channels.',
+      { badge:'Recommended', t:'PLAY ALL', price:299, per:'Month', tags:['Monthly', 'Recurring', 'Recommended'],
+        d:'All the sports on AIS PLAY in one package: Premier League, Bundesliga, Formula 1, NBA and the AIS PLAY Sports channels.',
         art:{ logo:SA + 'sports-playall.png' }, pkg:1 }
       // then one package of each league (packages.js): its disc | AIS PLAYBOX, as the Movies rail's OTT cards
       ].concat(['epl', 'ucl', 'nba', 'thai1', 'rws', 'bundesliga', 'motogp', 'pga'].map(function(k){ return Object.assign({}, PKG[k][0], { badge:null }); })),
@@ -78,7 +78,7 @@
     sports:['Popular', 'Premier League', 'UEFA Champions League', 'NBA', 'Thai League', 'RWS', 'Bundesliga', 'MotoGP', 'PGA Tour'],
     movies:['Popular', 'Netflix', 'HBO Max', 'Disney+', 'iQIYI', 'Viu', 'MONOMAX'],
     short:['Popular', 'ReelShort', 'DramaBox'],
-    value:['< 100 baht Enjoy Asia Movies & Shorts', '< 100 baht Sports Lover', '300 - 500 baht Enjoy Movies & Sports', 'Asian Games']
+    value:['< 100 baht Enjoy Asian Movies & Shorts', '< 100 baht Sports Lover', '300 - 500 baht Enjoy Movies & Sports', 'Asian Games']
   };
   // the OTT tabs carry the project's own platform tag logos (Home's cards use the same ones)
   var TAB_LOGO = { 'Netflix':'badges/tag-netflix.png', 'HBO Max':'badges/tag-hbo.png', 'Disney+':'badges/tag-disney.png',
@@ -92,14 +92,14 @@
   }
   var ASIA = ['iqiyi', 'viu', 'monomax', 'disney', 'reelshort', 'dramabox'], LEAGUE = function(p){ return !!OTT[p.ott].league; };
   var VALUE = [
-    pick(function(p){ return p.price < 100 && ASIA.indexOf(p.ott) >= 0; }, 'Best Saver'),                 // < 100 baht Enjoy Asia Movies & Shorts
+    pick(function(p){ return p.price < 100 && ASIA.indexOf(p.ott) >= 0; }, 'Best Saver'),                 // < 100 baht Enjoy Asian Movies & Shorts
     pick(function(p){ return p.price < 100 && LEAGUE(p); }, 'Best Saver'),                               // < 100 baht Sports Lover
-    pick(function(p){ return p.price >= 300 && p.price <= 500; }, 'Recommend'),                          // 300 - 500 baht Enjoy Movies & Sports
-    [ Object.assign({}, ROWS.foryou[1], { badge:'Recommend' }), Object.assign({}, ROWS.sports[0], { badge:null }) ]
+    pick(function(p){ return p.price >= 300 && p.price <= 500; }, 'Recommended'),                          // 300 - 500 baht Enjoy Movies & Sports
+    [ Object.assign({}, ROWS.foryou[1], { badge:'Recommended' }), Object.assign({}, ROWS.sports[0], { badge:null }) ]
       .concat(pick(function(p){ return LEAGUE(p) && p.card === 'Month'; }))                              // Asian Games: PLAY ALL Asian Games, PLAY ALL, then the leagues
   ];
   ROWS.value = VALUE[0];
-  // PPV Event: AIS PLAY's own events (content.js MD.M: its words, pictures and price), as Home's AIS Play Exclusive rail,
+  // PPV Event: AIS PLAY's own events (content.js MD.M: its words, pictures and price), as Home's AIS PLAY Exclusive rail,
   // each with its badge
   var EVENTS = [{ k:'assanee', badge:'New Arrival', ppos:'88% center' }, { k:'missuni', badge:'#1 in Thailand', ppos:'90% center' },
     { k:'sophomores', badge:'Rerun' }, { k:'bossckm', badge:'New Arrival' }];
@@ -115,9 +115,9 @@
     { t:'AIS Cloud PC', price:199, per:'Month', tags:['Monthly', 'Add-on'], art:{ img:SA + 'others-cloud-pc.png' },
       d:'A Windows PC in the cloud that you can open on your TV, laptop or phone.' },
     { t:'MONOMAX Sports', price:99, per:'Month', tags:['Monthly', 'Recurring'], art:{ img:SA + 'sports-monomax.png' }, go:'package-detail.html?ott=monomax&p=0',
-      d:'The Premier League, the FA Cup and more sport on the MONOMAX app, for AIS customers, billed to your AIS account.' },
+      d:'The Premier League, the FA Cup and more sports on the MONOMAX app, for AIS customers, billed to your AIS account.' },
     { t:'Prime Video 3 Months', price:149, per:'Month', tags:['3 Months', 'Recurring'], art:{ img:SA + 'foryou-prime.png', pos:'left center' }, go:'package-detail.html?ott=prime&p=0',
-      d:'Three months of Prime Video for 149 baht, then 149 baht a month: Amazon Originals, blockbuster films and live sport.' }];
+      d:'Three months of Prime Video for 149 baht, then 149 baht a month: Amazon Originals, blockbuster films and live sports.' }];
   // the banner carousel's slides (the Smart Soundbar promotion, then wide pictures until the other promotions have art)
   var BANNERS = [{ t:'Smart Soundbar', img:SA + 'banner-soundbar.png', pkg:1 }, { t:'Miss Universe Thailand 2026', img:'posters/miss-universe.jpg' },
     { t:'Top Gun: Maverick', img:'posters/topgun-m.jpg', pos:'center 30%' }, { t:'F1', img:'posters/f1.jpg', pos:'center 30%' },
@@ -190,14 +190,14 @@
   }
   var html = '';
   html += railSec('foryou', 'For You', cardsHtml('foryou', ROWS.foryou, true));
-  html += '<section class="sec gene" data-sec="highlight"><h2 class="sec-title">Highlight you shouldn’t misss</h2><div class="rail"><div class="track">' + cardsHtml('highlight', ROWS.highlight) + '</div></div></section>';
+  html += '<section class="sec gene" data-sec="highlight"><h2 class="sec-title">Highlights you shouldn’t miss</h2><div class="rail"><div class="track">' + cardsHtml('highlight', ROWS.highlight) + '</div></div></section>';
   html += catSec('sports', 'Sports', true);
   html += catSec('movies', 'Movies', true);
   html += catSec('short', 'Short Series');
   html += catSec('value', 'Great Value');
   html += railSec('event', 'PPV Event', EVENTS.map(eventCard).join(''));
   html += railSec('rent', 'Rent or Buy', RENTALS.map(function(p, i){ return posterCard(p, 'rent', i); }).join('') + viewAll('rent'), 'rent');
-  html += railSec('onetime', 'One Time Package', cardsHtml('onetime', ONETIME));
+  html += railSec('onetime', 'One-Time Package', cardsHtml('onetime', ONETIME));
   html += railSec('others', 'Others', cardsHtml('others', OTHERS));
   html += '<section class="sec" data-sec="banner"><div class="banner item" data-kind="banner" data-label="Smart Soundbar"><div class="slides">' +
     BANNERS.map(function(b){ return '<div class="slide" style="background-image:url(\'' + b.img + '\')' + (b.pos ? ';background-position:' + b.pos : '') + '"></div>'; }).join('') + '</div>' +

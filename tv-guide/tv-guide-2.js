@@ -30,7 +30,7 @@
   } catch(e){}
   // and its sound keeps playing behind the guide, from where the player was (picture hidden). If the browser won't start
   // it with sound before a key press on this page, it starts with the first key or click
-  if(WATCHING){ var np = document.getElementById('nowPlaying'); np.innerHTML = 'Currently playing :<b></b>'; np.querySelector('b').textContent = WATCHING; np.hidden = false; }
+  if(WATCHING){ var np = document.getElementById('nowPlaying'); np.innerHTML = 'Currently playing:<b></b>'; np.querySelector('b').textContent = WATCHING; np.hidden = false; }
   if(WATCHING && w.v){
     var bgSound = document.createElement('video');
     bgSound.src = w.v; bgSound.loop = true; bgSound.playsInline = true; bgSound.style.display = 'none';
@@ -536,7 +536,7 @@
   function toggleFav(c, from){
     hideHint();
     c.fav = !c.fav; saveFav(c);
-    toast(c.fav ? 'Added to Favorite: ' + c.n : 'Removed from Favorite: ' + c.n);
+    toast(c.fav ? 'Added to Favorites: ' + c.n : 'Removed from Favorites: ' + c.n);
     if(S.cat === 'fav'){ render(); resetZones(); paint(); return; }   // the Favorite list itself changed
     $('[data-no="' + c.no + '"] .fav-ic').forEach(function(img){ img.src = 'icons/tv-guide/' + (c.fav ? 'heart-fill.svg' : 'heart.svg'); img.alt = c.fav ? 'Favorite' : ''; img.parentElement.classList.toggle('off', !c.fav); });
     favAnim(c, from);
@@ -598,7 +598,7 @@
   // programme straight away, which shows it
   var hintEl = document.getElementById('hint'), hintT;
   function hideHint(){ clearTimeout(hintT); hintEl.classList.add('gone'); }
-  var HINT_FAV = 'Press and hold OK to add/remove favorites', HINT_REM = 'Press OK to set/unset reminder';
+  var HINT_FAV = 'Press and hold OK to add/remove favorites', HINT_REM = 'Press OK to set or remove a reminder';
   function showHint(msg){ clearTimeout(hintT); document.getElementById('hintText').textContent = msg || HINT_FAV; hintEl.classList.remove('gone'); hintT = setTimeout(hideHint, 2500); }   // on screen for 2.5s
   // ?view=guide opens the Program Guide straight away
   if(/view=guide/.test(location.search)) S.view = 'guide';

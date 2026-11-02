@@ -68,7 +68,7 @@
     toast('Free preview has ended. Get a package to keep watching');
   }
   byId('video').addEventListener('play', function(){ if(preview && !previewLeft) this.pause(); });
-  function setFav(){ byId('favIc').src = C.fav ? 'icons/tv-guide/heart-fill.svg' : 'icons/player/fav.svg'; byId('favLbl').textContent = C.fav ? 'Remove Favorite' : 'Add Favorite'; }
+  function setFav(){ byId('favIc').src = C.fav ? 'icons/tv-guide/heart-fill.svg' : 'icons/player/fav.svg'; byId('favLbl').textContent = C.fav ? 'Remove from Favorites' : 'Add to Favorites'; }
   setFav();
 
   /* ---------- seek bar: the programme from its start up to now, so it is full at live. `behind` is how far (ms) the
@@ -214,7 +214,7 @@
         try { var md = JSON.parse(sessionStorage.getItem('tvMini')); md.chans.forEach(function(x){ if(x.n === C.n) x.fav = C.fav; }); sessionStorage.setItem('tvMini', JSON.stringify(md)); } catch(e){}
         // ... and so do the TV Guide and Home (tvFavs, the session's favourites)
         try { var tf = JSON.parse(sessionStorage.getItem('tvFavs') || '{}'); tf[C.n] = C.fav; sessionStorage.setItem('tvFavs', JSON.stringify(tf)); } catch(e){}
-        toast(C.fav ? 'Added to Favorite: ' + C.n : 'Removed from Favorite: ' + C.n); break;
+        toast(C.fav ? 'Added to Favorites: ' + C.n : 'Removed from Favorites: ' + C.n); break;
       case 'guide': openGuide(); break;
       case 'explore': location.href = 'all-packages.html'; break;   // subscribing there unlocks the channel and its Time Shift; Back comes here
       case 'mini-epg': openMini(true); break;
@@ -317,7 +317,7 @@
           // no Live / On Air / Don't Miss here (everything listed is on now): only Watching, on this channel
           (watching ? '<span class="mtag watch"><i class="eq"><b></b><b></b><b></b></i>Watching</span>' : '') + '</span></div>' +
       '</div></div>' +
-      (nx ? '<div class="mnext"><b>Up Next :</b><span>' + esc(nx[0]) + '</span></div>' : '') +
+      (nx ? '<div class="mnext"><b>Up Next:</b><span>' + esc(nx[0]) + '</span></div>' : '') +
     '</div>';
   }
   function miniRenderCats(){
@@ -486,7 +486,7 @@
     else if(r[row][col].id === 'track' && (k === 'ArrowLeft' || k === 'ArrowRight')){
       // on the seek bar: a press goes 10s back / forward (not past live); held, it scrubs faster
       var dir = k === 'ArrowRight' ? 1 : -1;
-      if(!TS) toast('Time Shift is not available for this programme');
+      if(!TS) toast('Time Shift is not available for this program');
       else if(TS_LOCK){ if(!e.repeat) tsLocked(); }
       else if(e.repeat){ if(!holdT) startHold(dir); }
       else { scrubBy(dir * STEP); seekFx(dir); commitT = setTimeout(commit, 800); }

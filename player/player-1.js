@@ -54,7 +54,7 @@
   }
   // the clock: the title moves on while playing. A series: Skip Intro through the intro, the next episode in the credits;
   // at the end the next episode, else back to the detail page
-  var skipped = SHORT_ON || pos >= INTRO, credits = '';   // a short has no intro and no credits   // credits: '' not yet, 'count' counting down, 'stopped' a key stopped it, 'watch' Watch Credit
+  var skipped = SHORT_ON || pos >= INTRO, credits = '';   // a short has no intro and no credits   // credits: '' not yet, 'count' counting down, 'stopped' a key stopped it, 'watch' Watch Credits
   setInterval(function(){
     var now = Date.now(), dt = (now - last) / 1000; last = now;
     if(playing && scrub === null){
@@ -151,14 +151,14 @@
   function startCredits(){
     credits = 'count'; setView('player'); document.body.classList.add('credits');
     byId('nextup').innerHTML = '<div class="pchip count item" data-act="next"><div class="fill"><span>Next Episode in</span></div>Next Episode in</div>' +
-      '<div class="pchip item" data-act="watch">Watch Credit</div>';
+      '<div class="pchip item" data-act="watch">Watch Credits</div>';
     var c = byId('nextup').firstChild; void c.offsetWidth; c.classList.add('go');
     clearTimeout(countT); countT = setTimeout(function(){ if(credits === 'count') playEp(NEXT); }, 5000);
     paint();
   }
-  function stopCount(){   // any key: the countdown stops, Next Episode / Watch Credit stay to pick (Figma note)
+  function stopCount(){   // any key: the countdown stops, Next Episode / Watch Credits stay to pick (Figma note)
     credits = 'stopped'; clearTimeout(countT); ncol = 0;
-    byId('nextup').innerHTML = '<div class="pchip item" data-act="next">Next Episode</div><div class="pchip item" data-act="watch">Watch Credit</div>';
+    byId('nextup').innerHTML = '<div class="pchip item" data-act="next">Next Episode</div><div class="pchip item" data-act="watch">Watch Credits</div>';
     paint();
   }
   function endCredits(){ credits = 'watch'; clearTimeout(countT); document.body.classList.remove('credits'); row = rowIx('track'); paint(); wake(); }

@@ -16,11 +16,11 @@
     {t:'All', d:'Every movie and series in one place: new releases, blockbusters and the titles everyone is talking about.', bg:P + 'district9.jpg'},
     {t:'Action', d:'Car chases, heists and heroes: the films that never sit still.', bg:P + 'topgun-m.jpg'},
     {t:'Comedy', d:'Sitcoms, rom-coms and feel-good films. Sit back and enjoy a good laugh.', bg:P + 'P10-Devil.jpg'},
-    {t:'Anime', d:'Top series and films from Japan, from epic adventures to slice-of-life favourites.', bg:P + 'how-to-train.jpg'},
+    {t:'Anime', d:'Top series and films from Japan, from epic adventures to slice-of-life favorites.', bg:P + 'how-to-train.jpg'},
     {t:'Horror', d:'Chilling thrillers and spine-tingling scares. Dare to watch with the lights off.', bg:P + 'last-of-us.jpg'},
     {t:'Family', d:'Films the whole family can enjoy together, from animated hits to big adventures.', bg:P + 'how-to-train.jpg'},
     {t:'Music', d:'Musicals, concert films and the stories behind the songs.', bg:P + 'wicked.jpg'},
-    {t:'Mystery', d:'Whodunnits, detectives and twists you will not see coming.', bg:P + 'continue/c1.jpg'}
+    {t:'Mystery', d:'Whodunits, detectives and twists you will not see coming.', bg:P + 'continue/c1.jpg'}
   ];
   var CONTINUE = MD.continueList();   // this session's viewing first (content.js)
   var TOP10 = ['topgun', 'john', 'avatar', 'house', 'venom', 'f1', 'debt', 'got', 'vincenzo', 'lotr'];
@@ -36,10 +36,10 @@
   var ACTORS = [{n:'Johnny Depp', img:'movie-assets/actor-johnny-depp.jpg'}, {n:'Tom Cruise'}, {n:'Keanu Reeves'}, {n:'Brad Pitt'}, {n:'Zendaya'},
                 {n:'Tom Hardy'}, {n:'Song Joong-ki'}, {n:'Pedro Pascal'}, {n:'Ariana Grande'}];
   var LEAVING = ['judge', 'bigmouth', 'family', 'lawless', 'lastking', 'vikings', 'debt'];
-  var SEASONAL = [{t:'Movies Halloween', img:PP + 'Venom.jpg'}, {t:'Seasonal Collection', img:PP + 'lotr/r1.jpg'}, {t:'Netflix (4K)', img:PP + 'John.jpg'},
+  var SEASONAL = [{t:'Halloween Movies', img:PP + 'Venom.jpg'}, {t:'Seasonal Collection', img:PP + 'lotr/r1.jpg'}, {t:'Netflix (4K)', img:PP + 'John.jpg'},
                   {t:'Award Winners', img:PP + 'topgun_m.jpg'}, {t:'K-Drama Collection', img:PP + 'legal/l6.jpg'}];
   // the movie channels, lowest number first (TV Guide's: its names open them in the Live TV player)
-  var CHANNELS = ['Warner', 'HBO', 'HBO Sinature', 'HBO Hits', 'HBO Family', 'CINEMAX', 'MONOMAX 1'].map(function(n){ return {n:n}; });
+  var CHANNELS = ['Warner', 'HBO', 'HBO Signature', 'HBO Hits', 'HBO Family', 'CINEMAX', 'MONOMAX 1'].map(function(n){ return {n:n}; });
   // the same channels as the TV Guide (channels-data.js): its number, logo, crown and favourite (TV.isFav: its own, or as
   // changed this session in the TV Guide or the player)
   function readFavs(){
@@ -60,7 +60,7 @@
     });
   });
   var QUICK = [{t:'My Subscription', sub:'4 Subscriptions', ic:'icons/quick/subscription.svg'}, {t:'FAQs', sub:'Billing, devices, how to watch', ic:'icons/quick/faqs.svg'},
-               {t:'Customer Support', sub:'Call customer support and Visit support website.', ic:'store-assets/headset.svg'}];
+               {t:'Customer Support', sub:'Call customer support or visit the support website.', ic:'store-assets/headset.svg'}];
 
   /* ---------- markup ---------- */
   function ptag(m){ return m.plat === 'ais' ? '<span class="ptag ais"></span>' : '<img class="ptag" src="badges/tag-' + m.plat + '.png" alt="">'; }
@@ -121,15 +121,15 @@
   html += sec('movies', 'Movies', MOVIES.map(function(k, i){ return poster(k, i, 'movies'); }).join(''), 'tall-rail');
   html += sec('series', 'Series', SERIES.map(function(k, i){ return poster(k, i, 'series'); }).join(''), 'tall-rail');
   html += sec('mylist', 'My List', MY_LIST.map(function(k, i){ return wide(k, i, 'mylist'); }).join(''));
+  html += sec('myrental', 'My Rentals and Purchases', MY_RENTAL.map(function(k, i){ return wide(k, i, 'myrental'); }).join(''));
   html += sec('rent', 'Rent or Buy', RENT.map(function(r, i){ return poster(r.k, i, 'rent', r.b); }).join(''), 'tall-rail');
-  html += sec('myrental', 'My Rental and Buy', MY_RENTAL.map(function(k, i){ return wide(k, i, 'myrental'); }).join(''));
   html += sec('actor', 'Actor', ACTORS.map(function(a, i){
     var ini = a.n.split(' ').map(function(w){ return w[0]; }).join('').slice(0, 2);
     // the photo takes the focus, so the ring circles it (the name stays under it)
     return '<div class="actor"><div class="ph item"' + attrs({kind:'actor', i:i}) + ' data-ring-art=""' + (a.img ? ' style="background-image:url(\'' + a.img + '\')"' : '') + '>' +
       (a.img ? '' : ini) + '</div><div class="nm">' + esc(a.n) + '</div></div>';
   }).join(''), 'actors');
-  html += sec('leaving', 'Soon Leaving', LEAVING.map(function(k, i){ return poster(k, i, 'leaving', 'Soon Leaving'); }).join(''), 'tall-rail');
+  html += sec('leaving', 'Leaving Soon', LEAVING.map(function(k, i){ return poster(k, i, 'leaving', 'Leaving Soon'); }).join(''), 'tall-rail');
   html += sec('seasonal', 'Movie Collection', SEASONAL.map(function(c, i){
     return '<div class="season-card item"' + attrs({kind:'season', i:i}) + ' style="background-image:url(\'' + c.img + '\')"><span>' + esc(c.t) + '</span></div>';
   }).join(''), 'seasonal');

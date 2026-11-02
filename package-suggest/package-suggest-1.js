@@ -29,7 +29,7 @@
   document.getElementById('title').textContent = title;
   if(pic) document.getElementById('bg').style.backgroundImage = "url('" + pic + "')";
   var bring = document.getElementById('bring');
-  if(where){ bring.textContent = 'bring me to  ' + where; bring.dataset.label = 'bring me to ' + where; }
+  if(where){ bring.textContent = 'Take me to  ' + where; bring.dataset.label = 'Take me to ' + where; }
   else document.getElementById('account').remove();
 
   // ---- right: the packages that include it (packages.js), each to its purchase, which comes back to the detail page ----
@@ -44,7 +44,7 @@
     location.href = RET;
   }
   function select(el){
-    if(el === bring){ toast('Opening ' + el.dataset.label.replace(/^bring me to /, '') + ' (demo)'); return; }
+    if(el === bring){ toast('Opening ' + el.dataset.label.replace(/^Take me to /, '') + ' (demo)'); return; }
     if(el.id === 'seeall'){ location.href = withRet('all-packages.html'); return; }
     var c = CARDS[+el.dataset.i];
     if(c.href){ location.href = withRet(c.href); return; }   // Confirm, OTP, done: back to the detail page, subscribed

@@ -5,7 +5,7 @@
   var $ = function(q){ return Array.prototype.slice.call(document.querySelectorAll(q)); };
 
   // ---- title mode (Figma Store "Package details use cases"): Title Details on the left (poster, title, meta row, Synopsis /
-  // Terms and Conditions), Options on the right, then the same payment, a one-off charge:
+  // Terms and Conditions), Options on the right, then the same payment, a one-time charge:
   //   ?short=N[&ep=E]       a short's viewing passes ("Rent": 24 / 48 / 100 hours), from its Unlock Episode popup
   //   ?short=N&opt=buy      the whole short ("Vertical Content Full Series"), its detail page's Buy N ฿ (content.js SHORTS buy)
   //   ?k=K&opt=buy          a title's Buy ("Buy": its quality, MD.buyPrice); a PPV event or AIS PLAY Exclusive (m.ev / m.ppv:
@@ -32,8 +32,8 @@
                 : { t:TM.t, pic:TM.p || TM.w || TM.b, meta:Content.metaHtml({k:TK}, true), d:TM.d };
     KIND = SH ? (FULL ? 'buy' : 'pass') : OPT === 'rent' ? 'rent' : TM.ev || TM.ppv ? 'event' : 'buy';
     // its options: a pass (its hours and when to start it), an Event Pass, or the quality it is bought in
-    var OPTS = KIND === 'pass' ? PASSES.map(function(p){ return { name:p.name, lines:[[CLOCK, 'Start anytime in ' + p.start + ' days.'], [FILM, 'Enjoy ' + p.hours + ' hours of unlimited viewing.']], amt:p.amt, vat:p.vat }; })
-      : KIND === 'rent' ? [{ name:H + '-Hour Pass', lines:[[CLOCK, 'Start anytime in 7 days.'], [FILM, 'Enjoy ' + H + ' hours of unlimited viewing.']], amt:MD.rentPrice(TK) }]
+    var OPTS = KIND === 'pass' ? PASSES.map(function(p){ return { name:p.name, lines:[[CLOCK, 'Start anytime within ' + p.start + ' days.'], [FILM, 'Enjoy ' + p.hours + ' hours of unlimited viewing.']], amt:p.amt, vat:p.vat }; })
+      : KIND === 'rent' ? [{ name:H + '-Hour Pass', lines:[[CLOCK, 'Start anytime within 7 days.'], [FILM, 'Enjoy ' + H + ' hours of unlimited viewing.']], amt:MD.rentPrice(TK) }]
       : KIND === 'event' ? [{ name:'Event Pass', lines:[[CLOCK, 'Watch live at the scheduled time']], amt:MD.buyPrice(TK) }]
       : [{ name:(SH ? 'Full HD' : TM.q === '4k' ? '4K' : 'Full HD'), lines:[], amt:SH ? SH.buy : MD.buyPrice(TK) }];
     OPTS.forEach(function(o){ if(typeof o.amt === 'number'){ o.vat = vatOf(o.amt) + ' baht'; o.amt = o.amt + ' baht'; } });
@@ -54,13 +54,13 @@
     }).join('');
     // its terms: Terms and Conditions here and in the Confirm popup
     var TERMS = KIND === 'pass' ? ['A viewing pass gives unlimited viewing of every episode of this title for the hours of the pass.',
-        'The pass is a one-off purchase and does not renew automatically.', 'The viewing period starts the first time you press Play, and must start within the days shown for the pass.',
+        'The pass is a one-time purchase and does not renew automatically.', 'The viewing period starts the first time you press Play, and must start within the days shown for the pass.',
         'Once started, the pass runs continuously, including while you are not watching, and ends after its hours have passed.']
-      : KIND === 'rent' ? ['A rental is a one-off purchase and does not renew automatically.', 'Start watching within 7 days; once started you have ' + H + ' hours to finish.',
+      : KIND === 'rent' ? ['A rental is a one-time purchase and does not renew automatically.', 'Start watching within 7 days; once started you have ' + H + ' hours to finish.',
         'The rental is for this title only, on the AIS PLAY app, website and supported TVs and devices.']
-      : KIND === 'event' ? ['An Event Pass is a one-off purchase for this event only.', 'Watch it live at its scheduled time, and its replay afterwards while it is available.',
+      : KIND === 'event' ? ['An Event Pass is a one-time purchase for this event only.', 'Watch it live at its scheduled time, and its replay afterwards while it is available.',
         'The pass does not renew automatically.']
-      : ['A one-off purchase: ' + TV.t + ' is yours to watch again any time in My Rental and Buy.', 'The purchase does not renew automatically.'];
+      : ['A one-time purchase: ' + TV.t + ' is yours to watch again any time in My Rentals and Purchases.', 'The purchase does not renew automatically.'];
     TERMS = TERMS.concat(['Prices include 7% VAT and are charged once to your AIS bill or paid by QR PromptPay. Internet charges are not included.',
       'Video quality depends on the title, your internet speed and your device.', 'Fees already charged are non-refundable, except where required by law.',
       'For assistance, contact AIS Call Center 1175 (24 hours) or visit any AIS Shop.']);
@@ -90,12 +90,12 @@
       services:[{ n:OB.n, html:ottLg(), screens:P0.screens, q:P0.q === '4K' ? '4K' : 'Full HD', dolby:P0.q === '4K' }],   // the app it is
       devices:P0.devices,
       d:P0.d + ' THB ' + money(P0.price) + ' / ' + P0.per + ', excluding 7% VAT and internet charges. Available to AIS postpaid and prepaid customers.',
-      terms:[MONTH ? 'The package renews automatically at the end of each billing cycle until cancelled.' : 'The pass is a one-off purchase and ends after 7 days; it does not renew.',
+      terms:[MONTH ? 'The package renews automatically at the end of each billing cycle until canceled.' : 'The pass is a one-time purchase and ends after 7 days; it does not renew.',
         'Prices exclude 7% VAT and internet charges.', 'Number of screens and video quality depend on ' + OB.n + ' and your device.',
         'You may need to sign in to ' + OB.n + ' with an account linked to AIS PLAY.', 'AIS reserves the right to change the package terms without prior notice.'],
       tc:['1. This package is available to AIS postpaid and prepaid customers.',
         '2. ' + OB.n + ' is included at no additional charge while the package remains active.', '3. A confirmation SMS is sent once the package is active.',
-        '4. Monthly packages renew automatically at the end of each billing cycle; cancel anytime via the myAIS app or by dialling *1185. 7-day passes do not renew.',
+        '4. Monthly packages renew automatically at the end of each billing cycle; cancel anytime via the myAIS app or by dialing *1185. 7-day passes do not renew.',
         '5. Video quality and the number of screens depend on ' + OB.n + ', the content, your internet speed and your device.',
         '6. You may need to sign in or create an ' + OB.n + ' account and link it to your AIS PLAY account.',
         '7. Content availability is determined by ' + OB.n + ' and may change without prior notice.', '8. Fees already charged are non-refundable, except where required by law.',
@@ -132,7 +132,7 @@
     // Package Options: its plans, the first picked
     document.querySelector('.prices').innerHTML = PK.plans.map(function(pl, i){
       return '<div class="price item' + (i ? '' : ' selected') + '" data-label="' + esc(pl.name) + '" data-period="' + pl.period + '"><span class="rd"></span>' +
-        '<div class="pn"><b>' + esc(pl.name) + '</b>' + (pl.renew ? '<span class="chip">Auto renews</span>' : '') + '</div>' +
+        '<div class="pn"><b>' + esc(pl.name) + '</b>' + (pl.renew ? '<span class="chip">Auto-renews</span>' : '') + '</div>' +
         '<div class="cost"><div class="amt"><b>' + money(pl.amt) + ' baht</b><span>/ ' + pl.per + '</span></div><div class="vat">VAT Included: ' + vat(pl.amt) + ' baht</div></div></div>';
     }).join('');
   }
@@ -271,7 +271,7 @@
     // its price as the receipt says it: "999 baht / Month" (a plan's per: Monthly → Month, Yearly → Year)
     var ab = sel.querySelector('.amt b'), ap = sel.querySelector('.amt span');
     var amt = ab ? ab.textContent + (ap ? ' / ' + ap.textContent.replace(/^\/\s*/, '').replace(/^(Month|Year)ly$/, '$1') : '') : sel.querySelector('.amt').textContent.replace(/\s+/g, ' ').trim();
-    var rc = { t:name, pic:TITLE ? TV.pic : BUNDLE ? BUNDLE.logo : '', logo:!TITLE && !!BUNDLE, amt:amt,
+    var rc = { bi:BUNDLE ? Packages.BUNDLES.indexOf(BUNDLE) : -1, t:name, pic:TITLE ? TV.pic : BUNDLE ? BUNDLE.logo : '', logo:!TITLE && !!BUNDLE, amt:amt,
       vat:sel.querySelector('.vat').textContent, dl:dl, dur:dur, pm:payVia, watch:TITLE ? (SH ? 'player.html?short=' + SHORT + '&ep=' + (EP || 1) : 'player.html?k=' + TK) : '' };
     location.href = 'purchase.html?' + (OB ? 'ott=' + OK + '&p=' + OI + '&' : '') + 'rc=' + encodeURIComponent(JSON.stringify(rc)) + '&next=' + encodeURIComponent(dest());
   }

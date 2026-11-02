@@ -55,15 +55,34 @@
     loki:   {t:'Loki', w:P + 'loki.jpg', plat:'disney', g:['Fantasy', 'Adventure'], y:2023, len:'2 Seasons', age:'13+',
              d:'The God of Mischief must fix a fractured timeline while pursued by the Time Variance Authority.'},
     dragon: {t:'How to Train Your Dragon', w:P + 'how-to-train.jpg', plat:'prime', g:['Family', 'Adventure'], y:2025, len:'2h 5m', age:'G',
-             d:'A young Viking and an injured dragon form an unlikely friendship that changes their island for ever.'},
+             d:'A young Viking and an injured dragon form an unlikely friendship that changes their island forever.'},
     john:   {t:'John Wick: Chapter 4', p:PP + 'John.jpg', plat:'netflix', g:['Action', 'Thriller'], y:2023, len:'2h 49m', age:'18+',
              d:'John Wick uncovers a path to defeating the High Table, but must face a powerful new enemy first.'},
     venom:  {t:'Venom: Let There Be Carnage', p:PP + 'Venom.jpg', plat:'netflix', g:['Action', 'Sci-Fi'], y:2021, len:'1h 37m', age:'13+',
              d:'Eddie Brock and Venom face Cletus Kasady, a serial killer who becomes host to the symbiote Carnage.'},
     avatar: {t:'Avatar: Fire and Ash', p:PP + 'avatar.jpg', plat:'disney', g:['Sci-Fi', 'Adventure'], y:2025, len:'3h 17m', age:'13+',
-             d:'Jake and Neytiri\'s family meet the Ash People, a fierce Na\'vi clan, in a new chapter on Pandora.'},
+             d:'Jake and Neytiri\'s family meets the Ash People, a fierce Na\'vi clan, in a new chapter on Pandora.'},
     f1:     {t:'F1: The Movie', p:PP + 'F1.jpg', w:P + 'f1.jpg', plat:'prime', g:['Action', 'Sport'], y:2025, len:'2h 35m', age:'13+',
              d:'A once-promising Formula 1 driver returns to mentor a young rookie and chase one last shot at glory.'},
+    // sports films (Sport's Related Content)
+    rocky:  {t:'Rocky', p:PP + 'sport/rc-rocky.webp', plat:'prime', g:['Drama', 'Sport'], y:1976, len:'2h 0m', age:'13+',
+             d:'A small-time Philadelphia boxer gets a million-to-one shot at the world heavyweight title.'},
+    creed:  {t:'Creed', p:PP + 'sport/rc-creed.webp', plat:'prime', g:['Drama', 'Sport'], y:2015, len:'2h 13m', age:'13+',
+             d:'Apollo Creed\'s son asks an aging Rocky Balboa to train him, and steps into the ring to make his own name.'},
+    blindside:{t:'The Blind Side', p:PP + 'sport/rc-blindside.webp', plat:'hbo', g:['Drama', 'Sport'], y:2009, len:'2h 9m', age:'13+',
+             d:'A homeless teenager finds a family and a future in football, in the extraordinary true story of Michael Oher.'},
+    longestyard:{t:'The Longest Yard', p:PP + 'sport/rc-longestyard.webp', plat:'prime', g:['Comedy', 'Sport'], y:2005, len:'1h 53m', age:'13+',
+             d:'A jailed former quarterback puts together a team of inmates to take on the guards in one brutal football game.'},
+    goal:   {t:'Goal! The Dream Begins', p:PP + 'sport/rc-goal.webp', plat:'netflix', g:['Drama', 'Sport'], y:2005, len:'1h 58m', age:'13+',
+             d:'A young Mexican immigrant in Los Angeles gets the chance of a lifetime: a trial at Newcastle United.'},
+    goal2:  {t:'Goal II: Living the Dream', p:PP + 'sport/rc-goal2.webp', plat:'netflix', g:['Drama', 'Sport'], y:2007, len:'1h 49m', age:'13+',
+             d:'Santiago Muñez signs for Real Madrid, and finds that fame and the Champions League come at a price.'},
+    secretariat:{t:'Secretariat', p:PP + 'sport/rc-secretariat.webp', plat:'disney', g:['Drama', 'Sport'], y:2010, len:'2h 3m', age:'G',
+             d:'A housewife takes over her father\'s stables and bets everything on the horse that will win the Triple Crown.'},
+    spacejam:{t:'Space Jam', p:PP + 'sport/rc-spacejam.webp', plat:'hbo', g:['Animation', 'Sport'], y:1996, len:'1h 28m', age:'G',
+             d:'Michael Jordan comes out of retirement to help Bugs Bunny and the Looney Tunes win a basketball game against aliens.'},
+    spacejam2:{t:'Space Jam: A New Legacy', p:PP + 'sport/rc-spacejam2.webp', plat:'hbo', g:['Animation', 'Sport'], y:2021, len:'1h 55m', age:'G',
+             d:'LeBron James teams up with the Tune Squad to win back his son from a rogue artificial intelligence.'},
     debt:   {t:'The Debt Collector', p:PP + 'debt.jpg', plat:'netflix', g:['Action', 'Crime'], y:2026, len:'1h 52m', age:'18+',
              d:'A debt collector with a violent past takes one last job that drags him back into Bangkok\'s underworld.'},
     lotr:   {t:'The Lord of the Rings: The Return of the King', p:PP + 'lotr/r1.jpg', plat:'disney', g:['Fantasy', 'Adventure'], y:2003, len:'3h 21m', age:'13+',
@@ -94,7 +113,7 @@
              d:'A prosecutor killed by a corrupt politician gets a second chance at life, and at taking him down.'},
     sherlock:{t:'Young Sherlock', w:P + 'continue/c1.jpg', plat:'prime', g:['Mystery', 'Drama'], y:2026, len:'1 Season', age:'13+',
              d:'A teenage Sherlock Holmes stumbles into his first real mystery at Oxford, long before Baker Street.'},
-    brazil: {t:'All Or Nothing: Brazil National Team', w:P + 'continue/c4.jpg', plat:'netflix', g:['Documentary', 'Sport'], y:2023, len:'1 Season', age:'13+',
+    brazil: {t:'All or Nothing: Brazil National Team', w:P + 'continue/c4.jpg', plat:'netflix', g:['Documentary', 'Sport'], y:2023, len:'1 Season', age:'13+',
              d:'Unprecedented access to the Seleção on their road to the World Cup, on and off the pitch.'},
     endgame:{t:'Avengers: Endgame', w:P + 'continue/c2.jpg', plat:'disney', g:['Action', 'Sci-Fi'], y:2019, len:'3h 1m', age:'13+',
              d:'After Thanos wiped out half of all life, the remaining Avengers assemble once more to undo the snap.'},
@@ -112,14 +131,14 @@
     khemjira:{t:'Khemjira', p:PP + 'khemjira.jpg', plat:'monomax', g:['Horror', 'Thriller'], y:2025, len:'1h 58m', age:'18+', soon:19,   // out in 19 days
              d:'A young man haunted by a curse on his family\'s bloodline turns to an ancient ritual, and the spirit it wakes will not let him go.'},
     medium: {t:'The Medium', p:PP + 'the-medium.jpg', plat:'monomax', g:['Horror', 'Mystery'], y:2021, len:'2h 10m', age:'18+',
-             d:'A documentary crew follows a shaman in rural north-east Thailand, until her niece starts to show signs of something far darker.'},
+             d:'A documentary crew follows a shaman in rural northeastern Thailand, until her niece starts to show signs of something far darker.'},
     // The Lord of the Rings / The Hobbit (Home's Because You Watched)
     twotowers:{t:'The Lord of the Rings: The Two Towers', p:PP + 'lotr/r2.jpg', plat:'disney', g:['Fantasy', 'Adventure'], y:2002, len:'2h 59m', age:'13+',
              d:'The Fellowship is broken, but its members fight on to defend Middle-earth against Saruman and Sauron.'},
     smaug:  {t:'The Hobbit: The Desolation of Smaug', p:PP + 'lotr/r4.jpg', plat:'hbo', g:['Fantasy', 'Adventure'], y:2013, len:'2h 41m', age:'13+',
              d:'Bilbo, Gandalf and the dwarves press on toward Erebor, where the dragon Smaug guards a lost kingdom.'},
     siralex:{t:'Sir Alex Ferguson: Never Give In', w:P + 'maxresdefault.jpg', plat:'prime', g:['Documentary', 'Sport'], y:2021, len:'1h 52m', age:'13+',
-             d:'The life of Manchester United\'s legendary manager, told by his son: from the Govan shipyards to 26 years at Old Trafford, and the fight back from a brain haemorrhage.'},
+             d:'The life of Manchester United\'s legendary manager, told by his son: from the Govan shipyards to 26 years at Old Trafford, and the fight back from a brain hemorrhage.'},
     // AIS PLAY Exclusive (Home): AIS PLAY's own; p its poster, b its wide picture
     missuni:{t:'Miss Universe Thailand 2026', p:'login-assets/ppv/universe-bg.webp', b:'login-assets/ppv/universe-bg.webp', plat:'ais', g:['Pageant', 'Live Event'], y:2026, len:'1h 55m', age:'G',
              d:'The Miss Universe Thailand 2026 pageant is underway with provincial preliminaries and delegate selections, highlighted by Tharina Botes winning Miss Universe Krung Thep Maha Nakhon (Bangkok).'},
@@ -128,13 +147,13 @@
     sophomores:{t:'Happy Boss Day: The Sophomores – D-Day', p:PP + 'ex1.jpg', b:P + 'hero/ex-sophomores.jpg', plat:'ais', g:['Concert'], y:2026, len:'2h 30m', age:'G',
              d:'Relive The Sophomores\' sold-out D-Day concert, exclusively on AIS PLAY. Rerun from 1 February to 30 April 2026.'},
     bossckm:{t:'BossCKM: Dream Warrior Concert', p:PP + 'ex2.jpg', b:P + 'hero/ex-bossckm.jpg', plat:'ais', g:['Concert', 'Music'], y:2026, len:'2h 5m', age:'G',
-             d:'BossCKM takes the stage for Dream Warrior, a night of rock anthems, fan favourites and a few surprises.'},
+             d:'BossCKM takes the stage for Dream Warrior, a night of rock anthems, fan favorites and a few surprises.'},
     cityars:{t:'Man City vs Arsenal', p:PP + 'ex3.jpg', b:PP + 'ex3.jpg', plat:'ais', g:['Football'], y:2026, len:'1h 55m', age:'G',
-             d:'Haaland\'s Manchester City host Arsenal at the Etihad in a title clash that could decide the Premier League race.'},
+             d:'Haaland\'s Manchester City hosts Arsenal at the Etihad in a title clash that could decide the Premier League race.'},
     mufcche:{t:'Match Day: Man Utd vs Chelsea', p:PP + 'ex4.jpg', b:P + 'hero/ex-mufc-chelsea.jpg', plat:'ais', g:['Football'], y:2026, len:'1h 55m', age:'G',
-             d:'Manchester United welcome Chelsea at Old Trafford for a place in the next round of the Emirates FA Cup.'},
+             d:'Manchester United welcomes Chelsea at Old Trafford for a place in the next round of the Emirates FA Cup.'},
     mufcars:{t:'Match Day: Man Utd vs Arsenal', p:PP + 'ex5.jpg', b:P + 'hero/ex-mufc-arsenal.jpg', plat:'ais', g:['Football'], y:2026, len:'1h 55m', age:'G',
-             d:'Manchester United face Arsenal under the Old Trafford lights in one of the Premier League\'s fiercest rivalries.'},
+             d:'Manchester United faces Arsenal under the Old Trafford lights in one of the Premier League\'s fiercest rivalries.'},
     // LPGA golf highlights (Home's Highlight band): AIS PLAY's own
     hl1:    {t:'Honda LPGA Thailand 2024', p:P + 'highlight/h1.jpg', plat:'ais', g:['Golf', 'Highlights'], y:2024, len:'15m', age:'G',
              d:'The best shots from Siam Country Club in Pattaya, as the world\'s top women battle for the Honda LPGA Thailand title.'},
@@ -191,7 +210,7 @@
   var CONTINUE = [{k:'sherlock', s:1, e:5, w:31, of:58}, {k:'endgame', w:122, of:181}, {k:'encanto', w:61, of:102}, {k:'brazil', s:1, e:2, w:20, of:55}, {k:'hailmary', w:101, of:156},
                   {k:'spider', w:41, of:148}, {k:'stranger', s:1, e:3, w:34, of:50}];
   var FOR_YOU = [{k:'d9', price:199}, {k:'avatar', price:399}, {k:'f1', price:199}, {k:'topgun', price:149}, {k:'john', price:149}];
-  var RENT = [{k:'avatar', b:'Recommend'}, {k:'f1', b:'Best Seller'}, {k:'topgun', b:'Best Seller'}, {k:'john'}, {k:'venom'}, {k:'lotr'}, {k:'hobbit'}];
+  var RENT = [{k:'avatar', b:'Recommended'}, {k:'f1', b:'Best Seller'}, {k:'topgun', b:'Best Seller'}, {k:'john'}, {k:'venom'}, {k:'lotr'}, {k:'hobbit'}];
   var MY_RENTAL = ['odyssey', 'spider', 'd9', 'lastofus', 'vikings'];   // (F1 and Top Gun are for sale: OFFERS)
   // series sold one by one (Figma "Series MD: First scene": View Package + Buy 279 baht)
   var SERIES_PRICE = { house:279, got:279, loki:199 };
@@ -564,9 +583,9 @@ window.Content = (function(){
   State" / "Upcoming Has Access (MD)"), opened only from a picture card; the TV Guide and the EPGs always play the channel.
     LIVE.list          the programmes: t, img, tv (the TV Guide channel), live, or in (minutes from when the page opened,
                        so the demo's upcoming ones are always upcoming), d; heroOnly: shown in Home's first scene, not its rail
-    LIVE.start(p)      when an upcoming programme starts (ms): from in, or a label ("Start in 16:12", "Today 20:30 PM",
-                       "Tomorrow 02:30 AM"; a time today that has gone by is taken as tomorrow's)
-    LIVE.label(p)      its card's label: "Start in 58:12" in the last hour, else "Today 20:30" / "Tomorrow 18:00" / "2 Nov 20:30"
+    LIVE.start(p)      when an upcoming programme starts (ms): from in, or a label ("Starts in 16:12", "Today 8:30 PM",
+                       "Tomorrow 2:30 AM"; a time today that has gone by is taken as tomorrow's)
+    LIVE.label(p)      its card's label: "Starts in 58:12" in the last hour, else "Today 8:30 PM" / "Tomorrow 6:00 PM" / "2 Nov 8:30 PM"
     LIVE.hasMD(tv)     whether the channel's programmes have a detail page: a Sports channel, or a Movies one that isn't Digital
                        TV (channels-data.js)
     LIVE.href(p, from) the card's link: its detail page, else the channel in the Live TV player (via the TV Guide)
@@ -578,15 +597,15 @@ window.LIVE = (function(){
   var U = 'posters/upcoming/';
   var list = [
     {t:'Liverpool vs Brentford', img:U + 'live.jpg', bg:'posters/liver-ben.jpg', v:'posters/homapage.mp4', tv:'MONOMAX 1', live:true, sp:'football', lg:'epl',   // bg: Home's first scene and the detail page; v: its video, Home's and the player's
-     d:'Liverpool host Brentford at Anfield in a big Premier League clash. Follow every moment live, from kick-off to the final whistle.'},
+     d:'Liverpool hosts Brentford at Anfield in a big Premier League clash. Follow every moment live, from kick-off to the final whistle.'},
     {t:'Arsenal vs Chelsea', img:'posters/arsenal.jpg', bg:'posters/hero/arsenal.jpg', tv:'MONOMAX SPORTS', live:true, heroOnly:true, sp:'football', lg:'epl',   // Home's first scene only
-     d:'A fierce London derby as Arsenal host Chelsea in a top-of-the-table Premier League showdown.'},
-    {t:'Masterchef Thailand', img:U + 'u1.jpg', tv:'CH7 HD', in:58.2, sp:'', lg:'',
+     d:'A fierce London derby as Arsenal hosts Chelsea in a top-of-the-table Premier League showdown.'},
+    {t:'MasterChef Thailand', img:U + 'u1.jpg', tv:'CH7 HD', in:58.2, sp:'', lg:'',
      d:'Thailand\'s best home cooks battle it out in the kitchen for the title of MasterChef. Season 7 premieres soon.'},
     {t:'Leipzig vs Gladbach', img:U + 'u2.jpg', tv:'PLAY SPORTS (Football)', in:150, sp:'football', lg:'bundesliga',
-     d:'RB Leipzig welcome Borussia Mönchengladbach in a Bundesliga clash with European places on the line.'},
+     d:'RB Leipzig welcomes Borussia Mönchengladbach in a Bundesliga clash with European places on the line.'},
     {t:'Dortmund vs Hamburg', img:U + 'u3.jpg', tv:'PLAY SPORTS (Football)', in:180, sp:'football', lg:'bundesliga',
-     d:'The Yellow Wall awaits as Borussia Dortmund host Hamburger SV at Signal Iduna Park.'},
+     d:'The Yellow Wall awaits as Borussia Dortmund hosts Hamburger SV at Signal Iduna Park.'},
     {t:'CT14 Eala vs Jovic (R1)', img:U + 'u4.png', tv:'FutureChannel Tennis', in:1260, sp:'tennis', lg:'wta',
      d:'Alex Eala takes on Iva Jovic in the first round, live from the WTA tour.'}
   ];
@@ -594,7 +613,7 @@ window.LIVE = (function(){
   function start(p){
     if(p.start) return +p.start;
     if(p.in) return LOADED + p.in * 60000;
-    var w = p.when || '', m = /Start in (\d+):(\d+)/i.exec(w);
+    var w = p.when || '', m = /Starts in (\d+):(\d+)/i.exec(w);
     if(m) return LOADED + (+m[1] * 60 + +m[2]) * 1000;
     m = /(Today|Tomorrow)\s+(\d{1,2}):(\d{2})\s*(AM|PM)?/i.exec(w);
     if(!m) return LOADED + 3600000;
@@ -606,15 +625,16 @@ window.LIVE = (function(){
     return d.getTime();
   }
   function hm(t){ var d = new Date(t); return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
+  function hm12(t){ var d = new Date(t), h = d.getHours(); return ((h % 12) || 12) + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes() + (h < 12 ? ' AM' : ' PM'); }
   function label(p){
     var t = start(p), left = t - Date.now();
-    if(left < 3600000){ var s = Math.max(0, Math.floor(left / 1000)); return 'Start in ' + Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + s % 60; }
+    if(left < 3600000){ var s = Math.max(0, Math.floor(left / 1000)); return 'Starts in ' + Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + s % 60; }
     var a = new Date(t), b = new Date(); a.setHours(0, 0, 0, 0); b.setHours(0, 0, 0, 0);
     var dd = Math.round((a - b) / 864e5), d = new Date(t);
-    return (dd === 0 ? 'Today ' : dd === 1 ? 'Tomorrow ' : d.getDate() + ' ' + 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ')[d.getMonth()] + ' ') + hm(t);
+    return (dd === 0 ? 'Today ' : dd === 1 ? 'Tomorrow ' : d.getDate() + ' ' + 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ')[d.getMonth()] + ' ') + hm12(t);
   }
   // a Sports channel, or a Movies one that isn't a free-to-air Digital TV channel (those carry Movies & Series among
-  // everything else: CH7 HD's Masterchef plays the channel)
+  // everything else: CH7 HD's MasterChef plays the channel)
   function hasMD(tv){ var c = window.TV && TV.byName(tv), has = function(k){ return c.cats.indexOf(k) >= 0; };
     return !!c && (has('sports') || (has('movies') && !has('digital'))); }
   function href(p, from){
@@ -647,7 +667,7 @@ window.LIVE = (function(){
     {t:'Morning Stories', img:N + 'dm-rueng.png', tv:'3 HD', live:true, d:'The morning news that tells the stories around you, with every hot topic from the crack of dawn.'},
     {t:'BBC News', img:N + 'dm-bbc.png', tv:'BBC News', live:true, d:'The latest from BBC News: the stories that matter in the UK and around the world, live.'},
     {t:'Channel 7 News Insight', img:N + 'dm-sanam7.png', tv:'CH7 HD', live:true, d:'Follow every move in the day\u2019s biggest stories, live every day on Channel 7.'},
-    {t:'World Update with Thai PBS', img:N + 'lc-1.png', tv:'TPBS', live:true, d:'The day\u2019s international news in one round-up, digging into the stories the whole world is watching.'},
+    {t:'World Update with Thai PBS', img:N + 'lc-1.png', tv:'TPBS', live:true, d:'The day\u2019s international news in one roundup, digging into the stories the whole world is watching.'},
     {t:'Open News Desk', img:N + 'lc-2.png', tv:'PPTV HD', live:true, d:'The PPTV news team opens the desk on every hot topic of the day.'},
     {t:'Komchadluek', img:N + 'lc-4.png', tv:'Nation TV', live:true, d:'Komchadluek goes straight to the heart of Thai politics and society, with frank, in-depth interviews.'}
   ];

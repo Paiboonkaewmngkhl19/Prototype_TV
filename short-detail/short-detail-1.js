@@ -153,7 +153,7 @@
   function openUnlock(n){
     mEp = n; modalOn = true; mSel = 1; mFocus = { area:'btns', i:1 };   // Figma: Buy this episode picked, focus on Confirm
     $('.modal h2')[0].textContent = 'Unlock Episode ' + n;
-    $('.adtxt')[0].textContent = 'Watch Ads to unlock(' + adsLeft + '/5)';
+    $('.adtxt')[0].textContent = 'Watch ads to unlock (' + adsLeft + '/5)';
     optEls[2].classList.toggle('off', adsLeft <= 0);
     document.body.classList.add('unlock'); paint();
   }

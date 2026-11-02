@@ -116,7 +116,7 @@
   // Favorite instead, the TV Guide's own (TV.isFav; tvFavs, shared with the guide, Home and the player)
   function FAVORITE(){
     var on = PCH && TV.isFav(PCH);
-    return icon('Favorite', 'icons/tv-guide/heart' + (on ? '-fill' : '') + '.svg', 'Add to Favorite', 'Remove from Favorite', 'Added to Favorite: ' + (PCH ? PCH.n : '') + '|Removed from Favorite: ' + (PCH ? PCH.n : ''))
+    return icon('Favorite', 'icons/tv-guide/heart' + (on ? '-fill' : '') + '.svg', 'Add to Favorites', 'Remove from Favorites', 'Added to Favorites: ' + (PCH ? PCH.n : '') + '|Removed from Favorites: ' + (PCH ? PCH.n : ''))
       .replace('class="tv-btn tv-btn--secondary ic item', 'class="tv-btn tv-btn--secondary ic item' + (on ? ' on' : ''));
   }
   var tick = null;

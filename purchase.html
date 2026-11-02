@@ -10,12 +10,13 @@
 <!--
   Buying a title from its detail page (movie-detail.html Buy → purchase.html?k=KEY): the PPV events and the titles
   for rent or sale. Three steps on one 1920x1080 screen:
-    (an OTT package bought in Package Detail: purchase.html?ott=netflix&p=0 opens on Purchase complete, whose
-    Activation Guide shows how to activate that app; a title has nothing to activate: Watch Now instead)
+    (a package bought in Package Detail opens straight on Purchase Complete)
     1. Confirm Purchase: the title, its price, how it is paid (Charge to AIS Bill), Cancel / Confirm
     2. Confirm OTP: the 4-digit code typed on the Login page's keypad (login.html .pad: same keys, same look)
-    3. Purchase complete (Figma Store 3732:89632): wait for the activation SMS, the myAIS QR, the receipt, then
-       Activation Guide (activation-guide.html) or Back to Store
+    3. Purchase Complete, two designs. Have Activate (apps that need activating: PLAY ULTIMATE, and the OTT packages
+       with an Activation Guide): the receipt, a Next Step card with Activate Now (activation-guide.html), View My
+       Package / Activate Later. No Activate (everything else: PLAY ALL, leagues, other apps, a title): "You're all
+       set", the receipt, then Start Watching
   Remote / keyboard: arrows move, Enter selects, the digit keys type the OTP, Back returns a step (then to the title).
 -->
 <link rel="stylesheet" href="button-theme.css">
@@ -69,36 +70,39 @@
     </div>
   </section>
 
-  <!-- 3. Purchase complete (Figma 3732:89632) -->
+  <!-- 3. Purchase Complete, one of two (purchase-1.js picks; Figma Prototype 184:57466 / 184:57469):
+       Have Activate: apps that need activating, Next Step card with Activate Now. No Activate: ready to watch. -->
   <section class="step s-done">
     <div class="result">
-      <div class="head"><img src="store-assets/pc-icon.svg" alt=""><h1>Purchase complete</h1></div>
-      <div class="guide">
-        <div class="txt">
-          <h2><img src="store-assets/pc-sms.svg" alt="">Wait for the activation SMS</h2>
-          <div>
-            <p class="dim">Activate your package to start watching<br>Check your SMS and follow the activation link to activate your package.</p>
-            <p style="margin-top:8px">Expect the activation SMS within 15 minutes.</p>
-          </div>
+      <div class="head"><img src="store-assets/pc-icon.svg" alt=""><h1 class="d-head"></h1></div>
+      <div class="rcpt">
+        <div class="r-hero">
+          <div class="pic d-pic"></div>
+          <div class="r-l"><div class="r-nm"><span class="d-nm"></span><span class="d-base"></span></div><span class="r-badge d-renew"></span></div>
+          <div class="r-r"><b class="d-amt"></b><span>VAT Included</span></div>
         </div>
-        <div class="qr"><div class="qrbox"><img src="store-assets/qr-myais-big.png" alt="myAIS QR code"><img class="app" src="store-assets/myais-app.png" alt=""></div>Activate on your phone</div>
+        <div class="r-rows only-act">
+          <div class="row"><span class="l"><img src="store-assets/pc-cal.svg" alt="">Package duration</span><span class="d-dur"></span></div>
+          <div class="row"><span class="l"><img src="store-assets/pc-wallet.svg" alt="">Payment method</span><span class="d-pm">Charge to AIS Bill: 8801234456</span></div>
+        </div>
+        <div class="r-line only-no"><span class="d-period"></span><span>|</span><span class="d-pmask"></span></div>
       </div>
-      <!-- a package of AIS PLAY's (PLAY ULTIMATE / PLAY ALL, paid on package-detail.html): its activation card, no QR -->
-      <div class="actcard">
-        <h2><img src="store-assets/pc-sms.svg" alt="">Activate your package to start watching</h2>
-        <p class="dim">Check your SMS and follow the activation link to activate your package.</p>
-        <p>Expect the activation SMS within 15 minutes.</p>
+      <div class="nextstep only-act">
+        <span class="r-badge">Next Step</span>
+        <div><h2>Activate your app to start watching content</h2><p>Your package is ready. One more step and you can watch.</p></div>
+        <div class="apps d-apps"></div>
+        <div class="tv-btn tv-btn--primary doneb" data-act="guide">Activate Now</div>
       </div>
-      <div class="receipt">
-        <div class="hero"><div class="pic d-pic"></div><div><div class="nm d-nm"></div><div class="pr"><b class="d-amt"></b><span class="d-vat"></span></div></div></div>
-        <div class="row"><span class="l"><img src="store-assets/pc-cal.svg" alt="">Package duration</span><span class="d-dur"></span></div>
-        <div class="row"><span class="l"><img src="store-assets/pc-wallet.svg" alt="">Payment method</span><span class="d-pm">Charge to AIS Bill: 8801234456</span></div>
+      <div class="noact only-no">
+        <p class="lead d-lead"></p>
+        <div class="apps d-apps"></div>
+        <p class="sms"><img src="store-assets/pc-sms.svg" alt="">We’ll send your details by SMS within 5 minutes.</p>
       </div>
       <div class="done-acts">
         <div class="tv-btn tv-btn--primary doneb" data-act="mypkg">View My Package</div>
+        <div class="tv-btn tv-btn--primary doneb" data-act="later">Activate Later</div>
         <div class="tv-btn tv-btn--secondary doneb" data-act="store">Back to Store</div>
-        <div class="tv-btn tv-btn--primary doneb" data-act="guide">Activation Guide</div>
-        <div class="tv-btn tv-btn--primary doneb" data-act="watch">Watch Now</div>
+        <div class="tv-btn tv-btn--primary doneb" data-act="watch">Start Watching</div>
       </div>
     </div>
   </section>
