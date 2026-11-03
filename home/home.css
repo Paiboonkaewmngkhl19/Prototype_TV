@@ -218,6 +218,7 @@
     font-family:"Helvetica Neue", Helvetica, Arial, sans-serif; font-size:120px; font-weight:400; line-height:1;
     color:#f1f2f6; text-shadow:0 3px 8px rgba(0,0,0,.5); white-space:nowrap; text-transform:uppercase;
   }
+  .hero-bg-livetv.own-art .chip-screen-box{display:none;}
   .hero-bg-livetv.on{opacity:1;}
   .hero.livetv .hero-content{opacity:0;}
   .hero-livetv-content{position:absolute !important;left:110px;top:168px;bottom:auto;opacity:0;}

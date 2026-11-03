@@ -1190,12 +1190,12 @@
   var chipTitleEl = document.querySelector('.hero-livetv-content .hero-title'), chipDescEl = document.querySelector('.hero-livetv-content .hero-desc');
   // the screen text for each chip-rail button: its label as the title, plus this line
   var CHIP_COPY = {
-    'Live TV':     {d:'Stream live channels, tailored to your viewing.<br>Stay up to date with news, sports, and entertainment as it happens.'},
+    'Live TV':     {d:'Stream live channels, tailored to your viewing.<br>Stay up to date with news, sports, and entertainment as it happens.', bg:'posters/chip-bg-live-tv.webp'},
     'Sports':      {d:'Every match, every moment.<br>Catch live games, highlights and replays from the leagues you love.'},
     'Movies':      {d:'Blockbusters, new releases and timeless classics.<br>Find your next movie night, all in one place.'},
-    'News':        {d:'Breaking stories and in-depth coverage.<br>Follow local and world news around the clock.'},
-    'Short':       {d:'Bite-size dramas you can binge in minutes.<br>New episodes of the most talked-about short series every day.'},
-    'Kids':        {d:'Cartoons, adventures and learning fun.<br>Safe, colorful shows the whole family can enjoy.'},
+    'News':        {d:'Breaking stories and in-depth coverage.<br>Follow local and world news around the clock.', bg:'posters/chip-bg-news.webp'},
+    'Short':       {d:'Bite-size dramas you can binge in minutes.<br>New episodes of the most talked-about short series every day.', bg:'posters/chip-bg-short.webp'},
+    'Kids':        {d:'Cartoons, adventures and learning fun.<br>Safe, colorful shows the whole family can enjoy.', bg:'posters/chip-bg-kids.webp'},
     'IoT':         {d:'Your smart home on the big screen.<br>Check cameras, lights and devices without leaving the sofa.'},
     'Game':        {d:'Esports tournaments, game shows and live streams.<br>Watch the biggest plays as they happen.'},
     'Lifestyle':   {d:'Food, travel, home and well-being.<br>Fresh ideas and inspiration for everyday living.'},
@@ -1205,6 +1205,8 @@
     'Horror':      {d:'Chilling thrillers and spine-tingling scares.<br>Dare to watch with the lights off.'},
     'Anime':       {d:'Top series and films from Japan.<br>From epic adventures to slice-of-life favorites.'}
   };
+  // loaded up front, so a button's picture is there the first time it gets focus
+  Object.keys(CHIP_COPY).forEach(function(k){ if(CHIP_COPY[k].bg) new Image().src = CHIP_COPY[k].bg; });
   function updateLiveTvBg(){
     var cr = ctxRow(), r = rows[cr], el = r && r.items[colByRow[cr]];
     var on = !!(el && el.classList.contains('chip'));   // any button in the chip rail shows the Live TV screen
@@ -1217,6 +1219,7 @@
       // its own screen picture if it has one, else the Live TV one
       var bg = "url('" + (c.bg || 'posters/livetv-bg.jpg') + "')";
       if(heroLiveTvBg.style.backgroundImage.replace(/"/g, "'") !== bg) heroLiveTvBg.style.backgroundImage = bg;
+      heroLiveTvBg.classList.toggle('own-art', !!c.bg);   // only the Live TV picture has the label the box covers
       chipDescEl.innerHTML = c.d;
     }
   }
