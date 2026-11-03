@@ -1,28 +1,85 @@
 /*
   Focus ring, as on Home (home.html): ONE ring that glides from item to item instead of each item drawing its own.
-  An 8px band of frosted glass made from the focused item's own artwork (blurred, brightened, more saturated; plain
-  grey-blue glass for items without a picture), with a thin white rim and a soft glow.
+  An 8px band of frosted glass made from the focused item's own artwork (plain grey-blue glass for items without a
+  picture), with a thin white rim and a soft glow in the artwork's dominant colour. Its look: focus-ring.css.
 
   Shared by the pages that run on a 1920x1080 #screen (tv-guide.html, movie-detail.html, package-detail.html).
   Nothing to call: it watches the `focused` class inside #screen and follows whichever element gained it last
   (so a dialog's button wins over the page behind it), falling back to any other visible focused element when that
   one loses it.
+  Home has no #screen and draws its own ring: it loads this file only for RingColor.
 */
+// The ring's glow colour, from the artwork: RingColor.tint(ring, 'url("...")') sets --ring-color and .ring-tinted on the
+// ring, or takes them off (the fixed glow) when there is no artwork or the picture can't be read. Each image is sampled once.
+window.RingColor = (function(){
+  var SIZE = 24, MIN_PIXELS = 12, MIN_VALUE = 200, cache = {}, ctx = null;
+  // its most saturated common colour: pixels sorted into 12 hues (skipping near-black, near-white and grey), the hue with
+  // the most saturation-weighted pixels wins, lifted to MIN_VALUE so a dark poster's colour still shows as a glow
+  function sample(img){
+    var d;
+    try {
+      if(!ctx){ var cv = document.createElement('canvas'); cv.width = cv.height = SIZE; ctx = cv.getContext('2d', { willReadFrequently:true }); }
+      ctx.clearRect(0, 0, SIZE, SIZE);
+      ctx.drawImage(img, 0, 0, SIZE, SIZE);
+      d = ctx.getImageData(0, 0, SIZE, SIZE).data;
+    } catch(e){ return ''; }   // file:// or a cross-origin image: the canvas may not read it
+    var hues = [], best = null;
+    for(var i = 0; i < d.length; i += 4){
+      var r = d[i], g = d[i+1], b = d[i+2], max = Math.max(r, g, b), min = Math.min(r, g, b), c = max - min;
+      if(d[i+3] < 128 || max < 48 || min > 224 || c < 24 || c / max < .25) continue;
+      var h = max === r ? (g - b) / c : max === g ? 2 + (b - r) / c : 4 + (r - g) / c;
+      var n = Math.floor((h * 60 + 375) % 360 / 30), w = (c / max) * (c / max);
+      var o = hues[n] || (hues[n] = { n:0, w:0, r:0, g:0, b:0 });
+      o.n++; o.w += w; o.r += r * w; o.g += g * w; o.b += b * w;
+    }
+    hues.forEach(function(o){ if(o.n >= MIN_PIXELS && (!best || o.w > best.w)) best = o; });
+    if(!best) return '';
+    var R = best.r / best.w, G = best.g / best.w, B = best.b / best.w, k = Math.max(1, MIN_VALUE / Math.max(R, G, B));
+    return Math.round(R * k) + ',' + Math.round(G * k) + ',' + Math.round(B * k);
+  }
+  // no crossOrigin on the image: a cross-origin one still loads, and the canvas refuses it quietly instead of a Console error
+  function colorOf(url, done){
+    var c = cache[url];
+    if(typeof c === 'string') return done(c);
+    if(c) return c.push(done);
+    var waiting = cache[url] = [done], img = new Image();
+    img.onload = img.onerror = function(e){
+      var col = e.type === 'load' ? sample(img) : '';
+      cache[url] = col;
+      waiting.forEach(function(f){ f(col); });
+    };
+    img.src = url;
+  }
+  function tint(ring, art){
+    var m = /^url\(["']?(.*?)["']?\)$/.exec(art || ''), url = m ? m[1] : '';
+    ring.dataset.tintUrl = url;
+    function paint(c){
+      if(c) ring.style.setProperty('--ring-color', c);
+      ring.classList.toggle('ring-tinted', !!c);
+    }
+    if(!url) return paint('');
+    colorOf(url, function(c){ if(ring.dataset.tintUrl === url) paint(c); });   // focus may have moved on meanwhile
+  }
+  return { tint:tint };
+})();
+
 (function(){
   var screen = document.getElementById('screen');
   if(!screen) return;
 
+  var look = document.createElement('link');
+  look.rel = 'stylesheet'; look.href = 'focus-ring.css';
+  document.head.appendChild(look);
+
   var css = document.createElement('style');
   css.textContent =
-    '.fring{ position:absolute; left:0; top:0; z-index:50; pointer-events:none; opacity:0;' +
-    '  box-shadow:inset 0 0 0 1.2px rgba(255,255,255,.7), 0 0 15px rgba(255,255,255,.15), 0 0 26px rgba(214,222,240,.12);' +
-    '  transition:opacity .2s ease; will-change:transform, width, height; }' +
+    '.fring{ position:absolute; left:0; top:0; z-index:50; pointer-events:none; opacity:0; will-change:transform, width, height; }' +
     '.fring.on{ opacity:1; }' +
     '.fring .glass{ position:absolute; inset:0; padding:8px; border-radius:inherit; overflow:hidden;' +
     '  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite:xor;' +
     '  mask:linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }' +
     '.fring .glass i{ position:absolute; inset:0; opacity:0; background:var(--img, linear-gradient(135deg, #9aa3b5, #5c6478)) center / cover no-repeat;' +
-    '  filter:blur(4px) brightness(1.8) saturate(1.4); transition:opacity .22s cubic-bezier(.2,0,0,1); }' +
+    '  transition:opacity .22s cubic-bezier(.2,0,0,1); }' +
     '.fring .glass i.front{ opacity:1; }' +
     '.fring .tops{ position:absolute; left:0; top:0; }' +
     '.fring .tops > *{ position:absolute; margin:0; max-width:none; }';
@@ -163,6 +220,8 @@
     if(a !== art){
       if(cur) front = 1 - front;   // crossfade to the new artwork on the other layer
       layers[front].style.setProperty('--img', a || 'linear-gradient(135deg, #9aa3b5, #5c6478)');
+      layers[front].classList.toggle('ring-plain', !a);
+      RingColor.tint(ring, a);
       layers[0].classList.toggle('front', front === 0); layers[1].classList.toggle('front', front === 1);
       art = a;
     }
