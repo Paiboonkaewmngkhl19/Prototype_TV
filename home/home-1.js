@@ -431,6 +431,12 @@
       '</div></div>');
   })();
 
+  /* ---------- Row: Choose What I See (Figma 572:57330): its Customize button opens Choose what you like in its place ---------- */
+  addRow('<div class="row-block gc-cta open"><div class="gc-cta-panel"><div class="gc-cta-posters">'+
+    [5,4,3,2,1].map(function(n){ return '<img src="posters/customize/c'+n+'.jpg" alt="">'; }).join('')+'</div>'+
+    '<div class="gc-cta-shade"></div><div class="gc-cta-text"><h2>Choose What I See</h2>'+
+    '<div class="tv-btn tv-btn--primary item" data-act="customize" data-title="Customize" data-ring-art="">Customize</div></div></div></div>');
+
   /* ---------- Row: Back to Top ---------- */
   addRow('<div class="row-block back-row"><div class="rail-viewport"><div class="rail-track">'+
     '<div class="back-top tv-btn tv-btn--primary item" data-act="top" data-title="Back to Top" data-ring-art=""><i></i>Back to Top</div></div></div></div>');
@@ -443,7 +449,7 @@
     var ORDER = ['.hero-row', '.chip-row', 'Jump Right Back In', 'Top 10 in Thailand Today', '.partner-row', '.epg-row',
       'Live and Upcoming', 'Hot Channel Program', 'Hot Off the Big Screen', 'My List', 'Recommended Apps',
       'AIS PLAY Exclusive', '.clips-row', '.hl-row', 'Worlds in Chaos', 'We think you', 'Date Night Picks',
-      'Because You Watched', '.seasonal-row', '.karaoke-track', '.gc-picker', '.quick-row', '.back-row'];
+      'Because You Watched', '.seasonal-row', '.karaoke-track', '.gc-cta', '.gc-picker', '.quick-row', '.back-row'];
     function rank(d){
       var t = d.el.querySelector('.row-title'), title = t ? t.textContent.trim() : '';
       for(var i = 0; i < ORDER.length; i++){
@@ -465,6 +471,10 @@
   var rows = rowDefs.map(function(r){
     return { el: r.el, items: Array.prototype.slice.call(r.el.querySelectorAll('.item')), track: r.track };
   }).filter(function(r){ return r.items.length > 0; });
+  // Choose what you like isn't a rail of its own: it waits off the page until Customize opens it (openPicker)
+  var pickerRow = rows.filter(function(r){ return r.el.classList.contains('gc-picker'); })[0];
+  rows.splice(rows.indexOf(pickerRow), 1);
+  var ctaRow = rows.filter(function(r){ return r.el.classList.contains('gc-cta'); })[0];
 
   // prepend the nav row (already in DOM, not created via addRow)
   var navItems = Array.prototype.slice.call(document.querySelectorAll('.topnav .item'));
@@ -502,9 +512,18 @@
   var navFrom = 0;
   function ctxRow(){ return curRow === 0 && navFrom ? navFrom : curRow; }
   var colByRow = rows.map(function(){ return 0; });
-  // Choose what you like: once Continue (after the loading) or Skip is pressed, its row leaves the page; it is back the
-  // next time Home loads (nothing is remembered, so the demo repeats)
+  // Customize swaps the banner for the picker, in the same place on the page; Back swaps them again
+  function swapRow(from, to){
+    var at = rows.indexOf(from);
+    from.el.classList.remove('open'); to.el.classList.add('open');
+    from.items[colByRow[at]].classList.remove('focused');
+    rows[at] = to; colByRow[at] = 0;
+    updateFocus();
+  }
+  // Choose what you like: once Continue (after the loading) or Skip is pressed, it leaves the page with its banner; both
+  // are back the next time Home loads (nothing is remembered, so the demo repeats)
   function removePicker(){
+    ctaRow.el.remove();
     for(var i = rows.length - 1; i > 0; i--){
       if(isPicker(i)){ rows[i].el.remove(); rows.splice(i, 1); colByRow.splice(i, 1); }
     }
@@ -921,7 +940,8 @@
     var el = rows[curRow].items[colByRow[curRow]];
     if(el.classList.contains('gc-btn')) return gcGo(gcBackFromBtn());
     if(el.classList.contains('genre')) return gcGo(gcEl('.gc-tab[data-cat="' + el.dataset.cat + '"]'));
-    return false;
+    swapRow(pickerRow, ctaRow);   // on a tab: back to the banner
+    return true;
   }
   function moveCol(dir){
     var r = rows[curRow];
@@ -957,6 +977,7 @@
     // Back to Top: the first rail, hero showing (as Back does)
     var act = it.getAttribute('data-act');
     if(act === 'top'){ navFrom = 0; curRow = HERO_ROW_INDEX; updateFocus(); return; }
+    if(act === 'customize'){ swapRow(ctaRow, pickerRow); return; }
     // Choose what you like: Enter on a tab enters its grid; on a tile picks / unpicks it (up to GC_MAX per tab); Continue wakes up at the first pick
     if(act === 'genre-tab'){ gcMove('right'); return; }
     if(act === 'genre'){
