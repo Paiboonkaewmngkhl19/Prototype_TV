@@ -18,7 +18,7 @@
      then a few the prototype keeps that aren't in it (TV5 HD1, CNBC, SKY, MONOMAX 1, the Asian Games, the four Exclusive) ----------
      From the CSV: premium (Premium), category (Category, split at the commas), sub (Sub-Category; "null" is empty).
      cats / tags: the TV Guide's tabs and sub-tabs they show under (Education -> Others / Education; Women's Sports and
-     American Football -> Multi-Sports). crown: 'gold' premium, or 'owned' (gold with the green mark).
+     American Football -> Multi-Sports). crown: 'gold' premium, or 'owned' (premium, in the viewer's package: no crown shown).
      pkg (set below for every premium one): the package it comes with, 'sports' (its sports channels: PLAY ALL or a
      league package) or 'ultimate' (every other one: PLAY ULTIMATE); content.js Content.crown turns it owned with it.
      logo: assets/logos/{ChannelNumber}_{ChannelName}.png; fit cover = the square logo fills the disc, contain = sits

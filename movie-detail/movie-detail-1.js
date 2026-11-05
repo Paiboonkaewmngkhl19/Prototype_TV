@@ -46,8 +46,8 @@
   var bgPic = m.b || m.w || m.p;   // MD.bg: the picture Home's and the Movie page's screen text show for it
   if(bgPic) document.getElementById('bg').style.backgroundImage = "url('" + bgPic + "')";   // a title made from a placeholder card has none
   document.getElementById('title').textContent = m.t;
-  // Premium: the title's crown, gold (not the viewer's yet) or owned (content.js)
-  function premBadge(){ return Content.crown(CI) ? '<span class="mbadge prem">' + Content.crownIcon(CI) + 'Premium</span>' : ''; }
+  // Premium: the title's gold crown, while it's not the viewer's yet (content.js)
+  function premBadge(){ var ic = Content.crownIcon(CI); return ic ? '<span class="mbadge prem">' + ic + 'Premium</span>' : ''; }
   document.getElementById('meta').innerHTML = Content.metaHtml({k:K}, true);   // content.js (tag, Premium, meta): Home's and the Movie page's screen text show the same
   document.getElementById('desc').innerHTML = esc(m.d) + ' <span class="more">More</span>';
   var ctasEl = document.getElementById('ctas'), state, cw = MD.cw(K);
@@ -104,7 +104,7 @@
   function progRange(){ return LIVE.range(PROG); }   // content.js: Home's screen text says the same
   // the LIVE / Upcoming cards: the other programmes (content.js LIVE), each to its own detail page or its channel
   // a premium channel's programme: Premium on its page (the meta row) and on its card (the crown tag), always together,
-  // each with the channel's crown (content.js Content.crown: gold or owned)
+  // each with the channel's gold crown while it's not in the viewer's package (content.js)
   // the card tags every rail uses: LIVE is Home's Live ribbon (live-ribbon.css), a start time the top tag (corner-tag.css)
   function lcard(p){
     return '<div class="lcard item" data-href="' + esc(LIVE.href(p, 'detail')) + '" data-ring-art=""><div class="pic" style="background-image:url(\'' + p.img + '\')">' +

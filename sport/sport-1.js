@@ -199,7 +199,7 @@
   function matchCard(it, i, set){
     sync(it);
     return '<div class="card item"' + attrs({kind:'match', set:set, i:i}) + '><div class="thumb' + (it.img ? '' : ' ph') + '" data-ratio="16:9"' + thumbStyle(it.img) + '>' +
-      (it.live ? '' : '<span class="top-tag">' + esc(it.when) + '</span>') + (it.ch ? Content.crownIcon({tv:it.ch.tv}, 0, 'crown-tag') : '') + '</div>' +   // premium: the crown tag (corner-tag.css), gold or owned
+      (it.live ? '' : '<span class="top-tag">' + esc(it.when) + '</span>') + (it.ch ? Content.crownIcon({tv:it.ch.tv}, 0, 'crown-tag') : '') + '</div>' +   // premium, not the viewer's yet: the gold crown tag (corner-tag.css)
       (it.live ? '<span class="live-ribbon" data-ring-top="styled">Live</span>' : '') +   // live: Home's Live ribbon
       '<div class="t one">' + esc(it.t) + '</div></div>';
   }
@@ -294,7 +294,7 @@
         return '<div class="poster item"' + attrs({kind:'doc', i:DOCS.indexOf(d)}) + (d.k ? ' data-k="' + d.k + '"' : '') + ' style="background-image:url(\'' + d.img + '\')">' + tag + '</div>';
       }).join('') + '</div></div></section>';
   }
-  function totopSec(){ return '<section class="sec totop" data-row="totop"><div class="btn item" data-kind="totop" data-ring-art=""><img src="sport-assets/arrow-up.svg" alt="">Back to Top</div></section>'; }
+  function totopSec(){ return '<section class="sec totop" data-row="totop"><div class="tv-btn tv-btn--primary tv-btn--top item" data-kind="totop" data-ring-art=""><i></i>Back to Top</div></section>'; }
   function tailSecs(){
     return '<section class="sec" data-row="shorts"><div class="shorts">' +
       '<div class="short wide full item" data-kind="short" data-label="Short Highlight" style="--img:url(\'sport-assets/short-highlight.webp\')"><span>Short Highlight</span></div></div></section>' +
@@ -401,7 +401,7 @@
     if(k === 'match'){
       var m = SETS[set][i];
       var p = matchProg(m);   // its detail page's meta row and words (content.js LIVE): LIVE / Upcoming, Premium, the channel, the time
-      return { video:m.video, t:p.t, meta:(m.live ? '<span class="badge live">LIVE</span>' : '<span class="badge">Upcoming</span>') + (Content.crown({tv:p.tv}) ? '<span class="badge">' + Content.crownIcon({tv:p.tv}) + 'Premium</span>' : '') + chMeta(m.ch) + '<span class="pill">' + window.LIVE.range(p) + '</span>', d:p.d, bg:p.bg };
+      return { video:m.video, t:p.t, meta:(m.live ? '<span class="badge live">LIVE</span>' : '<span class="badge">Upcoming</span>') + (Content.crownIcon({tv:p.tv}) ? '<span class="badge">' + Content.crownIcon({tv:p.tv}) + 'Premium</span>' : '') + chMeta(m.ch) + '<span class="pill">' + window.LIVE.range(p) + '</span>', d:p.d, bg:p.bg };
     }
     if(k === 'uclava') return { t:BAND.t, d:BAND.d, bg:null };
     if(rowKey === 'chips'){ var c = CHIPS[i]; return { t:c.t, d:c.d, bg:c.img }; }

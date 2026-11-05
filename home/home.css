@@ -492,8 +492,22 @@
     font-size:52px;font-weight:700;line-height:1.15;color:rgba(255,255,255,.92);text-shadow:0 2px 12px rgba(0,0,0,.45);}
   .seasonal-row .item.focused{transform:scale(1.05);}   /* tall cards: 5%, so they don't reach the rails around them */
 
+  /* Choose What I See (Figma 572:57330), in the default theme: the panel and button are Home's own, not the frame's purple */
+  .gc-cta{display:none;}
+  .gc-cta.open{display:block;}
+  .gc-cta-panel{position:relative;width:1738px;height:620px;margin-left:110px;border-radius:36px;overflow:hidden;background:var(--th-panel);}
+  .gc-cta-posters{position:absolute;left:55px;top:66px;display:flex;gap:32px;}
+  .gc-cta-posters img{display:block;width:300px;height:449px;object-fit:cover;border-radius:28px;box-shadow:0 0 10px rgba(0,0,0,.2);}
+  .gc-cta-shade{position:absolute;inset:0;background:
+    linear-gradient(179deg, rgba(7,14,22,0) 1%, rgba(7,14,22,.32) 53%, rgba(7,14,22,.4) 89%),
+    linear-gradient(26deg, rgba(0,0,0,.16) 25%, rgba(0,0,0,.24) 72%);}
+  .gc-cta-text{position:absolute;left:0;right:0;top:394px;display:flex;flex-direction:column;align-items:center;gap:26px;}
+  .gc-cta-text h2{margin:0;font-size:50px;font-weight:600;line-height:60px;color:#fff;}
+  .gc-cta-text .tv-btn{--btn-w:300px;--btn-h:80px;}
+
   /* Choose what you like: one full screen (1080px) of genre tabs on the left, a five-column grid on the right, Skip / Continue below */
-  .gc-picker{height:1080px;box-sizing:border-box;padding:100px 110px 0;}
+  .gc-picker{display:none;height:1080px;box-sizing:border-box;padding:100px 110px 0;}
+  .gc-picker.open{display:block;}
   .gc-title{margin:0 0 40px;}
   .gc-title h2{font-size:56px;font-weight:500;line-height:64px;color:#fff;margin:0 0 24px;}
   .gc-title p{font-size:32px;line-height:32px;color:#a8a8a8;margin:0;}
@@ -546,12 +560,9 @@
   .refresh p{margin:0;font-size:24px;font-weight:500;color:#d6d6d6;line-height:normal;}
 
   /* Back to Top (Figma 3256:172509) */
-  .back-row{padding-bottom:40px;}
-  /* the primary button's states (button-theme.css), as News / Movie's Back to Top */
-  .back-top{--btn-w:auto;--btn-h:80px;padding:0 100px;font-size:24px;}
-  .back-top i{width:32px;height:32px;-webkit-mask:url('../icons/arrow-up.svg') center / contain no-repeat;mask:url('../icons/arrow-up.svg') center / contain no-repeat;}
+  .back-row{padding-bottom:60px;}   /* (the button: button-theme.css) */
 
-  .end-spacer{height:70px;}
+  .end-spacer{height:0;}   /* Back to Top is the last thing on the page: 60px clear of the bottom, as on every page */
 
   #toast{
     position:absolute;left:50%;bottom:110px;transform:translate(-50%,20px);

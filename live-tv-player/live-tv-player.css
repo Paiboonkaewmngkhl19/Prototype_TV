@@ -22,7 +22,7 @@
   .ava img.contain{ left:12%; top:12%; width:76%; height:76%; object-fit:contain; }
   .ava.txt{ display:flex; align-items:center; justify-content:center; text-align:center; font:700 22px/1.1 var(--noto); }
   .crown{ position:relative; width:40px; height:40px; flex:0 0 auto; }
-  .crown img{ position:absolute; left:4px; top:4px; width:32px; height:32px; }   /* the whole crown icon (gold or owned, content.js), at the header's 32px */
+  .crown img{ position:absolute; left:4px; top:4px; width:32px; height:32px; }   /* the gold crown (content.js), at the header's 32px */
   .ch-no{ height:40px; box-sizing:border-box; padding:8px 12px; border-radius:8px; display:flex; align-items:center;
     background:rgba(0,0,0,.35); font:600 24px/normal var(--noto); }   /* the number chip of the TV Guide, Home and the mini EPG */
 
@@ -86,16 +86,21 @@
     transition:opacity .3s ease, transform .3s cubic-bezier(.2,0,0,1); }
   body.mini-on .mini{ opacity:1; transform:none; pointer-events:auto; }
   .mini-in{ display:flex; gap:32px; height:100%; box-sizing:border-box; padding:60px 0 0 90px; }   /* no bottom padding: the list runs to the screen's edge */
-  .mini-cats{ display:flex; flex-direction:column; gap:16px; flex:0 0 auto; }
-  /* category chips in the site's theme, as the TV Guide's tabs: a thin outline and a grey icon at rest, the chosen one
+  .mini-cats{ position:relative; z-index:2; display:flex; flex-direction:column; gap:16px; flex:0 0 auto; }   /* above the list, for the chips' tooltips */
+  /* category chips in the site's theme, as the TV Guide's tabs: no outline and a grey icon at rest, the chosen one
      dim-filled with a white icon, the white glass pill when focus is on it; the shared glass ring follows focus */
   .mcat{ width:64px; height:64px; box-sizing:border-box; border-radius:12px; display:flex; align-items:center; justify-content:center;
-    box-shadow:inset 0 0 0 2px rgba(255,255,255,.14); transition:background .22s cubic-bezier(.2,0,0,1); }
+    transition:background .22s cubic-bezier(.2,0,0,1); }
   .mcat img{ width:32px; height:32px; display:block; filter:brightness(0) invert(.66); }   /* --on-surface-variant grey */
-  .mcat.sel{ background:rgba(255,255,255,.22); box-shadow:none; }
+  .mcat.sel{ background:rgba(255,255,255,.22); }
+  .mcat{ position:relative; }
+  /* the focused category names itself for 3s (.tip, set in miniPaint): the player's tooltip (player.css .btn .lbl),
+     to the chip's right with its arrow pointing back, since the chips above and below leave no room over it */
+  .mcat .lbl{ left:calc(100% + 28px); top:50%; bottom:auto; transform:translate(-6px, -50%); }
+  .mcat .lbl::after{ left:auto; right:calc(100% + 4px); top:50%; margin:-9px 0 0; border-left:0; border-top:9px solid transparent; border-bottom:9px solid transparent; border-right:10px solid var(--tip-bg); }
+  .mcat.tip .lbl{ opacity:1; transform:translate(0, -50%); }
   .mcat.sel.focused{ background:var(--pill-hi), var(--th-pill); }
   .mcat.sel img, .mcat.focused img{ filter:brightness(0) invert(1); }
-  .mcat[data-cat="guide"]{ box-shadow:none; }
   /* focus on the TV Guide shortcut (Figma "Mini-EPG From Player"): it takes the theme's white glass pill with a white
      icon, as a focused chosen category does; the title reads View Program Guide and the channels make way */
   .mcat[data-cat="guide"].focused{ background:var(--pill-hi), var(--th-pill); }
@@ -103,7 +108,7 @@
   .mini.to-guide .mini-scroll{ opacity:0; }
   .mini-div{ width:64px; height:4px; display:block; }
   .mini-main{ display:flex; flex-direction:column; gap:16px; width:600px; min-width:0; height:100%; }
-  .mini-title{ position:relative; z-index:1; height:68px; display:flex; align-items:center; font:500 32px/normal var(--inter); flex:0 0 auto; }   /* above the list, as a safety net */
+  .mini-title{ position:relative; z-index:1; height:68px; display:flex; align-items:center; font:500 48px/normal var(--inter); flex:0 0 auto; }   /* above the list, as a safety net */
   /* no mask here: a masked parent would stop the cards' backdrop blur from reaching the picture */
   /* the list's own window, starting right under the title (the 16px gap taken back) and clipping its cards, so none is
      ever drawn over the title, mid-animation included. Its top 24px is the fade; the focused card sits below it, at
@@ -133,12 +138,12 @@
     display:flex; align-items:center; justify-content:center; font:600 20px/normal var(--noto); }
   .mprog{ font:500 20px/1.2 var(--noto); letter-spacing:-.24px; color:#d6d6d6; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition:font-size .2s ease-out; }
   .mtime{ display:flex; align-items:center; gap:16px; height:28px; margin-top:4px; font:500 20px/1.2 var(--noto); letter-spacing:-.24px; color:#d6d6d6; white-space:nowrap; }
-  .mtags{ display:flex; align-items:center; gap:8px; }
+  .mtags{ flex:1; min-width:0; display:flex; align-items:center; gap:8px; }   /* fills the row, so Watching can sit at its right end */
   .mtags > img{ width:24px; height:24px; display:block; }
   /* Watching: the TV Guide's tag (tv-guide.html .tag.watch): live red, sound bars before the word */
   .mtag{ height:26px; box-sizing:border-box; padding:4px; border-radius:4px; display:flex; align-items:center; gap:4px; border:1px solid var(--inverse-surface);
     font:400 16px/1.2 var(--noto); letter-spacing:-.24px; white-space:nowrap; }
-  .mtag.watch{ background:#ff1f1f; color:#fff; }
+  .mtag.watch{ margin-left:auto; background:#ff1f1f; color:#fff; }
   /* (its sound bars: player.css .eq) */
   /* Up Next: folded away on a default card, it folds open and fades in on the focused one (same 200ms) */
   .mnext{ display:flex; gap:4px; max-height:0; opacity:0; padding:0 16px 0 122px; border-top:1px solid transparent; font:500 24px/1.2 var(--noto); letter-spacing:-.24px;
@@ -162,7 +167,6 @@
   .mcard.focused .minfo{ gap:6px; }
   .mcard.focused .mname{ font-size:28px; }
   .mcard.focused .mno{ font-size:24px; }
-  .mcard.focused .mico.owned img{ width:24px; height:24px; }
   .mcard.focused .mprog{ font-size:22px; }
   .mcard.focused .mnext{ max-height:62px; opacity:1; padding:16px 16px 16px 122px; border-top-color:rgba(255,255,255,.18); }
 

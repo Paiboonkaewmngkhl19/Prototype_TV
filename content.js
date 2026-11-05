@@ -21,7 +21,7 @@
     MD.subscribe(plat), MD.subscribed(plat)   a platform's package bought this session (packages.js: netflix, hbo, ...,
                     reelshort, dramabox): its premium titles and shorts are the viewer's (sessionStorage ottSubscribed)
     m.premium       a premium title: sold on its own or in a package; Content.crown(info) says whether the viewer has
-                    it ('owned') or not ('gold'). Its cards show no crown; its detail page's meta row says Premium
+                    it ('owned') or not ('gold'). Its cards show no crown; its detail page's meta row says Premium (gold only)
     MD.cw(k)        where the title was left: this session's progress (player.html), else Continue Watching
     MD.setProgress(k, w, of[, s, e])   remember it (minutes watched of `of`; a series also its season / episode);
                     MD.minutes(k) its length in minutes
@@ -475,10 +475,10 @@ window.Content = (function(){
     return [];
   }
   // a title's or short's meta row, the same on every screen and its detail page: (tag: its platform tag first) then
-  // Premium (a premium one: its crown, gold or owned, platform-tag.css .mbadge.prem), then a title's genres, year,
+  // Premium (one the viewer doesn't have yet: its gold crown, platform-tag.css .mbadge.prem), then a title's genres, year,
   // length, age pill and quality tag (MD.metaHtml), or a short's genres, year, episodes, rating pill and HD
   function ptag(plat){ return plat === 'ais' ? '<span class="ptag ais" aria-label="AIS PLAY"></span>' : '<img class="ptag" src="badges/tag-' + plat + '.png" alt="">'; }
-  function premTag(f){ return crown(f) ? '<span class="mbadge prem">' + crownIcon(f) + 'Premium</span>' : ''; }
+  function premTag(f){ var ic = crownIcon(f); return ic ? '<span class="mbadge prem">' + ic + 'Premium</span>' : ''; }
   function metaHtml(info, tag){
     var f = target(info);
     if(f.s !== undefined){ var sh = window.SHORTS[f.s];
@@ -519,12 +519,12 @@ window.Content = (function(){
       return m.premium || m.ppv ? (st === 'play' || st === 'resume' ? 'owned' : 'gold') : ''; }
     return info.ppv || info.premium ? 'gold' : '';   // a PPV card not opened yet: nothing bought
   }
-  // the crown's <img> (nothing when not premium): gold the plain gold crown, owned the crown with the green play mark.
+  // the crown's <img>, gold only: a premium item the viewer has ('owned') shows no crown and no Premium tag, the same as
+  // a free one (every rule on Content.crown stays: owned still means no View Package). Pages test this, not Content.crown,
+  // to decide whether to draw a crown or Premium tag at all.
   // size: its width and height in px (else the page's CSS sizes it); cls: the page's class for it (crown-tag, ic20 ...)
-  var CROWN_SRC = { gold:'icons/crown-gold.svg', owned:'icons/tv-guide/crown.svg' };
   function crownIcon(info, size, cls){
-    var st = crown(info);
-    return st ? '<img class="crown-ic ' + st + (cls ? ' ' + cls : '') + '" src="' + CROWN_SRC[st] + '" alt="' + (st === 'owned' ? 'Premium: yours' : 'Premium') + '"' +
+    return crown(info) === 'gold' ? '<img class="crown-ic gold' + (cls ? ' ' + cls : '') + '" src="icons/crown-gold.svg" alt="Premium"' +
       (size ? ' width="' + size + '" height="' + size + '"' : '') + '>' : '';
   }
   // the package that includes `info` (View Package): {n, url}. A channel or programme: PLAY ULTIMATE (its premium

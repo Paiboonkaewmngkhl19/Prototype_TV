@@ -40,9 +40,9 @@
     {n:'iQIYI', img:'partners/iqiyi.png'},
     {n:'WeTV', img:'partners/wetv.png'},
     {n:'MONOMAX', img:'partners/monomax.png'},
-    {n:'TrueID', img:'partners/trueid.png'},
     {n:'Prime Video', img:'partners/prime.png'},
-    {n:'Disney+ Hotstar', img:'partners/disney.png'}
+    {n:'Disney+ Hotstar', img:'partners/disney.png'},
+    {n:'TrueID', img:'partners/trueid.png'}
   ];
 
   byId('apps').innerHTML = APPS.map(function(a){

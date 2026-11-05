@@ -47,9 +47,9 @@
   }
   byId('progT').textContent = P.t;
   byId('chName').textContent = C.n;
-  // gold, or the crown with the green play mark (in the viewer's package), as on the TV Guide's cards
-  if(!CROWN) byId('crown').style.display = 'none';
-  else { byId('crown').innerHTML = Content.crownIcon({ch:C}); byId('crown').classList.toggle('owned', CROWN === 'owned'); }
+  // the gold crown (not in the viewer's package), as on the TV Guide's cards; none when free or owned
+  var crownImg = Content.crownIcon({ch:C});
+  if(!crownImg) byId('crown').style.display = 'none'; else byId('crown').innerHTML = crownImg;
   if(C.no) byId('chNo').textContent = C.no; else byId('chNo').style.display = 'none';   // Exclusive channels have no number
   byId('progTm').textContent = hm(P.start) + ' - ' + hm(P.end);
   // free preview + Explore Package: a premium channel not in the viewer's package (gold crown)
@@ -309,7 +309,7 @@
       '<div class="m1">' + miniAva(c) + '<div class="minfo">' +
         '<div class="mname-row"><div class="mname">' + esc(c.n) + '</div><div class="mchips">' +
           (c.fav ? '<span class="mico"><img src="icons/tv-guide/heart-fill.svg" alt="Favorite"></span>' : '') +
-          (Content.crown({ch:c}) ? '<span class="mico' + (Content.crown({ch:c}) === 'owned' ? ' owned' : '') + '">' + Content.crownIcon({ch:c}) + '</span>' : '') +
+          (Content.crownIcon({ch:c}) ? '<span class="mico">' + Content.crownIcon({ch:c}) + '</span>' : '') +
           (c.excl ? '' : '<span class="mno">' + c.no + '</span>') + '</div></div>' +
         '<div class="mprog">' + esc(p[0]) + '</div>' +
         '<div class="mtime">' + hm2(p[1]) + ' - ' + hm2(p[2]) + '<span class="mtags">' +
@@ -322,7 +322,7 @@
   }
   function miniRenderCats(){
     var html = '<div class="mcat" data-cat="guide"><img src="icons/mini-epg/guide.svg" alt="TV Guide"></div><img class="mini-div" src="icons/mini-epg/divider.svg" alt="">';
-    html += mini.data.cats.map(function(k){ return '<div class="mcat' + (k.id === mini.cat ? ' sel' : '') + '" data-cat="' + k.id + '"><img src="icons/mini-epg/' + (MINI_ICONS[k.id] || 'all-on') + '.svg" alt="' + esc(k.n) + '"></div>'; }).join('');
+    html += mini.data.cats.map(function(k){ return '<div class="mcat' + (k.id === mini.cat ? ' sel' : '') + '" data-cat="' + k.id + '"><img src="icons/mini-epg/' + (MINI_ICONS[k.id] || 'all-on') + '.svg" alt="' + esc(k.n) + '"><span class="lbl">' + esc(k.n) + '</span></div>'; }).join('');
     byId('miniCats').innerHTML = html;
   }
   function miniSetCat(cat, keepNo){
@@ -334,6 +334,15 @@
     byId('miniList').style.transform = '';
     miniMeasure();
     $('.mcat', byId('miniCats')).forEach(function(el){ el.classList.toggle('sel', el.dataset.cat === cat); });
+  }
+  // the focused category's tooltip: on for 3s each time focus lands on it, never on the TV Guide shortcut (the title names it)
+  var miniTipT;
+  function miniTip(chip){
+    clearTimeout(miniTipT);
+    $('.mcat.tip', byId('miniCats')).forEach(function(el){ if(el !== chip) el.classList.remove('tip'); });
+    if(!chip) return;
+    chip.classList.add('tip');
+    miniTipT = setTimeout(function(){ chip.classList.remove('tip'); }, 3000);
   }
   function miniPaint(){
     // remembered for the session (miniMem): reopening the mini EPG comes back to this category (on the channel playing)
@@ -347,6 +356,7 @@
     var toGuide = mini.zone === 'cats' && $('.mcat', byId('miniCats'))[mini.ci].dataset.cat === 'guide';
     byId('mini').classList.toggle('to-guide', toGuide);
     byId('miniTitle').textContent = toGuide ? 'View Program Guide' : mini.data.cats.filter(function(k){ return k.id === mini.cat; })[0].n;
+    miniTip(mini.zone === 'cats' && !toGuide ? $('.mcat', byId('miniCats'))[mini.ci] : null);
     // "Fixed focus", as Home's rails but up / down: the focused card sits in the first card's slot and the list slides
     // under it, until the list's end reaches the bottom of the screen; past that the focus (and the ring) moves on alone
     // to the last cards. A short list never scrolls. Worked out from the measured heights (mini.h a card, mini.H the
@@ -401,6 +411,7 @@
     var fromButton = mini.fromButton; mini = null;
     document.body.classList.remove('mini-on');
     $('.mcat, .mcard', byId('mini')).forEach(function(el){ el.classList.remove('focused'); });
+    miniTip(null);
     byId('mini').classList.remove('to-guide');
     if(fromButton){ document.body.classList.add('idle'); wake(); } else goIdle();   // back where it was opened from
   }

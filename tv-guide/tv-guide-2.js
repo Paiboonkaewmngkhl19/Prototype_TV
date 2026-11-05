@@ -88,7 +88,7 @@
   function bellHtml(p){ var on = !!reminders[p.key];
     return '<span class="rem-wrap' + (on ? ' on' : '') + '"><img class="ic24 bell" src="icons/tv-guide/' + (on ? 'notify.svg' : 'bell.svg') + '" alt="' + (on ? 'Reminder set' : 'Set reminder') + '"></span>'; }
   function tsHtml(p){ return p.ts ? '<img class="ic24 ts" src="icons/tv-guide/timeshift.svg" alt="Timeshift">' : ''; }
-  function crownIcon(c){ return Content.crownIcon({ch:c}, 0, 'ic20'); }   // content.js: gold (not in the package) or owned
+  function crownIcon(c){ return Content.crownIcon({ch:c}, 0, 'ic20'); }   // content.js: gold (not in the package), else nothing
   var tabsEl = document.getElementById('tabs'), subsEl = document.getElementById('subs'), subsRail = document.getElementById('subsRail');
   var gridEl = document.getElementById('grid'), guideEl = document.getElementById('guide');
   var emptyEl = document.getElementById('empty'), catLabel = document.getElementById('catLabel');
@@ -160,7 +160,7 @@
       return '<div class="col' + (later ? ' next-day' : '') + '" data-no="' + c.no + '">' +
         '<div class="col-head"><div class="ava-sm">' + logoHtml(c) + '</div><div class="col-name clip">' + esc(c.n) + '</div>' +
           '<div class="col-icons"><span class="heart">' + heartIcon(c) + '</span>' +
-            (Content.crown({ch:c}) ? '<span class="crown">' + crownIcon(c) + '</span>' : '') + (c.excl ? '' : '<div class="col-no">' + c.no + '</div>') + '</div></div>' +
+            (crownIcon(c) ? '<span class="crown">' + crownIcon(c) + '</span>' : '') + (c.excl ? '' : '<div class="col-no">' + c.no + '</div>') + '</div></div>' +
         // the live card stays pinned under the channel header; what comes after scrolls inside the column on its own
         '<div class="col-body">' + bigHtml + pin + '<div class="col-scroll"><div class="col-list">' + body + '</div></div></div></div>';
     }).join('');

@@ -63,8 +63,9 @@ body.idle .scrim, body.idle .top, body.idle .seek, body.idle .btns{ opacity:0; }
 .thumb{ position:absolute; bottom:48px; left:0; width:320px; margin-left:-160px; pointer-events:none; opacity:0; transition:opacity .15s ease; }
 .btns{ display:flex; align-items:center; gap:16px; }
 .btn{ position:relative; padding:24px; border-radius:9999px; display:flex; align-items:center; transition:background .2s ease; }
-.btn .lbl{ position:absolute; left:50%; bottom:calc(100% + 28px); padding:12px 24px; border-radius:16px; white-space:nowrap; pointer-events:none;
-  font:500 24px/32px var(--inter); color:#e8e8e8; background:rgba(74,74,74,.92); box-shadow:0 4px 12px rgba(0,0,0,.35);
+/* (the Live TV player's category chips take the same tooltip, to their right: live-tv-player.css .mcat .lbl) */
+.btn .lbl, .mcat .lbl{ --tip-bg:rgba(74,74,74,.92); position:absolute; left:50%; bottom:calc(100% + 28px); padding:12px 24px; border-radius:16px; white-space:nowrap; pointer-events:none;
+  font:500 24px/32px var(--inter); color:#e8e8e8; background:var(--tip-bg); box-shadow:0 4px 12px rgba(0,0,0,.35);
   opacity:0; transform:translate(-50%, 6px); transition:opacity .18s ease, transform .18s cubic-bezier(.2,0,0,1); }
 .flash{ position:absolute; left:50%; top:50%; width:160px; height:160px; margin:-80px 0 0 -80px; border-radius:50%; z-index:20; pointer-events:none;
   display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.45);
@@ -90,7 +91,7 @@ video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
 .thumb video{ width:100%; height:100%; object-fit:cover; display:block; }
 .thumb .t{ margin-top:8px; text-align:center; font:500 24px/28px var(--inter); text-shadow:0 1px 4px rgba(0,0,0,.6); }
 .btn img{ width:32px; height:32px; display:block; }
-.btn .lbl::after{ content:''; position:absolute; left:50%; top:calc(100% + 4px); margin-left:-9px; border-left:9px solid transparent; border-right:9px solid transparent; border-top:10px solid rgba(74,74,74,.92); }
+.btn .lbl::after, .mcat .lbl::after{ content:''; position:absolute; left:50%; top:calc(100% + 4px); margin-left:-9px; border-left:9px solid transparent; border-right:9px solid transparent; border-top:10px solid var(--tip-bg); }
 .btn.focused .lbl{ opacity:1; transform:translate(-50%, 0); }
 .btn.focused, .back.focused{ background:rgba(255,255,255,.3); backdrop-filter:blur(24px) saturate(1.4); -webkit-backdrop-filter:blur(24px) saturate(1.4); }
 .seekfx.on{ opacity:1; transition:opacity .08s ease; }
