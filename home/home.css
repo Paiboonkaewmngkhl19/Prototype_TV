@@ -560,12 +560,9 @@
   .refresh p{margin:0;font-size:24px;font-weight:500;color:#d6d6d6;line-height:normal;}
 
   /* Back to Top (Figma 3256:172509) */
-  .back-row{padding-bottom:40px;}
-  /* the primary button's states (button-theme.css), as News / Movie's Back to Top */
-  .back-top{--btn-w:auto;--btn-h:80px;padding:0 100px;font-size:24px;}
-  .back-top i{width:32px;height:32px;-webkit-mask:url('../icons/arrow-up.svg') center / contain no-repeat;mask:url('../icons/arrow-up.svg') center / contain no-repeat;}
+  .back-row{padding-bottom:60px;}   /* (the button: button-theme.css) */
 
-  .end-spacer{height:70px;}
+  .end-spacer{height:0;}   /* Back to Top is the last thing on the page: 60px clear of the bottom, as on every page */
 
   #toast{
     position:absolute;left:50%;bottom:110px;transform:translate(-50%,20px);

@@ -207,7 +207,7 @@
     return '<div class="quick-card tv-chip item"' + attrs({ kind:'shortcut', i:i, label:s.t }) + ' data-ring-art=""><span class="qc-sub">' + esc(s.s) + '</span>' +
       '<span class="qc-name"><img src="' + s.ic + '" alt="">' + esc(s.t) + '</span></div>';
   }).join('') + '</div></section>';
-  html += '<section class="sec totop" data-sec="totop"><div class="btn item" data-kind="totop" data-ring-art=""><img src="' + SA + 'arrow-up.svg" alt="">Back to Top</div></section>';
+  html += '<section class="sec totop" data-sec="totop"><div class="tv-btn tv-btn--primary tv-btn--top item" data-kind="totop" data-ring-art=""><i></i>Back to Top</div></section>';
   var page = document.getElementById('page');
   page.innerHTML = html;
 

@@ -174,11 +174,7 @@
   .shorts{ display:flex; gap:32px; padding:0 110px; }
   .quick-card{ --qc-w:545px; }   /* Home's Quick Access cards (quick-card.css, chip-theme.css), three across as Movie's */
 
-  /* Back to Top */
-  .totop{ padding-bottom:60px; display:flex; align-items:center; justify-content:center; }   /* the button ends 60px above the screen's bottom */
-  .totop .btn{ width:384px; height:80px; font-size:24px; line-height:32px; background:var(--surface-container-high); }
-  .totop .btn img{ width:32px; height:32px; filter:invert(1); }
-  .totop .btn.focused{ background:var(--focus-fill); }
+  /* (Back to Top: button-theme.css) */
 
   /* ---------- top bar (Home's), Store is the current page; past the hero the rails get the full screen: the top bar steps
      away until it gets focus, with the page colour fading in behind it ---------- */

@@ -129,7 +129,7 @@
           '<div class="t">' + esc(it.t) + '</div></div>';
       }).join('') + '</div></div></section>';
   });
-  html += '<section class="sec totop" data-row="totop"><div class="tv-btn tv-btn--primary item" data-kind="totop" data-ring-art=""><i></i>Back to Top</div></section>';
+  html += '<section class="sec totop" data-row="totop"><div class="tv-btn tv-btn--primary tv-btn--top item" data-kind="totop" data-ring-art=""><i></i>Back to Top</div></section>';
   var page = document.getElementById('page');
   page.innerHTML = html;
 

@@ -58,7 +58,7 @@
   .meta b, .meta strong{ font-weight:700; color:#fff; }
 
   /* ---------- the page: Figma's rows, 60px apart, starting at y=600 (under Home's 600px hero); it moves as a whole ---------- */
-  #page{ position:absolute; left:0; top:0; width:1920px; z-index:1; padding:600px 0 44px; display:flex; flex-direction:column; gap:60px;
+  #page{ position:absolute; left:0; top:0; width:1920px; z-index:1; padding:600px 0 0; display:flex; flex-direction:column; gap:60px;
     transition:transform .45s var(--ease); }
   .sec{ position:relative; transition:opacity .3s ease; }
   body:not(.static) .sec.above{ opacity:0; }
@@ -189,12 +189,7 @@
   .chan.focused{ transform:scale(1.127); }
   .chan.focused::after{ opacity:0; }
 
-  /* Back to Top */
-  .totop{ height:150px; display:flex; align-items:center; justify-content:center; }
-  .totop .btn{ display:flex; align-items:center; gap:16px; padding:24px 100px; border-radius:9999px; background:var(--surface-container-high); color:var(--on-surface);
-    font-weight:500; font-size:31px; line-height:41.877px; white-space:nowrap; transition:background .15s ease, color .15s ease; }
-  .totop .btn img{ width:40px; height:40px; filter:invert(1); }
-  .totop .btn.focused{ background:var(--focus-fill); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+  /* (Back to Top: button-theme.css) */
 
   /* ---------- top bar (Home's), Sport is the current page ---------- */
   /* past the hero the rails get the full screen: the top bar steps away until it gets focus, with the page colour fading in behind it */
@@ -218,7 +213,7 @@
   #toast.on{ opacity:1; }
   /* resting chips and buttons: Home's chip glass; focus turns them to the glass pill */
   .chip::before{ display:none; }
-  .chip:not(.focused), .totop .btn:not(.focused){
+  .chip:not(.focused){
     background:var(--idle-fill); -webkit-backdrop-filter:blur(80px) saturate(1.5); backdrop-filter:blur(80px) saturate(1.5); color:var(--on-surface); }
   /* focused items grow: 8% on every rail, 6% in the top bar; the wide Short Highlight 3% (more would reach
      past the 32px gap); the league and channel discs keep their own growth */

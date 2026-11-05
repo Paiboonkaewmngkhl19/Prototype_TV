@@ -145,7 +145,7 @@
     return '<div class="quick-card tv-chip item"' + attrs({kind:'quick', i:i}) + ' data-href="store.html" data-ring-art=""><span class="qc-sub">' + esc(q.sub) + '</span>' +
       '<span class="qc-name"><img src="' + q.ic + '" alt="">' + esc(q.t) + '</span></div>';
   }).join('') + '</div></div></section>';
-  html += '<section class="sec totop" data-row="totop"><div class="tv-btn tv-btn--primary item" data-kind="totop" data-ring-art=""><i></i>Back to Top</div></section>';
+  html += '<section class="sec totop" data-row="totop"><div class="tv-btn tv-btn--primary tv-btn--top item" data-kind="totop" data-ring-art=""><i></i>Back to Top</div></section>';
   var page = document.getElementById('page');
   page.innerHTML = html;
   // Avatar in the Disney band: no 16:9 picture, so its poster, from the top

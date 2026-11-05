@@ -17,7 +17,7 @@
   var title, pic, plat = '', where;
   if(PROG){
     title = PROG.t; pic = PROG.bg || PROG.img; where = CH ? CH.n : PROG.tv;
-    document.getElementById('meta').innerHTML = (Content.crown(info) ? '<span class="mbadge prem">' + Content.crownIcon(info) + 'Premium</span>' : '') +
+    document.getElementById('meta').innerHTML = (Content.crownIcon(info) ? '<span class="mbadge prem">' + Content.crownIcon(info) + 'Premium</span>' : '') +
       (CH ? '<span class="chan">' + TV.logoHtml(CH) + 'Channel ' + CH.no + ': ' + esc(CH.n) + '</span>' : '') + '<span class="pill">' + LIVE.range(PROG) + '</span>';   // as its detail page's
   } else {
     var h = Content.hero(info);

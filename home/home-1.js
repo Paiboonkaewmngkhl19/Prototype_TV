@@ -217,7 +217,7 @@
           (tv ? ' data-ch="'+q(tv.n)+'" data-meta="'+q(meta)+'"' : '')+(p.bg ? ' data-hero-bg="'+q(p.bg)+'"' : '')+' data-desc="'+q(p.d)+'">'+   // hero-bg: its detail page's picture
         '<div class="thumb" style="background-image:url(\''+p.img+'\');background-size:cover;background-position:center;">'+
           (p.live ? '' : '<span class="time-pill top-tag">'+p.when+'</span>')+
-          Content.crownIcon({tv:p.tv}, 0, 'crown-tag')+'</div>'+   // premium: gold, or owned (content.js)
+          Content.crownIcon({tv:p.tv}, 0, 'crown-tag')+'</div>'+   // premium, not the viewer's yet: gold (content.js)
         '<div class="strip"><div class="t">'+p.t+'</div></div>'+
         (p.live ? '<span class="live-ribbon">Live</span>' : '')+
       '</div>';
@@ -439,7 +439,7 @@
 
   /* ---------- Row: Back to Top ---------- */
   addRow('<div class="row-block back-row"><div class="rail-viewport"><div class="rail-track">'+
-    '<div class="back-top tv-btn tv-btn--primary item" data-act="top" data-title="Back to Top" data-ring-art=""><i></i>Back to Top</div></div></div></div>');
+    '<div class="back-top tv-btn tv-btn--primary tv-btn--top item" data-act="top" data-title="Back to Top" data-ring-art=""><i></i>Back to Top</div></div></div></div>');
 
   /* ---------- Rail order: Figma Home (3258:337279) ----------
      The rails are built above in their old order (so each keeps the pool posters it always had), then moved into
@@ -602,9 +602,9 @@
   // a channel's programme (content.js LIVE, else null): Upcoming, Premium and its time on air, as its detail page's meta row
   function showHeroProg(p){
     heroUpEl.style.display = p && !p.live ? '' : 'none';
-    var prem = p ? Content.crown({tv:p.tv}) : '';
+    var prem = p ? Content.crownIcon({tv:p.tv}) : '';   // gold only (content.js)
     heroPremEl.style.display = prem ? '' : 'none';
-    if(prem) heroPremEl.innerHTML = Content.crownIcon({tv:p.tv})+'Premium';   // gold, or owned (content.js)
+    if(prem) heroPremEl.innerHTML = prem+'Premium';
     heroRangeEl.style.display = p ? '' : 'none';
     if(p) heroRangeEl.textContent = LIVE.range(p);
   }
