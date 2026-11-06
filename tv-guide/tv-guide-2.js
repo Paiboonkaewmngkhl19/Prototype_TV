@@ -451,12 +451,11 @@
     // that category's video from the other pages)
     var onlyNews = c.cats.every(function(k){ return k === 'news' || k === 'digital'; });
     if(has('news') && (onlyNews || /[?&]from=news\b/.test(location.search))) return V + (has('digital') ? 'News 3hd.mp4' : 'CNN.mp4');
-    if(has('football')) return V + 'football.mp4';
-    if(has('sports')) return V + 'bad.mp4';
+    if(has('sports') || has('football')) return V + 'football.mp4';   // every sport: the football clip
     if(has('cartoons')) return V + 'dis.mp4';
     if(has('variety')) return V + 'concert.mp4';
     if(has('movies')) return V + 'spiderman.mp4';
-    return V + 'vall.mp4';
+    return V + 'concert.mp4';
   }
   // a live event with its own video (content.js LIVE v: Home's first scene), else the channel's
   function liveVideo(t){ var e = window.LIVE && LIVE.find(t); return e && e.v || ''; }
