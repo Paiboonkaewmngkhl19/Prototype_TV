@@ -446,6 +446,11 @@
   // channel are kept for coming back, so Back from the player lands on the same card
   function videoFor(c){
     var V = 'video/', has = function(k){ return c.cats.indexOf(k) >= 0 || (c.tags || []).indexOf(k) >= 0; };
+    // a news channel: the news videos (an international one CNN's, a Thai one 3 HD's), when it is opened from the News page,
+    // or anywhere when news is all it shows (CNN, BBC, TNN ...; a Thai channel that is also movies / variety / sports keeps
+    // that category's video from the other pages)
+    var onlyNews = c.cats.every(function(k){ return k === 'news' || k === 'digital'; });
+    if(has('news') && (onlyNews || /[?&]from=news\b/.test(location.search))) return V + (has('digital') ? 'News 3hd.mp4' : 'CNN.mp4');
     if(has('football')) return V + 'football.mp4';
     if(has('sports')) return V + 'bad.mp4';
     if(has('cartoons')) return V + 'dis.mp4';

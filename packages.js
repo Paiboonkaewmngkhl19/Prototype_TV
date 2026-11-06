@@ -136,16 +136,16 @@ window.Packages = (function(){
       // Dolby; txt: no logo yet, a name box), sports, channels, devices, description, terms (the page) and tc (the
       // Confirm popup), and its plans
       services:[
-        { n:'AIS PLAY', txt:'AIS PLAY', screens:5, q:'4K', dolby:1 },
+        { n:'AIS PLAY', txt:'AIS PLAY', screens:4, q:'4K', dolby:1 },
         { n:'Netflix', logo:P + 'l2.png', screens:4, q:'4K', dolby:1 },
         { n:'HBO Max', logo:P + 'l3.png', screens:4, q:'4K', dolby:1 },
         { n:'Disney+ Hotstar', logo:P + 'l4.png', screens:4, q:'Full HD', dolby:1 },
         { n:'iQIYI', logo:P + 'l5.png', cls:'cover', screens:2, q:'4K' },
-        { n:'viu', logo:P + 'l6.png', cls:'cover', screens:5, q:'Full HD', dolby:1 },
+        { n:'viu', logo:P + 'l6.png', cls:'cover', screens:4, q:'Full HD', dolby:1 },
         { n:'WeTV', logo:P + 'd-wetv.png', cls:'white', screens:2, q:'Full HD' },
-        { n:'MONOMAX', logo:'partners/monomax.png', cls:'white', screens:5, q:'4K', dolby:1 },
-        { n:'OneD', txt:'OneD', screens:5, q:'4K', dolby:1 },
-        { n:'3 Plus', txt:'3 Plus', screens:5, q:'4K', dolby:1 }],
+        { n:'MONOMAX', logo:'partners/monomax.png', cls:'white', screens:4, q:'4K', dolby:1 },
+        { n:'OneD', txt:'OneD', screens:4, q:'4K', dolby:1 },
+        { n:'3 Plus', txt:'3 Plus', screens:4, q:'4K', dolby:1 }],
       sports:{ tiles:[t('d-ucl.png', 'pad'), t('l19.png'), t('d-motogp.png', 'pad'), t('l21.png', 'pad')], more:'13+', names:['UEFA Champions League', 'Bundesliga', 'MotoGP', 'NBA'] },
       channels:{ tiles:[t('d-cn.png'), t('d-cnn.png', 'pad'), t('d-eurosport.png', 'pad'), t('d-discovery.png', 'pad')], more:'99+', names:['Cartoon Network', 'CNN', 'Eurosport', 'Discovery'] },
       devices:['tv', 'phone', 'tablet', 'laptop'],

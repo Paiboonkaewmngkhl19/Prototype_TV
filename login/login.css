@@ -77,8 +77,16 @@
   .bg{ transition:opacity .3s var(--ease); }
   .bg img{ transition:filter .3s var(--ease); }
   /* Figma: the wall at 30% under a 70% black overlay at 70% with an 18px background blur; the blur kept light (4px) so the posters still read */
-  body.qr-card .bg{ opacity:.3; }
-  body.qr-card .bg img{ filter:blur(4px) brightness(.51); }
+  /* Home Internet and Quick sign in (QR): the wall dimmed behind the panel, light and fresh (the user's call) so it still reads */
+  body.qr-card .bg, body.home-card .bg{ opacity:.55; }
+  body.qr-card .bg img, body.home-card .bg img{ filter:blur(3px) brightness(.75) saturate(1.2); }
+  /* Sign in with Home Internet (Figma For PBR 1127:61955): the 512px AIS PLAYBOX over its line, centred on the right
+     (x 1054, y 226, 696 wide), coming in as Quick sign in does */
+  .home-panel{ position:absolute; left:1054px; top:226px; width:696px; display:flex; flex-direction:column; align-items:center; gap:18px;
+    opacity:0; transform:translateX(24px); transition:opacity .25s var(--ease), transform .25s var(--ease); pointer-events:none; }
+  body.home-card .home-panel{ opacity:1; transform:none; }
+  .home-panel img{ width:512px; height:512px; display:block; }
+  .home-panel p{ margin:0; font:400 24px/normal 'Inter', var(--roboto); color:#fff; text-align:center; }   /* Figma: Inter Regular 24, white */
   .qr-panel{ position:absolute; left:1113px; top:540px; width:620px; display:flex; flex-direction:column; gap:48px;
     opacity:0; transform:translate(24px, -50%); transition:opacity .25s var(--ease), transform .25s var(--ease); pointer-events:none; }
   body.qr-card .qr-panel{ opacity:1; transform:translateY(-50%); pointer-events:auto; }

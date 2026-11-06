@@ -6,13 +6,14 @@
 <title>AIS PLAY Sign In</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&family=Roboto:wght@400;500;700&family=Noto+Sans:wght@400;500;700&family=Noto+Sans+Thai:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Roboto:wght@400;500;700&family=Noto+Sans:wght@400;500;700&family=Noto+Sans+Thai:wght@400;700&display=swap" rel="stylesheet">
 <!--
   AIS PLAY's guest page, the first thing the app shows after its splash (launcher.html). From Figma
   "PLAY:homeGuest_mainPage" (Prototype, node 75:23432): the poster wall behind, darkened on the left; the logo, a line
   of text and the sign-in options.
   Remote / keyboard: Up / Down move along the options, Enter picks one, Esc / Back returns to the TV's home screen.
-  Sign in with Home Internet signs straight in (Home, or the title picked on the launcher: ?next=).
+  Sign in with Home Internet signs straight in (Home, or the title picked on the launcher: ?next=); focused, it brings up
+  the AIS PLAYBOX on the right (Figma For PBR 1127:61955) with how it signs in, the poster wall dimmed behind.
   Focusing Sign in with Mobile / Internet Number brings up the number card on the right (Figma node 75:23452): Right or
   Enter goes into its keypad, the remote's own digit keys type straight in, Back / Left from the keypad's first column
   returns to the options; Continue signs in once all 10 digits are there.
@@ -36,7 +37,7 @@
   <div class="shade-left"></div>
 
   <img class="logo" src="login-assets/logo.png" alt="AIS PLAY">
-  <p class="intro">Lorem Ipsum is simply dummy text of the printing and setting text ever since 1966, when Lorem Ipsum hass.</p>
+  <p class="intro">Every story you’re waiting for, every match you can’t miss, every moment worth watching, all in one place.</p>
 
   <div class="options">
     <div class="btn item" data-act="home"><img class="ic" src="login-assets/icon-home.svg" width="32" height="32" alt=""><span class="lbl">Sign in with Home Internet</span></div>
@@ -63,6 +64,11 @@
     <div class="continue" id="continue">Continue</div>
   </div>
 
+  <!-- Sign in with Home Internet, focused (Figma For PBR 1127:61955): the AIS PLAYBOX and how it signs in, the wall dimmed behind -->
+  <div class="home-panel" id="homePanel" aria-hidden="true">
+    <img src="login-assets/ais-playbox.png" width="512" height="512" alt="AIS PLAYBOX">
+    <p>We’ll detect the AIS Home Internet this device is connected to and sign you in right away. No number or password needed.</p>
+  </div>
   <div class="qr-panel" id="qrPanel" aria-hidden="true">
     <div class="qr-body">
       <div>

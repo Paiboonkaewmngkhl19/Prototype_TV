@@ -29,7 +29,7 @@
   body.static .hero-bg{ opacity:0; }
 
   /* ---------- hero text (Figma localComponent_heroContent): title 57px, meta row, 3-line synopsis ---------- */
-  .hero{ position:absolute; left:110px; bottom:480px;   /* first scene: placed as Home's (synopsis ends at y=600) */
+  .hero{ position:absolute; left:110px; bottom:478px;   /* first scene: placed as Home's (the text ends at y=602, 80px over the cards) */
     width:800px; z-index:3; display:flex; flex-direction:column; gap:24px;
     transition:opacity .3s ease, transform .3s var(--ease); }
   body.static .hero{ opacity:0; transform:translateY(-40px); pointer-events:none; }
@@ -51,20 +51,10 @@
   .meta strong{ font-weight:700; }
   .pill{ height:36px; padding:0 12px; border:1px solid var(--outline); border-radius:18px; display:inline-flex; align-items:center; font-weight:500; white-space:nowrap; }
 
-  /* ---------- first scene: Detail (secondary) and Play (primary) under the text, the page dots (no play mark: the pictures are stills) ---------- */
-  .scene-btns{ position:absolute; left:110px; top:624px;   /* Home's Detail / Play */
-    z-index:3; display:flex; flex-direction:column; gap:24px; transition:opacity .3s ease; }
-  .scene-btns .tv-btn i{ width:40px; height:40px; }
-  .ic-info{ -webkit-mask:url('../icons/hero/info.svg') center / contain no-repeat; mask:url('../icons/hero/info.svg') center / contain no-repeat; }
-  .ic-play{ -webkit-mask:url('../icons/hero/play.svg') center / contain no-repeat; mask:url('../icons/hero/play.svg') center / contain no-repeat; }
-  /* View Package (a premium movie not the viewer's): Movie Detail's icon, the crown */
-  .ic-pkg{ -webkit-mask:url('../icons/player/crown-dark.svg') center / contain no-repeat; mask:url('../icons/player/crown-dark.svg') center / contain no-repeat; }
-  /* Home's page dots */
-  .dots{ position:absolute; left:0; right:0; top:878px;   /* Home's page dots */
-    z-index:3; display:flex; justify-content:center; gap:8px; transition:opacity .3s ease; }
-  .dots i{ width:12px; height:12px; border-radius:6px; background:#a8a8a8; transition:width .22s var(--ease), background-color .22s ease; }
-  .dots i.on{ width:30px; background:#e8e8e8; }
-  body:not(.scene) .scene-btns, body:not(.scene) .dots{ opacity:0; pointer-events:none; }
+  /* ---------- first scene: Home's first rail, 16:9 cards (320 x 180) at y=682 to 862: 80px under the hero text, 80px over the
+     chips (942) ---------- */
+  .scene-rail{ position:absolute; left:0; top:682px; width:1920px; z-index:3; transition:opacity .3s ease; }
+  body:not(.scene) .scene-rail{ opacity:0; pointer-events:none; }
 
   /* ---------- the page: Figma's rows, 60px apart, the chips at y=942 under the first scene (as Home's); it moves as a whole ---------- */
   #page{ position:absolute; left:0; top:0; width:1920px; z-index:1; padding:942px 0 0; display:flex; flex-direction:column; gap:60px;
@@ -180,5 +170,4 @@
   #screen .item{ transition:transform .22s var(--ease), background .15s ease, color .15s ease, box-shadow .2s ease; }
   #screen .item.focused{ transform:scale(1.08); z-index:2; }
   #screen .topnav .item.focused{ transform:scale(1.06); }
-  #screen .scene-btns .tv-btn.focused{ transform:scale(1.04); }
   #screen .xcard.focused{ transform:scale(1.05); }   /* as Home's AIS Play Exclusive */

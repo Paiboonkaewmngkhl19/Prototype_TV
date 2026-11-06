@@ -3,7 +3,7 @@
   var frame = document.getElementById('frame'), screen = document.getElementById('screen');
 
   var items = Array.prototype.slice.call(document.querySelectorAll('.options .btn')), cur = 0;
-  var mobileBtn = document.querySelector('.btn[data-act="mobile"]'), qrBtn = document.querySelector('.btn[data-act="qr"]');
+  var mobileBtn = document.querySelector('.btn[data-act="mobile"]'), qrBtn = document.querySelector('.btn[data-act="qr"]'), homeBtn = document.querySelector('.btn[data-act="home"]');
   // Quick sign in: its two buttons (0 Refresh, 1 Back); inQr is where focus is in it (-1: on the options)
   var qrBtns = [document.getElementById('qrRefresh'), document.getElementById('qrBack')], inQr = -1;
   var timerEl = document.getElementById('qrTimer'), qrLeft = 300, qrT = 0;
@@ -54,6 +54,9 @@
   function paint(){
     items.forEach(function(el, i){ el.classList.toggle('focused', inCard < 0 && inQr < 0 && !inPpv && i === cur); });
     qrBtns.forEach(function(el, i){ el.classList.toggle('focused', i === inQr); });
+    var homeOn = items[cur] === homeBtn;   // Sign in with Home Internet focused: the AIS PLAYBOX on the right
+    document.body.classList.toggle('home-card', homeOn);
+    document.getElementById('homePanel').setAttribute('aria-hidden', homeOn ? 'false' : 'true');
     var qrOn = items[cur] === qrBtn;
     document.body.classList.toggle('qr-card', qrOn);
     qrBtn.classList.toggle('open', inQr >= 0);

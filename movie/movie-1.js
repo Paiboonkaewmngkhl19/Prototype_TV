@@ -151,16 +151,22 @@
   // Avatar in the Disney band: no 16:9 picture, so its poster, from the top
   page.querySelectorAll('.card[data-k="avatar"] .thumb').forEach(function(t){ t.style.backgroundImage = 'url(\'' + M.avatar.p + '\')'; t.style.backgroundPosition = 'center 20%'; });
   Top10.ready(page);
-  document.querySelector('.dots').innerHTML = SLIDES.map(function(){ return '<i></i>'; }).join('');
+  // the first scene's cards (Home's first rail): the title's 16:9 picture, the gold crown on a premium one not yet the
+  // viewer's (content.js, as Home's), its title under it
+  document.getElementById('sceneTrack').innerHTML = SLIDES.map(function(k, i){
+    var m = M[k];
+    return '<div class="card item"' + attrs({kind:'title', k:k, set:'scene', i:i}) + '><div class="thumb" style="background-image:url(\'' + (m.w || pic(k)) + '\')">' +
+      Content.crownIcon({k:k}, 0, 'crown-tag') + '</div></div>';   // (no title under it, as Home's first rail: the hero says it)
+  }).join('');
 
   /* ---------- focus rows: the top bar, the first scene (Play; Detail above it), then one row per section ---------- */
   var $ = function(q, root){ return Array.prototype.slice.call((root || document).querySelectorAll(q)); };
   var secs = $('.sec', page);
-  var playEl = document.getElementById('play'), detailEl = document.getElementById('detail');
-  var rows = [{ items:$('.topnav .item') }, { key:'scene', items:[playEl] }].concat(secs.map(function(s){ return { sec:s, key:s.dataset.row, items:$('.item', s) }; }));
+  var sceneTrack = document.getElementById('sceneTrack');
+  var rows = [{ items:$('.topnav .item') }, { key:'scene', items:$('.item', sceneTrack) }].concat(secs.map(function(s){ return { sec:s, key:s.dataset.row, items:$('.item', s) }; }));
   var R = {}; rows.forEach(function(r, i){ if(r.key) R[r.key] = i; });
   var movieTab = document.querySelector('.navtab.active'), NAV_MOVIE = rows[0].items.indexOf(movieTab);
-  var cur = { row:R.scene, col:rows.map(function(){ return 0; }), from:0, detail:false, slide:0 };
+  var cur = { row:R.scene, col:rows.map(function(){ return 0; }), from:0, slide:0 };
   cur.col[0] = NAV_MOVIE;
   var DYNAMIC_END = R.short;   // the chips to Short keep the hero; For You and below scroll as a plain page
   var ROW_Y = 600;             // where the focused rail sits while the hero shows (Figma: its title at y=600)
@@ -191,10 +197,6 @@
     return null;
   }
   function paintHero(rowKey, el){
-    // the first scene's main button: its movie's detail page's (content.js): View Package (premium, not the viewer's),
-    // Resume, or Play
-    if(rowKey === 'scene'){ var a = Content.mainAction({ k:SLIDES[cur.slide] });
-      if(playEl.dataset.label !== a.label){ playEl.dataset.label = a.label; playEl.innerHTML = '<i class="' + a.icon + '"></i>' + a.label; } }
     var h = heroFor(el, rowKey);
     if(!h) return;
     var key = h.t + '|' + (h.watched || '') + '|' + (h.meta || '');
@@ -213,7 +215,7 @@
   // ---- keep the focused item in view (Home's "fixed focus" sideways; the focused rail at a fixed y down the page) ----
   var pageY = 0;
   function slide(r, el){
-    if(!r.sec || r.key === 'totop') return;
+    if((!r.sec && r.key !== 'scene') || r.key === 'totop') return;
     var track = el.closest('.track, .chips');
     var first = r.items[0], at = function(x){ return x.closest('.rank-wrap') || x; };   // a Top 10 poster: measure its whole card
     var want = at(el).offsetLeft - at(first).offsetLeft;
@@ -244,51 +246,40 @@
 
   // the profile panel under the top bar's photo, as on Home (profile-panel.js)
   var profileEl = document.querySelector('.topnav .profile'), prof = ProfilePanel(profileEl, { paint:paint, toast:toast });
-  var dots = $('.dots i');
 
   function paint(){
     var inProf = prof.paint(cur.row === 0 && rows[0].items[cur.col[0]] === profileEl);
+    cur.slide = cur.col[R.scene];   // the first scene's focused card: its title in the hero
     rows.forEach(function(r, ri){ r.items.forEach(function(el, ci){
-      el.classList.toggle('focused', !inProf && ri === cur.row && ci === cur.col[ri] && !(ri === R.scene && cur.detail)); }); });
-    detailEl.classList.toggle('focused', !inProf && cur.row === R.scene && cur.detail);
+      el.classList.toggle('focused', !inProf && ri === cur.row && ci === cur.col[ri]); }); });
     // top-bar tab states (button-theme.css): Movie is Active while the D-pad is on the bar, Active dim in the content
     movieTab.classList.toggle('active', cur.row === 0);
     movieTab.classList.toggle('active-dim', cur.row !== 0);
-    dots.forEach(function(d, i){ d.classList.toggle('on', i === cur.slide); });
     var ri = cur.row === 0 ? cur.from : cur.row;   // on the top bar the page stays as it was
     document.body.classList.toggle('on-nav', cur.row === 0);
     // the top bar, as Home's: gone once focus is past the first rail, back as an overlay (with its scrim) while it has focus
     document.body.classList.toggle('past-first', ri > R.scene);
     layout(ri);
     var r = rows[ri], el = r.items[cur.col[ri]];
-    if(cur.row) slide(r, el);
+    if(cur.row) slide(r, el); else if(ri === R.scene) slide(r, el);
     if(ri <= DYNAMIC_END){ paintHero(r.key, el); placeHero(r); } else heroVid.set('');
     try { sessionStorage.setItem('movieFocus', JSON.stringify(cur)); } catch(e){}
   }
 
-  // the first scene moves on to the next movie every 8s while it has the focus
-  var autoT = setInterval(function(){
-    if(cur.row !== R.scene || document.hidden) return;
-    cur.slide = (cur.slide + 1) % SLIDES.length; paint();
-  }, 8000);
-  function nudgeSlide(dir){ cur.slide = (cur.slide + dir + SLIDES.length) % SLIDES.length; clearInterval(autoT); autoT = setInterval(function(){
-    if(cur.row !== R.scene || document.hidden) return; cur.slide = (cur.slide + 1) % SLIDES.length; paint(); }, 8000); }
 
   /* ---------- actions ---------- */
   var toastEl = document.getElementById('toast'), toastT;
   function toast(msg){ toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove('on'); }, 1600); }
   // leaving for another page whose Back comes here: land on the same item again
   function leave(url){ try { sessionStorage.setItem('movieReturn', '1'); } catch(e){} location.href = url; }
-  function toScene(){ cur.row = R.scene; cur.detail = false; cur.col[R.scene] = 0; }
+  function toScene(){ cur.row = R.scene; }   // (on the card it was on, as Home's Back)
   function select(el){
     var k = el.dataset.kind, i = +el.dataset.i;
     el.animate([{ transform:getComputedStyle(el).transform }, { transform:(getComputedStyle(el).transform === 'none' ? '' : getComputedStyle(el).transform + ' ') + 'scale(0.97)' }], { duration:140, easing:'ease-out' });
-    if(el === movieTab){ toScene(); paint(); return; }   // already here: the focus goes to the first scene's Play
+    if(el === movieTab){ toScene(); paint(); return; }   // already here: the focus goes to the first scene's rail
     if(el.dataset.href){ if(cur.row) leave(el.dataset.href); else location.href = el.dataset.href; return; }
     if(el === profileEl) return;   // its panel is already open under it
     // a title's detail page (movie-detail.html: Resume / Play / View Package + Buy, You May Also Like)
-    if(el === detailEl){ leave('movie-detail.html?k=' + SLIDES[cur.slide]); return; }
-    if(k === 'play'){ leave(Content.mainAction({ k:SLIDES[cur.slide] }).url); return; }   // the player, or its package (content.js)
     if(k === 'cat'){ toast('Showing ' + CATS[i].t); return; }
     if(k === 'cw' || k === 'buy' || k === 'title'){ leave('movie-detail.html?k=' + el.dataset.k); return; }
     if(k === 'actor'){ toast('Movies with ' + ACTORS[i].n); return; }
@@ -307,34 +298,29 @@
     if(prof.key(e.key)){ e.preventDefault(); return; }   // the profile photo / its panel
     var r = rows[cur.row], n = r.items.length, handled = true;
     var inScene = cur.row === R.scene;
-    if(e.key === 'ArrowRight'){ if(inScene) nudgeSlide(1); else cur.col[cur.row] = Math.min(n - 1, cur.col[cur.row] + 1); }
+    if(e.key === 'ArrowRight') cur.col[cur.row] = Math.min(n - 1, cur.col[cur.row] + 1);
     else if(e.key === 'ArrowLeft'){
-      if(inScene) nudgeSlide(-1);
       // Left on a rail's first item goes up to the top bar (its Movie tab), as on Home
-      else if(cur.row > 0 && cur.col[cur.row] === 0){ cur.from = cur.row; cur.row = 0; cur.col[0] = NAV_MOVIE; }
+      if(cur.row > 0 && cur.col[cur.row] === 0){ cur.from = cur.row; cur.row = 0; cur.col[0] = NAV_MOVIE; }
       else cur.col[cur.row] = Math.max(0, cur.col[cur.row] - 1);
     }
     else if(e.key === 'ArrowUp'){
-      // first scene: Play, then Detail, then the top bar (landing on the Movie tab)
-      if(inScene && !cur.detail) cur.detail = true;
-      else if(inScene){ cur.detail = false; cur.from = R.scene; cur.row = 0; cur.col[0] = NAV_MOVIE; }
-      else if(cur.row > R.scene && cur.row - 1 === R.scene){ toScene(); }
+      // the first scene's rail: up to the top bar (landing on the Movie tab)
+      if(inScene){ cur.from = R.scene; cur.row = 0; cur.col[0] = NAV_MOVIE; }
       else if(cur.row > 0) cur.row--;
     }
     else if(e.key === 'ArrowDown'){
-      if(cur.row === 0){ cur.row = cur.from || R.scene; if(cur.row === R.scene) cur.detail = false; }
-      else if(inScene && cur.detail) cur.detail = false;
+      if(cur.row === 0) cur.row = cur.from || R.scene;
       else cur.row = Math.min(rows.length - 1, cur.row + 1);
     }
-    else if(e.key === 'Enter') select(inScene && cur.detail ? detailEl : r.items[cur.col[cur.row]]);
+    else if(e.key === 'Enter') select(r.items[cur.col[cur.row]]);
     else if(e.key === 'Escape' || e.key === 'Backspace') back();
     else handled = false;
     if(handled){ e.preventDefault(); paint(); }
   });
   rows.forEach(function(r, ri){ r.items.forEach(function(el, ci){
-    el.addEventListener('click', function(){ if(ri === 0) cur.from = cur.row || cur.from; cur.row = ri; cur.col[ri] = ci; cur.detail = false; paint(); select(el); });
+    el.addEventListener('click', function(){ if(ri === 0) cur.from = cur.row || cur.from; cur.row = ri; cur.col[ri] = ci; paint(); select(el); });
   }); });
-  detailEl.addEventListener('click', function(){ cur.row = R.scene; cur.detail = true; paint(); select(detailEl); });
 
   // coming back (Back from the player, the TV Guide, a short or the movie's page): the same item again
   try {

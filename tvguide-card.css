@@ -29,8 +29,8 @@
 .epg-icons{ position:absolute; right:18px; top:22px; display:flex; align-items:center; gap:12px; }
 .epg-ts{ width:24px; height:24px; display:block; }
 .epg-heart{ display:block; }
-/* the heart filled, in the accent colour (the svg is only the shape, a mask), as a favourite shows in the TV Guide and the player */
-.epg-heart img{ width:24px; height:24px; display:block; object-position:-9999px 0; background:var(--th-b, #d6def0);
+/* the heart filled, in the favourites' reddish pink (the svg is only the shape, a mask), as a favourite shows in the TV Guide and the player */
+.epg-heart img{ width:24px; height:24px; display:block; object-position:-9999px 0; background:#FF3B6B;
   -webkit-mask:url('icons/tv-guide/heart-fill.svg') center / contain no-repeat; mask:url('icons/tv-guide/heart-fill.svg') center / contain no-repeat; }
 .epg-card .progress{ height:8px; border-radius:2px; background:#8a8a8a; width:100%; overflow:hidden; }
 .epg-card .progress > i{ display:block; height:100%; background:var(--live, #ff1f1f); border-radius:2px; }

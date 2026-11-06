@@ -79,7 +79,7 @@
         ' data-hero-live="'+(it.hero.live?'1':'0')+'"'+(it.hero.tv?' data-hero-tv="'+attr(it.hero.tv)+'"':'')+' data-hero-desc="'+attr(it.hero.desc)+'" data-hero-img="'+it.bg+'"'+
         (it.k ? ' data-k="'+it.k+'"' : ' data-href="'+attr(it.href)+'"')+'>'+   // Enter: its detail page (content.js)
         '<div class="thumb" style="background-image:url(\''+it.img+'\');background-size:cover;background-position:center;">'+Content.crownIcon(it.crown, 0, 'crown-tag')+'</div>'+
-        '<div class="strip"><div class="t">'+it.t+'</div></div>'+
+        // (no title under the first rail's cards: the hero above says it)
         (it.hero.live ? '<span class="live-ribbon">Live</span>' : '')+
       '</div>';
     }).join('');
@@ -790,6 +790,8 @@
 
   function updateFocus(prevRow){
     if(isPicker(curRow)) gcSync();
+    // the first rail has focus (or the top bar above it): the hero text sits 80px over its cards (home.css .at-scene)
+    if(heroSection) heroSection.classList.toggle('at-scene', curRow === HERO_ROW_INDEX || (curRow === 0 && !navFrom));
     rows.forEach(function(r,ri){
       r.items.forEach(function(it,ci){
         it.classList.toggle('focused', profAt < 0 && ri===curRow && ci===colByRow[ri]);
