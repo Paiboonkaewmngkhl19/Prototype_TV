@@ -226,12 +226,17 @@
   ['d9', 'avatar', 'f1', 'topgun', 'john', 'venom', 'lotr', 'hobbit', 'house', 'got', 'loki', 'odyssey', 'spider', 'lastofus', 'vikings',
    'missuni', 'assanee', 'sophomores', 'bossckm', 'cityars', 'mufcche', 'mufcars',
    // more of the Movie page's titles premium, so most of what it shows is for sale (a gold crown), not free
-   'debt', 'khemjira', 'medium', 'prada', 'superman', 'wicked', 'dragon', 'vincenzo', 'thailaw', 'dollar', 'judge', 'lawless', 'lastking', 'again']
+   'debt', 'khemjira', 'medium', 'prada', 'superman', 'wicked', 'dragon', 'vincenzo', 'thailaw', 'dollar', 'judge', 'lawless', 'lastking', 'again',
+   // kids (kids.html): a few premium, one per platform, the rest free
+   'moana', 'steven', 'trollsbt', 'doraemonart', 'doraemoncastle']
     .forEach(function(k){ M[k].premium = true; });
   // the titles with their own options, so a detail page has 1, 2 or 3 buttons (View Package, Buy N ฿, Rent N ฿); pkg 0:
   // no package has it (Content.packageFor: none)
   // Most premium titles are sold on their own only (pkg 0: Buy and / or Rent, no View Package); fewer come with a package
-  var OFFERS = { avatar:{ pkg:1, buy:399, rent:229 }, f1:{ pkg:1, buy:199 }, topgun:{ pkg:0, rent:149 }, john:{ pkg:0, buy:149, rent:99 },
+  var OFFERS = { // kids: each in its platform's package (View Package: Disney+, HBO Max, Prime Video; AIS PLAY's own: PLAY
+                 // ULTIMATE), the new Doraemon movie also sold on its own
+                 moana:{ pkg:1 }, steven:{ pkg:1 }, trollsbt:{ pkg:1 }, doraemonart:{ pkg:1 }, doraemoncastle:{ pkg:1, buy:129 },
+                 avatar:{ pkg:1, buy:399, rent:229 }, f1:{ pkg:1, buy:199 }, topgun:{ pkg:0, rent:149 }, john:{ pkg:0, buy:149, rent:99 },
                  venom:{ pkg:0, buy:129, rent:79 }, lotr:{ pkg:0, buy:299 }, hobbit:{ pkg:0, rent:99 }, loki:{ pkg:0, buy:199 },
                  // movies sold on their own
                  debt:{ pkg:0, buy:149, rent:79 }, khemjira:{ pkg:0, rent:99 }, medium:{ pkg:0, buy:129, rent:69 }, prada:{ pkg:0, buy:299, rent:149 },
@@ -316,7 +321,7 @@
       if(M[k] && M[k].kids && M[k].w && p[k].w < p[k].of - 1){ seen[k] = 1; out.push({ k:k, w:p[k].w, of:p[k].of }); }
     });
     KIDS_CONTINUE.forEach(function(c){ if(!seen[c.k]) out.push(c); });
-    return out;
+    return out.filter(function(c){ return state(c.k) !== 'buy'; });   // (not one still for sale: as Continue Watching)
   }
   // Continue Watching (Home, Movie): what was watched this session, latest first, then the list above; finished ones drop out
   function continueList(){
