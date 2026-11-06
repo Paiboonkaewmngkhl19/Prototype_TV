@@ -22,9 +22,9 @@
     play:  {tv:'PLAY SPORTS (Football)', v:'video/football.mp4'},
     mutv:  {tv:'MUTV', v:'video/football.mp4'},
     rm:    {tv:'Real Madrid TV', v:'video/football.mp4'},
-    ws:    {tv:'W-Sports', v:'video/bad.mp4'},
-    ag902: {tv:'Asian Games 902', n:'Asian Games', fit:'contain', v:'video/vall.mp4'},
-    ag907: {tv:'Asian Games 907', n:'Asian Games', fit:'contain', v:'video/bad.mp4'},
+    ws:    {tv:'W-Sports', v:'video/football.mp4'},
+    ag902: {tv:'Asian Games 902', n:'Asian Games', fit:'contain', v:'video/football.mp4'},
+    ag907: {tv:'Asian Games 907', n:'Asian Games', fit:'contain', v:'video/football.mp4'},
     nba:   {tv:'PLAY SPORTS (NBA)', v:'video/football.mp4'},
     nfl:   {tv:'PLAY SPORTS (NFL)', v:'video/football.mp4'}
   };

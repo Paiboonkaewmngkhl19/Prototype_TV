@@ -661,9 +661,9 @@ window.Content = (function(){
 window.LIVE = (function(){
   var U = 'posters/upcoming/', SP = 'sport-assets/main-page/sportMainPage_liveUpcoming_No';
   var list = [
-    {t:'Liverpool vs Brentford', hidden:true, img:U + 'liverpool-brentford.webp', bg:'posters/liver-ben.jpg', v:'posters/homapage.mp4', tv:'MONOMAX 1', live:true, sp:'football', lg:'epl',   // bg: Home's first scene and the detail page; v: its video, Home's and the player's
+    {t:'Liverpool vs Brentford', hidden:true, img:U + 'liverpool-brentford.webp', bg:'posters/liver-ben.jpg', tv:'MONOMAX 1', live:true, sp:'football', lg:'epl',   // bg: Home's first scene and the detail page; v: its video, Home's and the player's
      d:'Liverpool hosts Brentford at Anfield in a big Premier League clash. Follow every moment live, from kick-off to the final whistle.'},
-    {t:'Bayern München vs Arsenal', img:SP + '1.webp', bg:SP + '1-2.webp', v:'video/Bayern Munchen vs Arsenal.mp4', tv:'PLAY SPORTS (Football)', live:true, sportRail:1, sp:'football', lg:'ucl', range:'02:00 – 04:00',   // v: its video, Sport's screen and the player's
+    {t:'Bayern München vs Arsenal', img:SP + '1.webp', bg:SP + '1-2.webp', v:'video/B&A.mp4', tv:'PLAY SPORTS (Football)', live:true, sportRail:1, sp:'football', lg:'ucl', range:'02:00 – 04:00',   // v: its video, Sport's screen and the player's
      d:'Live from the UEFA Champions League. Every touch in Full HD with Thai and English commentary, plus the build-up and post-match analysis.'},
     {t:'Real Madrid vs RB Leipzig', img:SP + '2.webp', bg:SP + '2-2.jpg', v:'video/Real Madrid vs RB Leipzig.mp4', tv:'Real Madrid TV', live:true, sportRail:1, sp:'football', lg:'ucl', range:'02:00 – 04:00',
      d:'Live from the UEFA Champions League. Every touch in Full HD with Thai and English commentary, plus the build-up and post-match analysis.'},
