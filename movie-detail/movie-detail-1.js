@@ -45,6 +45,9 @@
   // ---- the scene: picture, title, how far in, meta row, synopsis ----
   var bgPic = m.b || m.w || m.p;   // MD.bg: the picture Home's and the Movie page's screen text show for it
   if(bgPic) document.getElementById('bg').style.backgroundImage = "url('" + bgPic + "')";   // a title made from a placeholder card has none
+  // a title with its own video (content.js v): over the picture, while the first scene shows
+  var heroVid = m.v ? HeroVideo(document.getElementById('bg')) : null;
+  if(heroVid) heroVid.set(m.v);
   document.getElementById('title').textContent = m.t;
   // Premium: the title's gold crown, while it's not the viewer's yet (content.js)
   function premBadge(){ var ic = Content.crownIcon(CI); return ic ? '<span class="mbadge prem">' + ic + 'Premium</span>' : ''; }
@@ -256,6 +259,7 @@
     et.style.transform = railX(et, ei) ? 'translateX(' + railX(et, ei) + 'px)' : '';
     document.body.classList.toggle('grid', cur.row >= 1 && !(PROG && !PROG.live));   // Upcoming's cards are in its scene
     var pageTy = document.body.classList.contains('grid') ? -936 : 0;
+    if(heroVid) heroVid.set(pageTy ? '' : m.v);   // the scene scrolled away: no video behind the grid
     if(tab === 'eps' && cur.row === 3) ringTo(R[3][cur.col], railX(et, ei), pageTy, true);
     if(PROG){
       var lt = document.getElementById(PROG.live ? 'ltrack' : 'utrack'), li = cur.row === (PROG.live ? 2 : 1) ? cur.col : 0;
@@ -273,7 +277,7 @@
   function toast(msg){ toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove('on'); }, 1800); }
   function back(){
     if(cur.row > 0){ cur.row = 0; cur.col = 0; paint(); return; }
-    try { if(document.referrer && /(home|movie|store|sport|news|movie-detail|short-detail)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    try { if(document.referrer && /(home|movie|store|sport|news|kids|short|movie-detail|short-detail)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
     location.href = 'movie.html';
   }
   // Play / Resume / Start Over: the movie player (player.html), from where it was left or the start

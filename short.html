@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Short</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="button-theme.css">
+<link rel="stylesheet" href="expand-card.css">
+<link rel="stylesheet" href="event-card.css">
+<link rel="stylesheet" href="top10.css">
+<link rel="stylesheet" href="platform-tag.css">
+<link rel="stylesheet" href="corner-tag.css">
+<!--
+  Short: every short drama (Figma Prototype "PLAY:Short_mainPage", 119:9966), opened with Home's Shorts "View All".
+  A 1920x1080 TV screen scaled to the window, in the Movie page's theme and cards (movie.html): its 2:3 posters with the
+  platform tag, Top 10 (top10.js), For You (expand-card.css + event-card.css), the shared focus ring and Back to Top.
+  Under the "| Short" title: New Releases, Continue Watching, Top 10, New Episodes, For You, Drama Selection, Drama,
+  Romance, Feed (the vertical player) and More You'll Love (a 7-across grid). Every card is a short in content.js
+  (window.SHORTS, data-s) and opens its page (Content.detailUrl).
+  Remote / keyboard: arrows move focus (Left on a rail's first card or Up from the first rail: the top bar), Enter
+  selects, Esc / Back to the first rail, then Home.
+-->
+<link rel="stylesheet" href="short/short.css">
+<link rel="stylesheet" href="toast.css">
+</head>
+<body>
+<div id="frame"><div id="screen">
+  <div id="page"></div>
+  <header class="page-head"><i></i><h1>Short</h1></header>
+  <div class="scrim" aria-hidden="true"></div>
+  <!-- the top bar (Home's, as on Movie and Kids): away while browsing, over the title once Left / Up reaches it -->
+  <nav class="topnav">
+    <div class="profile item" data-label="Profile"><img src="icons/profile-tv.png" alt="Profile"></div>
+    <div class="center">
+      <div class="navsearch item" data-label="Search"><img src="icons/nav-search.svg" alt="Search"></div>
+      <div class="navtab tv-tab item active" data-label="Home" data-href="home.html">Home</div>
+      <div class="navtab tv-tab item" data-label="Live TV" data-href="tv-guide.html?play=MUTV&amp;from=home">Live TV</div>
+      <div class="navtab tv-tab item" data-label="Movie" data-href="movie.html">Movie</div>
+      <div class="navtab tv-tab item" data-label="Sport" data-href="sport.html">Sport</div>
+      <div class="navtab tv-tab item" data-label="My List">My List</div>
+      <div class="navtab tv-tab item" data-label="Store" data-href="store.html">Store</div>
+    </div>
+  </nav>
+  <div id="toast"></div>
+</div></div>
+
+<script src="profile-panel.js"></script>
+<script src="content.js"></script>
+<script src="packages.js"></script>
+<script src="top10.js"></script>
+<script src="tv-screen.js"></script>
+<script src="short/short-1.js"></script>
+<script src="focus-ring.js"></script>
+<script src="toast.js"></script>
+</body>
+</html>

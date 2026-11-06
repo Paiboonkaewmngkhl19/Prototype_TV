@@ -241,7 +241,7 @@
   function back(){
     if(cur.row > 2){ cur.row = 2; paint(); return; }
     if(cur.row === 2 || cur.row === 0){ cur.row = 1; paint(); return; }
-    try { if(document.referrer && /(home|movie|store|sport|news|movie-detail|short-detail)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    try { if(document.referrer && /(home|movie|store|sport|news|short|movie-detail|short-detail)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
     location.href = 'home.html';
   }
 

@@ -296,9 +296,7 @@
   }
   function totopSec(){ return '<section class="sec totop" data-row="totop"><div class="tv-btn tv-btn--primary tv-btn--top item" data-kind="totop" data-ring-art=""><i></i>Back to Top</div></section>'; }
   function tailSecs(){
-    return '<section class="sec" data-row="shorts"><div class="shorts">' +
-      '<div class="short wide full item" data-kind="short" data-label="Short Highlight" style="--img:url(\'sport-assets/short-highlight.webp\')"><span>Short Highlight</span></div></div></section>' +
-      docsSec() + totopSec();
+    return docsSec() + totopSec();
   }
   /* ---------- a league's landing page (?league=; Figma Sports 3011:44457): its name, synopsis and follow heart over its
      picture, then its Live and Upcoming, Highlights, Rerun, Moments of the Week, the Match Schedule tiles (the Short
@@ -367,22 +365,8 @@
     picFront = 1 - picFront;
     if(img){ pics[picFront].style.backgroundImage = 'url(\'' + img + '\')'; pics[picFront].classList.add('on'); }
   }
-  // a match with video plays it behind the screen text (Home's football video, poster and sound rule): muted until the
-  // first key press, then with sound while it shows
-  var heroVid = document.querySelector('.hero-bg .vid'), vidOk = false, vidOn = false;
-  function syncVid(){ heroVid.muted = !(vidOk && vidOn && !document.hidden); }
-  function setVideo(src){
-    vidOn = !!src;
-    if(src && heroVid.getAttribute('src') !== src) heroVid.src = src;
-    heroVid.classList.toggle('on', vidOn);
-    syncVid();
-    if(vidOn) heroVid.play().catch(function(){}); else heroVid.pause();
-  }
-  function allowVid(){ if(!vidOk){ vidOk = true; setTimeout(syncVid, 0); } }
-  addEventListener('keydown', allowVid, true);
-  addEventListener('pointerdown', allowVid, true);
-  document.addEventListener('visibilitychange', syncVid);
-  addEventListener('pagehide', function(){ heroVid.muted = true; });
+  // a match with video plays it behind the screen text (hero-video.js)
+  var heroVid = HeroVideo(document.querySelector('.hero-bg'));
   function chMeta(c){ return '<span class="ch">' + TV.logoHtml(c.d) + 'Channel ' + c.no + ': ' + esc(c.d.n) + '</span>'; }   // the TV Guide's name, as its detail page
   // a highlight / full match: what its screen text and its detail page (content.js, AIS PLAY's own) both say
   function vodInfo(el){
@@ -426,7 +410,7 @@
       heroEl.classList.remove('swap'); void heroEl.offsetWidth; heroEl.classList.add('swap');
     }
     setBg(h.bg);
-    setVideo(h.video);
+    heroVid.set(document.body.classList.contains('ucl') ? '' : h.video);   // the UCL band hides the background (.hero-bg): no video behind it
   }
 
   // ---- keep the focused item in view ----
@@ -435,7 +419,7 @@
   // the hero shows (on the suggested league: its cards do), its title at y=200 after that (the top bar steps away, as on Home).
   var pageY = 0;
   function slide(r, el){
-    if(r.key === 'totop' || r.key === 'shorts' || r.key === 'sched' || r.key === 'lhero') return;
+    if(r.key === 'totop' || r.key === 'sched' || r.key === 'lhero') return;
     // (offsets are all from the rail, the nearest positioned box, so a league's disc measures like a card)
     var track = el.closest('.track, .chips, .leagues, .chans');
     var want = el.offsetLeft - r.items[0].offsetLeft;
@@ -492,7 +476,7 @@
     layout(ri);
     var r = rows[ri], el = r.items[cur.col[ri]];
     if(cur.row) slide(r, el);
-    if(ri <= DYNAMIC_END){ paintHero(r.key, el); placeHero(r); }
+    if(ri <= DYNAMIC_END){ paintHero(r.key, el); placeHero(r); } else heroVid.set('');
     try { sessionStorage.setItem(FKEY, JSON.stringify(cur)); } catch(e){}
   }
 
@@ -555,7 +539,6 @@
     // league's highlights: leaguehl); on a league's page, Highlights, Rerun and Moments of the Week
     if(k === 'vod' && /^(latest|highlights|leaguehl|rerun|moments)$/.test(el.dataset.set)){ leave(Content.playUrl(vodInfo(el))); return; }
     if(k === 'vod'){ leave(Content.detailUrl(vodInfo(el))); return; }
-    if(k === 'short') return;   // Short Highlight: a mockup, OK only presses it
     if(k === 'doc'){ var ci = Content.info(el); if(ci){
       var dc = DOCS[i]; ci.t = dc.t; ci.g = ['Documentary', 'Sport']; if(dc.plat){ ci.plat = dc.plat; ci.len = dc.len; ci.d = dc.d; ci.own = 1; }
       leave(Content.detailUrl(ci)); return; } }

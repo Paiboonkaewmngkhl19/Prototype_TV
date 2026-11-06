@@ -168,7 +168,7 @@
 
   // ---- the hero speaks for the focused item ----
   var heroEl = document.querySelector('.hero'), heroKey = '';
-  var pics = $('.hero-bg .pic'), picFront = 0, picCur = null;
+  var pics = $('.hero-bg .pic'), picFront = 0, picCur = null, heroVid = HeroVideo(document.querySelector('.hero-bg'));
   function setBg(img){
     if((img || null) === picCur) return;
     picCur = img || null;
@@ -179,7 +179,7 @@
   // a title's screen text: its detail page's tag, Premium and meta row (content.js), and how far in when it is being
   // watched (MD.watched: this session's progress, as the detail page)
   function titleHero(k){ var m = M[k], wd = MD.watched(k);
-    return { t:m.t, meta:Content.metaHtml({k:k}, true), d:m.d, bg:pic(k),
+    return { t:m.t, meta:Content.metaHtml({k:k}, true), d:m.d, bg:pic(k), v:m.v,
       watched:wd ? '<span class="bar"><i style="width:' + wd.pct + '%"></i></span>' + wd.w + 'm of ' + wd.of + 'm' : '' }; }
   function heroFor(el, rowKey){
     if(rowKey === 'scene') return titleHero(SLIDES[cur.slide]);
@@ -207,6 +207,7 @@
       heroEl.classList.remove('swap'); void heroEl.offsetWidth; heroEl.classList.add('swap');
     }
     setBg(h.bg);
+    heroVid.set(h.v);
   }
 
   // ---- keep the focused item in view (Home's "fixed focus" sideways; the focused rail at a fixed y down the page) ----
@@ -261,7 +262,7 @@
     layout(ri);
     var r = rows[ri], el = r.items[cur.col[ri]];
     if(cur.row) slide(r, el);
-    if(ri <= DYNAMIC_END){ paintHero(r.key, el); placeHero(r); }
+    if(ri <= DYNAMIC_END){ paintHero(r.key, el); placeHero(r); } else heroVid.set('');
     try { sessionStorage.setItem('movieFocus', JSON.stringify(cur)); } catch(e){}
   }
 

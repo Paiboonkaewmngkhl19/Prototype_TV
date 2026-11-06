@@ -60,7 +60,9 @@ window.RingColor = (function(){
     if(!url) return paint('');
     colorOf(url, function(c){ if(ring.dataset.tintUrl === url) paint(c); });   // focus may have moved on meanwhile
   }
-  return { tint:tint };
+  // colorOf(url, done): the same colour as 'r,g,b' ('' when it can't be read), for a page that tints more than the ring
+  // (kids.html: its background takes the focused artwork's mood)
+  return { tint:tint, colorOf:colorOf };
 })();
 
 (function(){

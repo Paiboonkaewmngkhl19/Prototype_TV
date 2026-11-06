@@ -26,8 +26,6 @@
   .hero-bg{ position:absolute; left:0; top:0; width:1920px; height:1080px; z-index:0; overflow:hidden; transition:opacity .4s ease; }
   .hero-bg .pic{ position:absolute; inset:0; background:center 30% / cover no-repeat; opacity:0; transition:opacity .6s ease; }
   .hero-bg .pic.on{ opacity:1; }
-  .hero-bg .vid{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .6s ease; }   /* a match with video: over its picture */
-  .hero-bg .vid.on{ opacity:1; }
   .hero-bg::after{ content:''; position:absolute; inset:0;
     background:linear-gradient(90deg, rgba(var(--wash),.88) 0%, rgba(var(--wash),.62) 30%, rgba(var(--wash),.12) 58%, transparent 75%),
       linear-gradient(180deg, transparent 52%, rgba(var(--wash),.55) 74%, var(--bg-0) 96%); }
@@ -141,12 +139,10 @@
   .ucl.plain .inner::after{ content:''; position:absolute; inset:0; background:linear-gradient(90deg, rgba(8,8,24,.82) 0%, rgba(8,8,24,.45) 55%, rgba(8,8,24,.2) 100%); }
   .ucl .uclava{ width:160px; height:160px; border-radius:50%; flex:0 0 auto; background:url('../sport-assets/ucl-avatar.jpg') 46% 40% / 208% auto no-repeat; }
 
-  /* Short Highlight + Short */
+  /* the wide + tall tiles (a league's Match Schedule) */
   .shorts{ display:flex; gap:32px; padding:0 110px; }
   .short{ position:relative; height:570px; border-radius:32px; overflow:hidden; flex:0 0 auto; background:var(--surface-container-high); }
   .short.wide{ width:1254px; } .short.tall{ width:414px; }
-  .short.full{ width:100%; }   /* the rail's whole width */
-  .short span{ position:absolute; left:32px; top:482px; font-family:var(--roboto); font-weight:500; font-size:48px; line-height:56px; color:var(--on-surface); }
 
   /* ---------- a league's landing page (?league=; Figma Sports 3011:44457): no dynamic background or pinned text; its own
      hero (the league's picture, 1020px, fading into the page) at the top of the page, the LIVE rail at y=580 ---------- */
@@ -165,7 +161,7 @@
   .lfav{ --btn-w:90px; --btn-h:90px; padding:0; }   /* follow: the detail pages' round Favorite toggle (button-theme.css .tv-btn.ic), the heart filled and light once followed */
   .lfav img{ width:40px; height:40px; display:block; }
   .lfav.focused{ transform:scale(1.08); }
-  /* Match Schedule: the Short Highlight tiles, with their two-line label (This Week large, Next Week smaller) */
+  /* Match Schedule: the wide + tall tiles, with their two-line label (This Week large, Next Week smaller) */
   .short.sched .sl{ position:absolute; left:24px; bottom:24px; display:flex; flex-direction:column; gap:12px; font-family:var(--roboto); color:var(--on-surface); }
   .short.sched .sl b{ font-weight:500; font-size:56px; line-height:64px; }
   .short.sched .sl i{ font-style:normal; font-weight:500; font-size:32px; line-height:40px; }
@@ -215,7 +211,7 @@
   .chip::before{ display:none; }
   .chip:not(.focused){
     background:var(--idle-fill); -webkit-backdrop-filter:blur(80px) saturate(1.5); backdrop-filter:blur(80px) saturate(1.5); color:var(--on-surface); }
-  /* focused items grow: 8% on every rail, 6% in the top bar; the wide Short Highlight 3% (more would reach
+  /* focused items grow: 8% on every rail, 6% in the top bar; the wide Match Schedule tile 3% (more would reach
      past the 32px gap); the league and channel discs keep their own growth */
   #screen .item{ transition:transform .22s var(--ease), background .15s ease, color .15s ease, box-shadow .2s ease; }
   #screen .item.focused{ transform:scale(1.08); z-index:2; }
