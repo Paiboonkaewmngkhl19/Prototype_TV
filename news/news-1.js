@@ -21,7 +21,8 @@
   var DONT_MISS = [
     {t:'CNN News', img:A + 'dm-cnn.png', logo:1, ch:CH.cnn, time:'02:00 – 04:00', bg:A + 'hero-bg.png', v:window.LIVE.hot.filter(function(p){ return p.tv === 'CNN'; })[0].v,   // its video: content.js, shared with Home's Hot Channel Program
      d:'CNN Primetime brings the day’s biggest stories from around the world, with live reports from CNN’s correspondents and in-depth analysis.'},
-    {t:'เรื่องเล่าเช้านี้', img:A + 'dm-rueng.png', ch:CH.ch3, time:'06:00 – 08:00', d:'ข่าวเช้าที่เล่าเรื่องราวรอบตัวคุณ อัปเดตทุกประเด็นร้อนตั้งแต่เช้าตรู่'},
+    {t:'เรื่องเล่าเช้านี้', img:A + 'dm-rueng.png', ch:CH.ch3, time:'06:00 – 08:00', v:window.LIVE.hot.filter(function(p){ return p.tv === '3 HD'; })[0].v,   // its video: content.js, shared with Home's Hot Channel Program
+     d:'ข่าวเช้าที่เล่าเรื่องราวรอบตัวคุณ อัปเดตทุกประเด็นร้อนตั้งแต่เช้าตรู่'},
     {t:'BBC News', img:A + 'dm-bbc.png', ch:CH.bbc, time:'07:00 – 08:00', d:'The latest from BBC News: the stories that matter in the UK and around the world, live.'},
     {t:'สนามข่าว 7 สี', img:A + 'dm-sanam7.png', ch:CH.ch7, time:'08:00 – 09:00', d:'สนามข่าว 7 สี ติดตามทุกความเคลื่อนไหวของข่าวสำคัญ สดทุกวัน'},
     {t:'One News', img:A + 'ch-one.png', ch:CH.one, time:'09:00 – 10:00', d:'ข่าวสด ข่าวด่วน ทันทุกเหตุการณ์ จาก One News'},
@@ -90,7 +91,7 @@
   // a premium channel's programme: the crown tag bottom-left (corner-tag.css), as Home's and Sport's cards
   function liveCard(it, i, set){
     return '<div class="card item"' + attrs({kind:'live', set:set, i:i}) + '><div class="thumb' + (it.logo ? ' logo' : '') + (it.fit ? ' fit' : '') + '" style="background-image:url(\'' + it.img + '\')">' +
-      (it.ch && it.ch.d ? Content.crownIcon({ch:it.ch.d}, 0, 'crown-tag') : '') + '</div><span class="live-ribbon" data-ring-top="styled">Live</span><div class="t">' + esc(it.t) + '</div></div>';   // Home's Live ribbon
+      (it.ch && it.ch.d ? Content.crownIcon({ch:it.ch.d}, 0, 'crown-tag') : '') + '</div><span class="live-ribbon" data-ring-top="styled">Live</span>' + (set === 'dontmiss' ? '' : '<div class="t">' + esc(it.t) + '</div>') + '</div>';   // (the first rail, Don't Miss: no title, as Home's: the hero says it)   // Home's Live ribbon
   }
   function epgIcons(o){ return (o.ts ? '<img class="epg-ts" src="icons/tv-guide/timeshift.svg" alt="Time Shift">' : '') + (o.fav ? '<span class="epg-heart"><img src="icons/epg/heart.svg" alt="Favorite"></span>' : ''); }
   // Home's TV Guide card (tvguide-card.css): the channel's logo, what's on now and its progress, then what's next

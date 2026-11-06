@@ -24,7 +24,8 @@
   var AT = (location.search.match(/[?&]at=(\d+)/) || [])[1];
   if(AT) pos = Math.min(+AT, LEN - 1);   // &at=<seconds>: start there (demos, e.g. just before the credits)
   var INTRO = 90, CREDITS = 30;   // a series: the intro's end; the credits' length
-  var CLIP = 'video/spiderman.mp4';
+  // the title's own video (content.js v: District 9, Wicked), else the demo clip; a short plays the demo clip
+  var CLIP = !SHORT_ON && m.v || 'video/spiderman.mp4';
   byId('video').src = byId('thumbV').src = CLIP;
   if(SHORT_ON) byId('video').poster = m.w;
   byId('title').textContent = SER ? 'S' + S + ' E' + E + ' : ' + EP.t : m.t;

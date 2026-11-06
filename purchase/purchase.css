@@ -108,3 +108,46 @@
   #toast{ position:absolute; left:50%; bottom:60px; transform:translateX(-50%); padding:16px 28px; border-radius:12px; background:rgba(40,40,40,.95);
     font:400 24px/1.3 var(--roboto); opacity:0; transition:opacity .2s; pointer-events:none; z-index:60; }
   #toast.on{ opacity:1; }
+
+  /* Purchase Complete comes in with a fade and a short slide up, its blocks one after another (the head, the receipt,
+     the next step, the buttons) */
+  body[data-step="done"] .result > *{ animation:pcIn .9s cubic-bezier(.16,1,.3,1) both; }   /* the whole page in by 1.7 s, easing out softly */
+  body[data-step="done"] .result > :nth-child(1){ animation-delay:0.08s; }
+  body[data-step="done"] .result > :nth-child(2){ animation-delay:0.25s; }
+  body[data-step="done"] .result > :nth-child(3), body[data-step="done"] .result > :nth-child(4){ animation-delay:0.43s; }
+  body[data-step="done"] .result > :nth-child(5){ animation-delay:0.62s; }
+  @keyframes pcIn{ from{ opacity:0; transform:translateY(40px); } to{ opacity:1; transform:none; } }
+  /* ... and what is inside each block follows it in, line by line (a shorter rise), the app icons popping in one by one */
+  body[data-step="done"] .result .head > *,
+  body[data-step="done"] .rcpt .r-hero > *, body[data-step="done"] .rcpt .row, body[data-step="done"] .rcpt .r-line,
+  body[data-step="done"] .nextstep > *, body[data-step="done"] .noact > *,
+  body[data-step="done"] .done-acts > *{ animation:pcLine .7s cubic-bezier(.16,1,.3,1) both; }
+  body[data-step="done"] .result .apps > *{ animation:pcPop .6s cubic-bezier(.34,1.56,.64,1) both; }
+  /* the head: its icon, then its words */
+  body[data-step="done"] .result .head > :nth-child(1){ animation-delay:0.16s; }
+  body[data-step="done"] .result .head > :nth-child(2){ animation-delay:0.25s; }
+  /* the receipt (in at .32s): the picture, the name, the price; then each row */
+  body[data-step="done"] .rcpt .r-hero > :nth-child(1){ animation-delay:0.39s; }
+  body[data-step="done"] .rcpt .r-hero > :nth-child(2){ animation-delay:0.47s; }
+  body[data-step="done"] .rcpt .r-hero > :nth-child(3){ animation-delay:0.55s; }
+  body[data-step="done"] .rcpt .row:nth-child(1), body[data-step="done"] .rcpt .r-line{ animation-delay:0.64s; }
+  body[data-step="done"] .rcpt .row:nth-child(2){ animation-delay:0.74s; }
+  /* the next step (in at .54s): its badge, words, apps, button */
+  body[data-step="done"] .nextstep > :nth-child(1), body[data-step="done"] .noact > :nth-child(1){ animation-delay:0.58s; }
+  body[data-step="done"] .nextstep > :nth-child(2), body[data-step="done"] .noact > :nth-child(2){ animation-delay:0.67s; }
+  body[data-step="done"] .nextstep > :nth-child(3), body[data-step="done"] .noact > :nth-child(3){ animation-delay:0.78s; }
+  body[data-step="done"] .nextstep > :nth-child(4){ animation-delay:0.96s; }
+  body[data-step="done"] .result .apps > :nth-child(1){ animation-delay:0.79s; }
+  body[data-step="done"] .result .apps > :nth-child(2){ animation-delay:0.83s; }
+  body[data-step="done"] .result .apps > :nth-child(3){ animation-delay:0.88s; }
+  body[data-step="done"] .result .apps > :nth-child(4){ animation-delay:0.94s; }
+  body[data-step="done"] .result .apps > :nth-child(5){ animation-delay:0.98s; }
+  body[data-step="done"] .result .apps > :nth-child(6){ animation-delay:1.03s; }
+  body[data-step="done"] .result .apps > :nth-child(n+7){ animation-delay:1.07s; }
+  /* the buttons (in at .76s), one after the other */
+  body[data-step="done"] .done-acts > :nth-child(1){ animation-delay:0.8s; }
+  body[data-step="done"] .done-acts > :nth-child(2){ animation-delay:0.88s; }
+  body[data-step="done"] .done-acts > :nth-child(3){ animation-delay:0.96s; }
+  @keyframes pcLine{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:none; } }
+  @keyframes pcPop{ from{ opacity:0; transform:scale(.6); } to{ opacity:1; transform:none; } }
+  @media (prefers-reduced-motion: reduce){ body[data-step="done"] .result *{ animation:none !important; } }

@@ -48,6 +48,7 @@
   #page{ position:absolute; left:0; top:0; width:1920px; z-index:1; padding:649px 0 0; display:flex; flex-direction:column; gap:60px;
     transition:transform .45s var(--ease); }
   .sec{ position:relative; transition:opacity .3s ease; }
+  .sec[data-row="dontmiss"]{ margin-bottom:20px; }   /* the first screen: 80px from its cards to the chips (942), as Home's; its title and the hero text 80px over them */
   .sec.below-first{ opacity:0; }   /* the rails after the chips, while the first scene shows */
   body:not(.static) .sec.above{ opacity:0; }
   .sec-title{ margin:0 110px 40px; font-weight:400; font-size:32px; line-height:40px; color:var(--on-surface); }

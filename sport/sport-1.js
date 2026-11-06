@@ -158,7 +158,7 @@
         phv('Sir Alex Ferguson: Never Give In','98m','posters/maxresdefault.jpg'), phv('Liverpool vs Brentford Full Match','11m','posters/liver-ben.jpg'), phv('Arsenal vs Man United Full Match','95m','sport-assets/watch-arsenal-manutd.jpg')],
       highlights:[phv('Como vs Man United Highlights','6m',LS + 'football-109.jpg'), phv('Leeds United vs Chelsea Highlights','8m','sport-assets/hl-leeds-chelsea.jpg'), phv('Brentford vs Liverpool Highlights','6m','posters/upcoming/live.jpg'),
         phv('Hamburger SV vs VfB Stuttgart Highlights','12m','posters/upcoming/u3.jpg'), phv('Bayern München vs RB Leipzig Highlights','12m','posters/bayern-dortmund.webp')],
-      leagueHl:{t:'Premier League 26/27 Highlights', items:[phv('Bournemouth vs Sunderland Highlights','6m','sport-assets/hl-match.jpg'), phv('Brighton vs Crystal Palace Highlights','97m'),
+      leagueHl:{t:'Rerun', items:[phv('Bournemouth vs Sunderland Highlights','6m','sport-assets/hl-match.jpg'), phv('Brighton vs Crystal Palace Highlights','97m'),
         phv('Leeds United vs Manchester United Highlights','11m'), phv('Tottenham Hotspur vs Coventry Highlights','8m',LS + 'football-190.jpg'), phv(vs('Football Club'),'102m')]},
       band:{t:'UEFA Champions League', ucl:1, d:'The road to the final runs through here. Every match of the league phase live, with the knockout draw, highlights and the best goals of each matchday.', matches:UCL},
       forYou:FOR_YOU[0] },

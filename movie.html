@@ -24,8 +24,8 @@
   Home's Seasonal / Quick Access cards and TV Guide's channel card (Movie Channel).
 
   Flow (Figma "Short cut screen", 2684:62086):
-  - First scene: a movie's title, meta and synopsis over its picture, Detail and Play, the page dots; Left / Right
-    change the movie (and it moves on by itself every 8s). Up from Play: Detail, then the top bar.
+  - First scene: as Home's, a rail of 16:9 cards (title under each); the focused one's title, meta and synopsis over its
+    picture (and video). Enter: its detail page. Up, or Left on the first card: the top bar.
   - Chips to Short keep the hero: it speaks for the focused item over its picture, its text 80px above the rail.
   - For You and below: the page scrolls, the hero and the top bar step away (Left / Up on a first item bring it back).
   Remote / keyboard: arrows move focus, Enter selects, Esc / Back returns to the first scene (then to Home).
@@ -40,11 +40,8 @@
   <div id="page"></div>
 
   <section class="hero" aria-live="polite"><h1></h1><div class="watched"></div><div class="meta"></div><p class="desc"></p></section>
-  <div class="scene-btns">
-    <div class="tv-btn tv-btn--secondary" id="detail" data-ring-art=""><i class="ic-info"></i>Detail</div>
-    <div class="tv-btn tv-btn--primary item" id="play" data-kind="play" data-ring-art=""><i class="ic-play"></i>Play</div>
-  </div>
-  <div class="dots"></div>
+  <!-- the first scene's rail: Home's first rail (16:9 cards with their titles); the focused one speaks in the hero -->
+  <div class="scene-rail"><div class="track" id="sceneTrack"></div></div>
   <div class="scrim" aria-hidden="true"></div>
 
   <nav class="topnav">

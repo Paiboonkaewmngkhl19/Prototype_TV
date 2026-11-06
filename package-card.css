@@ -55,7 +55,7 @@
 .pcard .amt b{ white-space:nowrap; }
 .pcard.focused .amt.long b{ font-size:44px; }   /* a long price (1,999): still one line in the focused card */
 .pcard .amt span{ font-size:20px; }
-.pcard .vat{ font-size:12px; line-height:15px; }
+.pcard .vat{ font-size:16px; line-height:20px; }
 /* Subscribe appears on the focused card (80 high): button-theme.css's Primary button in its Focus state (tv-btn
    tv-btn--primary tv-btn--lit, the glass pill, no rim) with a white chevron (icons/pkg/ichev.svg) */
 .pcard .subscribe{ display:none; width:auto; height:80px; font-size:24px; line-height:32px; }

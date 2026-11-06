@@ -36,11 +36,11 @@
   // a card's bottom-left corner: the gold crown while a premium title isn't the viewer's (content.js Content.crown, as Figma's
   // kids cards), else its platform tag when the card shows one
   function corner(k, tag){ return Content.crownIcon({k:k}, 0, 'crown-tag') || (tag ? ptag(M[k]) : ''); }
-  function wide(k, i, set, badge, tag, img){
+  function wide(k, i, set, badge, tag, img, noTitle){
     var m = M[k];
     return '<div class="card item"' + attrs({kind:'title', k:k, set:set, i:i}) + '><div class="thumb" style="background-image:url(\'' + (img || m.w || m.b || m.p) + '\')">' +
       (badge ? '<span class="top-tag">' + esc(badge) + '</span>' : '') + corner(k, tag) + '</div>' +
-      '<div class="t">' + esc(m.t) + '</div></div>';   // its title under the picture, as Continue Watching's cards
+      (noTitle ? '' : '<div class="t">' + esc(m.t) + '</div>') + '</div>';   // its title under the picture, as Continue Watching's cards (not on the first rail: the hero says it, as Home's)
   }
   function poster(k, i, set, badge, tag){
     var m = M[k];
@@ -57,7 +57,7 @@
     return '<div class="logo"' + (c.bg ? ' style="background:' + c.bg + '"' : '') + '>' + img + '</div>';
   }
   var html = '';
-  html += sec('scene', '', SCENE.map(function(k, i){ return wide(k, i, 'scene'); }).join(''));
+  html += sec('scene', '', SCENE.map(function(k, i){ return wide(k, i, 'scene', '', 0, '', 1); }).join(''));
   if(CONTINUE.length) html += '<section class="sec" data-row="cw"><h2 class="sec-title">Continue Watching</h2><div class="rail"><div class="track">' + CONTINUE.map(function(c, i){
     var m = M[c.k], left = c.of - c.w;
     return '<div class="card item"' + attrs({kind:'title', k:c.k, set:'cw', i:i}) + '><div class="thumb" style="background-image:url(\'' + (c.img || m.w) + '\')">' +

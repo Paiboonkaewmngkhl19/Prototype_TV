@@ -258,6 +258,7 @@
     transition:opacity .25s ease;
   }
   .hero.card-mode .hero-content{bottom:auto;top:168px;width:1100px;}
+  .hero.card-mode.at-scene .hero-content{top:auto;bottom:-2px;}   /* the first rail: the text ends at y=602, 80px over its cards whatever its length */
   .hero-title{
     font-size:57px;font-weight:700;line-height:1.2;max-width:1080px;
     text-shadow:0 2px 12px rgba(0,0,0,.35);
@@ -600,7 +601,7 @@
   }
 
   /* First scene's cards, as Sport's first rail: 35px under the hero (y 635), the category chips at y 942 */
-  .hero-row{padding-top:35px;padding-bottom:61px;}
+  .hero-row{padding-top:82px;padding-bottom:74px;}   /* its cards at y=682 to 862, the chips at 942 to 1042 (as the Movie page's): 80px from the hero text to the cards, 80px from the cards to the chips */
   /* the Live ribbon: live-ribbon.css */
   /* a copy of the focused card's badge drawn inside the ring, so the badge sits ON TOP of the ring (placeHomeRing) */
   .home-ring .ring-badge{position:absolute;left:0;top:0;transform-origin:0 0;opacity:0;transition:opacity .12s ease;}

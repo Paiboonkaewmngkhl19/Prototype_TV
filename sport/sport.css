@@ -59,6 +59,7 @@
   #page{ position:absolute; left:0; top:0; width:1920px; z-index:1; padding:600px 0 0; display:flex; flex-direction:column; gap:60px;
     transition:transform .45s var(--ease); }
   .sec{ position:relative; transition:opacity .3s ease; }
+  body:not(.landing) .sec[data-row="live"]{ margin-bottom:12px; }   /* the first screen: 80px from its cards to the chips (942), as Home's; the hero text 80px over them */
   body:not(.static) .sec.above{ opacity:0; }
   .sec-title{ margin:0 110px; font-weight:500; font-size:29px; line-height:40px; color:#fff; }   /* Home's row title */
   .item{ cursor:pointer; }
@@ -104,7 +105,7 @@
   .dfav{ width:84px; height:84px; display:flex; align-items:center; justify-content:center; }
   .dfav i{ width:69px; height:69px; border-radius:50%; background:#e8e8e8; box-shadow:0 4px 14px rgba(0,0,0,.55), 0 1px 3px rgba(0,0,0,.4);
     display:flex; align-items:center; justify-content:center; }
-  .dfav img{ width:32px; height:32px; display:block; filter:brightness(0); }
+  .dfav img{ width:32px; height:32px; display:block; }   /* the heart in its reddish pink (icons/tv-guide/heart-fill.svg), as every favourite */
   .disc:not(.followed) .dfav{ opacity:0; transform:scale(.6); }
   .disc.focused{ transform:scale(1.194); }   /* no stroke: the round focus ring is the outline */
   .league .name{ width:100%; height:56px; font-family:var(--roboto); font-size:22px; line-height:28px; text-align:center; color:var(--on-surface); overflow:hidden; }

@@ -65,14 +65,14 @@
     .active             Active        the current page while the D-pad is on the bar: a light frosted fill
     .focused            Focus         the D-pad is on it: no fill, white text (only the page's focus ring around it)
     .active.focused     Focus active  the current page, focused: the grey-blue glass pill, no outline of its own
-    .active-dim         Active dim    the current page while focus is down in the page content: a faint fill, grey text
+    .active-dim         Active dim    the current page while focus is down in the page content: a faint fill, white text
     .disabled           Disabled      55% opacity, never highlighted
   Recipe: focus on the bar -> focused item Focus (or Focus active), current page Active, others Default;
   focus in the content -> current page Active dim, the rest Default.
 */
 .tv-tab{ background:transparent; color:#fff; transition:transform .22s ease, background .15s ease, color .15s ease, box-shadow .15s ease, opacity .15s ease; }
 .tv-tab.active{ background:rgba(255,255,255,.22); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); }
-.tv-tab.active-dim{ background:rgba(255,255,255,.1); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); color:#a8a8a8; text-shadow:none; }
+.tv-tab.active-dim{ background:rgba(255,255,255,.1); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); color:#fff; text-shadow:0 0 6px rgba(0,0,0,.4); }   /* white, as the other tabs: readable over any picture */
 .tv-tab.focused{ background:transparent; -webkit-backdrop-filter:none; backdrop-filter:none; box-shadow:none; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
 .tv-tab.active.focused{
   background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%), var(--btn-focus-pill);
@@ -87,6 +87,7 @@
 .tv-btn.ic{ position:relative; }
 .tv-btn.ic.on{ background:rgba(232,232,232,.9); box-shadow:none; }
 .tv-btn.ic.on img{ filter:brightness(0); }
+.tv-btn.ic.on img[src*="heart-fill"]{ filter:none; }   /* a favourite's heart keeps its reddish pink (icons/tv-guide/heart-fill.svg) on the light fill */
 .tv-btn .tip{ position:absolute; left:50%; bottom:calc(100% + 28px); padding:12px 24px; border-radius:16px; white-space:nowrap; pointer-events:none;
   font:500 24px/32px 'Plus Jakarta Sans', system-ui, sans-serif; color:#e8e8e8; background:rgba(74,74,74,.92); box-shadow:0 4px 12px rgba(0,0,0,.35);
   opacity:0; transform:translate(-50%, 6px); transition:opacity .18s ease, transform .18s cubic-bezier(.2,0,0,1); }

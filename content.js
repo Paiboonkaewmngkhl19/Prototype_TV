@@ -749,7 +749,7 @@ window.LIVE = (function(){
   var hot = [
     {t:'CNN News', img:N + 'dm-cnn.png', bg:N + 'hero-bg.png', v:'video/CNN.mp4', logo:1, tv:'CNN', live:true,
      d:'CNN Primetime brings the day\u2019s biggest stories from around the world, with live reports from CNN\u2019s correspondents and in-depth analysis.'},
-    {t:'Morning Stories', img:N + 'dm-rueng.png', tv:'3 HD', live:true, d:'The morning news that tells the stories around you, with every hot topic from the crack of dawn.'},
+    {t:'Morning Stories', img:N + 'dm-rueng.png', bg:N + 'dm-rueng.png', v:'video/News 3hd.mp4', tv:'3 HD', live:true, d:'The morning news that tells the stories around you, with every hot topic from the crack of dawn.'},
     {t:'BBC News', img:N + 'dm-bbc.png', tv:'BBC News', live:true, d:'The latest from BBC News: the stories that matter in the UK and around the world, live.'},
     {t:'Channel 7 News Insight', img:N + 'dm-sanam7.png', tv:'CH7 HD', live:true, d:'Follow every move in the day\u2019s biggest stories, live every day on Channel 7.'},
     {t:'World Update with Thai PBS', img:N + 'lc-1.png', tv:'TPBS', live:true, d:'The day\u2019s international news in one roundup, digging into the stories the whole world is watching.'},
