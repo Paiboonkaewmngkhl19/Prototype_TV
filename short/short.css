@@ -1,0 +1,94 @@
+
+  :root{
+    color-scheme:dark;
+    /* the Movie page's theme (movie.css): Home's dark navy, Open Sans */
+    --bg-0:#070e16;
+    --on-surface:#e8e8e8; --on-surface-variant:#a8a8a8; --surface:#141414; --surface-container:#2a2a2a; --surface-container-high:#3a3a3a;
+    --outline:#5a5a5a; --live:#ff1f1f;
+    --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%);
+    --ease:cubic-bezier(.2,0,0,1);
+    --font:'Open Sans', 'Noto Sans Thai', system-ui, sans-serif;
+  }
+  html,body{ margin:0; height:100%; background:#000; overflow:hidden; color:var(--on-surface); font-family:var(--font); -webkit-font-smoothing:antialiased; }
+  *{ box-sizing:border-box; }
+  #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:var(--bg-0); }
+  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; overflow:hidden;
+    background:radial-gradient(1400px 900px at 85% 110%, rgba(214,222,240,.12), transparent 70%), var(--bg-0); }
+
+  /* ---------- the page's title (Figma: a 4 x 40 bar and "Short", 36/44 medium, at x=110 y=40), over a fade so the rails
+     slide under it ---------- */
+  .page-head{ position:absolute; left:0; top:0; width:1920px; height:124px; z-index:4; padding:40px 110px 0; display:flex; gap:12px; align-items:flex-start;
+    background:linear-gradient(180deg, var(--bg-0) 0%, var(--bg-0) 55%, rgba(7,14,22,0) 100%); pointer-events:none; }
+  .page-head i{ width:4px; height:40px; border-radius:40px; background:var(--on-surface); flex:0 0 auto; }
+  .page-head h1{ margin:0; font-size:36px; font-weight:500; line-height:44px; color:var(--on-surface); white-space:nowrap; }
+
+  /* ---------- the page: Figma's rows, 60px apart, the first at y=184; it moves as a whole ---------- */
+  #page{ position:absolute; left:0; top:0; width:1920px; z-index:1; padding:184px 0 0; display:flex; flex-direction:column; gap:60px;
+    transition:transform .45s var(--ease); }
+  .sec{ position:relative; transition:opacity .3s ease; }
+  .sec.above{ opacity:0; }
+  .sec-title{ transition:opacity .3s ease; }
+  .sec.head-off .sec-title{ opacity:0; }   /* the rails above the focused one step away, so none peeks out under the title (as Movie's) */
+  .sec-title{ margin:0 110px 24px; font-weight:400; font-size:32px; line-height:40px; color:var(--on-surface); }   /* Figma: the cards 24px under it */
+  .item{ cursor:pointer; }
+  .rail{ position:relative; }
+  /* Figma: a 396px track, the 330px cards centred in it (33px over and under), so the focused card grows and keeps its
+     ring clear of the title (a 460px row: title 40, 24, track 396) */
+  .track{ display:flex; align-items:flex-start; gap:32px; padding:33px 110px; width:max-content; transition:transform .35s var(--ease); }
+
+  /* 2:3 poster (Movie's .pst, TV / Card): 220x330, a badge top-left (New), the platform tag bottom-left */
+  .pst{ position:relative; width:220px; height:330px; flex:0 0 auto; border-radius:12px; overflow:hidden; background:var(--surface-container-high) center / cover no-repeat; }
+  .pst .ptag{ position:absolute; left:12px; bottom:12px; }   /* platform-tag.css: 56 x 36 */
+  /* Continue watching: the episode it is on (the corner tag, corner-tag.css) over a progress line (Movie's) */
+  .pst .prog{ position:absolute; left:0; right:0; bottom:0; height:6px; background:rgba(74,74,74,.9); }
+  .pst .prog i{ position:absolute; left:0; top:0; bottom:0; background:var(--live); }
+
+  /* Top 10: Home's rank cards (top10.css), the focus on the poster so the ring wraps the poster only (as Movie's) */
+  .top10 .track{ gap:0; }
+  .rank-poster{ position:relative; width:220px; height:330px; border-radius:12px; background:var(--surface-container-high) center / cover no-repeat; }
+  .rank-poster .ptag{ position:absolute; left:12px; bottom:12px; }
+  .top10 .rank-wrap + .rank-wrap{ margin-left:32px; }
+
+  /* For You: Movie's For You (expand-card.css), the short's poster opening up; the wide picture is the poster from its top */
+  .xcard .xc-wide{ background-position:center 18%; }
+  [data-row=foryou] .track{ padding:26px 110px; }   /* the open card grows 5% (14px) plus its ring (12px): clear of the title */
+
+  /* Feed (Figma: 1700 x 478, 24px corners, a 40% dark veil, "Explore Feed" bottom-left 40px in) */
+  .feed{ position:relative; width:1700px; height:478px; margin:0 110px; border-radius:24px; overflow:hidden; padding:40px;
+    display:flex; align-items:flex-end; background:url('../posters/chip-bg-short.webp') center / cover no-repeat; }
+  .feed::before{ content:''; position:absolute; inset:0; background:rgba(0,0,0,.4); }
+  .feed .tv-btn{ position:relative; --btn-w:auto; --btn-h:80px; padding:0 24px; font-size:24px; }   /* Figma TV / Button: 24px all round, 32px icon, 16px gap */
+  .feed .tv-btn i{ width:32px; height:32px; -webkit-mask:url('../icons/hero/play.svg') center / contain no-repeat; mask:url('../icons/hero/play.svg') center / contain no-repeat; }
+
+  /* More you'll love: a grid of 2:3 posters, 7 across (Figma: 220 x 330, 24px apart) */
+  .grid{ display:grid; grid-template-columns:repeat(7, 220px); gap:24px; padding:33px 110px 0; }   /* the rails' 33px over the cards: the focused one's ring clear of the title */
+
+  /* (Back to Top: button-theme.css) */
+
+  /* ---------- top bar (Movie's / Kids'); Home is the current tab (Short is one of Home's filters). Away while browsing,
+     over the page's title (which steps back) with its scrim once focus is on it ---------- */
+  .scrim{ position:absolute; left:0; top:0; width:1920px; height:170px; z-index:4; pointer-events:none; opacity:0; transition:opacity .3s ease;
+    background:linear-gradient(180deg, var(--bg-0) 0%, var(--bg-0) 45%, rgba(7,14,22,0) 100%); }
+  body.on-nav .scrim{ opacity:1; }
+  .topnav{ position:absolute; left:0; top:0; z-index:5; width:1920px; padding:24px 110px 0; display:flex; align-items:center; transition:opacity .3s ease, translate .3s var(--ease); }
+  body:not(.on-nav) .topnav{ opacity:0; translate:0 -40px; pointer-events:none; }
+  .page-head{ transition:opacity .3s ease; }
+  body.on-nav .page-head{ opacity:0; }
+  .profile{ width:60px; height:60px; border-radius:999px; overflow:hidden; flex:0 0 auto; }
+  .profile img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .center{ display:flex; align-items:center; gap:12px; margin-left:20px; }
+  .navsearch{ width:60px; height:60px; margin:0 8px; border-radius:999px; display:flex; align-items:center; justify-content:center; }
+  .navsearch img{ width:32px; height:32px; display:block; }
+  .navtab{ height:60px; padding:0 20px; border-radius:999px; display:flex; align-items:center; font-family:'Plus Jakarta Sans', var(--font); font-size:24px; line-height:1.2;
+    text-shadow:0 0 6px rgba(0,0,0,.4); white-space:nowrap; }
+  .topnav .item:not(.tv-tab){ transition:background .15s ease; }
+  .topnav .item.focused:not(.tv-tab){ background:var(--th-pill); backdrop-filter:blur(12px) saturate(1.4); }
+  #screen .topnav .item.focused{ transform:scale(1.06); }
+
+  #toast{ position:absolute; left:50%; bottom:80px; z-index:60; transform:translateX(-50%); padding:14px 26px; border-radius:999px;
+    background:rgba(20,20,24,.85); font-size:24px; opacity:0; transition:opacity .2s ease; pointer-events:none; }
+  #toast.on{ opacity:1; }
+  /* focused items grow: 8% on every rail (as on every page); the feature card 5% (as Movie's For You) */
+  #screen .item{ transition:transform .22s var(--ease), background .15s ease, color .15s ease, box-shadow .2s ease; }
+  #screen .item.focused{ transform:scale(1.08); z-index:2; }
+  #screen .xcard.focused{ transform:scale(1.05); }

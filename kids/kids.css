@@ -1,0 +1,188 @@
+
+  :root{
+    color-scheme:dark;
+    /* the Movie page's theme (movie.css), in a bright kids' tone: --mood (r,g,b) is the focused artwork's colour, --bg the
+       page's own colour (a mid-tone of it) and --wash the hero's shade (kids-1.js), so the screen is never a dark navy */
+    --mood:42,178,200; --bg:23,98,110; --wash:23,98,110; --bg-0:rgb(var(--bg));
+    --on-surface:#e8e8e8; --on-surface-variant:#a8a8a8; --surface:#141414; --surface-container:#2a2a2a; --surface-container-high:#3a3a3a;
+    --on-inverse-surface:#1b1b1b; --outline:#5a5a5a; --live:#ff1f1f;
+    --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%);
+    --glass-card:linear-gradient(180deg, rgba(161,161,161,.25), rgba(65,65,65,.25));
+    --glass-card-on:linear-gradient(180deg, rgba(230,230,240,.42), rgba(150,150,165,.34));
+    --ease:cubic-bezier(.2,0,0,1);
+    --font:'Open Sans', 'Noto Sans Thai', system-ui, sans-serif;
+  }
+  html,body{ margin:0; height:100%; background:#000; overflow:hidden; color:var(--on-surface); font-family:var(--font); -webkit-font-smoothing:antialiased; }
+  *{ box-sizing:border-box; }
+  #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:var(--bg-0); }
+  #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; overflow:hidden;
+    --bg-0:rgb(var(--bg)); background-color:rgb(var(--bg)); transition:background-color .8s ease; }
+
+  /* ---------- the mood: the focused artwork's colour, washed over the whole screen from the top right and fading down,
+     so every row sits in the picture's tone (Figma 210:51775: the Top 10 in Steven Universe's purple) ---------- */
+  .mood{ position:absolute; inset:0; z-index:0; pointer-events:none; background-color:rgb(var(--mood)); opacity:.5; transition:background-color .8s ease;
+    -webkit-mask-image:linear-gradient(115deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.8) 45%, #000 100%);
+    mask-image:linear-gradient(115deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.8) 45%, #000 100%); }   /* the whole screen, a touch brighter to the right */
+
+  /* ---------- hero background (dynamic), as the Movie page's, its shade in the mood ---------- */
+  .hero-bg{ position:absolute; left:0; top:0; width:1920px; height:1080px; z-index:0; overflow:hidden; transition:opacity .4s ease; }
+  .hero-bg .pic{ position:absolute; inset:0; background:center 30% / cover no-repeat; opacity:0; transition:opacity .6s ease; }
+  .hero-bg .pic.on{ opacity:1; }
+  .hero-bg::after{ content:''; position:absolute; inset:0;
+    background:linear-gradient(90deg, rgba(var(--wash),.72) 0%, rgba(var(--wash),.45) 30%, rgba(var(--wash),.08) 58%, transparent 75%),
+      linear-gradient(180deg, transparent 40%, rgba(var(--wash),.55) 62%, rgb(var(--wash)) 86%); }   /* the text's side in the page's tone, not black */
+  body.scene .hero-bg::after{ background:linear-gradient(90deg, rgba(var(--wash),.7) 0%, rgba(var(--wash),.38) 32%, transparent 62%),
+      linear-gradient(180deg, transparent 55%, rgba(var(--wash),.5) 78%, rgb(var(--wash)) 98%); }
+  body.static .hero-bg{ opacity:0; }
+
+  /* ---------- hero text (Movie's): title 57px (or the title's logo), meta row, 3-line synopsis ---------- */
+  .hero{ position:absolute; left:110px; bottom:480px; width:800px; z-index:3; display:flex; flex-direction:column; gap:24px;
+    transition:opacity .3s ease, transform .3s var(--ease); }
+  body.static .hero{ opacity:0; transform:translateY(-40px); pointer-events:none; }
+  .hero.swap{ animation:heroIn .3s var(--ease); }
+  @keyframes heroIn{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
+  .hero h1{ margin:0; font-size:57px; font-weight:700; line-height:1.2; color:#e8e8e8; text-shadow:0 2px 12px rgba(0,0,0,.35);
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .hero .logo-t{ display:none; max-width:460px; max-height:160px; object-fit:contain; object-position:left bottom; filter:drop-shadow(0 4px 14px rgba(0,0,0,.35)); }
+  .hero.has-logo .logo-t{ display:block; }
+  .hero.has-logo h1{ display:none; }
+  .hero .desc{ margin:0; width:700px; font-size:24px; line-height:32px; color:rgba(255,255,255,.88); text-shadow:0 1px 8px rgba(0,0,0,.45);   /* light on the bright tone */
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .hero .desc:empty{ display:none; }
+  .hero .watched{ display:flex; align-items:center; gap:16px; font-size:20px; color:var(--on-surface); }
+  .hero .watched:empty{ display:none; }
+  .hero .watched .bar{ position:relative; width:400px; height:8px; border-radius:4px; background:rgba(255,255,255,.3); overflow:hidden; }
+  .hero .watched .bar i{ position:absolute; left:0; top:0; bottom:0; background:var(--live); }
+  .meta{ display:flex; align-items:center; gap:16px; height:36px; overflow:hidden; font-size:20px; color:#fff; white-space:nowrap; text-shadow:0 1px 6px rgba(0,0,0,.45); }
+  .meta:empty{ display:none; }
+  .meta strong{ font-weight:700; }
+  .pill{ height:36px; padding:0 12px; border:1px solid var(--outline); border-radius:18px; display:inline-flex; align-items:center; font-weight:500; white-space:nowrap; }
+
+  /* the KIDS mark (Figma 210:51775: top right), once the top bar has stepped away */
+  .kids-mark{ position:absolute; right:110px; top:40px; width:206px; height:auto; z-index:5; opacity:0; transition:opacity .3s ease; pointer-events:none;
+    filter:drop-shadow(0 2px 10px rgba(0,0,0,.4)); }   /* white: lifted off a bright picture */
+  body.past-first:not(.on-nav):not(.static) .kids-mark{ opacity:1; }   /* with the hero only (Figma 210:51775), never over a rail */
+
+  /* ---------- the page: the first rail at y=750 under the first scene's text, then Figma's rows 60px apart ---------- */
+  #page{ position:absolute; left:0; top:0; width:1920px; z-index:1; padding:750px 0 0; display:flex; flex-direction:column; gap:60px;
+    transition:transform .45s var(--ease); }
+  .sec{ position:relative; transition:opacity .3s ease; }
+  body:not(.static) .sec.above{ opacity:0; }
+  .sec[data-row="scene"]{ padding-bottom:90px; }   /* Figma: the first screen ends at 1020, Continue watching's title at 1080 */
+  .sec-title{ margin:0 110px 24px; font-weight:400; font-size:32px; line-height:40px; color:#fff; text-shadow:0 1px 8px rgba(0,0,0,.25); }
+  .item{ cursor:pointer; }
+  .rail{ position:relative; }
+  /* a track: the cards with room over and under for the focused one's growth and ring (Short's / Figma's 396 for 330) */
+  .track{ display:flex; align-items:flex-start; gap:32px; padding:0 110px; width:max-content; transition:transform .35s var(--ease); }
+  .tall .track{ padding:33px 110px; }
+
+  /* 16:9 card (Movie's TV / Card): 320x180; Continue watching adds the time left, a progress line and the title */
+  .card{ position:relative; width:320px; flex:0 0 auto; display:flex; flex-direction:column; gap:8px; border-radius:12px; }
+  .thumb{ position:relative; width:320px; height:180px; border-radius:12px; overflow:hidden; background:var(--surface-container-high) center / cover no-repeat; }
+  .card .t{ padding:8px 12px 0; margin-bottom:16px; font-size:20px; font-weight:500; color:var(--on-surface); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .thumb .prog{ position:absolute; left:0; right:0; bottom:0; height:6px; background:rgba(74,74,74,.9); }
+  .thumb .prog i{ position:absolute; left:0; top:0; bottom:0; background:var(--live); }
+  .thumb .ptag{ position:absolute; left:12px; bottom:12px; }
+
+  /* 2:3 poster (Movie's): 220x330, a badge top-left, the platform tag bottom-left */
+  .pst{ position:relative; width:220px; height:330px; flex:0 0 auto; border-radius:12px; background:var(--surface-container-high) center / cover no-repeat; }
+  .pst .ptag{ position:absolute; left:12px; bottom:12px; }
+
+  /* Top 10 (Movie's), the focus on the poster; while the rail has focus its numerals 1-5 turn to the kids' coloured ones
+     (Figma 210:51775), over the glass ones */
+  .top10 .track{ gap:0; padding:33px 110px; }
+  .rank-poster{ width:220px; height:330px; border-radius:12px; background:var(--surface-container-high) center / cover no-repeat; }
+  .rank-poster .ptag{ position:absolute; left:12px; bottom:12px; }
+  .top10 .rank-wrap + .rank-wrap{ margin-left:32px; }
+  .rank-color{ position:absolute; z-index:0; left:0; bottom:45px; height:240px; width:auto; opacity:0; transition:opacity .3s ease; pointer-events:none; }
+  .top10.lit .rank-color{ opacity:1; }
+  .top10.lit .rank-wrap:has(.rank-color) .rank-num{ opacity:0; transition:opacity .3s ease; }
+
+  /* Character (Figma: TV / avatarLeague_favFocus): 200px portraits, the name under them, a heart on a favourite */
+  .chars .track{ gap:40px; padding:16px 110px; }
+  .char{ width:200px; flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:20px; }
+  .char .ph{ position:relative; width:200px; height:200px; border-radius:50%; background:var(--surface-container-high) center 20% / cover no-repeat; }
+  .char .nm{ width:220px; font-size:22px; line-height:28px; text-align:center; color:var(--on-surface); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cfav{ position:absolute; right:-6px; bottom:-6px; width:60px; height:60px; border-radius:50%; background:#e8e8e8; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 4px 14px rgba(0,0,0,.55); }
+  .cfav img{ width:30px; height:30px; display:block; }
+
+  /* For You: Movie's (expand-card.css) */
+  [data-row="foryou"] .track{ padding:26px 110px; }
+
+  /* the bands (Figma "Gene rail" 732 / "Promote content" 620): their own picture at 70% behind the rail, fading into the
+     page at the top and bottom; the title (and synopsis) speak for the focused poster */
+  .band{ padding:130px 0 20px; overflow:hidden; }
+  .band > .b-pic{ position:absolute; inset:0; z-index:0; background:center / cover no-repeat; opacity:.7;
+    -webkit-mask-image:linear-gradient(180deg, transparent 0%, #000 14%, #000 61%, transparent 100%); mask-image:linear-gradient(180deg, transparent 0%, #000 14%, #000 61%, transparent 100%); }   /* (inline: a url() in a custom property would resolve against this file's folder) */
+  /* (the fade is a mask, so the band melts into the page whatever the mood's colour behind it) */
+  .band > :not(.b-pic){ position:relative; z-index:1; }
+  .band .b-t{ margin:0 110px 24px; width:900px; font-size:57px; font-weight:700; line-height:1.2; color:var(--on-surface); text-shadow:0 2px 12px rgba(0,0,0,.4);
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .band .track{ padding:33px 110px; }
+  /* Trolls (Promote content): the words on the left (489 wide), the posters on the right */
+  .band.side{ padding:100px 0; display:flex; align-items:center; gap:24px; }
+  .band.side .b-text{ width:489px; margin-left:110px; flex:0 0 auto; display:flex; flex-direction:column; gap:24px; }
+  .band.side .b-t{ margin:0; width:auto; }
+  .band.side .b-d{ margin:0; font-size:24px; line-height:32px; color:rgba(255,255,255,.88); text-shadow:0 1px 8px rgba(0,0,0,.45); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .band.side .rail{ flex:1; min-width:0; overflow:visible; }
+  .band.side .track{ padding:33px 110px 33px 0; }
+
+  /* Seasonal / Collection (Figma specialContent): the focused 16:9 card in the middle, the others stacked behind it */
+  .coll{ height:688px; }
+  .coll .stage{ position:relative; height:640px; }
+  .coll-card{ position:absolute; left:50%; top:20px; width:1040px; height:585px; margin-left:-520px; border-radius:24px; overflow:hidden;
+    background:var(--surface-container-high) center / cover no-repeat; transition:transform .4s var(--ease), opacity .4s ease, filter .4s ease; }
+  .coll-card::after{ content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,.65)); }
+  .coll-card span{ position:absolute; left:0; right:0; bottom:48px; z-index:1; text-align:center; font-size:48px; font-weight:700; color:#fff; text-shadow:0 2px 12px rgba(0,0,0,.5); }
+  .coll-dots{ position:absolute; left:0; right:0; bottom:0; display:flex; justify-content:center; gap:8px; }
+  .coll-dots i{ width:12px; height:12px; border-radius:6px; background:#a8a8a8; transition:width .22s var(--ease), background-color .22s ease; }
+  .coll-dots i.on{ width:30px; background:#e8e8e8; }
+
+  /* Learn (Figma): DLTV's classes, each its logo on a light card, the subject on top and the class under it */
+  .learn .pst{ background-color:#e8e8e8; background-size:86% auto; }
+  .learn .lc{ width:220px; flex:0 0 auto; display:flex; flex-direction:column; gap:12px; }
+  .learn .lc .nm{ padding:0 4px; font-size:20px; color:var(--on-surface); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  /* Kids Channel: Movie's channel card (TV Guide's) */
+  .chan-track{ gap:32px; padding:16px 110px !important; }
+  .ch-card{ position:relative; width:190px; height:262px; padding:20px; border-radius:16px; flex:0 0 auto; display:flex; flex-direction:column; align-items:center; transition:background .22s var(--ease); }
+  .ch-card.focused{ background:var(--glass-card-on); }
+  .ch-slot{ width:150px; height:150px; flex:0 0 auto; display:flex; justify-content:center; padding-top:8px; }
+  .ch-slot .ava{ position:relative; width:112px; height:112px; border-radius:999px; flex:0 0 auto; }
+  .logo{ position:absolute; inset:0; border-radius:inherit; overflow:hidden; background:#fff; }
+  .logo img{ position:absolute; display:block; }
+  .logo img.cover{ inset:0; width:100%; height:100%; object-fit:cover; }
+  .logo img.contain{ left:15%; top:15%; width:70%; height:70%; object-fit:contain; }
+  .ch-name{ width:100%; font:400 24px/normal Helvetica, Arial, sans-serif; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .ch-meta{ display:flex; align-items:center; justify-content:center; gap:16px; margin-top:12px; }
+  .ic20{ width:20px; height:20px; display:block; }
+  .ch-no{ height:32px; min-width:40px; padding:0 12px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.35); font-size:20px; font-weight:600; }
+
+  /* (Back to Top: button-theme.css) */
+
+  /* ---------- top bar (Movie's); Home is the current tab (Kids is one of Home's filters) ---------- */
+  .scrim{ position:absolute; left:0; top:0; width:1920px; height:170px; z-index:4; pointer-events:none; opacity:0; transition:opacity .3s ease;
+    background:linear-gradient(180deg, rgb(var(--bg)) 0%, rgb(var(--bg)) 45%, rgba(var(--bg),0) 100%); }
+  body.static.on-nav .scrim, body.past-first.on-nav .scrim{ opacity:1; }
+  .topnav{ position:absolute; left:0; top:0; z-index:5; width:1920px; padding:24px 110px 0; display:flex; align-items:center; transition:opacity .3s ease, translate .3s var(--ease); }
+  body.static:not(.on-nav) .topnav, body.past-first:not(.on-nav) .topnav{ opacity:0; translate:0 -40px; pointer-events:none; }
+  .profile{ width:60px; height:60px; border-radius:999px; overflow:hidden; flex:0 0 auto; }
+  .profile img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .center{ display:flex; align-items:center; gap:12px; margin-left:20px; }
+  .navsearch{ width:60px; height:60px; margin:0 8px; border-radius:999px; display:flex; align-items:center; justify-content:center; }
+  .navsearch img{ width:32px; height:32px; display:block; }
+  .navtab{ height:60px; padding:0 20px; border-radius:999px; display:flex; align-items:center; font-family:'Plus Jakarta Sans', var(--font); font-size:24px; line-height:1.2;
+    text-shadow:0 0 6px rgba(0,0,0,.4); white-space:nowrap; }
+  .topnav .item:not(.tv-tab){ transition:background .15s ease; }
+  .topnav .item.focused:not(.tv-tab){ background:var(--th-pill); backdrop-filter:blur(12px) saturate(1.4); }
+
+  #toast{ position:absolute; left:50%; bottom:80px; z-index:60; transform:translateX(-50%); padding:14px 26px; border-radius:999px;
+    background:rgba(20,20,24,.85); font-size:24px; opacity:0; transition:opacity .2s ease; pointer-events:none; }
+  #toast.on{ opacity:1; }
+  /* focused items grow: 8% on every rail, 6% in the top bar (as on every page); the feature card 5% */
+  #screen .item{ transition:transform .22s var(--ease), background .15s ease, color .15s ease, box-shadow .2s ease; }
+  #screen .item.focused{ transform:scale(1.08); z-index:2; }
+  #screen .topnav .item.focused{ transform:scale(1.06); }
+  #screen .xcard.focused{ transform:scale(1.05); }
+  #screen .coll-card.item.focused{ transform:none; }   /* the carousel places it itself */

@@ -277,7 +277,7 @@
   function toast(msg){ toastEl.textContent = msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(function(){ toastEl.classList.remove('on'); }, 1800); }
   function back(){
     if(cur.row > 0){ cur.row = 0; cur.col = 0; paint(); return; }
-    try { if(document.referrer && /(home|movie|store|sport|news|movie-detail|short-detail)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
+    try { if(document.referrer && /(home|movie|store|sport|news|kids|short|movie-detail|short-detail)\.html/.test(document.referrer) && history.length > 1){ history.back(); return; } } catch(e){}
     location.href = 'movie.html';
   }
   // Play / Resume / Start Over: the movie player (player.html), from where it was left or the start

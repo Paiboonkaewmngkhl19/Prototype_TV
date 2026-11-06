@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kids</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="chip-theme.css">
+<link rel="stylesheet" href="button-theme.css">
+<link rel="stylesheet" href="expand-card.css">
+<link rel="stylesheet" href="event-card.css">
+<link rel="stylesheet" href="top10.css">
+<link rel="stylesheet" href="platform-tag.css">
+<link rel="stylesheet" href="corner-tag.css">
+<!--
+  Kids (Figma Prototype "PLAY:kidsHome_mainPageStructure" 210:53522, and its Top 10 focus state 210:51775), opened from
+  Home's Kids chip. Built as the Movie page (movie.html): the same top bar, hero, focus model, spacing, text sizes and
+  cards. What is its own: the page's mood follows the focused artwork (its colour washes the background, kids-1.js
+  mood()), the Top 10 numerals turn to the kids' coloured ones while that rail has focus, the KIDS mark top right once
+  the top bar steps away, the character discs, the Doraemon and Trolls bands, the Seasonal / Collection carousel and Learn.
+  Every title is a key in content.js (MD.M, kids:1); pictures in kids-assets/.
+  Remote / keyboard: arrows move focus, Enter selects, Esc / Back to the first rail, then Home.
+-->
+<link rel="stylesheet" href="kids/kids.css">
+<link rel="stylesheet" href="toast.css">
+</head>
+<body class="scene">
+<div id="frame"><div id="screen">
+  <div class="mood" aria-hidden="true"></div>
+  <div class="hero-bg"><div class="pic"></div><div class="pic"></div></div>
+
+  <div id="page"></div>
+
+  <section class="hero" aria-live="polite"><img class="logo-t" alt=""><h1></h1><div class="watched"></div><div class="meta"></div><p class="desc"></p></section>
+  <img class="kids-mark" src="kids-assets/kids-logo.svg" alt="Kids">
+  <div class="scrim" aria-hidden="true"></div>
+
+  <nav class="topnav">
+    <div class="profile item" data-label="Profile"><img src="icons/profile-tv.png" alt="Profile"></div>
+    <div class="center">
+      <div class="navsearch item" data-label="Search"><img src="icons/nav-search.svg" alt="Search"></div>
+      <div class="navtab tv-tab item active" data-label="Home" data-href="home.html">Home</div>
+      <div class="navtab tv-tab item" data-label="Live TV" data-href="tv-guide.html?play=MUTV&amp;from=home">Live TV</div>
+      <div class="navtab tv-tab item" data-label="Movie" data-href="movie.html">Movie</div>
+      <div class="navtab tv-tab item" data-label="Sport" data-href="sport.html">Sport</div>
+      <div class="navtab tv-tab item" data-label="My List">My List</div>
+      <div class="navtab tv-tab item" data-label="Store" data-href="store.html">Store</div>
+    </div>
+  </nav>
+  <div id="toast"></div>
+</div></div>
+
+<script src="profile-panel.js"></script>
+<script src="content.js"></script>
+<script src="packages.js"></script>
+<script src="channels-data.js"></script>
+<script src="top10.js"></script>
+<script src="tv-screen.js"></script>
+<script src="focus-ring.js"></script>
+<script src="kids/kids-1.js"></script>
+<script src="toast.js"></script>
+</body>
+</html>

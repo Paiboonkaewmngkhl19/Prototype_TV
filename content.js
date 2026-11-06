@@ -40,7 +40,7 @@
     MD.bg(k)    the title's full-screen picture (its b, else w, else p): every page's screen text and its detail page
 */
 (function(){
-  var PP = 'posters_portrait/', P = 'posters/';
+  var PP = 'posters_portrait/', P = 'posters/', K = 'kids-assets/';
   var M = {
     d9:     {t:'District 9', w:P + 'district9.jpg', v:'video/District9.mp4', plat:'monomax', g:['Sci-Fi', 'Action'], y:2009, len:'1h 52m', age:'16+',
              d:'Aliens stranded over Johannesburg are forced into a slum, until a field agent exposed to their technology starts to become one of them.'},
@@ -172,7 +172,45 @@
     hl7:    {t:'Masters Tournament: Round Highlights', p:P + 'highlight/h7.jpg', plat:'ais', g:['Golf', 'Highlights'], y:2025, len:'10m', age:'G',
              d:'Round-by-round highlights from the Masters, with every eagle, chip-in and clutch putt.'},
     odyssey:{t:'The Odyssey', w:P + 'P10_Odyssey.jpg', plat:'prime', g:['Adventure', 'Fantasy'], y:2026, len:'2h 40m', age:'13+',
-             d:'Odysseus fights his way home across a hostile sea after the fall of Troy, ten years from his family.'}
+             d:'Odysseus fights his way home across a hostile sea after the fall of Troy, ten years from his family.'},
+    // Kids (kids.html, Figma Prototype "PLAY:kidsHome_mainPageStructure" 210:53522; pictures in kids-assets/). logo: a title
+    // drawn as its logo on its screen (Steven Universe)
+    moana:  {t:'Moana', w:K + 'moana-bg.jpg', plat:'disney', g:['Animation', 'Adventure'], y:2016, len:'1h 47m', age:'G', kids:1,
+             d:'A spirited teenager sails out on a daring mission to save her people, joined by the once-mighty demigod Maui.'},
+    dora:   {t:'Dora the Explorer', p:K + 'dora-p.jpg', w:K + 'dora-w.jpg', plat:'prime', g:['Animation', 'Learning'], y:2000, len:'8 Seasons', age:'G', kids:1,
+             d:'Dora and her best friend Boots set off on adventures, solving puzzles and learning Spanish words along the way.'},
+    pinkfong:{t:'Pinkfong Baby Shark', w:K + 'pinkfong-w.jpg', plat:'ais', g:['Music', 'Learning'], y:2016, len:'2 Seasons', age:'G', kids:1,
+             d:'Sing and dance along with Baby Shark and the Pinkfong friends in songs made for little ones.'},
+    powerpuff:{t:'The Powerpuff Girls', p:K + 'powerpuff-p.jpg', w:K + 'powerpuff-w.jpg', plat:'hbo', g:['Animation', 'Action'], y:2016, len:'3 Seasons', age:'7+', kids:1,
+             d:'Blossom, Bubbles and Buttercup save the day in Townsville, all before bedtime.'},
+    bluey:  {t:'Bluey', w:K + 'bluey-w.jpg', plat:'disney', g:['Animation', 'Family'], y:2018, len:'3 Seasons', age:'G', kids:1,
+             d:'Bluey, a Blue Heeler puppy, turns everyday family life into big imaginative games with her sister Bingo.'},
+    steven: {t:'Steven Universe', p:K + 'steven-p.jpg', b:K + 'steven-bg.jpg', logo:K + 'steven-logo.png', plat:'hbo', g:['Animation', 'Adventure'], y:2013, len:'5 Seasons', age:'7+', kids:1,
+             d:'Half-human, half-Gem, Steven learns to use his powers alongside the Crystal Gems to protect the world.'},
+    phineas:{t:'Phineas and Ferb', p:K + 'phineas-p.jpg', plat:'disney', g:['Animation', 'Comedy'], y:2007, len:'4 Seasons', age:'G', kids:1,
+             d:'Two stepbrothers fill every day of summer vacation with impossible inventions, while their pet platypus fights evil.'},
+    pororo: {t:'Pororo the Little Penguin', p:K + 'pororo-p.jpg', plat:'ais', g:['Animation', 'Learning'], y:2003, len:'7 Seasons', age:'G', kids:1,
+             d:'Pororo and his friends play, quarrel and make up in their snowy village, learning something new every day.'},
+    doraemonart:{t:"Doraemon the Movie: Nobita's Art World Tales", p:K + 'doraemon-art-p.jpg', b:K + 'doraemon-band.jpg', plat:'ais', g:['Animation', 'Adventure'], y:2025, len:'1h 45m', age:'G', kids:1,
+             d:'Doraemon and friends jump into a famous painting and find a medieval kingdom, a lost jewel and a dragon on the loose.'},
+    doraemoncastle:{t:'Doraemon: Nobita and the Castle of the Undersea Devil', p:K + 'doraemon-castle-p.jpg', b:K + 'doraemon-band.jpg', plat:'ais', g:['Animation', 'Adventure'], y:2026, len:'1h 50m', age:'G', kids:1,
+             d:'A summer camp on the sea floor turns into an adventure when the gang finds a sunken city and a castle that should not wake.'},
+    standbyme:{t:'Stand by Me Doraemon', p:K + 'standbyme-p.jpg', plat:'ais', g:['Animation', 'Family'], y:2014, len:'1h 35m', age:'G', kids:1,
+             d:'A robot cat from the future arrives to help Nobita, the boy who never gets anything right, change his destiny.'},
+    trolls: {t:'Trolls', p:K + 'trolls-p.jpg', b:K + 'trolls-band.jpg', plat:'prime', g:['Animation', 'Music'], y:2016, len:'1h 32m', age:'G', kids:1,
+             d:'Upbeat Poppy and grumpy Branch set out to rescue their friends from the Bergens, who think Trolls make them happy.'},
+    trollsholiday:{t:'Trolls Holiday', p:K + 'trolls-holiday-p.jpg', b:K + 'trolls-band.jpg', plat:'prime', g:['Animation', 'Music'], y:2017, len:'26m', age:'G', kids:1,
+             d:'Poppy finds out the Bergens have no holidays of their own, and sets out to give them one.'},
+    trollswt:{t:'Trolls World Tour', p:K + 'trolls-worldtour-p.jpg', b:K + 'trolls-band.jpg', plat:'prime', g:['Animation', 'Music'], y:2020, len:'1h 31m', age:'G', kids:1,
+             d:'Poppy and Branch discover five other Troll tribes, each devoted to its own kind of music, and a queen who wants them all.'},
+    trollsbt:{t:'Trolls Band Together', p:K + 'trolls-bandtogether-p.jpg', b:K + 'trolls-band.jpg', plat:'prime', g:['Animation', 'Music'], y:2023, len:'1h 32m', age:'G', kids:1,
+             d:'Branch reunites his long-lost boy band brothers to rescue one of them, with Poppy along for the ride.'},
+    tomjerry:{t:'Tom and Jerry', p:K + 'ch-tomjerry.jpg', plat:'hbo', g:['Animation', 'Comedy'], y:1940, len:'7 Seasons', age:'G', kids:1,
+             d:'A cat and a mouse who never stop chasing each other star in the classic cartoons that made the world laugh.'},
+    lady:   {t:"Lady and the Tramp II: Scamp's Adventure", p:K + 'ch-lady.jpg', plat:'disney', g:['Animation', 'Family'], y:2001, len:'1h 9m', age:'G', kids:1,
+             d:'Lady and Tramp\'s puppy Scamp longs for the wild life of a street dog, until he learns what home really means.'},
+    mrbean: {t:'Mr. Bean: The Animated Series', p:K + 'ch-mrbean.jpg', plat:'prime', g:['Animation', 'Comedy'], y:2002, len:'5 Seasons', age:'G', kids:1,
+             d:'Mr. Bean, his teddy bear and his little car get into one silly scrape after another, with hardly a word said.'}
   };
   // b: the full-screen picture (posters/hero/) a title shows behind the screen text on Home, the Movie page and its
   // detail page alike (Content.hero / MD.bg); a title without one uses its 16:9 picture, else its poster
@@ -269,6 +307,17 @@
     return c;
   }
   function setProgress(k, w, of, s, e){ var p = progress(); p[k] = { w:w, of:of, s:s, e:e, at:Date.now() }; try { sessionStorage.setItem('mdProgress', JSON.stringify(p)); } catch(e){} }
+  // Kids' Continue watching (kids.html): its own titles only; img: the card's own picture (Figma's), else the title's
+  var KIDS_CONTINUE = [{k:'bluey', w:20, of:40, img:'kids-assets/bluey-cw.jpg'}, {k:'powerpuff', w:9, of:22}, {k:'moana', w:48, of:107},
+                       {k:'dora', w:11, of:24}, {k:'pinkfong', w:4, of:15}];
+  function kidsContinue(){
+    var p = progress(), seen = {}, out = [];
+    Object.keys(p).sort(function(a, b){ return (p[b].at || 0) - (p[a].at || 0); }).forEach(function(k){
+      if(M[k] && M[k].kids && M[k].w && p[k].w < p[k].of - 1){ seen[k] = 1; out.push({ k:k, w:p[k].w, of:p[k].of }); }
+    });
+    KIDS_CONTINUE.forEach(function(c){ if(!seen[c.k]) out.push(c); });
+    return out;
+  }
   // Continue Watching (Home, Movie): what was watched this session, latest first, then the list above; finished ones drop out
   function continueList(){
     var p = progress(), seen = {}, out = [];
@@ -292,7 +341,7 @@
   }
   window.MD = { P:P, PP:PP, M:M, CONTINUE:CONTINUE, FOR_YOU:FOR_YOU, RENT:RENT, MY_RENTAL:MY_RENTAL, state:state, price:price, own:own, cw:cw, setProgress:setProgress, minutes:minutes,
     subscribe:subscribe, subscribed:subscribed, buyPrice:buyPrice, rentPrice:rentPrice, rent:rent, RENT_HOURS:RENT_HOURS,
-    soon:soon, continueList:continueList, series:series, seasons:seasons, episodes:episodes, episode:episode, next:next, until:until,
+    soon:soon, continueList:continueList, kidsContinue:kidsContinue, series:series, seasons:seasons, episodes:episodes, episode:episode, next:next, until:until,
     bg:function(k){ var m = M[k]; return m ? m.b || m.w || m.p : ''; },
     // the quality tag every page shows in a title's meta row: 4K Dolby (platform-tag.css .qtag), else the HD pill
     // a title's meta row, the same on every page (Home's screen text, the Movie page's hero, the detail page): its
@@ -332,7 +381,7 @@ window.SHORTS = [
   Episodes of a short, shared by short-detail.html and the vertical player (player.html?short=N&ep=E):
     SHORT.EPS episodes (the first SHORT.FREE free), SHORT.open(s, n) whether episode n of short s can be watched (free,
     unlocked this session, a pass, or the Short Drama package), SHORT.secs(n) its length in seconds (1-3 minutes),
-    SHORT.at(s) / SHORT.setAt(s, ep, sec) where the short was left. SHORT.owned(s) every episode is the viewer's: its
+    SHORT.at(s) / SHORT.setAt(s, ep, sec) where the short was left; SHORT.continueList() short.html's Continue watching. SHORT.owned(s) every episode is the viewer's: its
     app's package (MD.subscribed: ReelShort / DramaBox; PLAY ULTIMATE doesn't include short dramas), bought (SHORT.own: a short with buy, its
     detail page's Buy N ฿), a pass, or each locked episode unlocked.
 */
@@ -350,7 +399,14 @@ window.SHORT = (function(){
   function secs(n){ return 75 + (n * 37) % 105; }
   function at(s){ return get('shortProgress', '{}')[s] || null; }
   function setAt(s, ep, sec){ var p = get('shortProgress', '{}'); p[s] = { ep:ep, sec:Math.floor(sec) }; try { sessionStorage.setItem('shortProgress', JSON.stringify(p)); } catch(e){} }
-  return { EPS:EPS, FREE:FREE, open:open, owned:owned, own:own, secs:secs, at:at, setAt:setAt };
+  // Continue watching (short.html): this session's shorts first (SHORT.at, the last one watched first), then the demo's
+  // own list; each {s, ep}: the short and the episode it is on
+  var CW = [{ s:1, ep:23 }, { s:4, ep:58 }, { s:0, ep:7 }, { s:6, ep:91 }, { s:3, ep:12 }];
+  function continueList(){
+    var p = get('shortProgress', '{}'), mine = Object.keys(p).map(function(s){ return { s:+s, ep:p[s].ep }; }).reverse();
+    return mine.concat(CW.filter(function(c){ return !p[c.s]; })).filter(function(c){ return window.SHORTS[c.s]; });
+  }
+  return { EPS:EPS, FREE:FREE, open:open, owned:owned, own:own, secs:secs, at:at, setAt:setAt, continueList:continueList };
 })();
 
 /*

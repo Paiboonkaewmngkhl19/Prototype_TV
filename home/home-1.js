@@ -89,7 +89,7 @@
   /* ---------- Row: Quick menu chips ---------- */
   (function(){
     var chips = [
-      {label:'Live TV', href:'tv-guide.html?play=MUTV&from=home'}, {label:'News', href:'news.html'}, {label:'Short'}, {label:'Kids'},
+      {label:'Live TV', href:'tv-guide.html?play=MUTV&from=home'}, {label:'News', href:'news.html'}, {label:'Short', href:'short.html'}, {label:'Kids', href:'kids.html'},
       {label:'Lifestyle'}, {label:'Music'}, {label:'IoT'}   // Figma Category (3256:175126)
     ];
     var html = chips.map(function(c, i){
@@ -266,7 +266,7 @@
     // the first eight short dramas (content.js SHORTS, by data-s): Enter opens each one's page (Content.detailUrl)
     var cards = SHORTS.slice(0, 8).map(function(c, i){
       return '<div class="card clip-card item" data-s="'+i+'" data-title="'+c.t.replace(/"/g, '&quot;')+'" style="background-image:url(\'posters/shorts/'+c.img+'\');"></div>';
-    }).join('') + '<div class="clip-viewall tv-chip item" data-title="Shorts – View All" data-ring-art=""><b>Shorts</b><span>View All</span></div>';
+    }).join('') + '<div class="clip-viewall tv-chip item" data-title="Shorts – View All" data-href="short.html" data-ring-art=""><b>Shorts</b><span>View All</span></div>';
     addRow('<div class="row-block clips-row"><div class="clips-bg"></div><div class="clips-bg band-full"></div><div class="row-title">Shorts</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
   })();
 
