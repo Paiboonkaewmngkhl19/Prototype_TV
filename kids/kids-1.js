@@ -10,7 +10,7 @@
   var CONTINUE = MD.kidsContinue();                                                      // content.js
   var CW_BADGE = { 2:'Leaving Soon', 4:'Top 10' };
   var TOP10 = ['steven', 'powerpuff', 'phineas', 'pororo', 'dora', 'trolls', 'doraemonart', 'standbyme', 'tomjerry', 'trollsbt'];
-  var RANK_COLOR = 5;                                                                    // Figma's coloured numerals: 1-5
+  var RANK_COLOR = 10;                                                                   // the kids' coloured numerals: 1-5 Figma's, 6-10 drawn to match (kids-assets/rank-N.svg)
   // Character (Figma's portraits): who they are and the show they open; fav: the heart (a favourite)
   var CHARS = [{n:'Snowball', img:'ch-snowball.jpg', fav:1}, {n:'Tom & Jerry', img:'ch-tomjerry.jpg', k:'tomjerry'}, {n:'Finn', img:'ch-finn.jpg'},
                {n:'Lady & Tramp', img:'ch-lady.jpg', k:'lady'}, {n:'Poppy & Branch', img:'ch-poppy.jpg', k:'trolls'}, {n:'Phineas Flynn', img:'ch-phineas.jpg', k:'phineas'},
@@ -33,15 +33,19 @@
 
   /* ---------- markup ---------- */
   function ptag(m){ return m.plat === 'ais' ? '<span class="ptag ais"></span>' : '<img class="ptag" src="badges/tag-' + m.plat + '.png" alt="">'; }
+  // a card's bottom-left corner: the gold crown while a premium title isn't the viewer's (content.js Content.crown, as Figma's
+  // kids cards), else its platform tag when the card shows one
+  function corner(k, tag){ return Content.crownIcon({k:k}, 0, 'crown-tag') || (tag ? ptag(M[k]) : ''); }
   function wide(k, i, set, badge, tag, img){
     var m = M[k];
     return '<div class="card item"' + attrs({kind:'title', k:k, set:set, i:i}) + '><div class="thumb" style="background-image:url(\'' + (img || m.w || m.b || m.p) + '\')">' +
-      (badge ? '<span class="top-tag">' + esc(badge) + '</span>' : '') + (tag ? ptag(m) : '') + '</div></div>';
+      (badge ? '<span class="top-tag">' + esc(badge) + '</span>' : '') + corner(k, tag) + '</div>' +
+      '<div class="t">' + esc(m.t) + '</div></div>';   // its title under the picture, as Continue Watching's cards
   }
   function poster(k, i, set, badge, tag){
     var m = M[k];
     return '<div class="pst item"' + attrs({kind:'title', k:k, set:set, i:i}) + ' style="background-image:url(\'' + m.p + '\')">' +
-      (badge ? '<span class="top-tag">' + esc(badge) + '</span>' : '') + (tag ? ptag(m) : '') + '</div>';
+      (badge ? '<span class="top-tag">' + esc(badge) + '</span>' : '') + corner(k, tag) + '</div>';
   }
   function sec(key, title, body, cls){
     return '<section class="sec' + (cls ? ' ' + cls : '') + '" data-row="' + key + '">' + (title ? '<h2 class="sec-title">' + esc(title) + '</h2>' : '') +
@@ -65,7 +69,7 @@
   html += '<section class="sec top10" data-row="top10"><h2 class="sec-title">Top 10</h2><div class="rail"><div class="track">' + TOP10.map(function(k, i){
     var m = M[k];
     return '<div class="rank-wrap">' + Top10.numeral(i + 1) + (i < RANK_COLOR ? '<img class="rank-color" src="' + KA + 'rank-' + (i + 1) + '.svg" alt="">' : '') +
-      '<div class="rank-poster item"' + attrs({kind:'title', k:k, set:'top10', i:i}) + ' style="background-image:url(\'' + m.p + '\')">' + ptag(m) + '</div></div>';
+      '<div class="rank-poster item"' + attrs({kind:'title', k:k, set:'top10', i:i}) + ' style="background-image:url(\'' + m.p + '\')">' + corner(k, 1) + '</div></div>';
   }).join('') + '</div></div></section>';
   html += sec('chars', 'Characters', CHARS.map(function(c, i){
     return '<div class="char"><div class="ph item"' + attrs({kind:'char', i:i}) + ' data-ring-art="" style="background-image:url(\'' + KA + c.img + '\')">' +

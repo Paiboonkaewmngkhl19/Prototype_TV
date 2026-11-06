@@ -88,7 +88,7 @@
   .pst{ position:relative; width:220px; height:330px; flex:0 0 auto; border-radius:12px; background:var(--surface-container-high) center / cover no-repeat; }
   .pst .ptag{ position:absolute; left:12px; bottom:12px; }
 
-  /* Top 10 (Movie's), the focus on the poster; while the rail has focus its numerals 1-5 turn to the kids' coloured ones
+  /* Top 10 (Movie's), the focus on the poster; while the rail has focus its numerals turn to the kids' coloured ones (1-5 Figma's, 6-10 drawn to match)
      (Figma 210:51775), over the glass ones */
   .top10 .track{ gap:0; padding:33px 110px; }
   .rank-poster{ width:220px; height:330px; border-radius:12px; background:var(--surface-container-high) center / cover no-repeat; }

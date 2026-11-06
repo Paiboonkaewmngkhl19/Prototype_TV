@@ -446,13 +446,10 @@
   // channel are kept for coming back, so Back from the player lands on the same card
   function videoFor(c){
     var V = 'video/', has = function(k){ return c.cats.indexOf(k) >= 0 || (c.tags || []).indexOf(k) >= 0; };
-    if(/COOL/.test(c.n)) return V + 'coolch.mp4';
     if(has('football')) return V + 'football.mp4';
-    if(has('basketball')) return V + 'all-star.mp4';
     if(has('sports')) return V + 'bad.mp4';
     if(has('cartoons')) return V + 'dis.mp4';
     if(has('variety')) return V + 'concert.mp4';
-    if(/HBO|Cinemax/.test(c.n)) return V + 'hbo.mp4';
     if(has('movies')) return V + 'spiderman.mp4';
     return V + 'vall.mp4';
   }
