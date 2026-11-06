@@ -2,6 +2,9 @@
 (function(){
   "use strict";
 
+  // the first scene's first slide: a live match (content.js LIVE, by its title); home.html starts on its picture and video
+  var FIRST_SLIDE = 'Real Madrid vs RB Leipzig';
+
   // every card's title, synopsis, platform and picture are its catalogue entry's (content.js MD.M, by data-k): one place
   function M(k){ return MD.M[k]; }
   function pic(k){ var m = M(k); return m.p || m.w; }   // a poster card: the 2:3 poster, else its 16:9 picture
@@ -62,7 +65,7 @@
   (function(){
     // the slides: a live match (content.js LIVE, by its title) or a title (content.js MD.M, by its key); their words,
     // tag and picture come from there, so the slide and the detail page it opens say the same
-    var SLIDES = [{live:'Liverpool vs Brentford'}, {k:'d9'}, {k:'loki'}, {k:'lastofus'}, {k:'wicked'}, {k:'superman'}, {k:'topgun'}, {k:'dragon'},
+    var SLIDES = [{live:FIRST_SLIDE}, {k:'d9'}, {k:'loki'}, {k:'lastofus'}, {k:'wicked'}, {k:'superman'}, {k:'topgun'}, {k:'dragon'},
                   {live:'Arsenal vs Chelsea'}, {k:'f1'}];
     function attr(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }   // e.g. Pete "Maverick" Mitchell
     var items = SLIDES.map(function(s){
@@ -211,7 +214,7 @@
     // the programmes: content.js (LIVE.list). A card on a Movie or Sport channel opens its detail page; any other plays
     // its channel in the Live TV player (via the TV Guide, which has its programmes and the mini EPG)
     function q(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
-    var cards = LIVE.list.filter(function(p){ return !p.heroOnly; }).map(function(p){
+    var cards = LIVE.list.filter(function(p){ return !p.heroOnly && !p.hidden; }).map(function(p){
       var tv = window.TV.byName(p.tv), meta = tv ? 'Channel '+tv.no+': '+tv.n : '';
       return '<div class="card card-content item'+(p.live ? ' has-ribbon' : '')+'" data-title="'+q(p.t)+'" data-href="'+q(LIVE.href(p, 'home'))+'"'+
           (tv ? ' data-ch="'+q(tv.n)+'" data-meta="'+q(meta)+'"' : '')+(p.bg ? ' data-hero-bg="'+q(p.bg)+'"' : '')+' data-desc="'+q(p.d)+'">'+   // hero-bg: its detail page's picture
@@ -350,7 +353,7 @@
       // in the Live TV player)
       var chName = p.tv, tv = window.TV.byName(chName), prog = p;
       return '<div class="card card-content item has-ribbon" data-title="'+attrQ(p.t)+'" data-live="1" data-href="'+attrQ(LIVE.href(prog, 'home'))+'"'+
-        (tv ? ' data-ch="'+attrQ(tv.n)+'" data-meta="'+attrQ('Channel '+tv.no+': '+tv.n)+'"' : '')+' data-desc="'+attrQ(p.d)+'">'+
+        (tv ? ' data-ch="'+attrQ(tv.n)+'" data-meta="'+attrQ('Channel '+tv.no+': '+tv.n)+'"' : '')+(p.bg ? ' data-hero-bg="'+attrQ(p.bg)+'"' : '')+' data-desc="'+attrQ(p.d)+'">'+
         '<div class="thumb" style="'+pic+'">'+Content.crownIcon({tv:chName}, 0, 'crown-tag')+'</div>'+
         '<div class="strip"><div class="t">'+p.t+'</div></div>'+   // the Live and Upcoming card
         '<span class="live-ribbon">Live</span></div>';   // on now, as its hero's LIVE: the Live and Upcoming cards' ribbon
@@ -618,18 +621,32 @@
     if(wd) heroWatchedEl.innerHTML = '<span class="bar"><i style="width:' + wd.pct + '%"></i></span>' + wd.w + 'm of ' + wd.of + 'm';
   }
   var heroLiveEl = document.querySelector('.hero .badge-live');
-  var currentHeroImgKey = 'posters/liver-ben.jpg';
+  var currentHeroImgKey = LIVE.find(FIRST_SLIDE).bg;   // home.html starts on this slide's picture and video
   var heroVideo = document.querySelector('.hero-bg-video');
+  if(heroVideo) heroVideo.addEventListener('playing', function(){ if(heroVideos[currentHeroImgKey]) heroVideo.classList.remove('off'); });
 
-  function isVideoSlide(it){ return !!(heroVideo && it && it.dataset.heroImg === 'posters/liver-ben.jpg'); }
+  // the screen pictures that have a video (content.js v): any live match (the first slide, Live and Upcoming) or title with one
+  var heroVideos = {};
+  LIVE.list.concat(LIVE.hot).forEach(function(p){ if(p.v && p.bg && !p.hidden) heroVideos[p.bg] = p.v; });
+  Object.keys(MD.M).forEach(function(k){ if(MD.M[k].v) heroVideos[MD.bg(k)] = MD.M[k].v; });
+  function isVideoSlide(it){ return !!(heroVideo && it && heroVideos[it.dataset.heroImg]); }
+  // is the focused item showing a video? A first-scene slide, or a rail's card for a title with one (District 9)
+  function videoInFocus(atScene){
+    if(atScene) return isVideoSlide(rows[HERO_ROW_INDEX].items[colByRow[HERO_ROW_INDEX]]);
+    var el = rows[curRow] && rows[curRow].items[colByRow[curRow]];
+    if(!el || !(el.classList.contains('card') || el.classList.contains('rank-wrap')) || ctxRow() > HERO_ZONE_LAST_ROW) return false;   // (a Top 10 item: its .rank-wrap)
+    if(el.dataset.ch) return !!heroVideos[el.dataset.heroBg];   // a channel's programme with a video (Live and Upcoming, Hot Channel Program)
+    var ci = Content.info(el.closest('.rank-wrap') || el), h = ci && Content.hero(ci);
+    return !!(h && heroVideos[h.bg]);
+  }
   // The video's sound: on while its slide is on screen in the first scene (focus on its card, or on the top bar
-  // above it), muted anywhere else, on another slide, or in another tab. Browsers only allow sound after a key press or
+  // above it) or a rail's card shows a title's video, muted anywhere else, on another slide, or in another tab. Browsers only allow sound after a key press or
   // click on the page, so it comes on with the first one; until then the video plays muted.
   var heroSoundOk = false;
   function syncHeroSound(){
     if(!heroVideo) return;
     var atScene = curRow === HERO_ROW_INDEX || (curRow === 0 && !navFrom);
-    var on = heroSoundOk && atScene && !document.hidden && isVideoSlide(rows[HERO_ROW_INDEX].items[colByRow[HERO_ROW_INDEX]]);
+    var on = heroSoundOk && !document.hidden && videoInFocus(atScene);
     if(heroVideo.muted === !on) return;
     heroVideo.muted = !on;
     if(on && heroVideo.paused && !heroVideo.ended) heroVideo.play().catch(function(){});
@@ -643,7 +660,15 @@
   function setHeroBg(key, css){
     if(!key || key === currentHeroImgKey || !heroBgA || !heroBgB) return;
     currentHeroImgKey = key;
-    if(heroVideo){ var vid = key === 'posters/liver-ben.jpg'; heroVideo.classList.toggle('off', !vid); if(vid) heroVideo.play().catch(function(){}); }
+    if(heroVideo){
+      var vsrc = heroVideos[key];
+      if(!vsrc) heroVideo.classList.add('off');
+      else {
+        if(heroVideo.getAttribute('src') !== vsrc){ heroVideo.classList.add('off'); heroVideo.src = vsrc; }   // the picture shows until its first frame
+        else if(!heroVideo.paused) heroVideo.classList.remove('off');
+        heroVideo.play().catch(function(){});
+      }
+    }
     var to = heroBgActive === 'a' ? heroBgB : heroBgA, from = heroBgActive === 'a' ? heroBgA : heroBgB;
     to.style.backgroundImage = css;
     to.style.opacity = '1';
@@ -1217,10 +1242,10 @@
     'News':        {d:'Breaking stories and in-depth coverage.<br>Follow local and world news around the clock.', bg:'posters/chip-bg-news.webp'},
     'Short':       {d:'Bite-size dramas you can binge in minutes.<br>New episodes of the most talked-about short series every day.', bg:'posters/chip-bg-short.webp'},
     'Kids':        {d:'Cartoons, adventures and learning fun.<br>Safe, colorful shows the whole family can enjoy.', bg:'posters/chip-bg-kids.webp'},
-    'IoT':         {d:'Your smart home on the big screen.<br>Check cameras, lights and devices without leaving the sofa.'},
+    'IoT':         {d:'Your smart home on the big screen.<br>Check cameras, lights and devices without leaving the sofa.', bg:'posters/chip-bg-iot.webp'},
     'Game':        {d:'Esports tournaments, game shows and live streams.<br>Watch the biggest plays as they happen.'},
-    'Lifestyle':   {d:'Food, travel, home and well-being.<br>Fresh ideas and inspiration for everyday living.'},
-    'Music':       {d:'Concerts, music videos and karaoke hits.<br>Turn it up with the artists you love.'},
+    'Lifestyle':   {d:'Food, travel, home and well-being.<br>Fresh ideas and inspiration for everyday living.', bg:'posters/chip-bg-lifestyle.webp'},
+    'Music':       {d:'Concerts, music videos and karaoke hits.<br>Turn it up with the artists you love.', bg:'posters/chip-bg-music.webp'},
     'Documentary': {d:'Real stories that move and inspire.<br>Explore nature, history, science and the people behind them.'},
     'Comedy':      {d:'Sitcoms, stand-up and feel-good films.<br>Sit back and enjoy a good laugh.'},
     'Horror':      {d:'Chilling thrillers and spine-tingling scares.<br>Dare to watch with the lights off.'},

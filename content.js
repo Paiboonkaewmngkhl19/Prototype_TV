@@ -20,6 +20,8 @@
     MD.own(k)       mark a title bought / its package subscribed (this session)
     MD.subscribe(plat), MD.subscribed(plat)   a platform's package bought this session (packages.js: netflix, hbo, ...,
                     reelshort, dramabox): its premium titles and shorts are the viewer's (sessionStorage ottSubscribed)
+    m.v             a title's video: plays over its picture wherever its picture fills the screen (Home, Movie, its detail
+                    page; hero-video.js)
     m.premium       a premium title: sold on its own or in a package; Content.crown(info) says whether the viewer has
                     it ('owned') or not ('gold'). Its cards show no crown; its detail page's meta row says Premium (gold only)
     MD.cw(k)        where the title was left: this session's progress (player.html), else Continue Watching
@@ -40,7 +42,7 @@
 (function(){
   var PP = 'posters_portrait/', P = 'posters/';
   var M = {
-    d9:     {t:'District 9', w:P + 'district9.jpg', plat:'monomax', g:['Sci-Fi', 'Action'], y:2009, len:'1h 52m', age:'16+',
+    d9:     {t:'District 9', w:P + 'district9.jpg', v:'video/District9.mp4', plat:'monomax', g:['Sci-Fi', 'Action'], y:2009, len:'1h 52m', age:'16+',
              d:'Aliens stranded over Johannesburg are forced into a slum, until a field agent exposed to their technology starts to become one of them.'},
     topgun: {t:'Top Gun: Maverick', p:PP + 'topgun_m.jpg', w:P + 'topgun-m.jpg', plat:'hbo', g:['Action', 'Drama'], y:2022, len:'2h 11m', age:'13+',
              d:'After thirty years, Maverick trains a new generation of Top Gun graduates for a dangerous mission.'},
@@ -468,7 +470,7 @@ window.Content = (function(){
     }
     if(info && info.t && window.LIVE){   // a LIVE / Upcoming programme: the others, same league then same sport first
       var p = window.LIVE.find(info.t) || info;
-      return window.LIVE.list.filter(function(q){ return q.t !== p.t; }).map(function(q, i){
+      return window.LIVE.list.filter(function(q){ return q.t !== p.t && !q.hidden; }).map(function(q, i){
         return { q:q, i:i, s:(p.lg && q.lg === p.lg ? 2 : 0) + (p.sp && q.sp === p.sp ? 1 : 0) };
       }).sort(function(a, b){ return b.s - a.s || (b.q.live ? 1 : 0) - (a.q.live ? 1 : 0) || a.i - b.i; }).slice(0, n).map(function(r){ return r.q; });
     }
@@ -583,25 +585,26 @@ window.Content = (function(){
   State" / "Upcoming Has Access (MD)"), opened only from a picture card; the TV Guide and the EPGs always play the channel.
     LIVE.list          the programmes: t, img, tv (the TV Guide channel), live, or in (minutes from when the page opened,
                        so the demo's upcoming ones are always upcoming), d; heroOnly: shown in Home's first scene, not its rail;
-                       sportRail: also Sport's Live and Upcoming, in this order
+                       sportRail: also Sport's Live and Upcoming, in this order; hidden: kept here but shown on no rail
+                       (remove the flag to bring it back)
     LIVE.start(p)      when an upcoming programme starts (ms): from in, or a label ("Starts in 16:12", "Today 8:30 PM",
                        "Tomorrow 2:30 AM"; a time today that has gone by is taken as tomorrow's)
     LIVE.label(p)      its card's label: "Starts in 58:12" in the last hour, else "Today 8:30 PM" / "Tomorrow 6:00 PM" / "2 Nov 8:30 PM"
     LIVE.hasMD(tv)     whether the channel's programmes have a detail page: a Sports channel, or a Movies one that isn't Digital
                        TV (channels-data.js)
     LIVE.href(p, from) the card's link: its detail page, else the channel in the Live TV player (via the TV Guide)
-    LIVE.hot          Home's Hot Channel Program: news channels' programmes on now (t, img, logo, tv, d)
+    LIVE.hot          Home's Hot Channel Program: news channels' programmes on now (t, img, logo, tv, d; bg, v: its screen picture and video, the News page's too)
     LIVE.range(p), LIVE.find(title)   its time on air, a programme by its title (Home's screen text and the detail
                        page's meta row say the same); its Premium: Content.crown({tv:p.tv})
 */
 window.LIVE = (function(){
   var U = 'posters/upcoming/', SP = 'sport-assets/main-page/sportMainPage_liveUpcoming_No';
   var list = [
-    {t:'Liverpool vs Brentford', img:U + 'liverpool-brentford.webp', bg:'posters/liver-ben.jpg', v:'posters/homapage.mp4', tv:'MONOMAX 1', live:true, sp:'football', lg:'epl',   // bg: Home's first scene and the detail page; v: its video, Home's and the player's
+    {t:'Liverpool vs Brentford', hidden:true, img:U + 'liverpool-brentford.webp', bg:'posters/liver-ben.jpg', v:'posters/homapage.mp4', tv:'MONOMAX 1', live:true, sp:'football', lg:'epl',   // bg: Home's first scene and the detail page; v: its video, Home's and the player's
      d:'Liverpool hosts Brentford at Anfield in a big Premier League clash. Follow every moment live, from kick-off to the final whistle.'},
     {t:'Bayern München vs Arsenal', img:SP + '1.webp', bg:SP + '1-2.webp', v:'video/Bayern Munchen vs Arsenal.mp4', tv:'PLAY SPORTS (Football)', live:true, sportRail:1, sp:'football', lg:'ucl', range:'02:00 – 04:00',   // v: its video, Sport's screen and the player's
      d:'Live from the UEFA Champions League. Every touch in Full HD with Thai and English commentary, plus the build-up and post-match analysis.'},
-    {t:'Real Madrid vs RB Leipzig', img:SP + '2.webp', tv:'Real Madrid TV', live:true, sportRail:1, sp:'football', lg:'ucl', range:'02:00 – 04:00',
+    {t:'Real Madrid vs RB Leipzig', img:SP + '2.webp', bg:SP + '2-2.jpg', v:'video/Real Madrid vs RB Leipzig.mp4', tv:'Real Madrid TV', live:true, sportRail:1, sp:'football', lg:'ucl', range:'02:00 – 04:00',
      d:'Live from the UEFA Champions League. Every touch in Full HD with Thai and English commentary, plus the build-up and post-match analysis.'},
     {t:'Arsenal vs Chelsea', img:'posters/arsenal.jpg', bg:'posters/hero/arsenal.jpg', tv:'MONOMAX SPORTS', live:true, heroOnly:true, sp:'football', lg:'epl',   // Home's first scene only
      d:'A fierce London derby as Arsenal hosts Chelsea in a top-of-the-table Premier League showdown.'},
@@ -683,7 +686,7 @@ window.LIVE = (function(){
   // logo on white rather than a photo
   var N = 'news-assets/';
   var hot = [
-    {t:'CNN News', img:N + 'dm-cnn.png', logo:1, tv:'CNN', live:true,
+    {t:'CNN News', img:N + 'dm-cnn.png', bg:N + 'hero-bg.png', v:'video/CNN.mp4', logo:1, tv:'CNN', live:true,
      d:'CNN Primetime brings the day\u2019s biggest stories from around the world, with live reports from CNN\u2019s correspondents and in-depth analysis.'},
     {t:'Morning Stories', img:N + 'dm-rueng.png', tv:'3 HD', live:true, d:'The morning news that tells the stories around you, with every hot topic from the crack of dawn.'},
     {t:'BBC News', img:N + 'dm-bbc.png', tv:'BBC News', live:true, d:'The latest from BBC News: the stories that matter in the UK and around the world, live.'},

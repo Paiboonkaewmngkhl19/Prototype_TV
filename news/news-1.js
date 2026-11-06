@@ -19,7 +19,7 @@
   });
   var NEWS_DESC = 'Live news around the clock: breaking stories, in-depth reports and analysis from the newsroom, as it happens.';
   var DONT_MISS = [
-    {t:'CNN News', img:A + 'dm-cnn.png', logo:1, ch:CH.cnn, time:'02:00 – 04:00', bg:A + 'hero-bg.png',
+    {t:'CNN News', img:A + 'dm-cnn.png', logo:1, ch:CH.cnn, time:'02:00 – 04:00', bg:A + 'hero-bg.png', v:window.LIVE.hot.filter(function(p){ return p.tv === 'CNN'; })[0].v,   // its video: content.js, shared with Home's Hot Channel Program
      d:'CNN Primetime brings the day’s biggest stories from around the world, with live reports from CNN’s correspondents and in-depth analysis.'},
     {t:'เรื่องเล่าเช้านี้', img:A + 'dm-rueng.png', ch:CH.ch3, time:'06:00 – 08:00', d:'ข่าวเช้าที่เล่าเรื่องราวรอบตัวคุณ อัปเดตทุกประเด็นร้อนตั้งแต่เช้าตรู่'},
     {t:'BBC News', img:A + 'dm-bbc.png', ch:CH.bbc, time:'07:00 – 08:00', d:'The latest from BBC News: the stories that matter in the UK and around the world, live.'},
@@ -166,7 +166,7 @@
 
   // ---- the hero speaks for the focused item ----
   var heroEl = document.querySelector('.hero'), heroKey = '';
-  var pics = $('.hero-bg .pic'), picFront = 0, picCur = null;
+  var pics = $('.hero-bg .pic'), picFront = 0, picCur = null, heroVid = HeroVideo(document.querySelector('.hero-bg'));
   function setBg(img){
     if((img || null) === picCur) return;
     picCur = img || null;
@@ -184,7 +184,7 @@
     var k = el && el.dataset.kind, i = el ? +el.dataset.i : 0;
     if(k === 'live'){
       var m = (el.dataset.set === 'local' ? LOCAL : DONT_MISS)[i];
-      return { t:m.t, meta:'<span class="badge live">LIVE</span>' + chMeta(m.ch) + '<span class="pill">' + m.time + '</span>', d:m.d || NEWS_DESC, bg:m.bg || m.img };
+      return { t:m.t, meta:'<span class="badge live">LIVE</span>' + chMeta(m.ch) + '<span class="pill">' + m.time + '</span>', d:m.d || NEWS_DESC, bg:m.bg || m.img, v:m.v };
     }
     if(k === 'cat'){ var c = CATS[i]; return { t:/News$/.test(c.t) ? c.t : c.t + ' News', d:c.d, bg:A + 'hero-bg.png' }; }
     if(k === 'viewall') return { t:rowKey === 'intl' ? 'International News Channel' : 'Thai News Channel',
@@ -211,6 +211,7 @@
       heroEl.classList.remove('swap'); void heroEl.offsetWidth; heroEl.classList.add('swap');
     }
     setBg(h.bg);
+    heroVid.set(h.v);
   }
 
   // ---- keep the focused item in view (Home's "fixed focus" sideways; the focused rail at y=649 down the page) ----
@@ -266,7 +267,7 @@
     layout(ri);
     var r = rows[ri], el = r.items[cur.col[ri]];
     if(cur.row) slide(r, el);
-    if(ri <= DYNAMIC_END){ paintHero(r.key, el); placeHero(r); }
+    if(ri <= DYNAMIC_END){ paintHero(r.key, el); placeHero(r); } else heroVid.set('');
     try { sessionStorage.setItem('newsFocus', JSON.stringify(cur)); } catch(e){}
   }
 

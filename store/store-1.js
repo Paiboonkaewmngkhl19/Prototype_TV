@@ -118,11 +118,9 @@
       d:'The Premier League, the FA Cup and more sports on the MONOMAX app, for AIS customers, billed to your AIS account.' },
     { t:'Prime Video 3 Months', price:149, per:'Month', tags:['3 Months', 'Recurring'], art:{ img:SA + 'foryou-prime.png', pos:'left center' }, go:'package-detail.html?ott=prime&p=0',
       d:'Three months of Prime Video for 149 baht, then 149 baht a month: Amazon Originals, blockbuster films and live sports.' }];
-  // the banner carousel's slides (the Smart Soundbar promotion, then wide pictures until the other promotions have art)
-  var BANNERS = [{ t:'Smart Soundbar', img:SA + 'banner-soundbar.png', pkg:1 }, { t:'Miss Universe Thailand 2026', img:'posters/miss-universe.jpg' },
-    { t:'Top Gun: Maverick', img:'posters/topgun-m.jpg', pos:'center 30%' }, { t:'F1', img:'posters/f1.jpg', pos:'center 30%' },
-    { t:'Superman', img:'posters/superman.jpg', pos:'center 25%' }, { t:'Wicked', img:'posters/wicked.jpg', pos:'center 30%' },
-    { t:'House of the Dragon', img:'posters/house-of-the-dragon.jpg', pos:'center 30%' }, { t:'Liverpool vs Brentford', img:'posters/liver-ben.jpg' }];
+  // the banner carousel's slides: the promotions' own art
+  var BANNERS = [{ t:'Smart Soundbar', img:SA + 'banner-soundbar.png', pkg:1 }, { t:'AIS 3BB Fibre3: Refer a Friend', img:SA + 'banner-fibre3-refer.webp', pos:'center 85%' },
+    { t:'Home FibreLAN Plus', img:SA + 'banner-fibrelan-plus.webp' }];
   var SHORTCUTS = [{ s:'3 Subscriptions', t:'My Subscription', ic:'icons/quick/subscription.svg' }, { s:'12 Questions', t:'FAQs', ic:'icons/quick/faqs.svg' },
                    { s:'Call or scan', t:'Customer Support', ic:SA + 'headset.svg' }];
 
