@@ -46,7 +46,7 @@
              d:'Aliens stranded over Johannesburg are forced into a slum, until a field agent exposed to their technology starts to become one of them.'},
     topgun: {t:'Top Gun: Maverick', p:PP + 'topgun_m.jpg', w:P + 'topgun-m.jpg', plat:'hbo', g:['Action', 'Drama'], y:2022, len:'2h 11m', age:'13+',
              d:'After thirty years, Maverick trains a new generation of Top Gun graduates for a dangerous mission.'},
-    wicked: {t:'Wicked', w:P + 'wicked.jpg', plat:'prime', g:['Musical', 'Fantasy'], y:2024, len:'2h 40m', age:'G',
+    wicked: {t:'Wicked', w:P + 'wicked.jpg', v:'video/wicked.mp4', plat:'prime', g:['Musical', 'Fantasy'], y:2024, len:'2h 40m', age:'G',
              d:'The untold story of the witches of Oz: Elphaba and Glinda, long before Dorothy arrived.'},
     superman:{t:'Superman', w:P + 'superman.jpg', plat:'hbo', g:['Action', 'Sci-Fi'], y:2025, len:'2h 9m', age:'13+',
              d:'The Man of Steel balances his Kryptonian heritage with his human upbringing as the ultimate protector of Earth.'},
