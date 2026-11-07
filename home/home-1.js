@@ -67,7 +67,7 @@
     // the slides: a live match (content.js LIVE, by its title) or a title (content.js MD.M, by its key); their words,
     // tag and picture come from there, so the slide and the detail page it opens say the same
     var SLIDES = [{live:FIRST_SLIDE}, {k:'d9'}, {k:'loki'}, {k:'lastofus'}, {k:'wicked'}, {k:'superman'}, {k:'topgun'}, {k:'dragon'},
-                  {live:'Arsenal vs Chelsea'}, {k:'f1'}];
+                  {k:'f1'}];
     function attr(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }   // e.g. Pete "Maverick" Mitchell
     var items = SLIDES.map(function(s){
       if(s.live){ var p = LIVE.find(s.live); return { t:p.t, img:p.img, crown:{tv:p.tv}, href:LIVE.href(p, 'home'), hero:{logo:'monomax', channel:'', live:true, tv:p.tv, desc:p.d}, bg:p.bg || p.img }; }
@@ -273,7 +273,7 @@
   })();
 
 
-  posterRail('Because You Watched “The Lord of the Rings: The Fellowship of the Ring”', ['lotr', 'twotowers', 'hobbit', 'smaug', 'lastking', 'vikings', 'got']);
+  posterRail('Because You Watched “The Lord of the Rings: The Fellowship of the Ring”', ['lotr', 'twotowers', 'hobbit', 'smaug', 'lastking', 'vikings', 'got', 'huntsman', 'stardust', 'pirates', 'readyornot']);
 
   /* ---------- Row: AIS PLAY Exclusive ---------- */
   (function(){
@@ -391,9 +391,9 @@
   })();
 
   /* ---------- Rows: genre rails ---------- */
-  posterRail('Worlds in Chaos', ['khemjira', 'medium', 'thailaw', {k:'debt', badge:'Leaving Soon'}, 'judge', {k:'bigmouth', badge:'Leaving Soon'}, {k:'vincenzo', badge:'Top 10'}]);
-  posterRail('We think you’ll love this', ['got', 'house', {k:'lastking', badge:'Leaving Soon'}, 'vikings', {k:'avatar', badge:'Leaving Soon'}, {k:'venom', badge:'Top 10'}, {k:'john', badge:'Top 10'}]);
-  posterRail('Date Night Picks', ['dollar', 'family', {k:'again', badge:'Leaving Soon'}, 'lawless', {k:'topgun', badge:'Leaving Soon'}, {k:'f1', badge:'Top 10'}, {k:'hobbit', badge:'Top 10'}]);
+  posterRail('Worlds in Chaos', ['y2012', 'westfront', 'wotw', 'wwz', 'khemjira', 'medium', 'thailaw', {k:'debt', badge:'Leaving Soon'}, 'judge', {k:'bigmouth', badge:'Leaving Soon'}, {k:'vincenzo', badge:'Top 10'}]);
+  posterRail('We think you’ll love this', ['anne', 'trauma', 'blackbird', 'cmbyn', 'weakhero', 'anyonebut', 'myname', 'bbcsherlock', 'gooddoctor', 'wolfws']);
+  posterRail('Date Night Picks', ['oneday', 'family', {k:'again', badge:'Leaving Soon'}, 'lawless', 'purple', 'sunrise', 'holidate', 'lalaland', 'oxford', 'starborn', 'meangirls', 'ideaofyou']);
 
   /* ---------- Row: Seasonal / Collection ---------- */
   (function(){
