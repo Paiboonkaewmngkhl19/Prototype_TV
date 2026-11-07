@@ -53,7 +53,7 @@
   html += sec('selection', 'Drama Selection', SELECTION.map(function(s, n){ return poster(s, 'selection', n); }).join(''));
   html += sec('drama', 'Drama', genre('Drama').map(function(s, n){ return poster(s, 'drama', n); }).join(''));
   html += sec('romance', 'Romance', genre('Romance').map(function(s, n){ return poster(s, 'romance', n); }).join(''));
-  // Feed: every short in the vertical player, one after another (player.html?short=N)
+  // Feed: a banner with its Explore Feed button, no action yet (no feed player)
   html += '<section class="sec" data-row="feed"><h2 class="sec-title">Feed</h2><div class="feed">' +
     '<div class="tv-btn tv-btn--primary item" data-kind="feed" data-ring-art=""><i></i>Explore Feed</div></div></section>';
   html += '<section class="sec" data-row="more"><h2 class="sec-title">More You’ll Love</h2><div class="grid">' +
@@ -126,7 +126,7 @@
     el.animate([{ transform:getComputedStyle(el).transform }, { transform:(getComputedStyle(el).transform === 'none' ? '' : getComputedStyle(el).transform + ' ') + 'scale(0.97)' }], { duration:140, easing:'ease-out' });
     var k = el.dataset.kind;
     if(k === 'short'){ leave(Content.detailUrl({ s:+el.dataset.s })); return; }   // its page (short-detail.html)
-    if(k === 'feed'){ leave(Content.playUrl({ s:FOR_YOU[0] })); return; }       // the vertical player, Up / Down to the next
+    if(k === 'feed') return;   // Feed: a banner only, no player behind it yet (the button takes focus, Enter does nothing)
     if(k === 'totop'){ cur.row = 0; paint(); return; }
     if(el.dataset.href){ leave(el.dataset.href); return; }   // the top bar's tabs
     if(el === profileEl) return;                             // its panel is already open under it

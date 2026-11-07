@@ -19,10 +19,11 @@
     if(n.indexOf('VIU') >= 0) return 'tag-viu.png';
     if(n.indexOf('REELSHORT') >= 0) return 'tag-reelshort.png';   // the short dramas' apps
     if(n.indexOf('DRAMABOX') >= 0) return 'tag-dramabox.png';
+    if(n.indexOf('SHORTMAX') >= 0) return 'tag-shortmax.png';
     return 'tag-monomax.png';
   }
   function badgeImg(name, cls){
-    var files = {netflix:'tag-netflix.png', prime:'tag-prime.png', disney:'tag-disney.png', hbo:'tag-hbo.png', viu:'tag-viu.png', monomax:'tag-monomax.png', reelshort:'tag-reelshort.png', dramabox:'tag-dramabox.png'};
+    var files = {netflix:'tag-netflix.png', prime:'tag-prime.png', disney:'tag-disney.png', hbo:'tag-hbo.png', viu:'tag-viu.png', monomax:'tag-monomax.png', reelshort:'tag-reelshort.png', dramabox:'tag-dramabox.png', shortmax:'tag-shortmax.png'};
     var f = files[name];
     if(!f) return '';
     return '<img src="badges/'+f+'" class="'+(cls||'badge-logo')+'" alt="'+name+'">';
@@ -263,9 +264,10 @@
      A dim artwork band behind the rail (30% opacity, fading into the page top and bottom), 220 x 330 short-drama
      poster cards, then a View All pill. Same band spacing as before: 56px above the title, cards centred. */
   (function(){
-    // the first eight short dramas (content.js SHORTS, by data-s): Enter opens each one's page (Content.detailUrl)
+    // the first eight short dramas (content.js SHORTS, by data-s): Enter opens each one's page (Content.detailUrl); its
+    // app's tag bottom-left (ReelShort / DramaBox / ShortMax), as the other poster rails
     var cards = SHORTS.slice(0, 8).map(function(c, i){
-      return '<div class="card clip-card item" data-s="'+i+'" data-title="'+c.t.replace(/"/g, '&quot;')+'" style="background-image:url(\'posters/shorts/'+c.img+'\');"></div>';
+      return '<div class="card clip-card item" data-s="'+i+'" data-title="'+c.t.replace(/"/g, '&quot;')+'" style="background-image:url(\'posters/shorts/'+c.img+'\');">'+platformPill(c.plat)+'</div>';
     }).join('') + '<div class="clip-viewall tv-chip item" data-title="Shorts – View All" data-href="short.html" data-ring-art=""><b>Shorts</b><span>View All</span></div>';
     addRow('<div class="row-block clips-row"><div class="clips-bg"></div><div class="clips-bg band-full"></div><div class="row-title">Shorts</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
   })();

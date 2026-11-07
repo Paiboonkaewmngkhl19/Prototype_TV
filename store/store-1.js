@@ -24,7 +24,7 @@
     'Premier League':'epl', 'UEFA Champions League':'ucl', 'NBA':'nba', 'Thai League':'thai1', 'RWS':'rws', 'Bundesliga':'bundesliga',
     'MotoGP':'motogp', 'PGA Tour':'pga',
     // the Short Series tabs: each app's own packages
-    'ReelShort':'reelshort', 'DramaBox':'dramabox' };
+    'ReelShort':'reelshort', 'DramaBox':'dramabox', 'ShortMax':'shortmax' };
   var NETFLIX_7D = PKG.netflix[0];
   var ROWS = {
     foryou:[ ULTIMATE,
@@ -69,28 +69,28 @@
     // Popular: one of each OTT, as the Figma's rail
     movies:[ NETFLIX_7D ].concat([PKG.disney[0], PKG.hbo[0], PKG.prime[0], PKG.viu[0], PKG.iqiyi[0], PKG.netflix[1], PKG.monomax[0]].map(function(p){
       return Object.assign({}, p, { badge:null }); })),   // (Recommend: the rail's first only)
-    // Popular: both apps' packages, alternating, as the Movies rail (Recommend: the first only)
-    short:[ PKG.reelshort[0] ].concat([PKG.dramabox[0], PKG.reelshort[1], PKG.dramabox[1], PKG.reelshort[2], PKG.dramabox[2]].map(function(p){
+    // Popular: the apps' packages, taking turns, as the Movies rail (Recommend: the first only)
+    short:[ PKG.reelshort[0] ].concat([PKG.dramabox[0], PKG.shortmax[0], PKG.reelshort[1], PKG.dramabox[1], PKG.shortmax[1], PKG.reelshort[2], PKG.dramabox[2], PKG.shortmax[2]].map(function(p){
       return Object.assign({}, p, { badge:null }); })),
     value:null   // Great Value: its first tab's (VALUE below)
   };
   var TABS = {
     sports:['Popular', 'Premier League', 'UEFA Champions League', 'NBA', 'Thai League', 'RWS', 'Bundesliga', 'MotoGP', 'PGA Tour'],
     movies:['Popular', 'Netflix', 'HBO Max', 'Disney+', 'iQIYI', 'Viu', 'MONOMAX'],
-    short:['Popular', 'ReelShort', 'DramaBox'],
+    short:['Popular', 'ReelShort', 'DramaBox', 'ShortMax'],
     value:['< 100 baht Enjoy Asian Movies & Shorts', '< 100 baht Sports Lover', '300 - 500 baht Enjoy Movies & Sports', 'Asian Games']
   };
   // the OTT tabs carry the project's own platform tag logos (Home's cards use the same ones)
   var TAB_LOGO = { 'Netflix':'badges/tag-netflix.png', 'HBO Max':'badges/tag-hbo.png', 'Disney+':'badges/tag-disney.png',
     'iQIYI':'partners/iqiyi.png', 'Viu':'badges/tag-viu.png', 'MONOMAX':'badges/tag-monomax.png',
-    'ReelShort':'badges/tag-reelshort.png', 'DramaBox':'badges/tag-dramabox.png' };
+    'ReelShort':'badges/tag-reelshort.png', 'DramaBox':'badges/tag-dramabox.png', 'ShortMax':'badges/tag-shortmax.png' };
   // Great Value: each tab's packages (packages.js), cheapest first; its first card carries the tab's badge
   function allPkgs(){ var a = []; Object.keys(PKG).forEach(function(k){ a = a.concat(PKG[k]); }); return a; }
   function pick(test, badge){
     return allPkgs().filter(test).sort(function(a, b){ return a.price - b.price; })
       .map(function(p, i){ return Object.assign({}, p, { badge:i ? null : badge }); });
   }
-  var ASIA = ['iqiyi', 'viu', 'monomax', 'disney', 'reelshort', 'dramabox'], LEAGUE = function(p){ return !!OTT[p.ott].league; };
+  var ASIA = ['iqiyi', 'viu', 'monomax', 'disney', 'reelshort', 'dramabox', 'shortmax'], LEAGUE = function(p){ return !!OTT[p.ott].league; };
   var VALUE = [
     pick(function(p){ return p.price < 100 && ASIA.indexOf(p.ott) >= 0; }, 'Best Saver'),                 // < 100 baht Enjoy Asian Movies & Shorts
     pick(function(p){ return p.price < 100 && LEAGUE(p); }, 'Best Saver'),                               // < 100 baht Sports Lover

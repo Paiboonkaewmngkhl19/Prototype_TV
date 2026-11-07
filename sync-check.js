@@ -10,7 +10,7 @@
   function run() {
     if (!window.Content) { console.warn('[sync-check] หน้านี้ไม่ได้โหลด content.js'); return; }
     var n = function (s) { return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, ''); };
-    var PLAT = /netflix|hbo|prime|disney|viu|monomax|iqiyi|reelshort|dramabox/;
+    var PLAT = /netflix|hbo|prime|disney|viu|monomax|iqiyi|reelshort|dramabox|shortmax/;
     var seen = {}, rows = [];
     document.querySelectorAll('.card, .rank-wrap, [data-k]').forEach(function (el) {
       var info; try { info = Content.info(el); } catch (e) { return; }

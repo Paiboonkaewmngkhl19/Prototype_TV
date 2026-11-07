@@ -32,6 +32,7 @@ window.Packages = (function(){
     // the Short Series rail (store.html): the short drama apps, their square icon (badges/tag-*.png, icon) in their colours
     reelshort: { n:'ReelShort', logo:'badges/tag-reelshort.png', icon:1, bg:'linear-gradient(118.51deg, rgba(240,40,110,.5) 1%, rgba(255,120,40,.35) 50%, rgba(0,0,0,.4) 99.61%), #101010' },
     dramabox:  { n:'DramaBox', logo:'badges/tag-dramabox.png', icon:1, bg:'linear-gradient(118.51deg, rgba(255,20,80,.5) 1%, rgba(255,140,30,.35) 50%, rgba(0,0,0,.4) 99.61%), #101010' },
+    shortmax:  { n:'ShortMax', logo:'badges/tag-shortmax.png', icon:1, bg:'linear-gradient(118.51deg, rgba(255,106,0,.5) 1%, rgba(0,0,0,.4) 99.61%), #101010' },
     // the Sports rail (store.html): each league's packages, its disc (leagues.js) where an OTT has its logo, in its colour
     epl:       { n:'Premier League', league:'epl', bg:'linear-gradient(118.51deg, rgba(110,40,160,.5) 1%, rgba(0,0,0,.4) 99.61%), #101010' },
     ucl:       { n:'UEFA Champions League', league:'ucl', bg:'linear-gradient(118.51deg, rgba(20,60,200,.5) 1%, rgba(0,0,0,.4) 99.61%), #101010' },
@@ -91,6 +92,10 @@ window.Packages = (function(){
       op('dramabox', 'DramaBox VIP 7 Days', 49, 7, 'Every DramaBox short drama unlocked and ad-free for 7 days, charged once to your AIS bill.', 'Recommended'),
       op('dramabox', 'DramaBox VIP Monthly', 129, 30, 'All of DramaBox unlocked and ad-free, with new dramas every week, billed to your AIS account every month.'),
       op('dramabox', 'DramaBox SVIP Monthly', 199, 30, 'Everything in VIP, plus early episodes of new series and Full HD on every screen.')],
+    shortmax:[
+      op('shortmax', 'ShortMax VIP 7 Days', 39, 7, 'Every ShortMax drama unlocked and ad-free for 7 days, charged once to your AIS bill.', 'Recommended'),
+      op('shortmax', 'ShortMax VIP Monthly', 119, 30, 'All of ShortMax unlocked and ad-free, with new episodes every day, billed to your AIS account every month.'),
+      op('shortmax', 'ShortMax SVIP Monthly', 179, 30, 'Everything in VIP, plus early episodes of new series and Full HD on every screen.')],
     // the sports packages: every match of the league live, with replays and highlights
     epl:[
       op('epl', 'Premier League 7 Days', 99, 7, 'Every Premier League match for 7 days, live in Full HD with Thai and English commentary, charged once to your AIS bill.', 'Recommended'),
