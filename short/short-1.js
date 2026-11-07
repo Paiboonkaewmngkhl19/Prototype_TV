@@ -6,15 +6,23 @@
   /* ---------- content: every card is a short drama in content.js (window.SHORTS, by its index: data-s) ---------- */
   var S = window.SHORTS, ALL = S.map(function(_, i){ return i; });
   function pic(i){ return 'posters/shorts/' + S[i].img; }
-  function genre(g){ return ALL.filter(function(i){ return S[i].gen.indexOf(g) >= 0; }); }
-  var NEW = ALL.slice().reverse();                 // New release: the newest first (the last added)
+  // a rail's shorts taking turns by app (ReelShort, DramaBox, ShortMax, WeTV, iQIYI), each app's in the rail's own order,
+  // so the first 7 cards show every app
+  function mix(list){
+    var apps = {}, order = [], out = [];
+    list.forEach(function(i){ var a = S[i].plat; if(!apps[a]){ apps[a] = []; order.push(a); } apps[a].push(i); });
+    for(var n = 0; out.length < list.length; n++) order.forEach(function(a){ if(apps[a][n] != null) out.push(apps[a][n]); });
+    return out;
+  }
+  function genre(g){ return mix(ALL.filter(function(i){ return S[i].gen.indexOf(g) >= 0; })); }
+  var NEW = mix(ALL.slice().reverse());            // New release: the newest first (the last added), taking turns by app
   var NEW_BADGE = 2;                               // ... the first two tagged New
   var CONTINUE = SHORT.continueList();             // this session's shorts first, then the demo's (content.js)
-  var TOP10 = [3, 0, 4, 1, 6, 2, 7, 5];            // every short, ranked (there are 8)
-  var NEW_EPS = [1, 4, 0, 6, 3, 7, 2, 5];
-  var FOR_YOU = [4, 0, 3, 6];
-  var SELECTION = [2, 5, 0, 7, 4, 1, 6, 3];
-  var MORE = [6, 3, 1, 7, 0, 5, 2, 4];
+  var TOP10 = [3, 8, 14, 19, 0, 4, 9, 15, 20, 1];      // ten shorts, ranked
+  var NEW_EPS = [1, 9, 16, 21, 4, 0, 12, 17, 22, 6, 3, 7, 2, 5];
+  var FOR_YOU = [4, 10, 18, 23, 0, 3, 6, 13, 17, 24];
+  var SELECTION = [2, 11, 18, 24, 5, 0, 7, 4, 1, 6, 3, 13, 16, 21];
+  var MORE = mix([6, 3, 1, 7, 0, 5, 2, 4, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]);
   var GRID_COLS = 7;
 
   /* ---------- markup ---------- */
@@ -53,7 +61,7 @@
   html += sec('selection', 'Drama Selection', SELECTION.map(function(s, n){ return poster(s, 'selection', n); }).join(''));
   html += sec('drama', 'Drama', genre('Drama').map(function(s, n){ return poster(s, 'drama', n); }).join(''));
   html += sec('romance', 'Romance', genre('Romance').map(function(s, n){ return poster(s, 'romance', n); }).join(''));
-  // Feed: every short in the vertical player, one after another (player.html?short=N)
+  // Feed: a banner with its Explore Feed button, no action yet (no feed player)
   html += '<section class="sec" data-row="feed"><h2 class="sec-title">Feed</h2><div class="feed">' +
     '<div class="tv-btn tv-btn--primary item" data-kind="feed" data-ring-art=""><i></i>Explore Feed</div></div></section>';
   html += '<section class="sec" data-row="more"><h2 class="sec-title">More You’ll Love</h2><div class="grid">' +
@@ -126,7 +134,7 @@
     el.animate([{ transform:getComputedStyle(el).transform }, { transform:(getComputedStyle(el).transform === 'none' ? '' : getComputedStyle(el).transform + ' ') + 'scale(0.97)' }], { duration:140, easing:'ease-out' });
     var k = el.dataset.kind;
     if(k === 'short'){ leave(Content.detailUrl({ s:+el.dataset.s })); return; }   // its page (short-detail.html)
-    if(k === 'feed'){ leave(Content.playUrl({ s:FOR_YOU[0] })); return; }       // the vertical player, Up / Down to the next
+    if(k === 'feed') return;   // Feed: a banner only, no player behind it yet (the button takes focus, Enter does nothing)
     if(k === 'totop'){ cur.row = 0; paint(); return; }
     if(el.dataset.href){ leave(el.dataset.href); return; }   // the top bar's tabs
     if(el === profileEl) return;                             // its panel is already open under it

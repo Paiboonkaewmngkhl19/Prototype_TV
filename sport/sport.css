@@ -170,6 +170,7 @@
   .short.tall.sched .sl b{ font-size:32px; line-height:40px; }
   .short.tall.sched .sl i{ font-weight:400; font-size:28px; line-height:36px; }
   .short.sched::before{ opacity:.45; }
+  .short.sched.art::before{ opacity:1; }   /* its own art (words on the picture): full strength */
 
   /* Documentary: 2:3 posters */
   .poster{ width:220px; height:330px; flex:0 0 auto; border-radius:12px; background:var(--surface-container-high) center / cover no-repeat; }

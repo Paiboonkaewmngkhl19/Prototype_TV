@@ -13,7 +13,7 @@
   var P = 'icons/pkg/';
   var OTT = Packages.OTT, PKG = Packages.PKG;
   // the apps by tab (Movies: the film and series apps; Short Drama: the short drama apps, with iQIYI's); a league's sport
-  var MOVIES = ['netflix', 'hbo', 'disney', 'prime', 'iqiyi', 'viu', 'monomax'], SHORTS = ['reelshort', 'dramabox', 'iqiyi'];
+  var MOVIES = ['netflix', 'hbo', 'disney', 'prime', 'iqiyi', 'viu', 'monomax'], SHORTS = ['reelshort', 'dramabox', 'shortmax', 'iqiyi'];
   var SPORT_OF = { epl:'football', ucl:'football', bundesliga:'football', thai1:'football', nba:'basketball', motogp:'motorsports', pga:'golf', rws:'boxing' };
   var B = Packages.BUNDLES;
   B[0].tabs = ['foryou', 'bundle']; B[1].tabs = ['foryou', 'bundle', 'movies']; B[2].tabs = ['foryou', 'bundle', 'sports'];
@@ -41,8 +41,8 @@
     bundesliga:{ img:'sport-assets/league-bundesliga.png', cls:'inset' }, motogp:{ img:P + 'd-motogp.png', cls:'contain' },
     nba:{ img:P + 'l21.png', cls:'inset' }, nfl:{ img:P + 'l22.png', cls:'inset' }, lpga:{ img:P + 'l23.png', cls:'inset' },
     atp:{ img:P + 'l25.png', cls:'contain' }, rws:{ img:'sport-assets/league-rws.png', cls:'black' },
-    // the short drama apps: ReelShort and DramaBox their square app icons (badges/tag-*.png), WeTV and iQIYI as on Movies
-    reelshort:{ img:'badges/tag-reelshort.png' }, dramabox:{ img:'badges/tag-dramabox.png' }
+    // the short drama apps: ReelShort, DramaBox and ShortMax their square app icons (badges/tag-*.png), WeTV and iQIYI as on Movies
+    reelshort:{ img:'badges/tag-reelshort.png' }, dramabox:{ img:'badges/tag-dramabox.png' }, shortmax:{ img:'badges/tag-shortmax.png' }
   };
   var TABS = [
     { key:'foryou', t:'For You', icon:'tab-foryou' },
@@ -51,7 +51,7 @@
         ['tennis', 'Tennis'], ['rugby', 'Rugby'], ['boxing', 'Boxing']],
       logos:['epl', 'ucl', 'bundesliga', 'motogp', 'nba', 'nfl', 'lpga', 'atp', 'rws'] },
     { key:'movies', t:'Movies', icon:'tab-movies', logos:['netflix', 'hbo', 'disney', 'iqiyi', 'viu', 'prime', 'wetv', 'monomax'] },
-    { key:'shorts', t:'Short Drama', icon:'tab-shorts', logos:['reelshort', 'dramabox', 'wetv', 'iqiyi'] },
+    { key:'shorts', t:'Short Drama', icon:'tab-shorts', logos:['reelshort', 'dramabox', 'shortmax', 'wetv', 'iqiyi'] },
     { key:'bundle', t:'AIS PLAY Bundle', icon:'tab-bundle',
       names:[['all', 'All'], ['ultimate', 'PLAY ULTIMATE'], ['premiumplus', 'PLAY PREMIUM PLUS'], ['inter', 'PLAY INTER'], ['disneyplus', 'PLAY Disney+'],
         ['premium', 'PLAY PREMIUM'], ['asian', 'PLAY ASIAN GAMES']],

@@ -23,18 +23,28 @@
     {t:'Mystery', d:'Whodunits, detectives and twists you will not see coming.', bg:P + 'continue/c1.jpg'}
   ];
   var CONTINUE = MD.continueList();   // this session's viewing first (content.js)
-  var TOP10 = ['topgun', 'john', 'avatar', 'house', 'venom', 'f1', 'debt', 'got', 'vincenzo', 'lotr'];
-  var HOT = [{k:'avatar', b:'NEW'}, {k:'f1', b:'NEW'}, {k:'debt', b:'NEW', tag:1}, {k:'john', b:'NEW'}, {k:'venom', tag:1}, {k:'topgun'}, {k:'hobbit'}];
+  // Home's rails (content.js MD.RAILS): the same titles in the same rails; Movies and Series every title in them
+  var R = MD.RAILS, key = function(x){ return x.k || x; };
+  var TOP10 = R.top10;
+  var NEW = {avatar:1, f1:1, debt:1, john:1};   // Hot Off the Big Screen's NEW tags
+  var HOT = R.hot.map(function(k){ return {k:k, b:NEW[k] ? 'NEW' : ''}; });
   var FOR_YOU = MD.FOR_YOU;
-  var BECAUSE = ['venom', 'avatar', 'f1', 'hobbit', 'john', 'debt', 'topgun'];
+  var BECAUSE = R.because.list.map(key);
   var DISNEY = ['endgame', 'loki', 'prada', 'spider', 'avatar'];
-  var MOVIES = ['topgun', 'john', 'khemjira', 'venom', 'avatar', 'medium', 'f1', 'debt', 'lotr', 'hobbit'];
-  var SERIES = ['house', 'got', 'lastking', 'vikings', 'thailaw', 'dollar', 'vincenzo', 'again'];
-  var MY_LIST = ['lastofus', 'house', 'superman', 'wicked', 'dragon'];
+  // every title in Home's rails, once, with a poster (MD.M p): the films, then the series ('N Season(s)')
+  var ALL = [];
+  [R.top10, R.hot, R.because.list, R.chaos.list, R.love.list, R.dateNight.list, R.myList].forEach(function(l){
+    l.map(key).forEach(function(k){ if(M[k] && M[k].p && !M[k].kids && ALL.indexOf(k) < 0) ALL.push(k); });
+  });
+  function isSeries(k){ return /Season/.test(M[k].len); }
+  var MOVIES = ALL.filter(function(k){ return !isSeries(k); });
+  var SERIES = ALL.filter(isSeries);
+  var MY_LIST = R.myList;
   var RENT = MD.RENT;
   var MY_RENTAL = MD.MY_RENTAL;
-  var ACTORS = [{n:'Johnny Depp', img:'movie-assets/actor-johnny-depp.jpg'}, {n:'Tom Cruise'}, {n:'Keanu Reeves'}, {n:'Brad Pitt'}, {n:'Zendaya'},
-                {n:'Tom Hardy'}, {n:'Song Joong-ki'}, {n:'Pedro Pascal'}, {n:'Ariana Grande'}];
+  // each actor's photo: movie-assets/actor-<name>.jpg
+  var ACTORS = ['Johnny Depp', 'Tom Cruise', 'Keanu Reeves', 'Brad Pitt', 'Zendaya', 'Tom Hardy', 'Song Joong-ki', 'Pedro Pascal', 'Ariana Grande']
+    .map(function(n){ return {n:n, img:'movie-assets/actor-' + n.toLowerCase().replace(/ /g, '-') + '.jpg'}; });
   var LEAVING = ['judge', 'bigmouth', 'family', 'lawless', 'lastking', 'vikings', 'debt'];
   var SEASONAL = [{t:'Halloween Movies', img:PP + 'Venom.jpg'}, {t:'Seasonal Collection', img:PP + 'lotr/r1.jpg'}, {t:'Netflix (4K)', img:PP + 'John.jpg'},
                   {t:'Award Winners', img:PP + 'topgun_m.jpg'}, {t:'K-Drama Collection', img:PP + 'legal/l6.jpg'}];
@@ -66,12 +76,12 @@
   function ptag(m){ return m.plat === 'ais' ? '<span class="ptag ais"></span>' : '<img class="ptag" src="badges/tag-' + m.plat + '.png" alt="">'; }
   function metaRow(m){ return ptag(m) + MD.metaHtml(m); }   // a card's meta row: its platform tag, genres, year, length, pills (no crown)
   function wide(k, i, set, extra){
-    return '<div class="card item"' + attrs({kind:'title', k:k, set:set, i:i}) + '><div class="thumb" style="background-image:url(\'' + (M[k].w || M[k].p) + '\')">' + (extra || '') + '</div></div>';
+    return '<div class="card item"' + attrs({kind:'title', k:k, set:set, i:i}) + '><div class="thumb" style="background-image:url(\'' + (M[k].w || M[k].p) + '\')">' + ptag(M[k]) + (extra || '') + '</div></div>';
   }
-  function poster(k, i, set, badge, tag){
+  function poster(k, i, set, badge){   // every card: its platform tag bottom left
     var m = M[k];
     return '<div class="pst item"' + attrs({kind:'title', k:k, set:set, i:i}) + ' style="background-image:url(\'' + m.p + '\')">' +
-      (badge ? '<span class="bdg top-tag">' + esc(badge) + '</span>' : '') + (tag ? ptag(m) : '') + '</div>';
+      (badge ? '<span class="bdg top-tag">' + esc(badge) + '</span>' : '') + ptag(m) + '</div>';
   }
   function sec(key, title, body, cls){
     return '<section class="sec' + (cls ? ' ' + cls : '') + '" data-row="' + key + '">' + (title ? '<h2 class="sec-title">' + esc(title) + '</h2>' : '') +
@@ -88,7 +98,7 @@
   }).join('') + '</div></div></section>';
   html += '<section class="sec" data-row="cw"><h2 class="sec-title">Continue Watching</h2><div class="rail"><div class="track">' + CONTINUE.map(function(c, i){
     var m = M[c.k], left = c.of - c.w;
-    return '<div class="card item"' + attrs({kind:'cw', k:c.k, i:i}) + '><div class="thumb" style="background-image:url(\'' + m.w + '\')">' +
+    return '<div class="card item"' + attrs({kind:'cw', k:c.k, i:i}) + '><div class="thumb" style="background-image:url(\'' + m.w + '\')">' + ptag(m) +
       '<span class="left corner-tag">' + (left >= 60 ? Math.floor(left / 60) + 'h ' + left % 60 + 'm' : left + 'm') + ' left</span>' +
       '<div class="prog"><i style="width:' + Math.round(c.w / c.of * 100) + '%"></i></div></div><div class="t">' + esc(m.t) + (c.s ? ' S' + c.s + ':E' + c.e : '') + '</div></div>';   // a series: its episode
   }).join('') + '</div></div></section>';
@@ -96,11 +106,11 @@
   html += '<section class="sec top10" data-row="top10"><h2 class="sec-title">Top 10</h2><div class="rail"><div class="track">' + TOP10.map(function(k, i){
     var m = M[k];
     return '<div class="rank-wrap">' + Top10.numeral(i + 1) + '<div class="rank-poster item"' + attrs({kind:'title', k:k, set:'top10', i:i}) +
-      ' style="background-image:url(\'' + m.p + '\')">' + ptag(m) + '</div></div>';
+      ' style="background-image:url(\'' + (m.p || pic(k)) + '\')">' + ptag(m) + '</div></div>';   // (no poster: its full-screen picture, as Home's)
   }).join('') + '</div></div></section>';
-  html += sec('hot', 'Hot Off the Big Screen', HOT.map(function(h, i){ return poster(h.k, i, 'hot', h.b, h.tag); }).join(''), 'tall-rail');
+  html += sec('hot', 'Hot Off the Big Screen', HOT.map(function(h, i){ return poster(h.k, i, 'hot', h.b); }).join(''), 'tall-rail');
   html += '<section class="sec tall-rail" data-row="short"><h2 class="sec-title">Short</h2><div class="rail"><div class="track">' + window.SHORTS.map(function(s, i){
-    return '<div class="pst item"' + attrs({kind:'short', i:i}) + ' data-href="short-detail.html?s=' + i + '" style="background-image:url(\'posters/shorts/' + s.img + '\')"></div>';
+    return '<div class="pst item"' + attrs({kind:'short', i:i}) + ' data-href="short-detail.html?s=' + i + '" style="background-image:url(\'posters/shorts/' + s.img + '\')">' + ptag(s) + '</div>';   // its app's tag
   }).join('') + '</div></div></section>';
   html += '<section class="sec" data-row="foryou"><h2 class="sec-title">For You</h2><div class="rail"><div class="track">' + FOR_YOU.map(function(f, i){
     var m = M[f.k];
@@ -113,7 +123,7 @@
         '<div class="cost"><b>' + MD.price(f.k) + ' baht</b><span>(VAT Included: ' + (Math.round(MD.price(f.k) * 107) / 100).toLocaleString('en-US', { minimumFractionDigits:2 }) + ' baht)</span></div>' +
         '<div class="meta">' + metaRow(m) + '</div><p class="syn">' + esc(m.d) + '</p></div></div>';
   }).join('') + '</div></div></section>';
-  html += sec('because', 'Because You Watched District 9', BECAUSE.map(function(k, i){ return poster(k, i, 'because'); }).join(''), 'tall-rail');
+  html += sec('because', R.because.t, BECAUSE.map(function(k, i){ return poster(k, i, 'because'); }).join(''), 'tall-rail');
   html += '<section class="sec brand" data-row="disney"><h2>Disney</h2>' +
     '<p>Stories for everyone, from Marvel and Star Wars to Pixar and the Disney classics: the films and series the whole family loves, all in one place.</p>' +
     '<div class="rail"><div class="track">' + DISNEY.map(function(k, i){ return wide(k, i, 'disney'); }).join('') + '</div></div></section>';

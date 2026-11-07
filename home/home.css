@@ -359,7 +359,7 @@
 
   /* poster card */
   .card-poster{width:220px;height:330px;border-radius:12px;display:flex;align-items:flex-end;}   /* Figma 2:3 card */
-  .card-poster .platform{position:absolute;left:12px;bottom:12px;height:34px;padding:0 10px;border-radius:6px;background:rgba(0,0,0,.55);display:flex;align-items:center;font-size:13px;font-weight:700;}
+  .card-poster .platform, .clip-card .platform{position:absolute;left:12px;bottom:12px;height:34px;padding:0 10px;border-radius:6px;background:rgba(0,0,0,.55);display:flex;align-items:center;font-size:13px;font-weight:700;}
 
   /* top10 rank card: top10.css (and top10.js) */
 

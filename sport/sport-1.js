@@ -58,8 +58,8 @@
   ];
   var CHIPS = [
     // sp: the sport each chip filters the rails below by (channels-data.js's tags); All Sports shows everything
-    {t:'All Sports', img:'posters/all.jpg', d:'Every sport in one place. Live matches, upcoming fixtures, highlights and documentaries from the leagues you follow.'},
-    {t:'Football', sp:'football', img:LS + 'football-024.jpg', d:'Champions League, Premier League, Bundesliga and more: live football, full matches and the best goals of the week.'},
+    {t:'All Sports', img:'sport-assets/all-sports-bg.webp', d:'Every sport in one place. Live matches, upcoming fixtures, highlights and documentaries from the leagues you follow.'},
+    {t:'Football', sp:'football', img:'sport-assets/football-bg.webp', d:'Champions League, Premier League, Bundesliga and more: live football, full matches and the best goals of the week.'},
     {t:'Motorsports', sp:'motorsport', img:'posters/f1.jpg', d:'Formula 1, MotoGP and World Superbike: every race live, with qualifying, onboard cameras and race replays.'},
     {t:'Golf', sp:'golf', d:'PGA Tour and the majors, live from the first tee to the final putt, with round highlights.'},
     {t:'Basketball', sp:'basketball', d:'NBA and regional leagues: live games, full replays and the plays everyone is talking about.'},
@@ -124,6 +124,7 @@
   var DOCS = [
     {sp:'motorsport', k:'f1', img:PS + 'rc-f1.webp'},
     {sp:'boxing', k:'rocky'}, {sp:'boxing', k:'creed'},
+    {sp:'football', k:'mourinho'}, {sp:'football', k:'beckham'}, {sp:'football', k:'pele'}, {sp:'football', k:'ronaldinho'},
     {sp:'football', k:'goal'}, {sp:'football', k:'goal2'}, {sp:'football', k:'blindside'}, {sp:'football', k:'longestyard'},
     {sp:'basketball', k:'spacejam'}, {sp:'basketball', k:'spacejam2'},
     {k:'secretariat'},
@@ -178,6 +179,42 @@
     rugby:{ label:'Rugby', who:'All Blacks', ph:'Rugby Team', leagueHl:{t:'Rugby Championship Highlights'} },
     boxing:{ label:'Boxing', who:'Canelo Álvarez', ph:'Boxer', leagueHl:{t:'Fight Night Highlights'} }
   };
+  // a league's own Highlights on its landing page (else its sport's): Bundesliga, Matchdays 7 and 6
+  var BL = 'sport-assets/bundesliga/';
+  var LEAGUE_HL = {
+    bundesliga:[phv('Borussia Dortmund vs Eintracht Frankfurt Highlights','8m',BL + 'hl-md7-bvb-sge.webp'),
+      phv('FC Augsburg vs Union Berlin Highlights','7m',BL + 'hl-md7-fca-fcu.webp'),
+      phv('SC Paderborn vs Hamburger SV Highlights','6m',BL + 'hl-md7-scp-hsv.webp'),
+      phv('RB Leipzig vs SV Elversberg Highlights','9m',BL + 'hl-md7-rbl-sve.webp'),
+      phv('SC Freiburg vs Bayern München Highlights','10m',BL + 'hl-md7-scf-fcb.webp'),
+      phv('TSG Hoffenheim vs Bayer Leverkusen Highlights','8m',BL + 'hl-md7-tsg-b04.webp'),
+      phv('Bayern München vs RB Leipzig Highlights','12m',BL + 'hl-md6-fcb-rbl.webp'),
+      phv('SV Elversberg vs FC Augsburg Highlights','11m',BL + 'hl-md6-sve-fca.webp'),
+      phv('Schalke 04 vs Mainz 05 Highlights','6m',BL + 'hl-md6-s04-m05.webp'),
+      phv('Werder Bremen vs SC Paderborn Highlights','9m',BL + 'hl-md6-svw-scp.webp')]
+  };
+  // a league's own Rerun (full matches) on its landing page (else its sport's For You)
+  var LEAGUE_RERUN = {
+    bundesliga:[phv('Mainz 05 vs Werder Bremen Full Match','96m',BL + 'rerun-md7-m05-svw.webp'),
+      phv('Borussia Dortmund vs Eintracht Frankfurt Full Match','98m',BL + 'rerun-md7-bvb-sge.webp'),
+      phv('SC Paderborn vs Hamburger SV Full Match','95m',BL + 'rerun-md7-scp-hsv.webp'),
+      phv('RB Leipzig vs SV Elversberg Full Match','97m',BL + 'rerun-md7-rbl-sve.webp'),
+      phv('SC Freiburg vs Bayern München Full Match','99m',BL + 'rerun-md7-scf-fcb.webp'),
+      phv('TSG Hoffenheim vs Bayer Leverkusen Full Match','96m',BL + 'rerun-md7-tsg-b04.webp'),
+      phv('Bayern München vs RB Leipzig Full Match','98m',BL + 'rerun-md6-fcb-rbl.webp')]
+  };
+  // a league's own Moments of the Week on its landing page (else its sport's league highlights)
+  var LEAGUE_MOMENTS = {
+    bundesliga:[phv('Harry Kane Addresses the Allianz Arena','3m',BL + 'moment-kane-speech.webp'),
+      phv('Kane’s Penalty Against Dortmund','2m',BL + 'moment-kane-penalty-bvb.webp'),
+      phv('Union Berlin vs 1. FC Köln: The Big Calls','4m',BL + 'moment-fcu-koe.webp'),
+      phv('Atubolu’s Saves of the Week','3m',BL + 'moment-atubolu.webp'),
+      phv('Olise Scores and Celebrates','2m',BL + 'moment-olise.webp'),
+      phv('Dortmund Celebrates in Stuttgart','3m',BL + 'moment-bvb-stuttgart.webp')]
+  };
+  // a league's own Match Schedule art [This Week (wide), Next Week (tall)]: its words are on the picture, so the tile shows
+  // it at full strength without the Match Schedule / week text (else the league's picture, dimmed, under that text)
+  var LEAGUE_SCHED = { bundesliga:[BL + 'sched-md8.webp', BL + 'sched-md9.webp'] };
   // the rest of a sport's rails, from placeholders where it has no content yet
   Object.keys(SPORT).forEach(function(k){
     var S = SPORT[k], t = S.race ? S.ph : vs(S.ph || 'Team'), durs = ['6m','8m','12m','17m','11m','64m'];
@@ -302,9 +339,15 @@
      picture, then its Live and Upcoming, Highlights, Rerun, Moments of the Week, the Match Schedule tiles (the Short
      Highlight tiles' look), Related Content and the other leagues; the plain page, no dynamic background ---------- */
   function landingHtml(l){
+    var sched = LEAGUE_SCHED[l.id];
+    function schedTile(size, week, n){
+      var img = sched ? sched[n] : pic;
+      return '<div class="short ' + size + ' sched' + (sched ? ' art' : '') + ' item" data-kind="sched" data-label="Match Schedule: ' + week + '" style="--img:url(\'' + img + '\')">' +
+        (sched ? '' : '<div class="sl"><b>Match Schedule</b><i>' + week + '</i></div>') + '</div>';
+    }
     var S = SPORT[l.sp] || SPORT.football, pic = l.img || SPORT_PIC[l.sp] || SPORT_PIC[''];   // (a sport without its own rails: Football's)
     sportCur = SPORT[l.sp] ? l.sp : '';
-    var live = withPics(l.id === 'ucl' ? UCL : S.upcoming, pic), rerun = (S.forYou || {}).items || S.because;
+    var live = withPics(l.id === 'ucl' ? UCL : S.upcoming, pic), rerun = LEAGUE_RERUN[l.id] || (S.forYou || {}).items || S.because;
     SETS = { live:live };
     var d = l.id === 'ucl' ? SPORT.football.band.d : 'Every ' + l.t + ' match live, with full replays, the week’s best moments and the fixtures still to come.';
     return '<section class="sec lhero" data-row="lhero"><div class="lbg" style="background-image:url(\'' + pic + '\')"></div>' +
@@ -312,10 +355,8 @@
         '<div class="tv-btn tv-btn--secondary ic lfav item' + (l.fav ? ' on' : '') + '" data-kind="lfav" data-label="Favorite" data-ring-art=""><img src="icons/tv-guide/heart' + (l.fav ? '-fill' : '') + '.svg" alt="Follow">' +
           '<span class="tip">' + (l.fav ? 'Remove from Favorites' : 'Add to Favorites') + '</span></div></div></section>' +
       '<section class="sec" data-row="live"><div class="rail"><div class="track">' + live.map(function(it, i){ return matchCard(it, i, 'live'); }).join('') + '</div></div></section>' +
-      vodSec('highlights', 'Highlights', S.highlights, l.sp) + vodSec('rerun', 'Rerun', rerun, l.sp) + vodSec('moments', 'Moments of the Week', S.leagueHl.items, l.sp) +
-      '<section class="sec" data-row="sched"><div class="shorts">' +
-        '<div class="short wide sched item" data-kind="sched" data-label="Match Schedule: This Week" style="--img:url(\'' + pic + '\')"><div class="sl"><b>Match Schedule</b><i>This Week</i></div></div>' +
-        '<div class="short tall sched item" data-kind="sched" data-label="Match Schedule: Next Week" style="--img:url(\'' + pic + '\')"><div class="sl"><b>Match Schedule</b><i>Next Week</i></div></div></div></section>' +
+      vodSec('highlights', 'Highlights', LEAGUE_HL[l.id] || S.highlights, l.sp) + vodSec('rerun', 'Rerun', rerun, l.sp) + vodSec('moments', 'Moments of the Week', LEAGUE_MOMENTS[l.id] || S.leagueHl.items, l.sp) +
+      '<section class="sec" data-row="sched"><div class="shorts">' + schedTile('wide', 'This Week', 0) + schedTile('tall', 'Next Week', 1) + '</div></section>' +
       docsSec() + leaguesSec(LEAGUES.filter(function(x){ return x !== l; })) + totopSec();
   }
   function renderBelow(sp){

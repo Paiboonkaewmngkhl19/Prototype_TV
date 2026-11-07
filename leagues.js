@@ -11,7 +11,7 @@ window.Leagues = (function(){
   // UCL, Bundesliga and RWS fill theirs (cover / zoom). fav: followed (the heart shows)
   // id: its landing page (sport.html?league=id, Figma Sports 3011:44457)
   var list = [
-    {id:'bundesliga', bg:'sport-assets/main-page/sportMainPage_leagueTournament_No2-2.webp', t:'Bundesliga', sp:'football', name:'Bundesliga', logo:'sport-assets/league-bundesliga.png', fitc:'inset', fav:1, img:'posters/upcoming/u3.jpg'},
+    {id:'bundesliga', bg:'sport-assets/main-page/sportMainPage_leagueTournament_No2-2.webp', t:'Bundesliga', sp:'football', name:'Bundesliga', logo:'sport-assets/league-bundesliga.png', fitc:'inset', fav:1, img:'sport-assets/bundesliga/bg-destiny-unfolds.webp'},
     {id:'ucl', bg:'sport-assets/main-page/sportMainPage_leagueTournament_No1-2.webp', t:'UEFA Champions League', sp:'football', name:'UEFA<br>Champions League', logo:'sport-assets/league-ucl.jpg', fitc:'zoom', fav:1, img:'sport-assets/ucl-bg.jpg'},
     {id:'europa', bg:'sport-assets/main-page/sportMainPage_leagueTournament_No3-2.webp', t:'UEFA Europa League', sp:'football', name:'UEFA<br>Europa League', logo:'sport-assets/league-europa.png', box:[21.95,10,56.1,80], fav:1},
     {id:'motogp', t:'MotoGP', sp:'motorsport', name:'MotoGP', logo:'sport-assets/league-motogp.png', box:[5,24.69,90,50.62]},
