@@ -29,9 +29,11 @@
   .hero-bg .pic{ position:absolute; inset:0; background:center 30% / cover no-repeat; opacity:0; transition:opacity .6s ease; }
   .hero-bg .pic.on{ opacity:1; }
   .hero-bg::after{ content:''; position:absolute; inset:0;
-    background:linear-gradient(90deg, rgba(var(--wash),.72) 0%, rgba(var(--wash),.45) 30%, rgba(var(--wash),.08) 58%, transparent 75%),
-      linear-gradient(180deg, transparent 40%, rgba(var(--wash),.55) 62%, rgb(var(--wash)) 86%); }   /* the text's side in the page's tone, not black */
-  body.scene .hero-bg::after{ background:linear-gradient(90deg, rgba(var(--wash),.7) 0%, rgba(var(--wash),.38) 32%, transparent 62%),
+    background:linear-gradient(180deg, rgba(var(--wash),.88) 0%, rgba(var(--wash),.6) 10%, rgba(var(--wash),.22) 17%, rgba(var(--wash),0) 24%),
+      linear-gradient(90deg, rgba(var(--wash),.72) 0%, rgba(var(--wash),.45) 30%, rgba(var(--wash),.08) 58%, transparent 75%),
+      linear-gradient(180deg, transparent 40%, rgba(var(--wash),.55) 62%, rgb(var(--wash)) 86%); }   /* the top bar's fade and the text's side in the page's tone, not black */
+  body.scene .hero-bg::after{ background:linear-gradient(180deg, rgba(var(--wash),.88) 0%, rgba(var(--wash),.6) 10%, rgba(var(--wash),.22) 17%, rgba(var(--wash),0) 24%),
+      linear-gradient(90deg, rgba(var(--wash),.7) 0%, rgba(var(--wash),.38) 32%, transparent 62%),
       linear-gradient(180deg, transparent 55%, rgba(var(--wash),.5) 78%, rgb(var(--wash)) 98%); }
   body.static .hero-bg{ opacity:0; }
 

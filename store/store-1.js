@@ -8,11 +8,15 @@
 
   /* ---------- content ----------
      Every card is real: the packages (packages.js), the events and titles (content.js MD.M) and AIS's own art (store-assets/). */
-  var SA = 'store-assets/', PK = SA + 'pkg/';
+  var SA = 'store-assets/';
   // art: how the card shows its picture; hero: the picture behind the hero (a logo on black keeps Figma's placeholder hero)
   var ULTIMATE = { badge:'Recommended', dark:1, t:'PLAY ULTIMATE', price:999, per:'Month', tags:['Monthly', 'Recurring', 'Recommended'],
-    d:'Netflix, HBO Max, Disney+ Hotstar, iQIYI, oneD and WeTV in one package, with AIS PLAY Premium channels and live sports. Watch on your TV, phone and tablet.',
-    art:{ img:SA + 'foryou-play-ultimate.png', crop:'height:123.75%;left:-60%;top:-17.17%;width:220%' }, hero:SA + 'hero-play-ultimate.png', pkg:1 };
+    d:'HBO Max, Prime Video, Viu, iQIYI and WeTV in one package, with AIS PLAY Premium channels and live sports. Watch on your TV, phone and tablet.',
+    art:{ img:SA + 'foryou-play-ultimate.webp' }, hero:SA + 'hero-play-ultimate.webp', wide:1, pkg:1 };   // hero: its 16:9 key art, across the screen
+  // PLAY ALL: For You's Best Seller, the Sports rail's first card (Recommended) and Great Value's Asian Games
+  var PLAY_ALL = { badge:'Best Seller', dark:1, t:'PLAY ALL', price:1999, per:'Year', tags:['Annual', 'Recurring', 'Best Seller'],
+    d:'Every big league live in one package: the Champions League, Europa League, Conference League, Bundesliga, NBA, NFL, MotoGP, LPGA, ATP Masters 1000 and RWS.',
+    art:{ img:SA + 'foryou-play-all.webp' }, hero:SA + 'hero-play-all.webp', wide:1, pkg:1 };
   var OTT = Packages.OTT, PKG = Packages.PKG;   // packages.js (Package Detail shows the same)
   // the Movies tabs: Popular, then each OTT's own packages
   var TAB_OTT = { 'Netflix':'netflix', 'HBO Max':'hbo', 'Disney+':'disney', 'iQIYI':'iqiyi', 'Viu':'viu', 'MONOMAX':'monomax',
@@ -24,46 +28,42 @@
   var NETFLIX_7D = PKG.netflix[0];
   var ROWS = {
     foryou:[ ULTIMATE,
-      { badge:'Best Seller', dark:1, t:'PLAY ALL Asian Games', price:199, per:'Month', tags:['Monthly', 'Recurring', 'Best Seller'],
-        d:'Every sport of the Asian Games live on AIS PLAY, with Thai commentary, replays and daily highlights, plus the PLAY ALL sports channels.',
-        art:{ img:SA + 'foryou-asian-games.png' }, pkg:1 },
-      { badge:'New Release', dark:1, t:'PLAY PREMIUM PLUS', price:99, per:'Month', tags:['Monthly', 'Recurring', 'New Release'],
-        d:'Supergirl and the newest HBO Max originals, with five more apps in one package: HBO Max, Disney+ Hotstar, iQIYI, oneD and AIS PLAY.',
-        art:{ img:SA + 'foryou-supergirl.png' }, pkg:1 },
-      // AIS's own package art (store-assets/pkg/): each package once in a rail
-      { badge:'Flash Sale', timer:43 * 3600 + 14 * 60 + 38, dark:1, t:'PLAY ASIAN PLUS', price:169, per:'Month', tags:['Monthly', 'Recurring', 'Flash Sale'],
-        d:'iQIYI, Viu, WeTV and oneD in one package: Thai, Korean and Chinese series, from Khemjira to Against the Current.',
-        art:{ img:PK + 'asian-plus.jpg' }, pkg:1 },
-      { dark:1, t:'oneD PREMIUM Monthly', price:99, per:'Month', tags:['Monthly', 'Recurring'],
-        d:'Watch Raeng Ngao and every one31 drama before anyone else on oneD. 99 baht a month for AIS customers only (usually 149).',
-        art:{ img:PK + 'oned-premium-monthly.jpg' }, pkg:1 },
-      { dark:1, t:'oneD PREMIUM Yearly', price:999, per:'Year', tags:['Yearly', 'Recurring'],
-        d:'A year of oneD PREMIUM for 999 baht (usually 1,490), for AIS customers only: one31 dramas first, ad-free.',
-        art:{ img:PK + 'oned-premium-yearly.jpg' }, pkg:1 }],
+      PLAY_ALL,
+      { badge:'New Release', dark:1, t:'PLAY PREMIUM PLUS Monthly', price:299, per:'Month', tags:['Monthly', 'Recurring', 'New Release'],
+        d:'Supergirl from DC Studios and the newest originals: HBO Max, Prime Video, iQIYI, Viu and WeTV in one package on AIS PLAYBOX.',
+        art:{ img:SA + 'foryou-supergirl.webp' }, hero:SA + 'hero-supergirl.webp', wide:1, pkg:1 },
+      // AIS's own package art (store-assets/): each package once in a rail
+      { badge:'Flash Sale', timer:43 * 3600 + 14 * 60 + 38, dark:1, t:'PLAY PREMIUM PLUS Annual', price:2990, per:'Year', tags:['Annual', 'Recurring', 'Flash Sale'],
+        d:'A full year of HBO Max, Prime Video, iQIYI, Viu and WeTV for the price of 10 months, with The Rings of Power on Prime Video.',
+        art:{ img:SA + 'foryou-premium-plus-annual.webp' }, hero:SA + 'hero-premium-plus-annual.webp', wide:1, pkg:1 },
+      { dark:1, t:'PLAY ASIAN PLUS Monthly', price:169, per:'Month', tags:['Monthly', 'Recurring'],
+        d:'Viu, iQIYI, WeTV and oneD in one package: Thai, Korean and Chinese series, from Raeng Ngao to every new one31 drama.',
+        art:{ img:SA + 'foryou-asian-plus.webp' }, hero:SA + 'hero-asian-plus.webp', wide:1, pkg:1 },
+      { dark:1, t:'PLAY ASIAN PLUS Annual', price:1690, per:'Year', tags:['Annual', 'Recurring'],
+        d:'A full year of Viu, iQIYI, WeTV and oneD for the price of 10 months: Thai, Korean and Chinese series, new episodes every week.',
+        art:{ img:SA + 'foryou-asian-plus-annual.webp' }, hero:SA + 'hero-asian-plus-annual.webp', wide:1, pkg:1 }],
     highlight:[
-      // the shows each package brings (AIS's package art, store-assets/pkg/)
-      { dark:1, t:'PLAY PREMIUM PLUS', price:299, per:'Month', tags:['Monthly', 'Recurring'],
-        d:'The Lord of the Rings: The Rings of Power on Prime Video, with HBO Max, iQIYI, Viu and WeTV: five apps in one package.',
-        art:{ img:PK + 'premium-plus-rings.jpg' }, hero:PK + 'premium-plus-rings-wide.jpg', wide:1, pkg:1 },   // hero: its 16:9 key art, across the screen
-      { dark:1, t:'PLAY ULTIMATE', price:999, per:'Month', tags:['Monthly', 'Recurring'],
-        d:'The Super Mario Galaxy Movie on HBO Max, Steps on Netflix and Moana on Disney+: all six apps in one package.',
-        art:{ img:PK + 'ultimate-mario.jpg' }, pkg:1 },
-      { dark:1, t:'PLAY PREMIUM PLUS', price:299, per:'Month', tags:['Monthly', 'Recurring'],
-        d:'Make Me Tingle on HBO Max, Final Table on Prime Video and One of a Kind Romance on Viu, in one package with iQIYI and WeTV.',
-        art:{ img:PK + 'premium-plus-tingle.jpg' }, pkg:1 },
-      { dark:1, t:'PLAY ULTIMATE', price:999, per:'Month', tags:['Monthly', 'Recurring'],
-        d:'Take Charge of My Heart on Netflix, Make Me Tingle on HBO Max and Merry Berry Love on Disney+: six apps, one price.',
-        art:{ img:PK + 'ultimate-take-charge.jpg' }, pkg:1 },
-      { dark:1, t:'PLAY ASIAN PLUS', price:169, per:'Month', tags:['Monthly', 'Recurring'],
-        d:'Khemjira Forever on iQIYI, with Viu, WeTV and oneD: four apps of Asian drama in one package.',
-        art:{ img:PK + 'asian-plus-khemjira.jpg' }, pkg:1 },
-      { dark:1, t:'PLAY ASIAN PLUS', price:169, per:'Month', tags:['Monthly', 'Recurring'],
-        d:'Raeng Ngao on oneD, with iQIYI, Viu and WeTV: four apps of Asian drama in one package.',
-        art:{ img:PK + 'asian-plus-rang-ngao.jpg' }, pkg:1 }],
+      // the shows each package brings (AIS's package art, store-assets/)
+      { dark:1, t:'PLAY INTER', price:199, per:'Month', tags:['Monthly', 'Recurring'],
+        d:'Disney, Pixar, Marvel and Star Wars in one package: Encanto, Turning Red, Moana, Frozen II, Loki, Ms. Marvel and Obi-Wan Kenobi.',
+        art:{ img:SA + 'highlight-play-inter.webp' }, hero:SA + 'hero-play-inter.webp', wide:1, pkg:1 },   // hero: its 16:9 key art, across the screen
+      { dark:1, t:'PLAY Disney+', price:289, per:'Month', tags:['Monthly', 'Recurring'],
+        d:'Disney+ Hotstar in 4K on four screens: Cars, Moana, Finding Nemo, The Lion King and every Disney and Pixar classic, billed to your AIS account.',
+        art:{ img:SA + 'highlight-play-disney.webp' }, hero:SA + 'hero-play-disney.webp', wide:1, pkg:1 },
+      { dark:1, t:'PLAY PREMIUM', price:199, per:'Month', tags:['Monthly', 'Recurring'],
+        d:'Superman from DC Studios and the newest Hollywood hits on HBO Max, with the AIS PLAY Premium channels, on your TV, phone and tablet.',
+        art:{ img:SA + 'highlight-play-premium.webp' }, hero:SA + 'hero-play-premium.webp', wide:1, pkg:1 },
+      { dark:1, t:'PLAY FAMILY', price:249, per:'Month', tags:['Monthly', 'Recurring'],
+        d:'Movies the whole family can watch together, from holiday favorites like The Family Man with Nicolas Cage and Téa Leoni to new family films every month.',
+        art:{ img:SA + 'highlight-play-family.webp' }, hero:SA + 'hero-play-family.webp', wide:1, pkg:1 },
+      { dark:1, t:'PLAY ShortMax', price:99, per:'Month', tags:['Monthly', 'Recurring'],
+        d:'Every short drama on ShortMax, from palace romances to revenge stories, with new episodes every day in a minute or two each.',
+        art:{ img:SA + 'highlight-play-shortmax.webp' }, hero:SA + 'hero-play-shortmax.webp', wide:1, pkg:1 },
+      { dark:1, t:'Good TV', price:59, per:'Month', tags:['Monthly', 'Recurring'],
+        d:'Documentaries and feel-good stories from Good TV, with Next Step and Sarakadee Lok: real people, new ideas and the world around us.',
+        art:{ img:SA + 'highlight-good-tv.webp' }, hero:SA + 'hero-good-tv.webp', wide:1, pkg:1 }],
     sports:[
-      { badge:'Recommended', t:'PLAY ALL', price:299, per:'Month', tags:['Monthly', 'Recurring', 'Recommended'],
-        d:'All the sports on AIS PLAY in one package: Premier League, Bundesliga, Formula 1, NBA and the AIS PLAY Sports channels.',
-        art:{ logo:SA + 'sports-playall.png' }, pkg:1 }
+      Object.assign({}, PLAY_ALL, { badge:'Recommended', tags:['Annual', 'Recurring', 'Recommended'] })
       // then one package of each league (packages.js): its disc | AIS PLAYBOX, as the Movies rail's OTT cards
       ].concat(['epl', 'ucl', 'nba', 'thai1', 'rws', 'bundesliga', 'motogp', 'pga'].map(function(k){ return Object.assign({}, PKG[k][0], { badge:null }); })),
     // Popular: one of each OTT, as the Figma's rail
@@ -95,8 +95,8 @@
     pick(function(p){ return p.price < 100 && ASIA.indexOf(p.ott) >= 0; }, 'Best Saver'),                 // < 100 baht Enjoy Asian Movies & Shorts
     pick(function(p){ return p.price < 100 && LEAGUE(p); }, 'Best Saver'),                               // < 100 baht Sports Lover
     pick(function(p){ return p.price >= 300 && p.price <= 500; }, 'Recommended'),                          // 300 - 500 baht Enjoy Movies & Sports
-    [ Object.assign({}, ROWS.foryou[1], { badge:'Recommended' }), Object.assign({}, ROWS.sports[0], { badge:null }) ]
-      .concat(pick(function(p){ return LEAGUE(p) && p.card === 'Month'; }))                              // Asian Games: PLAY ALL Asian Games, PLAY ALL, then the leagues
+    [ ROWS.sports[0] ]
+      .concat(pick(function(p){ return LEAGUE(p) && p.card === 'Month'; }))                              // Asian Games: PLAY ALL, then the leagues
   ];
   ROWS.value = VALUE[0];
   // PPV Event: AIS PLAY's own events (content.js MD.M: its words, pictures and price), as Home's AIS PLAY Exclusive rail,
@@ -104,20 +104,26 @@
   var EVENTS = [{ k:'assanee', badge:'New Arrival', ppos:'88% center' }, { k:'missuni', badge:'#1 in Thailand', ppos:'90% center' },
     { k:'sophomores', badge:'Rerun' }, { k:'bossckm', badge:'New Arrival' }];
   // Rent or Buy: content.js's list (its badges), then the titles sold on their own only (MD OFFERS pkg 0)
+  // a title with only a 16:9 picture: where its people stand (the 2:3 card shows 37.5% of its width)
+  var RENT_POS = { superman:'87% center' };
   var RENTALS = MD.RENT.map(function(r){ return { k:r.k, badge:r.b }; })
-    .concat(['superman', 'wicked', 'dragon', 'prada', 'debt', 'medium', 'khemjira'].map(function(k){ return { k:k }; }));
+    .concat(['superman', 'debt', 'medium', 'khemjira'].map(function(k){ return { k:k, ppos:RENT_POS[k] }; }));
   // One Time Package: every 7-day pass, charged once (packages.js), Netflix's first
   var ONETIME = [NETFLIX_7D].concat(pick(function(p){ return p.card === '7 Days' && p !== NETFLIX_7D; }));
   // Others: the add-ons, then AIS's offers with their own art (go: the package it opens)
-  var OTHERS = [
-    { t:'Smart Soundbar', price:250, per:'Month', tags:['24 Months', 'Add-on'], art:{ img:SA + 'banner-soundbar.png', pos:'left center' },
-      d:'An Android TV soundbar with Dolby Vision and Atmos, with HBO Max, karaoke and PLAY ALL included. 250 baht a month for 24 months.' },
-    { t:'AIS Cloud PC', price:199, per:'Month', tags:['Monthly', 'Add-on'], art:{ img:SA + 'others-cloud-pc.png' },
-      d:'A Windows PC in the cloud that you can open on your TV, laptop or phone.' },
-    { t:'MONOMAX Sports', price:99, per:'Month', tags:['Monthly', 'Recurring'], art:{ img:SA + 'sports-monomax.png' }, go:'package-detail.html?ott=monomax&p=0',
-      d:'The Premier League, the FA Cup and more sports on the MONOMAX app, for AIS customers, billed to your AIS account.' },
-    { t:'Prime Video 3 Months', price:149, per:'Month', tags:['3 Months', 'Recurring'], art:{ img:SA + 'foryou-prime.png', pos:'left center' }, go:'package-detail.html?ott=prime&p=0',
-      d:'Three months of Prime Video for 149 baht, then 149 baht a month: Amazon Originals, blockbuster films and live sports.' }];
+  var OTHERS = [   // AIS's mobile offers (their own square art); shown only, Enter does nothing (still:1)
+    { t:'AIS 5G MAX Experience', price:599, per:'Month', tags:['Monthly', '5G', 'Postpaid'], art:{ img:SA + 'others-5g-max-experience.webp' }, still:1,
+      d:'Calls, 5G data and entertainment in one plan, with HBO Max, Prime Video, iQIYI, Viu and WeTV. A new lucky number gets 9GB and 99 minutes free every month for 9 months.' },
+    { t:'The One SIM', price:50, per:'SIM', tags:['Prepaid', '5G', 'New SIM'], art:{ img:SA + 'others-the-one-sim.webp' }, still:1,
+      d:'A 1-2-Call 5G SIM with 2GB of 5G data the day you open it. Top up 150 baht to get 1GB more 5G data, data for YouTube and TikTok, and free AIS Super WiFi.' },
+    { t:'AIS 5G TikTok Shop', price:749, per:'Month', tags:['Monthly', '5G', 'Seller'], art:{ img:SA + 'others-5g-tiktok-shop.webp' }, still:1,
+      d:'For live sellers: faster live uploads, SlipOK free for 3 months, MyOrder free for 12 months and FlowAccount free for 2 months.' },
+    { t:'AIS 5G Seller', price:699, per:'Month', tags:['Monthly', '5G', 'Seller'], art:{ img:SA + 'others-5g-seller.webp' }, still:1,
+      d:'Every tool an online shop needs: SlipOK checks slips in 1 second, MyOrder brings chats and shipping together, and FlowAccount does the books.' },
+    { t:'Fam Save', price:299, per:'Month', tags:['Monthly', '5G', 'Family'], art:{ img:SA + 'others-fam-save.webp' }, still:1,
+      d:'Add a family number for 299 baht a month (usually 399): 20GB at full speed and 100 minutes of calls, with AIS Secure Net free for 12 months.' },
+    { t:'AIS ZEED Movie Lover', price:199, per:'Month', tags:['Monthly', '5G', 'Add-on'], art:{ img:SA + 'others-zeed-movie-lover.webp' }, still:1,
+      d:'A free movie at Major Cineplex every month, VIP on iQIYI, Viu, WeTV and AIS PLAY, and 10GB of 5G data. Dial *824# to sign up.' }];
   // the banner carousel's slides: the promotions' own art
   var BANNERS = [{ t:'Smart Soundbar', img:SA + 'banner-soundbar.png', pkg:1 }, { t:'AIS 3BB Fibre3: Refer a Friend', img:SA + 'banner-fibre3-refer.webp', pos:'center 85%' },
     { t:'Home FibreLAN Plus', img:SA + 'banner-fibrelan-plus.webp' }];
@@ -174,8 +180,8 @@
   // a Rent or Buy title: its poster (content.js), its badge and its app's tag (platform-tag.css), as the Movie page's
   function posterCard(p, set, i){
     var m = MD.M[p.k], tag = m.plat === 'ais' ? '<span class="ptag ais"></span>' : '<img class="ptag" src="badges/tag-' + m.plat + '.png" alt="">';
-    // (a title with only a 16:9 picture: its centre, as You May Also Like's posters)
-    return '<div class="pst item"' + attrs({ kind:set, i:i, k:p.k }) + '><div class="pic" style="background-image:url(\'' + (m.p || m.w) + '\')"></div>' +
+    // (a title with only a 16:9 picture: its people (ppos), else its centre)
+    return '<div class="pst item"' + attrs({ kind:set, i:i, k:p.k }) + '><div class="pic" style="background-image:url(\'' + (m.p || m.w) + '\')' + (!m.p && p.ppos ? ';background-position:' + p.ppos : '') + '"></div>' +
       badgeHtml(p) + tag + '</div>';
   }
   function railSec(key, title, inner, cls){
@@ -247,13 +253,13 @@
   function paintHero(r){
     var set = r.set, cards = rows[R[set]];
     var it = listOf(set)[cur.col[R[set]]];   // a tab bar shows the package its rail is on
-    if(!it || cards.items[cur.col[R[set]]].dataset.kind === 'viewall') it = listOf(set)[0];
+    if(!it || cards.items[cur.col[R[set]]].dataset.kind === 'viewall'){ var L = listOf(set); it = L[L.length - 1]; }   // View All: keeps the card just before it (the rail's last)
     var key = it.t + it.price + it.per + (it.d || '');
     if(key !== heroKey){
       heroKey = key;
       heroEl.querySelector('.tags').innerHTML = it.tags.map(function(t){ return '<span class="tag">' + esc(t) + '</span>'; }).join('');
       heroEl.querySelector('h1').textContent = it.t;
-      heroEl.querySelector('.price b').textContent = it.price + ' baht / ' + it.per;
+      heroEl.querySelector('.price b').textContent = Number(it.price).toLocaleString('en-US') + ' baht / ' + it.per;
       heroEl.querySelector('.price span').textContent = '(VAT Included: ' + vat(it.price) + ' baht)';
       heroEl.querySelector('.desc').textContent = it.d;
       heroEl.classList.remove('swap'); void heroEl.offsetWidth; heroEl.classList.add('swap');
@@ -370,6 +376,7 @@
     if(k === 'pkg'){
       var set = el.dataset.set, it = (set === 'onetime' ? ONETIME : set === 'others' ? OTHERS : listOf(set))[i];
       // an OTT package: Package Detail for it (packages.js), its own price picked
+      if(it.still) return;   // an offer of Others: shown only
       if(it.ott){ leave('package-detail.html?ott=' + it.ott + '&p=' + PKG[it.ott].map(function(p){ return p.t; }).indexOf(it.t)); return; }
       if(it.go){ leave(it.go); return; }   // an offer of Others: the package it is for
       if(it.pkg) leave('package-detail.html'); else toast(it.t + ' (demo)');
