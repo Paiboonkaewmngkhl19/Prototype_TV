@@ -114,6 +114,58 @@
              d:'Blacksmith Will Turner teams up with the eccentric pirate Jack Sparrow to rescue Elizabeth Swann from a crew of cursed pirates.'},
     readyornot:{t:'Ready or Not', p:PP + 'lotr/r11.jpg', plat:'disney', g:['Horror', 'Thriller'], y:2019, len:'1h 35m', age:'18+',
              d:'A new bride\'s wedding night turns deadly when her rich in-laws force her into a game of hide-and-seek where losing means death.'},
+    // My List (Home): w their 16:9 picture (posters/mylist/)
+    queensgambit:{t:'The Queen\'s Gambit', w:P + 'mylist/m1.jpg', plat:'netflix', g:['Drama'], y:2020, len:'1 Season', age:'16+',
+             d:'An orphaned chess prodigy fights her own demons on her way to the top of the 1960s chess world.'},
+    guilty:{t:'The Guilty', w:P + 'mylist/m2.jpg', plat:'netflix', g:['Thriller', 'Crime'], y:2021, len:'1h 30m', age:'16+',
+             d:'A troubled police officer working the 911 desk races to save a caller in danger over one tense morning.'},
+    reply1988:{t:'Reply 1988', w:P + 'mylist/m3.jpg', plat:'netflix', g:['Comedy', 'Drama'], y:2015, len:'1 Season', age:'13+',
+             d:'Five friends and their families share the joys and growing pains of life in one Seoul neighborhood in 1988.'},
+    fourweddings:{t:'Four Weddings and a Funeral', w:P + 'mylist/m4.jpg', plat:'prime', g:['Romance', 'Comedy'], y:1994, len:'1h 57m', age:'16+',
+             d:'A charming but commitment-shy Englishman keeps meeting the same American woman at a series of weddings, and one funeral.'},
+    // iQIYI (Home: Date Night Picks, We think you'll love this, Worlds in Chaos; Movie: Series)
+    predict:{t:'Predict You in 3 Seconds', p:PP + 'iqiyi/q1.jpg', plat:'iqiyi', g:['Romance', 'Fantasy'], y:2026, len:'1 Season', age:'13+',
+             d:'A woman who can see three seconds into the future keeps seeing the same man in every vision, and can\'t decide if he is her fate or her danger.'},
+    ning:{t:'The Rise of Ning', p:PP + 'iqiyi/q2.jpg', plat:'iqiyi', g:['Romance', 'Period'], y:2024, len:'1 Season', age:'13+',
+             d:'A sheltered noble daughter rises through palace intrigue and family betrayal to protect the people she loves, with an unlikely ally at her side.'},
+    mist:{t:'Into the Mist', p:PP + 'iqiyi/q3.jpg', plat:'iqiyi', g:['Romance', 'Drama'], y:2025, len:'1 Season', age:'13+',
+             d:'Years after a misty summer that tore them apart, two former classmates meet again and find their feelings never cleared.'},
+    midnight:{t:'Lost in the Light', p:PP + 'iqiyi/q4.jpg', plat:'iqiyi', g:['Romance', 'Drama'], y:2025, len:'1 Season', age:'16+',
+             d:'A guarded lawyer and the heiress he was hired to watch fall into a love affair neither of their families can know about.'},
+    momentforever:{t:'A Moment But Forever', p:PP + 'iqiyi/q5.jpg', plat:'iqiyi', g:['Fantasy', 'Romance'], y:2025, len:'1 Season', age:'13+',
+             d:'A mortal girl and an immortal swordsman share one fleeting moment that binds them across a thousand years.'},
+    heroine:{t:'Heroine of the Battlefield', p:PP + 'iqiyi/q6.jpg', plat:'iqiyi', g:['Action', 'Period'], y:2024, len:'1 Season', age:'16+',
+             d:'Disguised as a man, a general\'s daughter leads her father\'s army to war, and the crown prince is the only one who knows her secret.'},
+    // WeTV (Home: Date Night Picks, We think you'll love this, Because You Watched; Movie: Series)
+    aboutlove:{t:'About Love', p:PP + 'wetv/w1.jpg', plat:'wetv', g:['Romance', 'Comedy'], y:2025, len:'1 Season', age:'13+',
+             d:'A sharp-tongued love columnist and a charming bar owner trade toasts and barbs, until their war of words turns into a romance.'},
+    peacock:{t:'The Peacock Envoy\'s Love', p:PP + 'wetv/w2.jpg', plat:'wetv', g:['Fantasy', 'Romance'], y:2025, len:'1 Season', age:'13+',
+             d:'A peacock spirit sent to the mortal realm as an envoy falls for the young woman she was meant to guide home.'},
+    followheart:{t:'Follow Your Heart', p:PP + 'wetv/w3.jpg', plat:'wetv', g:['Romance', 'Period'], y:2024, len:'1 Season', age:'13+',
+             d:'A sharp-witted lady and a stern imperial guard are forced to work together to solve a string of court mysteries, and fall in love along the way.'},
+    generation:{t:'Generation to Generation', p:PP + 'wetv/w4.jpg', plat:'wetv', g:['Fantasy', 'Romance'], y:2024, len:'1 Season', age:'13+',
+             d:'An immortal and a mortal maiden meet again across lifetimes, bound by a love that heaven itself has forbidden.'},
+    perfecther:{t:'Perfect Her', p:PP + 'wetv/w5.jpg', plat:'wetv', g:['Romance', 'Drama'], y:2024, len:'1 Season', age:'16+',
+             d:'Reborn into another woman\'s life, a betrayed heiress uses her second chance to take back everything that was stolen from her.'},
+    overdo:{t:'Overdo', p:PP + 'wetv/w6.jpg', plat:'wetv', g:['Romance', 'Period'], y:2025, len:'1 Season', age:'16+',
+             d:'In 1930s Shanghai, a society heiress and a mysterious businessman play a dangerous game of love and lies on the eve of war.'},
+    sunstar:{t:'The Sun from Another Star', p:PP + 'wetv/w7.jpg', plat:'wetv', g:['Romance', 'Drama'], y:2025, len:'1 Season', age:'13+',
+             d:'Two young men from opposite worlds meet in San Francisco, where a summer together changes the course of both their lives.'},
+    yesterday:{t:'Yesterday', p:PP + 'wetv/w8.jpg', plat:'wetv', g:['Romance', 'Thriller'], y:2025, len:'1 Season', age:'18+',
+             d:'A WeTV Original: a young man wakes up in a stranger\'s custody with no memory of yesterday, and the only one who knows the truth may also be the danger.'},
+    // Viu (Home: Worlds in Chaos, We think you'll love this, Date Night Picks; Movie: Series)
+    bittersweet:{t:'Bitter Sweet Hell', p:PP + 'viu/u1.jpg', plat:'viu', g:['Mystery', 'Comedy'], y:2025, len:'1 Season', age:'16+',
+             d:'A perfect wife and mother-in-law sets out to protect her family when her daughter\'s mysterious new husband moves into their home.'},
+    blind:{t:'Blind', p:PP + 'viu/u2.jpg', plat:'viu', g:['Thriller', 'Crime'], y:2022, len:'1 Season', age:'16+',
+             d:'A detective, his judge brother and a social worker are pulled into a string of murders tied to a terrible secret from their childhood.'},
+    dutyschool:{t:'Duty After School', p:PP + 'viu/u3.jpg', plat:'viu', g:['Sci-Fi', 'Action'], y:2023, len:'1 Season', age:'16+',
+             d:'When mysterious orbs appear in the sky and attack, a class of high school seniors is drafted to fight under one young army sergeant.'},
+    goodpartner:{t:'Good Partner 2', p:PP + 'viu/u4.jpg', plat:'viu', g:['Legal', 'Drama'], y:2026, len:'2 Seasons', age:'13+',
+             d:'Star divorce lawyer Cha Eun-kyung and her team return to untangle the messiest splits in Seoul, while saving each other along the way.'},
+    fateful:{t:'You Are My Fateful Love', p:PP + 'viu/u5.jpg', plat:'viu', g:['Romance', 'Drama'], y:2025, len:'1 Season', age:'13+',
+             d:'A piano prodigy and the girl he met as a child find each other again years later, and fate refuses to let them go.'},
+    hauntedpalace:{t:'The Haunted Palace', p:PP + 'viu/u6.jpg', plat:'viu', g:['Fantasy', 'Romance'], y:2025, len:'1 Season', age:'13+',
+             d:'A reluctant shaman and a young king\'s servant possessed by an imoogi team up to drive the evil spirits out of the Joseon palace.'},
     // We think you'll love this (Home)
     anne:{t:'Anne with an E', p:PP + 'love/v1.jpg', plat:'netflix', g:['Drama', 'Family'], y:2019, len:'3 Seasons', age:'13+',
              d:'Orphan Anne Shirley, a fiercely imaginative girl, finds a home with siblings Marilla and Matthew Cuthbert on Prince Edward Island.'},
@@ -318,10 +370,21 @@
   for(var ok in OFFERS){ M[ok].pkg = !!OFFERS[ok].pkg; M[ok].buy = OFFERS[ok].buy || 0; M[ok].rent = OFFERS[ok].rent || 0; if(OFFERS[ok].ev) M[ok].ev = 1; }
   // titles made from a card that had no data of its own (Content.open): back into the catalogue on every page
   try { var ADHOC = JSON.parse(sessionStorage.getItem('contentAdhoc') || '{}'); for(var ak in ADHOC) if(!M[ak]) M[ak] = ADHOC[ak]; } catch(e){}
-  var CONTINUE = [{k:'sherlock', s:1, e:5, w:31, of:58}, {k:'endgame', w:122, of:181}, {k:'encanto', w:61, of:102}, {k:'brazil', s:1, e:2, w:20, of:55}, {k:'hailmary', w:101, of:156},
+  var CONTINUE = [{k:'sherlock', s:1, e:5, w:31, of:58}, {k:'endgame', w:122, of:181}, {k:'lastofus', s:1, e:4, w:22, of:50}, {k:'encanto', w:61, of:102}, {k:'hailmary', w:101, of:156},
                   {k:'spider', w:41, of:148}, {k:'stranger', s:1, e:3, w:34, of:50}];
   var FOR_YOU = [{k:'d9', price:199}, {k:'avatar', price:399}, {k:'f1', price:199}, {k:'topgun', price:149}, {k:'john', price:149}];
   var RENT = [{k:'avatar', b:'Recommended'}, {k:'f1', b:'Best Seller'}, {k:'topgun', b:'Best Seller'}, {k:'john'}, {k:'venom'}, {k:'lotr'}, {k:'hobbit'}];
+  // the title rails Home and the Movie page share (each a list of MD.M keys, {k, badge} where the rail tags a card), so
+  // the same rail shows the same titles on both pages; the Movie page's Movies and Series are every title in them
+  var RAILS = {
+    top10:['d9', 'house', 'john', 'f1', 'avatar', 'debt', 'topgun', 'thailaw', 'lotr', 'dollar'],
+    hot:['f1', 'house', 'john', 'venom', 'avatar', 'debt', 'topgun'],
+    myList:['loki', 'queensgambit', 'guilty', 'reply1988', 'fourweddings', 'dragon', 'odyssey', 'siralex'],
+    because:{ t:'Because You Watched “The Lord of the Rings: The Fellowship of the Ring”', list:['lotr', 'twotowers', 'hobbit', 'smaug', 'lastking', 'vikings', 'got', 'huntsman', 'stardust', 'pirates', 'readyornot', 'generation', 'peacock'] },
+    chaos:{ t:'Worlds in Chaos', list:['y2012', 'westfront', 'wotw', 'wwz', 'blind', 'dutyschool', 'bittersweet', 'heroine', 'khemjira', 'medium', 'thailaw', {k:'debt', badge:'Leaving Soon'}, 'judge', {k:'bigmouth', badge:'Leaving Soon'}, {k:'vincenzo', badge:'Top 10'}] },
+    love:{ t:'We think you’ll love this', list:['anne', 'trauma', 'blackbird', 'cmbyn', 'weakhero', 'anyonebut', 'myname', 'bbcsherlock', 'gooddoctor', 'wolfws', 'goodpartner', 'hauntedpalace', 'followheart', 'sunstar', 'yesterday', 'ning', 'momentforever'] },
+    dateNight:{ t:'Date Night Picks', list:['oneday', 'family', {k:'again', badge:'Leaving Soon'}, 'lawless', 'fateful', 'aboutlove', 'perfecther', 'overdo', 'predict', 'mist', 'midnight', 'purple', 'sunrise', 'holidate', 'lalaland', 'oxford', 'starborn', 'meangirls', 'ideaofyou'] }
+  };
   var MY_RENTAL = ['odyssey', 'spider', 'd9', 'lastofus', 'vikings'];   // (F1 and Top Gun are for sale: OFFERS)
   // series sold one by one (Figma "Series MD: First scene": View Package + Buy 279 baht)
   var SERIES_PRICE = { house:279, got:279, loki:199 };
@@ -410,7 +473,7 @@
     if(!bought && MY_RENTAL.indexOf(k) < 0 && (price(k) || (offers(k) && M[k].pkg))) return 'buy';   // (View Package only: for sale too)
     return cw(k) ? 'resume' : 'play';
   }
-  window.MD = { P:P, PP:PP, M:M, CONTINUE:CONTINUE, FOR_YOU:FOR_YOU, RENT:RENT, MY_RENTAL:MY_RENTAL, state:state, price:price, own:own, cw:cw, setProgress:setProgress, minutes:minutes,
+  window.MD = { P:P, PP:PP, M:M, RAILS:RAILS, CONTINUE:CONTINUE, FOR_YOU:FOR_YOU, RENT:RENT, MY_RENTAL:MY_RENTAL, state:state, price:price, own:own, cw:cw, setProgress:setProgress, minutes:minutes,
     subscribe:subscribe, subscribed:subscribed, buyPrice:buyPrice, rentPrice:rentPrice, rent:rent, RENT_HOURS:RENT_HOURS,
     soon:soon, continueList:continueList, kidsContinue:kidsContinue, series:series, seasons:seasons, episodes:episodes, episode:episode, next:next, until:until,
     bg:function(k){ var m = M[k]; return m ? m.b || m.w || m.p : ''; },
@@ -445,7 +508,44 @@ window.SHORTS = [
   { t:'Back to the Moonlight Promise', img:'s7.jpg', plat:'reelshort', gen:['Romance', 'Drama'], rate:'13+', premium:true,
     d:'Two strangers keep meeting under the same full moon, until they remember the promise they made in another life.' },
   { t:'The Contract Bride\'s Revenge', img:'s8.jpg', plat:'dramabox', gen:['Romance', 'Drama'], rate:'13+', premium:true,
-    d:'Married by contract to the heir who ruined her family, a quiet bride plays the perfect wife while she plans her revenge.' }
+    d:'Married by contract to the heir who ruined her family, a quiet bride plays the perfect wife while she plans her revenge.' },
+  // ShortMax (Home's Shorts rail: the first three)
+  { t:'A Chan', img:'s9.jpg', plat:'shortmax', gen:['Romance', 'Drama'], rate:'13+', premium:true, buy:199,
+    d:'On a snowy night in the city, a guarded young woman and the cold heir she was sent to win over find their game turning into something real.' },
+  { t:'Only the General in My World', img:'s10.jpg', plat:'shortmax', gen:['Romance', 'Period'], rate:'13+', premium:true, buy:199,
+    d:'A woman warrior and the general sworn to protect her fight side by side on the battlefield, until a betrayal forces them to choose between love and the throne.' },
+  { t:'Blindfolded Vengeance', img:'s11.jpg', plat:'shortmax', gen:['Drama', 'Period'], rate:'16+', premium:true,
+    d:'Blinded and left for dead by the family who betrayed her, a noblewoman returns to the palace with a red ribbon over her eyes and a plan for every one of them.' },
+  { t:'Dawn of Love and Revenge', img:'s12.jpg', plat:'shortmax', gen:['Romance', 'Period'], rate:'13+', premium:true,
+    d:'Married into the house of the man she swore to ruin, a bride falls for the husband who may be the key to her revenge.' },
+  { t:'Stars That Entered My Dreams', img:'s13.jpg', plat:'shortmax', gen:['Romance', 'Drama'], rate:'16+', premium:true,
+    d:'Reborn on the day she first met him, a woman who lost everything to a heartless tycoon vows that this time he will be the one with regrets.' },
+  { t:'Day and Night', img:'s14.jpg', plat:'shortmax', gen:['Romance', 'Drama'], rate:'16+', premium:true,
+    d:'A by-day assistant and her boss keep a secret by night, until the line between business and the heart disappears.' },
+  // WeTV (Home's Shorts rail: the first three)
+  { t:"The Tyrant's Bride to Be", img:'s15.jpg', plat:'wetv', gen:['Romance', 'Drama'], rate:'16+', premium:true, buy:199,
+    d:'Engaged to a cold, ruthless heir she has never met, a young woman refuses to be just another pawn in his family\'s game.' },
+  { t:'Office Scandal', img:'s16.jpg', plat:'wetv', gen:['Romance', 'Drama'], rate:'16+', premium:true, buy:199,
+    d:'A late-night kiss at the office turns into a rumor neither of them can stop, and a secret romance both of them want to keep.' },
+  { t:'Fortune in Meeting You', img:'s17.jpg', plat:'wetv', gen:['Romance', 'Period'], rate:'13+', premium:true,
+    d:'A fortune teller\'s mistaken prophecy binds a carefree lady to a stern young lord, and fate has more twists in store for them both.' },
+  { t:'Perfect Love', img:'s18.jpg', plat:'wetv', gen:['Romance', 'Comedy'], rate:'13+', premium:true,
+    d:'A cheerful café barista and a regular customer who seems too perfect to be true fall into a romance with no flaws, or so it seems.' },
+  { t:'Kindness with a Twist', img:'s19.jpg', plat:'wetv', gen:['Romance', 'Drama'], rate:'13+', premium:true,
+    d:'The sweet new colleague who helps her through every crisis may be hiding a bitter reason for being so kind.' },
+  // iQIYI (Home's Shorts rail: the first two)
+  { t:'The Phoenix Bride', img:'s20.jpg', plat:'iqiyi', gen:['Romance', 'Fantasy'], rate:'13+', premium:true, buy:199,
+    d:'Promised to the dark prince of a rival realm, a phoenix-blooded princess has to decide whether her groom is her enemy or her destiny.' },
+  { t:'Like the Morning Sun', img:'s21.jpg', plat:'iqiyi', gen:['Romance', 'Drama'], rate:'13+', premium:true, buy:199,
+    d:'A bright young dog walker and a buttoned-up executive keep crossing paths in the park, until their morning walks turn into something more.' },
+  { t:'The Sunlit Night Garden', img:'s22.jpg', plat:'iqiyi', gen:['Drama', 'Mystery'], rate:'16+', premium:true,
+    d:'Two women bound by a secret from their past meet again in a garden that blooms only at night, where the truth finally comes to light.' },
+  { t:"The Intern's Pain Game", img:'s23.jpg', plat:'iqiyi', gen:['Medical', 'Drama'], rate:'16+', premium:true,
+    d:'A trainee doctor discovers she can move a patient\'s pain onto someone else, and a ruthless senior surgeon wants the secret for herself.' },
+  { t:'My Heart Is Yours, My Lord', img:'s24.jpg', plat:'iqiyi', gen:['Romance', 'Period'], rate:'13+', premium:true,
+    d:'Sent to spy on a powerful young lord, a palace maid falls for the man she was meant to betray.' },
+  { t:'A Heart That Never Gives Up', img:'s25.jpg', plat:'iqiyi', gen:['Romance', 'Drama'], rate:'13+', premium:true,
+    d:'The overlooked daughter of a wealthy family wins over five rival heirs and fights to claim the life that was always hers.' }
 ];
 
 /*
@@ -472,7 +572,9 @@ window.SHORT = (function(){
   function setAt(s, ep, sec){ var p = get('shortProgress', '{}'); p[s] = { ep:ep, sec:Math.floor(sec) }; try { sessionStorage.setItem('shortProgress', JSON.stringify(p)); } catch(e){} }
   // Continue watching (short.html): this session's shorts first (SHORT.at, the last one watched first), then the demo's
   // own list; each {s, ep}: the short and the episode it is on
-  var CW = [{ s:1, ep:23 }, { s:4, ep:58 }, { s:0, ep:7 }, { s:6, ep:91 }, { s:3, ep:12 }];
+  // (taking turns by app, so the first 7 show ReelShort, DramaBox, ShortMax, WeTV and iQIYI)
+  var CW = [{ s:1, ep:23 }, { s:9, ep:41 }, { s:15, ep:16 }, { s:20, ep:64 }, { s:4, ep:58 }, { s:0, ep:7 }, { s:12, ep:33 },
+            { s:17, ep:9 }, { s:6, ep:91 }, { s:22, ep:28 }, { s:3, ep:12 }];
   function continueList(){
     var p = get('shortProgress', '{}'), mine = Object.keys(p).map(function(s){ return { s:+s, ep:p[s].ep }; }).reverse();
     return mine.concat(CW.filter(function(c){ return !p[c.s]; })).filter(function(c){ return window.SHORTS[c.s]; });

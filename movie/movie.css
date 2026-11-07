@@ -88,6 +88,9 @@
   .top10 .track{ gap:0; }
   .rank-poster{ width:220px; height:330px; border-radius:12px; background:var(--surface-container-high) center / cover no-repeat; }
   .rank-poster .ptag{ position:absolute; left:12px; bottom:12px; }
+  /* the 16:9 cards (Continue Watching, Disney, My List, My Rentals): the platform tag bottom left, above a progress line */
+  .thumb .ptag{ position:absolute; left:12px; bottom:12px; }
+  .thumb:has(.prog) .ptag{ bottom:18px; }
   .top10 .rank-wrap + .rank-wrap{ margin-left:32px; }
 
   /* For You: Home's AIS Play Exclusive cards (expand-card.css), the movie's poster opening up to its picture */

@@ -20,10 +20,12 @@
     if(n.indexOf('REELSHORT') >= 0) return 'tag-reelshort.png';   // the short dramas' apps
     if(n.indexOf('DRAMABOX') >= 0) return 'tag-dramabox.png';
     if(n.indexOf('SHORTMAX') >= 0) return 'tag-shortmax.png';
+    if(n.indexOf('WETV') >= 0) return 'tag-wetv.png';
+    if(n.indexOf('IQIYI') >= 0) return 'tag-iqiyi.png';
     return 'tag-monomax.png';
   }
   function badgeImg(name, cls){
-    var files = {netflix:'tag-netflix.png', prime:'tag-prime.png', disney:'tag-disney.png', hbo:'tag-hbo.png', viu:'tag-viu.png', monomax:'tag-monomax.png', reelshort:'tag-reelshort.png', dramabox:'tag-dramabox.png', shortmax:'tag-shortmax.png'};
+    var files = {netflix:'tag-netflix.png', prime:'tag-prime.png', disney:'tag-disney.png', hbo:'tag-hbo.png', viu:'tag-viu.png', monomax:'tag-monomax.png', reelshort:'tag-reelshort.png', dramabox:'tag-dramabox.png', shortmax:'tag-shortmax.png', wetv:'tag-wetv.png', iqiyi:'tag-iqiyi.png'};
     var f = files[name];
     if(!f) return '';
     return '<img src="badges/'+f+'" class="'+(cls||'badge-logo')+'" alt="'+name+'">';
@@ -208,7 +210,7 @@
     addRow('<div class="row-block"><div class="row-title">'+title+'</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
   }
 
-  posterRail('Hot Off the Big Screen', ['f1', 'house', 'john', 'venom', 'avatar', 'debt', 'topgun']);
+  posterRail('Hot Off the Big Screen', MD.RAILS.hot);   // content.js MD.RAILS (shared with the Movie page)
 
   /* ---------- Row: Live and Upcoming ---------- */
   (function(){
@@ -231,7 +233,7 @@
 
   /* ---------- Row: Top 10 in Thailand Today ---------- */
   (function(){
-    var TOP10 = ['d9', 'house', 'john', 'venom', 'avatar', 'debt', 'topgun', 'thailaw', 'lotr', 'dollar'];   // content.js MD.M
+    var TOP10 = MD.RAILS.top10;   // content.js MD.M
     var cards = TOP10.map(function(k, i){
       var m = M(k);
       return '<div class="rank-wrap item" data-k="'+k+'" data-title="#'+(i+1)+' '+m.t.replace(/"/g, '&quot;')+'">'+
@@ -251,7 +253,7 @@
      Each card keeps the pool picture it always had; the title, platform, meta line and synopsis behind each picture
      fill the screen text when it is focused (updateHeroFromCard: data-title / data-tag / data-meta / data-desc). */
   (function(){
-    var MY_LIST = ['loki', 'lastofus', 'wicked', 'superman', 'topgun', 'dragon', 'odyssey', 'siralex'];   // content.js MD.M
+    var MY_LIST = MD.RAILS.myList;   // content.js MD.M
     function attr(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
     var cards = MY_LIST.map(function(k){
       var m = M(k);
@@ -264,16 +266,18 @@
      A dim artwork band behind the rail (30% opacity, fading into the page top and bottom), 220 x 330 short-drama
      poster cards, then a View All pill. Same band spacing as before: 56px above the title, cards centred. */
   (function(){
-    // the first eight short dramas (content.js SHORTS, by data-s): Enter opens each one's page (Content.detailUrl); its
+    // the short dramas (content.js SHORTS, by data-s): Enter opens each one's page (Content.detailUrl); its
     // app's tag bottom-left (ReelShort / DramaBox / ShortMax), as the other poster rails
-    var cards = SHORTS.slice(0, 8).map(function(c, i){
+    // the short dramas, taking turns by app (ReelShort, DramaBox, ShortMax, WeTV, iQIYI) so every app shows in the first 7 cards
+    var cards = [0, 1, 8, 14, 19, 2, 3, 9, 15, 20, 4, 5, 10, 16, 6, 7].map(function(i){
+      var c = SHORTS[i];
       return '<div class="card clip-card item" data-s="'+i+'" data-title="'+c.t.replace(/"/g, '&quot;')+'" style="background-image:url(\'posters/shorts/'+c.img+'\');">'+platformPill(c.plat)+'</div>';
     }).join('') + '<div class="clip-viewall tv-chip item" data-title="Shorts – View All" data-href="short.html" data-ring-art=""><b>Shorts</b><span>View All</span></div>';
     addRow('<div class="row-block clips-row"><div class="clips-bg"></div><div class="clips-bg band-full"></div><div class="row-title">Shorts</div><div class="rail-viewport"><div class="rail-track">'+cards+'</div></div></div>');
   })();
 
 
-  posterRail('Because You Watched “The Lord of the Rings: The Fellowship of the Ring”', ['lotr', 'twotowers', 'hobbit', 'smaug', 'lastking', 'vikings', 'got', 'huntsman', 'stardust', 'pirates', 'readyornot']);
+  posterRail(MD.RAILS.because.t, MD.RAILS.because.list);   // content.js MD.RAILS (shared with the Movie page)
 
   /* ---------- Row: AIS PLAY Exclusive ---------- */
   (function(){
@@ -391,9 +395,9 @@
   })();
 
   /* ---------- Rows: genre rails ---------- */
-  posterRail('Worlds in Chaos', ['y2012', 'westfront', 'wotw', 'wwz', 'khemjira', 'medium', 'thailaw', {k:'debt', badge:'Leaving Soon'}, 'judge', {k:'bigmouth', badge:'Leaving Soon'}, {k:'vincenzo', badge:'Top 10'}]);
-  posterRail('We think you’ll love this', ['anne', 'trauma', 'blackbird', 'cmbyn', 'weakhero', 'anyonebut', 'myname', 'bbcsherlock', 'gooddoctor', 'wolfws']);
-  posterRail('Date Night Picks', ['oneday', 'family', {k:'again', badge:'Leaving Soon'}, 'lawless', 'purple', 'sunrise', 'holidate', 'lalaland', 'oxford', 'starborn', 'meangirls', 'ideaofyou']);
+  posterRail(MD.RAILS.chaos.t, MD.RAILS.chaos.list);
+  posterRail(MD.RAILS.love.t, MD.RAILS.love.list);
+  posterRail(MD.RAILS.dateNight.t, MD.RAILS.dateNight.list);
 
   /* ---------- Row: Seasonal / Collection ---------- */
   (function(){
