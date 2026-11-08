@@ -6,25 +6,96 @@
 
   /* ---------- content: every title is a key in content.js (MD.M, kids:1); the page's own lists below ---------- */
   var M = MD.M, KA = 'kids-assets/';
-  var SCENE = ['moana', 'dora', 'pinkfong', 'powerpuff', 'bluey', 'steven'];             // the first rail (16:9)
+  var SCENE = ['moana', 'steven', 'dora', 'pinkfong', 'powerpuff', 'bluey'];             // the first rail (16:9)
   var CONTINUE = MD.kidsContinue();                                                      // content.js
   var CW_BADGE = { 2:'Leaving Soon', 4:'Top 10' };
   var TOP10 = ['steven', 'powerpuff', 'phineas', 'pororo', 'dora', 'trolls', 'doraemonart', 'standbyme', 'tomjerry', 'trollsbt'];
   var RANK_COLOR = 10;                                                                   // the kids' coloured numerals: 1-5 Figma's, 6-10 drawn to match (kids-assets/rank-N.svg)
+  // a character whose picture changes when focused, in the same disc (Figma For PBR "Tom& Jerry Default" 280:24965 /
+  // "Tom& Jerry focus" 280:24966): a: the default (its disc colour, its picture clipped to the circle), b: the focused one
+  // (its disc colour, then its pictures over it, not clipped: the characters step out of the circle). box: [left, top,
+  // width, height] % of the disc, as Figma places them
+  var TJ_SWAP = {
+    a:{ bg:'#011e4f', imgs:[{src:'ch-tomjerry-default.png', box:[4.28, -0.19, 91.73, 134.46]}] },
+    b:{ bg:'linear-gradient(23.91deg, #ffaf0b 11.68%, #fdd707 81.51%)',
+        imgs:[{src:'ch-tomjerry-focus-chars.png', box:[-2.79, 38.67, 105.07, 61.45], cls:'pop'}, {src:'ch-tomjerry-focus-logo.png', box:[-0.1, 12.09, 100, 20.99], cls:'drop'}] }
+  };
+  // Snowball: his still, then a photo of him with his carrot; both whole pictures (no cut-out), so the focused one stays in
+  // the circle (clip), fading in over the first
+  var SNOW_SWAP = {
+    a:{ bg:'#000', imgs:[{src:'ch-snowball.jpg', cover:'50% 20%'}] },
+    b:{ bg:'#000', clip:1, imgs:[{src:'ch-snowball-focus.webp', cover:'50% 45%', cls:'zoom'}] }
+  };
+  // Finn (Figma For PBR "CardCharacter_3" 280:25038 / "CardCharacterOn_3" 280:25039): arms crossed on navy, then hanging
+  // from a dollar bill with Jake on green, stepping out of the circle as Tom & Jerry's
+  var FINN_SWAP = {
+    a:{ bg:'#011e4f', imgs:[{src:'ch-finn-default.png', box:[-0.09, 2.79, 90.58, 151.25]}] },
+    b:{ bg:'linear-gradient(23.91deg, #018841 11.68%, #14de73 81.51%)', imgs:[{src:'ch-finn-focus.png', box:[-1.92, -3.65, 89.92, 108.54], cls:'pop'}] }
+  };
+  // Woody (Figma For PBR "CardCharacter_4" 280:26612 / "CardCharacterOn_4" 280:26613): arms crossed on navy, then the Toy
+  // Story gang (Bullseye, Buzz, Hamm, Mr. Potato Head) on red, stepping out of the circle (Figma's 332 x 333 frame at
+  // -9, -12 of the 314.6 disc, as % of the disc)
+  var WOODY_SWAP = {
+    a:{ bg:'#011e4f', imgs:[{src:'ch-woody-default.png', box:[19.28, 2.02, 72.96, 197.15]}] },
+    b:{ bg:'linear-gradient(23.91deg, #a72a2b 11.68%, #ff575a 81.51%)', imgs:[{src:'ch-woody-focus.png', box:[3.6, -1.53, 93.25, 109.5], cls:'pop'}] }
+  };
+  // Bluey (Figma For PBR "CardCharacterOn_1" 280:24827 / 280:24828): standing on navy, then flying out of the circle over
+  // a sky scene that stays in it (inside: clipped to the disc)
+  var BLUEY_SWAP = {
+    a:{ bg:'#011e4f', imgs:[{src:'ch-bluey-default.png', box:[-11.25, 5.02, 115.15, 115.2]}] },
+    b:{ bg:'#86c6fc', imgs:[{src:'ch-bluey-focus-bg.png', box:[-151.49, 0.14, 251.78, 141.62], inside:1},
+                            {src:'ch-bluey-focus.png', box:[-39.09, 7.55, 178.04, 104.12], cls:'pop'}] }
+  };
+  // Phineas: his still, then Phineas, Ferb and Perry surfing (a whole picture: in the circle, as Snowball's)
+  var PHINEAS_SWAP = {
+    a:{ bg:'#000', imgs:[{src:'ch-phineas.jpg', cover:'50% 20%'}] },
+    b:{ bg:'#000', clip:1, imgs:[{src:'ch-phineas-focus.webp', cover:'50% 50%', cls:'zoom'}] }
+  };
+  // Doraemon: his still, then Doraemon with Nobita, Shizuka, Gian and Suneo on pink (a whole picture: in the circle)
+  var DORAEMON_SWAP = {
+    a:{ bg:'#000', imgs:[{src:'ch-doraemon.jpg', cover:'50% 20%'}] },
+    b:{ bg:'#000', clip:1, imgs:[{src:'ch-doraemon-focus.webp', cover:'50% 40%', cls:'zoom'}] }
+  };
+  // Mr. Bean: his still, then Mr. Bean in the park pointing (a whole picture: in the circle)
+  var BEAN_SWAP = {
+    a:{ bg:'#000', imgs:[{src:'ch-mrbean.jpg', cover:'50% 20%'}] },
+    b:{ bg:'#000', clip:1, imgs:[{src:'ch-mrbean-focus.webp', cover:'55% 40%', cls:'zoom'}] }
+  };
+  function swapHtml(sw){
+    function layer(l, cls){
+      var over = cls === 'sw-b' && !l.clip;   // a cut-out that steps out of the circle: over the focus ring
+      // inside: a picture kept in the circle under the cut-outs (its own clipped disc)
+      var inside = l.imgs.filter(function(p){ return p.inside; }).map(function(p){ return pic(p, false); }).join('');
+      return '<div class="sw ' + cls + (l.clip ? ' clip' : '') + '"><i class="sw-disc" style="background:' + l.bg + '"></i>' +
+        (inside ? '<div class="sw-in">' + inside + '</div>' : '') + l.imgs.filter(function(p){ return !p.inside; }).map(function(p){ return pic(p, over); }).join('') + '</div>';
+    }
+    function pic(p, over){
+        // cover: a whole picture filling the disc (its object-position); else Figma's box
+        if(p.cover) return '<img class="cover ' + (p.cls || '') + '" src="' + KA + p.src + '" alt="" style="object-position:' + p.cover + '">';
+        var b = p.box;
+        // the focused picture's parts sit over the focus ring (focus-ring.js data-ring-top), as they step out of the circle
+        return '<img class="' + (p.cls || '') + '"' + (over ? ' data-ring-top=""' : '') + ' src="' + KA + p.src + '" alt="" style="left:' + b[0] + '%;top:' + b[1] + '%;width:' + b[2] + '%;height:' + b[3] + '%">';
+    }
+    return layer(sw.a, 'sw-a') + layer(sw.b, 'sw-b');
+  }
   // Character (Figma's portraits): who they are and the show they open; fav: the heart (a favourite)
-  var CHARS = [{n:'Snowball', img:'ch-snowball.jpg', fav:1}, {n:'Tom & Jerry', img:'ch-tomjerry.jpg', k:'tomjerry'}, {n:'Finn', img:'ch-finn.jpg'},
-               {n:'Lady & Tramp', img:'ch-lady.jpg', k:'lady'}, {n:'Poppy & Branch', img:'ch-poppy.jpg', k:'trolls'}, {n:'Phineas Flynn', img:'ch-phineas.jpg', k:'phineas'},
-               {n:'Doraemon', img:'ch-doraemon.jpg', k:'standbyme'}, {n:'Mr. Bean', img:'ch-mrbean.jpg', k:'mrbean'}];
+  var CHARS = [{n:'Snowball', img:'ch-snowball.jpg', fav:1, swap:SNOW_SWAP}, {n:'Tom & Jerry', img:'ch-tomjerry.jpg', k:'tomjerry', swap:TJ_SWAP}, {n:'Finn', img:'ch-finn.jpg', swap:FINN_SWAP},
+               {n:'Woody', swap:WOODY_SWAP}, {n:'Bluey', k:'bluey', swap:BLUEY_SWAP}, {n:'Phineas Flynn', img:'ch-phineas.jpg', k:'phineas', swap:PHINEAS_SWAP},
+               {n:'Doraemon', img:'ch-doraemon.jpg', k:'standbyme', swap:DORAEMON_SWAP}, {n:'Mr. Bean', img:'ch-mrbean.jpg', k:'mrbean', swap:BEAN_SWAP}];
   var FOR_YOU = ['steven', 'doraemonart', 'powerpuff', 'trolls', 'dora'];
-  var DORAEMON = ['doraemonart', 'doraemoncastle', 'standbyme'];
+  var DORAEMON = ['doraemonart', 'doraemoncastle', 'doraemonsymphony', 'doraemonsky', 'doraemondino', 'doraemonjapan', 'standbyme'];
   var YOUNGER = [{k:'pororo', b:'New'}, {k:'dora', tag:1}, {k:'phineas', b:'Best Seller'}, {k:'trollsholiday', tag:1}, {k:'standbyme', b:'Leaving Soon'}, {k:'lady'}, {k:'trolls'}];
   var OLDER = [{k:'steven'}, {k:'powerpuff'}, {k:'tomjerry', tag:1}, {k:'mrbean', b:'Leaving Soon'}, {k:'trollswt'}, {k:'doraemoncastle', b:'New'}, {k:'trollsbt'}];
   var QUICK = [{k:'tomjerry'}, {k:'pororo', b:'Best Seller'}, {k:'powerpuff', tag:1}, {k:'phineas'}, {k:'dora'}, {k:'mrbean', b:'Leaving Soon'}, {k:'trollsholiday'}];
   var TROLLS = ['trollsholiday', 'trollswt', 'trolls', 'trollsbt'];
+  // the collection bands' words (Doraemon, Trolls): the collection's own, whichever of its films has focus
+  var DORAEMON_TEXT = { t:'Doraemon the Movie', d:'Big adventures with Doraemon, Nobita and friends: magical gadgets, faraway worlds and a friendship that lasts forever.' };
+  var TROLLS_TEXT = { t:'Trolls Collection', d:'Sing, dance and hug along with Poppy, Branch and the whole Troll family, from their very first adventure to the holiday special, World Tour and Band Together.' };
   var RENTAL = ['moana', 'steven', 'bluey', 'pinkfong'];
   var MY_LIST = [{k:'bluey', b:'New'}, {k:'dora', tag:1}, {k:'powerpuff', b:'Leaving Soon'}, {k:'pinkfong'}, {k:'moana'}];
-  var COLLECTIONS = [{t:'Trolls Collection', img:KA + 'trolls-band.jpg'}, {t:'Doraemon the Movie', img:KA + 'doraemon-band.jpg'},
-                     {t:'Moana & Friends', img:KA + 'moana-bg.jpg'}, {t:'Cartoon Classics', img:KA + 'steven-bg.jpg'}, {t:'Bluey', img:KA + 'bluey-w.jpg'}];
+  var COLLECTIONS = [{t:'Trolls Collection', img:KA + 'trolls-collection.webp'}, {t:'Doraemon the Movie', img:KA + 'doraemon-collection.webp'},
+                     {t:'Moana & Friends', img:KA + 'moana-bg.jpg'}, {t:'Cartoon Classics', img:KA + 'cartoon-classics.webp'}, {t:'Bluey', img:KA + 'bluey-w.jpg'},
+                     {t:'Tom and Jerry', img:KA + 'tomjerry-collection.webp'}];
   // Learn: DLTV's distance-learning classes (Figma's subjects and logos)
   var LEARN = [{s:'English', c:'Grade 1'}, {s:'Math', c:'Grade 2'}, {s:'Thai', c:'Grade 3'}, {s:'Science', c:'Grade 4'},
                {s:'Japanese', c:'Grade 5'}, {s:'Chinese', c:'Grade 6'}, {s:'Chinese', c:'Grade 7'}];   // (Thai Prathom 1-6, Mathayom 1)
@@ -72,7 +143,7 @@
       '<div class="rank-poster item"' + attrs({kind:'title', k:k, set:'top10', i:i}) + ' style="background-image:url(\'' + m.p + '\')">' + corner(k, 1) + '</div></div>';
   }).join('') + '</div></div></section>';
   html += sec('chars', 'Characters', CHARS.map(function(c, i){
-    return '<div class="char"><div class="ph item"' + attrs({kind:'char', i:i}) + ' data-ring-art="" style="background-image:url(\'' + KA + c.img + '\')">' +
+    return '<div class="char"><div class="ph item' + (c.swap ? ' swap' : '') + '"' + attrs({kind:'char', i:i}) + ' data-ring-art=""' + (c.swap ? '' : ' style="background-image:url(\'' + KA + c.img + '\')"') + '>' + (c.swap ? swapHtml(c.swap) : '') +
       (c.fav ? '<span class="cfav" data-ring-top="styled"><img src="icons/tv-guide/heart-fill.svg" alt="Favorite"></span>' : '') + '</div><div class="nm">' + esc(c.n) + '</div></div>';
   }).join(''), 'chars');
   html += sec('foryou', 'For You', FOR_YOU.map(function(k, i){
@@ -83,7 +154,7 @@
       '<div class="xc-wide" style="background-image:url(\'' + MD.bg(k) + '\')"></div><div class="xc-scrim ev-scrim"></div>' +
       '<div class="xc-content ev-info"><h3>' + esc(m.t) + '</h3><div class="meta">' + Content.metaHtml({k:k}, true) + '</div><p class="syn">' + esc(m.d) + '</p></div></div>';
   }).join(''));
-  html += '<section class="sec band" data-row="doraemon"><div class="b-pic" style="background-image:url(\'' + KA + 'doraemon-band.jpg\')"></div><div class="b-t"></div><div class="rail"><div class="track">' +
+  html += '<section class="sec band" data-row="doraemon"><div class="b-pic" style="background-image:url(\'' + KA + 'doraemon-band.jpg\')"></div><div class="b-t"></div><p class="b-d"></p><div class="rail"><div class="track">' +
     DORAEMON.map(function(k, i){ return poster(k, i, 'doraemon'); }).join('') + '</div></div></section>';
   html += sec('younger', 'Younger Kids (Ages 4–8)', YOUNGER.map(function(c, i){ return poster(c.k, i, 'younger', c.b, c.tag); }).join(''), 'tall');
   html += sec('older', 'Older Kids (Ages 9–12)', OLDER.map(function(c, i){ return poster(c.k, i, 'older', c.b, c.tag); }).join(''), 'tall');
@@ -173,7 +244,7 @@
   }
   // ---- a band's words speak for its focused poster ----
   function paintBand(r, el){
-    var m = M[el.dataset.k], t = r.sec.querySelector('.b-t'), d = r.sec.querySelector('.b-d');
+    var m = r.key === 'trolls' ? TROLLS_TEXT : r.key === 'doraemon' ? DORAEMON_TEXT : M[el.dataset.k], t = r.sec.querySelector('.b-t'), d = r.sec.querySelector('.b-d');   // (Trolls, Doraemon: one text for the collection)
     if(t.textContent !== m.t){ t.textContent = m.t; if(d) d.textContent = m.d; }
   }
   rows.forEach(function(r){ if(r.sec && r.sec.classList.contains('band')) paintBand(r, r.items[0]); });

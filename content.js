@@ -41,6 +41,13 @@
 */
 (function(){
   var PP = 'posters_portrait/', P = 'posters/', K = 'kids-assets/';
+  // a news series' episodes (MD.M eps), oldest first: [air date, episode title, its words (else the series')], img its
+  // picture (news-assets/), m its minutes; more (with morePics, full paths): newer episodes after them, [3] a full-screen picture
+  function newsEps(dir, m, pics, list, morePics, more){
+    var eps = list.map(function(e, i){ return { date:e[0], t:e[1], d:e[2], img:'news-assets/' + dir + pics[i], m:m }; });
+    (more || []).forEach(function(e, i){ eps.push({ date:e[0], t:e[1], d:e[2], img:morePics[i], bg:e[3], m:m }); });   // (episodes whose pictures sit elsewhere: their own paths)
+    return eps;
+  }
   var M = {
     d9:     {t:'District 9', w:P + 'district9.jpg', v:'video/District9.mp4', plat:'monomax', g:['Sci-Fi', 'Action'], y:2009, len:'1h 52m', age:'16+',
              d:'Aliens stranded over Johannesburg are forced into a slum, until a field agent exposed to their technology starts to become one of them.'},
@@ -160,7 +167,7 @@
              d:'A detective, his judge brother and a social worker are pulled into a string of murders tied to a terrible secret from their childhood.'},
     dutyschool:{t:'Duty After School', p:PP + 'viu/u3.jpg', plat:'viu', g:['Sci-Fi', 'Action'], y:2023, len:'1 Season', age:'16+',
              d:'When mysterious orbs appear in the sky and attack, a class of high school seniors is drafted to fight under one young army sergeant.'},
-    goodpartner:{t:'Good Partner 2', p:PP + 'viu/u4.jpg', plat:'viu', g:['Legal', 'Drama'], y:2026, len:'2 Seasons', age:'13+',
+    goodpartner:{t:'Good Partner 2', p:PP + 'viu/u4.jpg', w:P + 'continue/c6.jpg', plat:'viu', g:['Legal', 'Drama'], y:2026, len:'2 Seasons', age:'13+',
              d:'Star divorce lawyer Cha Eun-kyung and her team return to untangle the messiest splits in Seoul, while saving each other along the way.'},
     fateful:{t:'You Are My Fateful Love', p:PP + 'viu/u5.jpg', plat:'viu', g:['Romance', 'Drama'], y:2025, len:'1 Season', age:'13+',
              d:'A piano prodigy and the girl he met as a child find each other again years later, and fate refuses to let them go.'},
@@ -293,40 +300,100 @@
              d:'Odysseus fights his way home across a hostile sea after the fall of Troy, ten years from his family.'},
     // Kids (kids.html, Figma Prototype "PLAY:kidsHome_mainPageStructure" 210:53522; pictures in kids-assets/). logo: a title
     // drawn as its logo on its screen (Steven Universe)
-    moana:  {t:'Moana', w:K + 'moana-bg.jpg', plat:'disney', g:['Animation', 'Adventure'], y:2016, len:'1h 47m', age:'G', kids:1,
+    moana:  {t:'Moana', w:K + 'moana-bg.jpg', logo:K + 'moana-logo.png', plat:'disney', g:['Animation', 'Adventure'], y:2016, len:'1h 47m', age:'G', kids:1,
              d:'A spirited teenager sails out on a daring mission to save her people, joined by the once-mighty demigod Maui.'},
     dora:   {t:'Dora the Explorer', p:K + 'dora-p.jpg', w:K + 'dora-w.jpg', plat:'prime', g:['Animation', 'Learning'], y:2000, len:'8 Seasons', age:'G', kids:1,
              d:'Dora and her best friend Boots set off on adventures, solving puzzles and learning Spanish words along the way.'},
     pinkfong:{t:'Pinkfong Baby Shark', w:K + 'pinkfong-w.jpg', plat:'ais', g:['Music', 'Learning'], y:2016, len:'2 Seasons', age:'G', kids:1,
              d:'Sing and dance along with Baby Shark and the Pinkfong friends in songs made for little ones.'},
-    powerpuff:{t:'The Powerpuff Girls', p:K + 'powerpuff-p.jpg', w:K + 'powerpuff-w.jpg', plat:'hbo', g:['Animation', 'Action'], y:2016, len:'3 Seasons', age:'7+', kids:1,
+    powerpuff:{t:'The Powerpuff Girls', p:K + 'powerpuff-p.jpg', w:K + 'powerpuff-w.jpg', b:K + 'powerpuff-bg.webp', plat:'hbo', g:['Animation', 'Action'], y:2016, len:'3 Seasons', age:'7+', kids:1,
              d:'Blossom, Bubbles and Buttercup save the day in Townsville, all before bedtime.'},
     bluey:  {t:'Bluey', w:K + 'bluey-w.jpg', plat:'disney', g:['Animation', 'Family'], y:2018, len:'3 Seasons', age:'G', kids:1,
              d:'Bluey, a Blue Heeler puppy, turns everyday family life into big imaginative games with her sister Bingo.'},
-    steven: {t:'Steven Universe', p:K + 'steven-p.jpg', b:K + 'steven-bg.jpg', logo:K + 'steven-logo.png', plat:'hbo', g:['Animation', 'Adventure'], y:2013, len:'5 Seasons', age:'7+', kids:1,
+    steven: {t:'Steven Universe', p:K + 'steven-p.jpg', w:K + 'steven-w.jpg', b:K + 'steven-bg.jpg', logo:K + 'steven-logo.png', plat:'hbo', g:['Animation', 'Adventure'], y:2013, len:'5 Seasons', age:'7+', kids:1,
              d:'Half-human, half-Gem, Steven learns to use his powers alongside the Crystal Gems to protect the world.'},
-    phineas:{t:'Phineas and Ferb', p:K + 'phineas-p.jpg', plat:'disney', g:['Animation', 'Comedy'], y:2007, len:'4 Seasons', age:'G', kids:1,
+    phineas:{t:'Phineas and Ferb', p:K + 'phineas-p.jpg', b:K + 'phineas-bg.webp', plat:'disney', g:['Animation', 'Comedy'], y:2007, len:'4 Seasons', age:'G', kids:1,
              d:'Two stepbrothers fill every day of summer vacation with impossible inventions, while their pet platypus fights evil.'},
-    pororo: {t:'Pororo the Little Penguin', p:K + 'pororo-p.jpg', plat:'ais', g:['Animation', 'Learning'], y:2003, len:'7 Seasons', age:'G', kids:1,
+    pororo: {t:'Pororo the Little Penguin', p:K + 'pororo-p.jpg', b:K + 'pororo-bg.webp', plat:'ais', g:['Animation', 'Learning'], y:2003, len:'7 Seasons', age:'G', kids:1,
              d:'Pororo and his friends play, quarrel and make up in their snowy village, learning something new every day.'},
-    doraemonart:{t:"Doraemon the Movie: Nobita's Art World Tales", p:K + 'doraemon-art-p.jpg', b:K + 'doraemon-band.jpg', plat:'ais', g:['Animation', 'Adventure'], y:2025, len:'1h 45m', age:'G', kids:1,
+    doraemonart:{t:"Doraemon the Movie: Nobita's Art World Tales", p:K + 'doraemon-art-p.jpg', b:K + 'doraemon-collection.webp', plat:'ais', g:['Animation', 'Adventure'], y:2025, len:'1h 45m', age:'G', kids:1,
              d:'Doraemon and friends jump into a famous painting and find a medieval kingdom, a lost jewel and a dragon on the loose.'},
     doraemoncastle:{t:'Doraemon: Nobita and the Castle of the Undersea Devil', p:K + 'doraemon-castle-p.jpg', b:K + 'doraemon-band.jpg', plat:'ais', g:['Animation', 'Adventure'], y:2026, len:'1h 50m', age:'G', kids:1,
              d:'A summer camp on the sea floor turns into an adventure when the gang finds a sunken city and a castle that should not wake.'},
-    standbyme:{t:'Stand by Me Doraemon', p:K + 'standbyme-p.jpg', plat:'ais', g:['Animation', 'Family'], y:2014, len:'1h 35m', age:'G', kids:1,
+    doraemonsymphony:{t:"Doraemon the Movie: Nobita's Earth Symphony", p:K + 'doraemon-symphony-p.jpg', b:K + 'doraemon-collection.webp', plat:'ais', g:['Animation', 'Music'], y:2024, len:'1h 55m', age:'G', kids:1,
+             d:'A mysterious girl invites Nobita to a palace in space powered by music, and the friends must play together to save the world from a silence that eats every sound.'},
+    doraemonsky:{t:"Doraemon the Movie: Nobita's Sky Utopia", p:K + 'doraemon-skyutopia-p.jpg', b:K + 'doraemon-collection.webp', plat:'ais', g:['Animation', 'Adventure'], y:2023, len:'1h 48m', age:'G', kids:1,
+             d:'Doraemon and friends fly off to find Paradapia, a perfect utopia floating in the sky where everyone is happy, but paradise is hiding a secret.'},
+    doraemondino:{t:"Doraemon the Movie: Nobita's New Dinosaur", p:K + 'doraemon-newdino-p.jpg', b:K + 'doraemon-collection.webp', plat:'ais', g:['Animation', 'Adventure'], y:2020, len:'1h 50m', age:'G', kids:1,
+             d:'Nobita hatches twin baby dinosaurs from a fossil egg and travels back to the age of dinosaurs to find them a home.'},
+    doraemonjapan:{t:'Doraemon: Nobita and the Birth of Japan', p:K + 'doraemon-birthjapan-p.jpg', b:K + 'doraemon-collection.webp', plat:'ais', g:['Animation', 'Adventure'], y:2016, len:'1h 44m', age:'G', kids:1,
+             d:'Tired of the modern world, Nobita and friends run away 70,000 years into the past, where they meet a boy from a lost tribe and an evil sorcerer who wants it all.'},
+    standbyme:{t:'Stand by Me Doraemon', p:K + 'standbyme-p.jpg', b:K + 'doraemon-collection.webp', plat:'ais', g:['Animation', 'Family'], y:2014, len:'1h 35m', age:'G', kids:1,
              d:'A robot cat from the future arrives to help Nobita, the boy who never gets anything right, change his destiny.'},
-    trolls: {t:'Trolls', p:K + 'trolls-p.jpg', b:K + 'trolls-band.jpg', plat:'prime', g:['Animation', 'Music'], y:2016, len:'1h 32m', age:'G', kids:1,
+    trolls: {t:'Trolls', p:K + 'trolls-p.jpg', b:K + 'trolls-collection.webp', plat:'prime', g:['Animation', 'Music'], y:2016, len:'1h 32m', age:'G', kids:1,
              d:'Upbeat Poppy and grumpy Branch set out to rescue their friends from the Bergens, who think Trolls make them happy.'},
     trollsholiday:{t:'Trolls Holiday', p:K + 'trolls-holiday-p.jpg', b:K + 'trolls-band.jpg', plat:'prime', g:['Animation', 'Music'], y:2017, len:'26m', age:'G', kids:1,
              d:'Poppy finds out the Bergens have no holidays of their own, and sets out to give them one.'},
     trollswt:{t:'Trolls World Tour', p:K + 'trolls-worldtour-p.jpg', b:K + 'trolls-band.jpg', plat:'prime', g:['Animation', 'Music'], y:2020, len:'1h 31m', age:'G', kids:1,
              d:'Poppy and Branch discover five other Troll tribes, each devoted to its own kind of music, and a queen who wants them all.'},
-    trollsbt:{t:'Trolls Band Together', p:K + 'trolls-bandtogether-p.jpg', b:K + 'trolls-band.jpg', plat:'prime', g:['Animation', 'Music'], y:2023, len:'1h 32m', age:'G', kids:1,
+    trollsbt:{t:'Trolls Band Together', p:K + 'trolls-bandtogether-p.jpg', b:K + 'trolls-collection.webp', plat:'prime', g:['Animation', 'Music'], y:2023, len:'1h 32m', age:'G', kids:1,
              d:'Branch reunites his long-lost boy band brothers to rescue one of them, with Poppy along for the ride.'},
     tomjerry:{t:'Tom and Jerry', p:K + 'ch-tomjerry.jpg', plat:'hbo', g:['Animation', 'Comedy'], y:1940, len:'7 Seasons', age:'G', kids:1,
              d:'A cat and a mouse who never stop chasing each other star in the classic cartoons that made the world laugh.'},
     lady:   {t:"Lady and the Tramp II: Scamp's Adventure", p:K + 'ch-lady.jpg', plat:'disney', g:['Animation', 'Family'], y:2001, len:'1h 9m', age:'G', kids:1,
              d:'Lady and Tramp\'s puppy Scamp longs for the wild life of a street dog, until he learns what home really means.'},
+    // News page: AIS PLAY's own news series, each episode a dated programme with its own picture (eps: oldest first;
+    // MD.episodes gives them as Season 1). The News page's episode rails show them newest first
+    honekrasae:{t:'Hone-Krasae (โหนกระแส)', w:'news-assets/ep-honkrasae-1.png', plat:'ais', g:['News', 'Talk Show'], y:2026, len:'1 Season', age:'G',
+             d:'โหนกระแส ทุกประเด็นร้อนที่สังคมพูดถึง ถามตรง ตอบจริง กับหนุ่ม กรรชัย', eps:newsEps('ep-honkrasae', 60,
+               ['-7.jpg', '-6.jpg', '-5.jpg', '-4.jpg', '-3.jpg', '-2.png', '-1.png'],
+               [['15/10/26', 'จักรวาล "สาวเฟิร์น"'],
+                ['16/10/26', 'เคราะห์ซ้ำกรรมซัด! ลูกสาวร้อง พ่อตายถูกบิดเงินค่าที่ดินกว่า 2 ล้าน'],
+                ['19/10/26', 'รวมตัวแฉ! อินฟลูฯหนุ่ม อ้างเป็น ตร.หลอกสาวถ่ายงาน ชวนมีสัมพันธ์'],
+                ['20/10/26', 'เรื่องแมวๆ ที่ไม่แมว ถึงขั้นขึ้นโรงขึ้นศาล!'],
+                ['21/10/26', '#1 มรสุม "บุ๋ม ปนัดดา"'],
+                ['22/10/26', 'ช่วยด้วย! รองเจ้าอาวาสยึดวัด พบพิรุธเงินหายนับล้าน แถมมีสีกามาเอี่ยว'],
+                ['23/10/26', '#2 มรสุม "บุ๋ม ปนัดดา"']], ['news-assets/hotvod/hv-1.png'], [['05/11/26', '#6 มรสุม "บุ๋ม ปนัดดา" สละเรือ!!!', null, 'news-assets/hotvod/hv-1-bg.webp']])},
+    globalstory:{t:'BBC The Global Story', w:'news-assets/ep-globalstory-1.jpg', plat:'ais', g:['News', 'World'], y:2026, len:'1 Season', age:'G',
+             d:'One story, every weekday: the BBC\u2019s journalists go behind the headline to explain what it means for the world.', eps:newsEps('ep-globalstory', 25,
+               ['.png', '-7.jpg', '-6.jpg', '-5.jpg', '-4.jpg', '-3.jpg', '-2.jpg', '-1.jpg'],
+               [['13/08/26', 'The Global Story'],
+                ['23/08/26', 'Would Spheres of Influence Make the World More Peaceful?'],
+                ['03/09/26', 'Why Are White South Africans Accessing US Refugee Programs?'],
+                ['13/09/26', 'Is a Decline in Reading Making Us Less Intelligent?'],
+                ['23/09/26', 'Inside Afghanistan', 'Asma Khalid hears from people inside Afghanistan about life there today.'],
+                ['03/10/26', 'Why Are Sperm Counts Dropping?'],
+                ['13/10/26', 'Saudi Crown Prince Visits the White House'],
+                ['23/10/26', 'Voice of Ghada al-Kurd', 'Freelance journalist Ghada al-Kurd on reporting from Gaza.']])},
+    witness:{t:'Witness', w:'news-assets/ep-witness-1.jpg', plat:'ais', g:['News', 'Documentary'], y:2026, len:'1 Season', age:'G',
+             d:'Witness: award-winning documentaries that tell the human stories behind the news.', eps:newsEps('ep-witness', 47,
+               ['.png', '-7.jpg', '-6.jpg', '-5.jpg', '-4.jpg', '-3.jpg', '-2.jpg', '-1.jpg'],
+               [['23/03/26', 'ROT54: Armenia\u2019s Forgotten Space Giant', 'A film by Marta Miskaryan about ROT54, the giant Soviet-era telescope in the mountains of Armenia.'],
+                ['23/04/26', 'After the Floods: Saving Spain\u2019s Coastline', 'After the floods, the people working to save Spain\u2019s coastline.'],
+                ['23/05/26', 'A Boy Investigates', 'A boy investigates his father\u2019s mysterious death in Kenya.'],
+                ['23/06/26', 'Shoot the People', 'Global activism through photographer Misan Harriman\u2019s lens.'],
+                ['23/07/26', 'Inside Sednaya: Syria\u2019s Prison of Secrets', 'Inside Sednaya, the Syrian prison where thousands disappeared.'],
+                ['23/08/26', 'Gaza Family Reunion', 'Finding each other after the ceasefire: a Gaza family\u2019s search.'],
+                ['23/09/26', 'The Deaf Moroccan', 'A deaf Moroccan migrant in Spain struggling to reunite with his family.'],
+                ['23/10/26', 'Peter Magubane', 'The legacy of one of South Africa\u2019s most renowned photographers.']])},
+    // News page, Hot VOD: AIS PLAY's news and business talk series, each with its episodes (as above)
+    secretsauce:{t:'The Secret Sauce', w:'news-assets/hotvod/hv-4.png', plat:'ais', g:['News', 'Business'], y:2026, len:'1 Season', age:'G',
+             d:'Business stories from the people who build them: founders, leaders and creatives on how they win, and what they learned on the way.',
+             eps:newsEps('', 45, [], [], ['news-assets/hotvod/hv-2.png', 'news-assets/hotvod/hv-4.png'],
+               [['11/05/24', 'The Secret Sauce Summit 2024', 'Live from Khon Kaen: "Don\u2019t erase the past, cross it out, so you never make the same mistake again."'],
+                ['02/05/26', 'รู้จัก Dan Epstein แห่ง CNN', 'Meet Dan Epstein of CNN, the creative who builds brands for the world\u2019s biggest partners.']])},
+    spotlight:{t:'Spotlight', w:'news-assets/hotvod/hv-5.png', plat:'ais', g:['News', 'Business'], y:2026, len:'1 Season', age:'G',
+             d:'Spotlight Short Cut: the ideas, people and deals shaping business in Thailand and the region.',
+             eps:newsEps('', 30, [], [], ['news-assets/hotvod/hv-5.png'],
+               [['23/09/26', 'Global Perspectives: In Bangkok', 'CNN comes to Bangkok for Global Perspectives, 14 October 2026.']])},
+    tnntech:{t:'TNN Tech', w:'news-assets/hotvod/hv-6.png', plat:'ais', g:['News', 'Tech'], y:2026, len:'1 Season', age:'G',
+             d:'TNN Tech: the technology, startups and business ideas shaping tomorrow, from TNN.',
+             eps:newsEps('', 30, [], [], ['news-assets/hotvod/hv-6.png'],
+               [['23/09/26', 'Future Forum 2026', 'TNN Future Forum 2026: happiness you can measure, and Happitat\u2019s customer-first strategy.']])},
+    fastfact:{t:'Fast Fact', w:'news-assets/hotvod/hv-7.png', plat:'ais', g:['News', 'Talk Show'], y:2026, len:'1 Season', age:'G',
+             d:'Fast Fact Perspective: one guest, one topic, the facts in minutes.',
+             eps:newsEps('', 20, [], [], ['news-assets/hotvod/hv-7.png'],
+               [['30/07/26', 'สมชัย กูรูละแวกบ้าน', 'Fast Fact Perspective with Somchai, the neighborhood guru.']])},
     mrbean: {t:'Mr. Bean: The Animated Series', p:K + 'ch-mrbean.jpg', plat:'prime', g:['Animation', 'Comedy'], y:2002, len:'5 Seasons', age:'G', kids:1,
              d:'Mr. Bean, his teddy bear and his little car get into one silly scrape after another, with hardly a word said.'}
   };
@@ -334,7 +401,8 @@
   // detail page alike (Content.hero / MD.bg); a title without one uses its 16:9 picture, else its poster
   var B = { topgun:'topgun-m', wicked:'wicked', superman:'superman', house:'house-of-the-dragon', lastofus:'last-of-us', loki:'loki',
             dragon:'how-to-train', john:'john-wick', venom:'venom', f1:'f1', lotr:'lotr', thailaw:'evil-lawyer', dollar:'one-dollar-lawyer',
-            sherlock:'young-sherlock', endgame:'endgame', hailmary:'hailmary', encanto:'encanto', stranger:'stranger-things', spider:'spiderman' };
+            sherlock:'young-sherlock', endgame:'endgame', hailmary:'hailmary', encanto:'encanto', stranger:'stranger-things', spider:'spiderman',
+            goodpartner:'good-partner' };
   for(var bk in B) M[bk].b = P + 'hero/' + B[bk] + '.jpg';
   // q: the titles in 4K with Dolby Atmos (a 4K pill and the Dolby mark, MD.qtag); every other title is HD
   ['avatar', 'topgun', 'f1', 'house', 'got', 'lotr', 'spider', 'endgame', 'odyssey', 'superman', 'stranger', 'wicked']
@@ -370,7 +438,7 @@
   for(var ok in OFFERS){ M[ok].pkg = !!OFFERS[ok].pkg; M[ok].buy = OFFERS[ok].buy || 0; M[ok].rent = OFFERS[ok].rent || 0; if(OFFERS[ok].ev) M[ok].ev = 1; }
   // titles made from a card that had no data of its own (Content.open): back into the catalogue on every page
   try { var ADHOC = JSON.parse(sessionStorage.getItem('contentAdhoc') || '{}'); for(var ak in ADHOC) if(!M[ak]) M[ak] = ADHOC[ak]; } catch(e){}
-  var CONTINUE = [{k:'sherlock', s:1, e:5, w:31, of:58}, {k:'endgame', w:122, of:181}, {k:'lastofus', s:1, e:4, w:22, of:50}, {k:'encanto', w:61, of:102}, {k:'hailmary', w:101, of:156},
+  var CONTINUE = [{k:'sherlock', s:1, e:5, w:31, of:58}, {k:'endgame', w:122, of:181}, {k:'lastofus', s:1, e:4, w:22, of:50}, {k:'goodpartner', s:2, e:3, w:35, of:62}, {k:'hailmary', w:101, of:156}, {k:'encanto', w:61, of:102},
                   {k:'spider', w:41, of:148}, {k:'stranger', s:1, e:3, w:34, of:50}];
   var FOR_YOU = [{k:'d9', price:199}, {k:'avatar', price:399}, {k:'f1', price:199}, {k:'topgun', price:149}, {k:'john', price:149}];
   var RENT = [{k:'avatar', b:'Recommended'}, {k:'f1', b:'Best Seller'}, {k:'topgun', b:'Best Seller'}, {k:'john'}, {k:'venom'}, {k:'lotr'}, {k:'hobbit'}];
@@ -378,13 +446,15 @@
   // the same rail shows the same titles on both pages; the Movie page's Movies and Series are every title in them
   var RAILS = {
     top10:['d9', 'house', 'john', 'f1', 'avatar', 'debt', 'topgun', 'thailaw', 'lotr', 'dollar'],
-    hot:['f1', 'house', 'john', 'venom', 'avatar', 'debt', 'topgun'],
+    hot:['f1', 'house', 'blind', 'john', 'venom', 'avatar', 'debt', 'topgun'],
     myList:['loki', 'queensgambit', 'guilty', 'reply1988', 'fourweddings', 'dragon', 'odyssey', 'siralex'],
     because:{ t:'Because You Watched “The Lord of the Rings: The Fellowship of the Ring”', list:['lotr', 'twotowers', 'hobbit', 'smaug', 'lastking', 'vikings', 'got', 'huntsman', 'stardust', 'pirates', 'readyornot', 'generation', 'peacock'] },
     chaos:{ t:'Worlds in Chaos', list:['y2012', 'westfront', 'wotw', 'wwz', 'blind', 'dutyschool', 'bittersweet', 'heroine', 'khemjira', 'medium', 'thailaw', {k:'debt', badge:'Leaving Soon'}, 'judge', {k:'bigmouth', badge:'Leaving Soon'}, {k:'vincenzo', badge:'Top 10'}] },
     love:{ t:'We think you’ll love this', list:['anne', 'trauma', 'blackbird', 'cmbyn', 'weakhero', 'anyonebut', 'myname', 'bbcsherlock', 'gooddoctor', 'wolfws', 'goodpartner', 'hauntedpalace', 'followheart', 'sunstar', 'yesterday', 'ning', 'momentforever'] },
     dateNight:{ t:'Date Night Picks', list:['oneday', 'family', {k:'again', badge:'Leaving Soon'}, 'lawless', 'fateful', 'aboutlove', 'perfecther', 'overdo', 'predict', 'mist', 'midnight', 'purple', 'sunrise', 'holidate', 'lalaland', 'oxford', 'starborn', 'meangirls', 'ideaofyou'] }
   };
+  // News page Hot VOD: the latest news episodes everyone is watching (series key, episode number in MD.episodes)
+  var HOT_VOD = [{k:'honekrasae', e:8}, {k:'secretsauce', e:1}, {k:'witness', e:7}, {k:'secretsauce', e:2}, {k:'spotlight', e:1}, {k:'tnntech', e:1}, {k:'fastfact', e:1}];
   var MY_RENTAL = ['odyssey', 'spider', 'd9', 'lastofus', 'vikings'];   // (F1 and Top Gun are for sale: OFFERS)
   // series sold one by one (Figma "Series MD: First scene": View Package + Buy 279 baht)
   var SERIES_PRICE = { house:279, got:279, loki:199 };
@@ -401,10 +471,12 @@
   function series(k){ return /Season/.test((M[k] && M[k].len) || ''); }
   function seasons(k){ return series(k) ? Math.min(3, parseInt(M[k].len, 10) || 1) : 0; }
   function episodes(k, s){
+    // a series with its own episodes (MD.M eps: the news series): those, as Season 1, each with its own picture
+    if(M[k] && M[k].eps) return M[k].eps.map(function(e, i){ return { s:1, n:i + 1, t:e.t, date:e.date, m:e.m, d:e.d || M[k].d, img:e.img, bg:e.bg }; });   // bg: a full-screen picture of its own
     return EP_NAMES.map(function(t, i){ var j = (i + s - 1) % 8; return { s:s, n:i + 1, t:EP_NAMES[j], m:EP_MIN[j], d:EP_DESC[j] }; });
   }
   function episode(k, s, e){ return episodes(k, s)[e - 1]; }
-  function next(k, s, e){ return e < 8 ? episode(k, s, e + 1) : s < seasons(k) ? episode(k, s + 1, 1) : null; }
+  function next(k, s, e){ return e < episodes(k, s).length ? episode(k, s, e + 1) : s < seasons(k) ? episode(k, s + 1, 1) : null; }
   function until(k){ return MY_RENTAL.indexOf(k) >= 0 && UNTIL[k] || null; }
   // rented this session (purchase.html, Rent): 48 hours from then, first in My Rental, with its last day
   var RENT_HOURS = 48;
@@ -473,7 +545,7 @@
     if(!bought && MY_RENTAL.indexOf(k) < 0 && (price(k) || (offers(k) && M[k].pkg))) return 'buy';   // (View Package only: for sale too)
     return cw(k) ? 'resume' : 'play';
   }
-  window.MD = { P:P, PP:PP, M:M, RAILS:RAILS, CONTINUE:CONTINUE, FOR_YOU:FOR_YOU, RENT:RENT, MY_RENTAL:MY_RENTAL, state:state, price:price, own:own, cw:cw, setProgress:setProgress, minutes:minutes,
+  window.MD = { P:P, PP:PP, M:M, RAILS:RAILS, HOT_VOD:HOT_VOD, CONTINUE:CONTINUE, FOR_YOU:FOR_YOU, RENT:RENT, MY_RENTAL:MY_RENTAL, state:state, price:price, own:own, cw:cw, setProgress:setProgress, minutes:minutes,
     subscribe:subscribe, subscribed:subscribed, buyPrice:buyPrice, rentPrice:rentPrice, rent:rent, RENT_HOURS:RENT_HOURS,
     soon:soon, continueList:continueList, kidsContinue:kidsContinue, series:series, seasons:seasons, episodes:episodes, episode:episode, next:next, until:until,
     bg:function(k){ var m = M[k]; return m ? m.b || m.w || m.p : ''; },

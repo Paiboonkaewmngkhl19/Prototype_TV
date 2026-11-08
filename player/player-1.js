@@ -132,7 +132,7 @@
   if(SER && !SHORT_ON){
     byId('rowChip').innerHTML = '<img src="icons/player/select-episode.svg" alt="">Select Episode';
     byId('ymalRow').innerHTML = MD.episodes(K, S).map(function(ep){
-      return '<div class="card item" data-s="' + ep.s + '" data-e="' + ep.n + '" data-ring-art=""><div class="pic" style="background-image:url(\'' + (m.w || m.p) + '\')">' +
+      return '<div class="card item" data-s="' + ep.s + '" data-e="' + ep.n + '" data-ring-art=""><div class="pic" style="background-image:url(\'' + (ep.img || m.w || m.p) + '\')">' +
         (ep.n === E ? '<span class="np"><i class="eq"><b></b><b></b><b></b></i></span>' : '') + '</div><div class="nm">E' + ep.n + ' : ' + ep.t.replace(/</g, '&lt;') + '</div><div class="len">' + mins(ep.m) + '</div></div>';
     }).join('');
   } else {
