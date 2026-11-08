@@ -57,7 +57,9 @@
     mp('UCL', 6, {t:'Real Betis vs Feyenoord', when:'Tomorrow 3:00 PM', ch:CH.play, time:'15:00 – 17:00'}, 1)
   ];
   var CHIPS = [
-    // sp: the sport each chip filters the rails below by (channels-data.js's tags); All Sports shows everything
+    // sp: the sport each chip filters the rails below by (channels-data.js's tags); All Sports shows everything.
+    // only All Sports and Football filter: the other chips take focus (and show their hero) but change nothing below, as
+    // there is no content of theirs yet (NOFILTER)
     {t:'All Sports', img:'sport-assets/all-sports-bg.webp', d:'Every sport in one place. Live matches, upcoming fixtures, highlights and documentaries from the leagues you follow.'},
     {t:'Football', sp:'football', img:'sport-assets/football-bg.webp', d:'Champions League, Premier League, Bundesliga and more: live football, full matches and the best goals of the week.'},
     {t:'Motorsports', sp:'motorsport', img:'posters/f1.jpg', d:'Formula 1, MotoGP and World Superbike: every race live, with qualifying, onboard cameras and race replays.'},
@@ -67,6 +69,7 @@
     {t:'Rugby', sp:'rugby', d:'International rugby and the top club competitions, live and on replay.'},
     {t:'Boxing', sp:'boxing', d:'Title fights, undercards and classic bouts from the biggest nights in boxing.'}
   ];
+  function NOFILTER(i){ return i > 1; }
   var LEAGUES = Leagues.list;   // leagues.js (Store's sport chips show the same logos)
   // followed leagues, as changed this session (the heart on a league's landing page); the rail's discs show it
   var FOLLOW = {}; try { FOLLOW = JSON.parse(sessionStorage.getItem('leagueFollow') || '{}'); } catch(e){}
@@ -122,12 +125,11 @@
   // Related Content: the sports films (content.js MD.M: their words), then the Netflix sports documentaries (Figma For
   // PBR 8:11038). sp: the sport chip that shows it; none (Secretariat, The Ascent, Tour de Force): All Sports only
   var DOCS = [
-    {sp:'motorsport', k:'f1', img:PS + 'rc-f1.webp'},
-    {sp:'boxing', k:'rocky'}, {sp:'boxing', k:'creed'},
-    {sp:'football', k:'mourinho'}, {sp:'football', k:'beckham'}, {sp:'football', k:'pele'}, {sp:'football', k:'ronaldinho'},
-    {sp:'football', k:'goal'}, {sp:'football', k:'goal2'}, {sp:'football', k:'blindside'}, {sp:'football', k:'longestyard'},
-    {sp:'basketball', k:'spacejam'}, {sp:'basketball', k:'spacejam2'},
-    {k:'secretariat'},
+    // the first seven take turns by app (Prime Video, Netflix, HBO Max, Disney+ Hotstar), so every app is in sight at once
+    {sp:'motorsport', k:'f1', img:PS + 'rc-f1.webp'}, {sp:'football', k:'mourinho'}, {sp:'basketball', k:'spacejam'}, {k:'secretariat'},
+    {sp:'boxing', k:'rocky'}, {sp:'football', k:'beckham'}, {sp:'football', k:'blindside'},
+    {sp:'boxing', k:'creed'}, {sp:'football', k:'pele'}, {sp:'basketball', k:'spacejam2'}, {sp:'football', k:'longestyard'},
+    {sp:'football', k:'ronaldinho'}, {sp:'football', k:'goal'}, {sp:'football', k:'goal2'},
     {sp:'basketball', t:'Giannis: The Marvelous Journey', img:PS + 'doc-giannis.jpg', plat:'netflix', len:'1h 46m', d:'From selling goods on the streets of Athens to NBA champion: the rise of Giannis Antetokounmpo.'},
     {sp:'basketball', t:'The Rise', img:PS + 'doc-the-rise.jpg', plat:'netflix', len:'1h 38m', d:'One young player\'s fight to make it from the playground courts to the professional game.'},
     {sp:'boxing', t:'The Knockout', img:PS + 'doc-the-knockout.jpg', plat:'netflix', len:'1h 32m', d:'Inside the ring and out: a fighter\'s long road back to a title shot.'},
@@ -152,15 +154,15 @@
      Highlights, the tournament's highlights, TV Guide, the sport's For You, Short, Related Content. Placeholder titles
      (as the Figma's) where there is no content yet. */
   function phv(t, dur, img){ return {t:t, dur:dur, img:img || null}; }
+  // a title in content.js (MD.M k): its own name, and its card opens its own detail page
+  function phk(k, dur, img){ return {k:k, t:MD.M[k].t, dur:dur, img:img || MD.M[k].b || MD.M[k].p}; }
   function vs(n){ return n + ' Name vs ' + n + ' Name'; }
   var SPORT = {
     football:{ label:'Football', upcoming:LIVE.filter(function(m){ return m.sp === 'football'; }), who:'Manchester United',
-      because:[phv('Como vs Manchester United Highlights','6m',LS + 'football-024.jpg'), phv('Man United: Matchday Live','102m',LS + 'mutv-148.jpg'),
-        phv('Sir Alex Ferguson: Never Give In','98m','posters/maxresdefault.jpg'), phv('Liverpool vs Brentford Full Match','11m','posters/liver-ben.jpg'), phv('Arsenal vs Man United Full Match','95m','sport-assets/watch-arsenal-manutd.jpg')],
-      highlights:[phv('Como vs Man United Highlights','6m',LS + 'football-109.jpg'), phv('Leeds United vs Chelsea Highlights','8m','sport-assets/hl-leeds-chelsea.jpg'), phv('Brentford vs Liverpool Highlights','6m','posters/upcoming/live.jpg'),
-        phv('Hamburger SV vs VfB Stuttgart Highlights','12m','posters/upcoming/u3.jpg'), phv('Bayern München vs RB Leipzig Highlights','12m','posters/bayern-dortmund.webp')],
-      leagueHl:{t:'Rerun', items:[phv('Bournemouth vs Sunderland Highlights','6m','sport-assets/hl-match.jpg'), phv('Brighton vs Crystal Palace Highlights','97m'),
-        phv('Leeds United vs Manchester United Highlights','11m'), phv('Tottenham Hotspur vs Coventry Highlights','8m',LS + 'football-190.jpg'), phv(vs('Football Club'),'102m')]},
+      because:[phv('Como vs Manchester United Highlights','6m','sport-assets/main-page/sportMainPage_footballForYou_No2.webp'), phk('mufcars','115m'),
+        phv('Sir Alex Ferguson: Never Give In','98m','posters/maxresdefault.jpg'), phk('mufcche','115m'), phv('Liverpool vs Brentford Full Match','11m','posters/liver-ben.jpg'), phv('Arsenal vs Man United Full Match','95m','sport-assets/watch-arsenal-manutd.jpg')],
+      // Highlights and Rerun: the Bundesliga's own (LEAGUE_HL, LEAGUE_RERUN below), the same pictures as its landing page
+      leagueHl:{t:'Rerun'},
       band:{t:'UEFA Champions League', ucl:1, d:'The road to the final runs through here. Every match of the league phase live, with the knockout draw, highlights and the best goals of each matchday.', matches:UCL},
       forYou:FOR_YOU[0] },
     tennis:{ label:'Tennis', who:'Ben Shelton', ph:'Athlete',
@@ -215,6 +217,8 @@
   // a league's own Match Schedule art [This Week (wide), Next Week (tall)]: its words are on the picture, so the tile shows
   // it at full strength without the Match Schedule / week text (else the league's picture, dimmed, under that text)
   var LEAGUE_SCHED = { bundesliga:[BL + 'sched-md8.webp', BL + 'sched-md9.webp'] };
+  SPORT.football.highlights = LEAGUE_HL.bundesliga.slice();
+  SPORT.football.leagueHl.items = LEAGUE_RERUN.bundesliga.slice();
   // the rest of a sport's rails, from placeholders where it has no content yet
   Object.keys(SPORT).forEach(function(k){
     var S = SPORT[k], t = S.race ? S.ph : vs(S.ph || 'Team'), durs = ['6m','8m','12m','17m','11m','64m'];
@@ -241,7 +245,7 @@
       '<div class="t one">' + esc(it.t) + '</div></div>';
   }
   function vodCard(it, kind, i, set){
-    return '<div class="card item"' + attrs({kind:kind, set:set, i:i}) + '><div class="thumb' + (it.img ? '' : ' ph') + '" data-ratio="16:9"' + thumbStyle(it.img, it.y) + '>' +
+    return '<div class="card item"' + attrs({kind:kind, set:set, i:i}) + (it.k ? ' data-k="' + it.k + '"' : '') + '><div class="thumb' + (it.img ? '' : ' ph') + '" data-ratio="16:9"' + thumbStyle(it.img, it.y) + '>' +
       '<span class="dur corner-tag">' + esc(it.dur) + '</span></div><div class="t two">' + esc(it.t) + '</div></div>';
   }
   function epgIcons(o){ return (o.ts ? '<img class="epg-ts" src="icons/tv-guide/timeshift.svg" alt="Time Shift">' : '') + (o.fav ? '<span class="epg-heart"><img src="icons/epg/heart.svg" alt="Favorite"></span>' : ''); }
@@ -260,6 +264,7 @@
   var RKEY = LG ? 'sportLeagueReturn' : 'sportReturn', FKEY = LG ? 'sportLeagueFocus:' + LG.id : 'sportFocus';
   var RETURNING = !!sessionStorage.getItem(RKEY), PICK = 0;
   try { if(RETURNING) PICK = +(sessionStorage.getItem('sportPick') || 0) || 0; } catch(e){}
+  if(NOFILTER(PICK)) PICK = 0;
   var html = '';
   if(LG) document.body.classList.add('landing');
   if(!LG) html += '<section class="sec" data-row="live"><div class="rail"><div class="track">' + LIVE.map(function(it, i){ return matchCard(it, i, 'live'); }).join('') + '</div></div></section>';
@@ -301,7 +306,7 @@
   function bandSec(b){
     BAND = b; SETS.ucl = withPics(b.matches, b.img);
     var back = b.ucl ? '<div class="back"><div class="inner">' +
-      '<img class="art" src="sport-assets/ucl-bg.jpg" alt=""><img class="art top" src="sport-assets/ucl-bg.jpg" alt="">' +
+      '<img class="art full" src="sport-assets/ucl-band-bg.webp" alt="">' +
       '<div class="glow" style="left:-417.44px;top:-697.17px;width:2056.26px;height:1424.171px"><div style="transform:rotate(-14.2deg)"><div style="position:relative;width:1869px;height:996px">' +
         '<img src="sport-assets/ucl-ring-1.svg" alt="" style="left:-1240px;top:-1240px;width:4349px;height:3476px"></div></div></div>' +
       '<div class="glow" style="left:-195.49px;top:-421.98px;width:2674.459px;height:1698.144px"><div style="transform:rotate(15.99deg)"><div style="position:relative;width:2479.497px;height:1056.018px">' +
@@ -411,7 +416,9 @@
   function chMeta(c){ return '<span class="ch">' + TV.logoHtml(c.d) + 'Channel ' + c.no + ': ' + esc(c.d.n) + '</span>'; }   // the TV Guide's name, as its detail page
   // a highlight / full match: what its screen text and its detail page (content.js, AIS PLAY's own) both say
   function vodInfo(el){
-    var h = SETS[el.dataset.set][+el.dataset.i], g = h.g || ((sportCur ? SPORT[sportCur].label : 'Sport') + ' · Highlights');
+    var h = SETS[el.dataset.set][+el.dataset.i];
+    if(h.k) return {k:h.k};   // a title of content.js: its own words, platform and crown
+    var g = h.g || ((sportCur ? SPORT[sportCur].label : 'Sport') + ' · Highlights');
     return { own:1, t:h.t, img:h.img || '', plat:'ais', g:g.split(' · '), y:2026, len:h.dur, age:'G',
              d:'The best moments, the goals and the talking points, cut down so you can catch up in minutes.' };
   }
@@ -429,14 +436,14 @@
       return { video:m.video, t:p.t, meta:(m.live ? '<span class="badge live">LIVE</span>' : '<span class="badge">Upcoming</span>') + (Content.crownIcon({tv:p.tv}) ? '<span class="badge">' + Content.crownIcon({tv:p.tv}) + 'Premium</span>' : '') + chMeta(m.ch) + '<span class="pill">' + window.LIVE.range(p) + '</span>', d:p.d, bg:p.bg };
     }
     if(k === 'uclava') return { t:BAND.t, d:BAND.d, bg:null };
-    if(rowKey === 'chips'){ var c = CHIPS[i]; return { t:c.t, d:c.d, bg:c.img }; }
+    if(rowKey === 'chips'){ var c = CHIPS[i]; return { t:c.t, d:c.d, bg:c.img, keepBg:NOFILTER(i) }; }   // a focus-only chip: no picture of its own yet, the last one stays
     if(rowKey === 'leagues'){ var l = SHOWN_LEAGUES[i]; return { t:l.t, d:'Follow ' + l.t + ' for live matches, fixtures, results and highlights, all in one place.', bg:l.bg || l.img }; }
     if(k === 'vod'){
       var v = vodInfo(el), c = Content.hero(v);   // its detail page's words (content.js)
       return { t:c.t, meta:Content.metaHtml(v, true),   // its detail page's meta row (content.js)
                d:c.d, bg:SETS[set][i].bg || SETS[set][i].img };
     }
-    if(rowKey === 'guide') return { t:'TV Guide', d:'See what’s on now and next across every sports channel, set reminders, and jump straight into a live match.', bg:'posters/tvguide-bg.jpg' };
+    if(rowKey === 'guide') return { t:'TV Guide', d:'See what’s on now and next across every sports channel, set reminders, and jump straight into a live match.', bg:'sport-assets/tvguide-sport-bg.webp' };
     return null;
   }
   function paintHero(rowKey, el){
@@ -450,6 +457,7 @@
       heroEl.querySelector('.desc').textContent = h.d;
       heroEl.classList.remove('swap'); void heroEl.offsetWidth; heroEl.classList.add('swap');
     }
+    if(h.keepBg) return;   // the background (and its video) of the item focused before stays
     setBg(h.bg);
     heroVid.set(document.body.classList.contains('ucl') ? '' : h.video);   // the UCL band hides the background (.hero-bg): no video behind it
   }
@@ -533,6 +541,7 @@
   });
   // a chip picked (focus on it, or Enter / a click): the rails below show only that sport (All Sports: everything); the chip stays marked
   function setSport(i, quiet){
+    if(NOFILTER(i)) return;   // focus only: the picked chip and the rails below stay as they are
     var sp = CHIPS[i].sp || '', liveCol = cur.col[R.live];
     $('.chips .chip', page).forEach(function(c, ci){ c.classList.toggle('sel', ci === i); });
     try { sessionStorage.setItem('sportPick', i); } catch(e){}
@@ -618,7 +627,7 @@
     else if(e.key === 'Escape' || e.key === 'Backspace') back();
     else handled = false;
     // the chips are a single filter: the chip focus lands on is the one picked (only one is ever marked), as Store's tabs
-    if(handled && rows[cur.row].key === 'chips' && !rows[cur.row].items[cur.col[cur.row]].classList.contains('sel')) setSport(cur.col[cur.row], true);
+    if(handled && rows[cur.row].key === 'chips' && !NOFILTER(cur.col[cur.row]) && !rows[cur.row].items[cur.col[cur.row]].classList.contains('sel')) setSport(cur.col[cur.row], true);
     if(handled){ e.preventDefault(); paint(); }
   });
   // clicks: the top bar's items, and the page's by delegation (a chip rebuilds the rails below it)

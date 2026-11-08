@@ -175,7 +175,7 @@
     document.getElementById('seasons').innerHTML = html;
     document.getElementById('eptrack').innerHTML = MD.episodes(K, season).map(function(ep){
       var here = cw && cw.s === ep.s && cw.e === ep.n;   // where the viewer left off: its progress on the picture
-      return '<div class="ep item" data-s="' + ep.s + '" data-e="' + ep.n + '" data-ring-art=""><div class="pic" style="background-image:url(\'' + (m.w || m.p) + '\')">' +
+      return '<div class="ep item" data-s="' + ep.s + '" data-e="' + ep.n + '" data-ring-art=""><div class="pic" style="background-image:url(\'' + (ep.img || m.w || m.p) + '\')">' +
         (here ? '<div class="prog"><i style="width:' + Math.round(cw.w / cw.of * 100) + '%"></i></div>' : '') +
         '<span class="len corner-tag">' + (ep.m >= 60 ? Math.floor(ep.m / 60) + 'h ' + ep.m % 60 + 'm' : ep.m + 'm') + '</span></div>' +
         '<div class="t">Ep.' + ep.n + ' ' + esc(ep.t) + '</div><div class="d">' + esc(ep.d) + '</div></div>';

@@ -14,10 +14,10 @@ window.Leagues = (function(){
     {id:'bundesliga', bg:'sport-assets/main-page/sportMainPage_leagueTournament_No2-2.webp', t:'Bundesliga', sp:'football', name:'Bundesliga', logo:'sport-assets/league-bundesliga.png', fitc:'inset', fav:1, img:'sport-assets/bundesliga/bg-destiny-unfolds.webp'},
     {id:'ucl', bg:'sport-assets/main-page/sportMainPage_leagueTournament_No1-2.webp', t:'UEFA Champions League', sp:'football', name:'UEFA<br>Champions League', logo:'sport-assets/league-ucl.jpg', fitc:'zoom', fav:1, img:'sport-assets/ucl-bg.jpg'},
     {id:'europa', bg:'sport-assets/main-page/sportMainPage_leagueTournament_No3-2.webp', t:'UEFA Europa League', sp:'football', name:'UEFA<br>Europa League', logo:'sport-assets/league-europa.png', box:[21.95,10,56.1,80], fav:1},
+    {id:'conference', bg:'sport-assets/main-page/sportMainPage_leagueTournament_No4-2.webp', t:'UEFA Conference League', sp:'football', name:'UEFA Conference League', logo:'sport-assets/league-conference.png', box:[11.13,11.24,78.18,77.53]},
     {id:'motogp', t:'MotoGP', sp:'motorsport', name:'MotoGP', logo:'sport-assets/league-motogp.png', box:[5,24.69,90,50.62]},
     {id:'nfl', t:'NFL', sp:'rugby', name:'NFL', logo:'sport-assets/league-nfl.png', box:[19.08,7.5,61.84,85]},   // American football: under Rugby
     {id:'nba', t:'NBA', sp:'basketball', name:'NBA', logo:'sport-assets/league-nba.png', box:[-28.13,6.05,156.25,87.89]},
-    {id:'conference', bg:'sport-assets/main-page/sportMainPage_leagueTournament_No4-2.webp', t:'UEFA Conference League', sp:'football', name:'UEFA Conference League', logo:'sport-assets/league-conference.png', box:[11.13,11.24,78.18,77.53]},
     {id:'rws', t:'RWS', sp:'boxing', name:'RWS', logo:'sport-assets/league-rws.png'},   // Rajadamnern World Series (Muay Thai): under Boxing
     {id:'pga', t:'PGA Tour', sp:'golf', name:'PGA<br>Tour', logo:'sport-assets/league-pga.png', box:[-18.13,11.68,136.25,76.64]},
     {id:'atp', t:'ATP Tour', sp:'tennis', name:'ATP<br>Tour', logo:'sport-assets/league-atp.png', box:[8.5,30.5,83,39.01]},

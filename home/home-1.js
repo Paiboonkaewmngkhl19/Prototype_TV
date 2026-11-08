@@ -689,9 +689,9 @@
     showHeroProg(null);
     if(el.classList.contains('rank-wrap')) el = el.querySelector('.card') || el;
     showHeroWatched(el.classList.contains('card') ? el : null);
-    // TV Guide rail: its own dark backdrop; the "View All" tile introduces the guide, a programme card shows what's on
+    // TV Guide rail: the Live TV chip's backdrop (posters/chip-bg-live-tv.webp); the "View All" tile introduces the guide, a programme card shows what's on
     if(el.closest('.epg-row')){
-      setHeroBg('tvguide', "url('posters/tvguide-bg.jpg')");
+      setHeroBg('tvguide', "url('posters/chip-bg-live-tv.webp')");
       var isAll = el.classList.contains('epg-countdown');
       heroTitleEl.textContent = isAll ? 'TV Guide' : el.dataset.title;
       heroLogoEl.style.display = 'none';
@@ -1244,7 +1244,7 @@
   var chipTitleEl = document.querySelector('.hero-livetv-content .hero-title'), chipDescEl = document.querySelector('.hero-livetv-content .hero-desc');
   // the screen text for each chip-rail button: its label as the title, plus this line
   var CHIP_COPY = {
-    'Live TV':     {d:'Stream live channels, tailored to your viewing.<br>Stay up to date with news, sports, and entertainment as it happens.', bg:'posters/chip-bg-live-tv.webp'},
+    'Live TV':     {d:'Stream live channels, tailored to your viewing.<br>Stay up to date with news, sports, and entertainment as it happens.', bg:'posters/chip-bg-live-tv-2.webp'},
     'Sports':      {d:'Every match, every moment.<br>Catch live games, highlights and replays from the leagues you love.'},
     'Movies':      {d:'Blockbusters, new releases and timeless classics.<br>Find your next movie night, all in one place.'},
     'News':        {d:'Breaking stories and in-depth coverage.<br>Follow local and world news around the clock.', bg:'posters/chip-bg-news.webp'},

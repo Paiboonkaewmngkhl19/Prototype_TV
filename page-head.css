@@ -1,0 +1,15 @@
+/* the page's title at the top left (Figma Short "PLAY:Short_mainPage": a 4 x 40 bar and the page's name, 36/44 medium,
+   at x=110 y=40), on Short, News and Kids. The top bar (Home's) stays away until Left / Up reaches it, then shows over the
+   title, which steps back (body.on-nav: each page's own script). A page that scrolls under it: a fade behind the title
+   (.band: Short's solid fade, always; else a light one once the page is past its first screen, body.past-first / body.static) */
+.page-head{ position:absolute; left:0; top:0; width:1920px; height:124px; z-index:4; padding:40px 110px 0; display:flex; gap:12px; align-items:flex-start;
+  pointer-events:none; transition:opacity .3s ease; }
+.page-head::before{ content:''; position:absolute; left:0; top:0; width:100%; height:200px; z-index:-1; opacity:0; transition:opacity .3s ease;
+  background:linear-gradient(180deg, rgba(7,14,22,.6) 0%, rgba(7,14,22,.32) 45%, rgba(7,14,22,0) 100%); }
+.page-head i{ width:4px; height:40px; border-radius:40px; background:var(--on-surface, #e8e8e8); flex:0 0 auto; }
+.page-head h1{ margin:0; font-size:36px; font-weight:500; line-height:44px; color:var(--on-surface, #e8e8e8); white-space:nowrap; }
+/* Short (.band): its solid fade, the rails slide under the title */
+.page-head.band{ background:linear-gradient(180deg, var(--bg-0, rgb(var(--bg))) 0%, var(--bg-0, rgb(var(--bg))) 55%, rgba(7,14,22,0) 100%); }
+/* News, Kids past their first screen: a light, tall fade, only enough to keep the title readable over the pictures */
+body.past-first .page-head:not(.band)::before, body.static .page-head:not(.band)::before{ opacity:1; }
+body.on-nav .page-head{ opacity:0; }

@@ -125,6 +125,10 @@
   .ucl .art{ position:absolute; left:-1177px; top:-160px; width:3110px; height:1432px; max-width:none; }
   /* Figma's art starts 160px above the band; when it fills the screen above, a mirrored copy carries it on seamlessly */
   .ucl .art.top{ top:-1592px; transform:scaleY(-1); }
+  /* the full-screen key art (trophy and starball lines in the picture itself): it fills the screen when the band is focused
+     (inner -600..600) and shows its lower half in the band; the starball glows are in the picture, so none drawn over it */
+  .ucl .art.full{ left:0; top:-600px; width:100%; height:1200px; object-fit:cover; object-position:center top; }
+  .ucl .inner:has(.art.full) .glow{ display:none; }
   .ucl .glow{ position:absolute; display:flex; align-items:center; justify-content:center; }
   .ucl .glow > div{ flex:none; }
   .ucl .glow img{ position:absolute; max-width:none; display:block; }
