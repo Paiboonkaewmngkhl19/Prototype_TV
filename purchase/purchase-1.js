@@ -45,7 +45,7 @@
     $('.d-nm').forEach(function(e){ e.textContent = RC.t; });
     if(!OB) $('.d-pic').forEach(function(e){ e.style.background = RC.pic ? (RC.logo ? "#000 url('" + RC.pic + "') center / contain no-repeat" : "#3a3a3a url('" + RC.pic + "') center / cover no-repeat") : "#000 url('icons/aisplay-mark.png') center / 60% auto no-repeat"; });
     if(RC.pm) $('.d-pm').forEach(function(e){ e.textContent = RC.pm; });   // how it was paid (package-detail.html: QR PromptPay)
-    $('.d-dur').forEach(function(e){ e.textContent = RC.dur; var l = e.previousElementSibling; if(l && l.lastChild) l.lastChild.textContent = RC.dl; });
+    $('.d-dur').forEach(function(e){ e.textContent = RC.dur; });
   }
 
   var toastEl = document.getElementById('toast'), toastT;
@@ -68,19 +68,20 @@
   $('.d-renew').forEach(function(e){ if(!PACKAGE) e.remove(); else e.textContent = PER === 'Month' ? 'Renews monthly' : PER === 'Year' ? 'Renews yearly' : 'One-time'; });
   $('.d-period').forEach(function(e){ e.textContent = document.querySelector('.d-dur').textContent.replace(/ \| \d\d:\d\d(:\d\d)?/g, ''); });
   $('.d-pmask').forEach(function(e){ e.textContent = document.querySelector('.d-pm').textContent.replace(/\d+$/, function(n){ return '****' + n.slice(-4); }); });
-  document.querySelector('.d-head').textContent = ACTIVATE ? 'Purchase Complete' : 'You’re all set';
-  document.querySelector('.d-lead').textContent = PACKAGE ? 'No activation needed. Sign in to watch now.' : 'No activation needed. Start watching now.';
+  // the line under the receipt (Activate: after the Next Step badge)
+  document.querySelector('.d-lead').textContent = ACTIVATE ? 'Activate your app to start watching content'
+    : PACKAGE ? 'You’re all set. No activation needed. Sign in to watch now.' : 'You’re all set. No activation needed. Start watching now.';
   // the apps it brings: a bundle's, or the one app or league bought
   function appTile(img, cls){ return '<span class="app-t ' + (cls || '').replace('pad', '') + '"><img src="' + img + '" alt=""></span>'; }   // (.pad here is the OTP keypad)
   var appsHtml = '';
   if(OB) appsHtml = OB.league ? '<span class="app-t white"><span class="disc">' + Leagues.pic(Leagues.list.filter(function(l){ return l.id === OB.league; })[0]) + '</span></span>'
     : appTile(OB.logo, OB.icon ? 'cover' : OB.tile ? 'white' : '');
-  else if(BUNDLE) appsHtml = (BUNDLE.services ? BUNDLE.services.filter(function(a){ return a.logo; }).slice(0, 6).map(function(a){ return appTile(a.logo, a.cls); })
+  else if(BUNDLE) appsHtml = (BUNDLE.services ? BUNDLE.services.filter(function(a){ return a.logo; }).slice(0, 8).map(function(a){ return appTile(a.logo, a.cls); })
     : BUNDLE.grid.filter(function(a){ return a.img; }).slice(0, 3).map(function(a){ return appTile(a.img, a.cls); })).join('');
   $('.d-apps').forEach(function(e){ if(appsHtml) e.innerHTML = appsHtml; else e.remove(); });
-  $(ACTIVATE ? '.only-no' : '.only-act').forEach(function(e){ e.remove(); });
+  if(!ACTIVATE) $('.only-act').forEach(function(e){ e.remove(); });
   document.querySelector('.result').classList.add(ACTIVATE ? 'act' : 'no');
-  var KEEP = ACTIVATE ? ['guide', 'mypkg', 'later'] : PACKAGE ? ['mypkg', 'watch'] : ['store', 'watch'];
+  var KEEP = ['back', ACTIVATE ? 'guide' : 'watch'];   // Back, then Activation Guide or Start watching
   $('.doneb').forEach(function(b){ if(KEEP.indexOf(b.dataset.act) < 0) b.remove(); });
   var cBtns = $('.s-confirm .item'), dBtns = $('.doneb'), oKeys = $('.otpk');   // oKeys: 12 pad keys, then Resend, Confirm
   function go(s){ step = s; document.body.dataset.step = s; if(s === 'otp'){ code = ''; okey = 0; countdown(); } paint(); }
@@ -115,8 +116,7 @@
   function act(a){
     if(a === 'cancel') back();
     else if(a === 'confirm') go('otp');
-    else if(a === 'store' || a === 'later') leave();
-    else if(a === 'mypkg') toast('My Package (demo)');
+    else if(a === 'back'){ if(K && !PACKAGE && !NEXT && !RET) location.href = 'movie-detail.html?k=' + K; else leave(); }   // back where it was bought (a title: its page, now the viewer's)
     else if(a === 'guide') location.href = 'activation-guide.html?app=' + GUIDE;
     else if(a === 'watch'){ if(PACKAGE) leave(); else location.href = RC && RC.watch || 'player.html?k=' + K; }   // a package: back where it was bought, now subscribed
   }
@@ -140,14 +140,6 @@
       paint(); e.preventDefault(); return;
     }
     var n = step === 'confirm' ? cBtns.length : dBtns.length;
-    // Have Activate: Activate Now alone on its row, View My Package / Activate Later under it
-    if(step === 'done' && ACTIVATE && /^Arrow/.test(k)){
-      if(k === 'ArrowDown' && !f.done) f.done = 1;
-      else if(k === 'ArrowUp') f.done = 0;
-      else if(f.done && k === 'ArrowLeft') f.done = 1;
-      else if(f.done && k === 'ArrowRight') f.done = 2;
-      paint(); e.preventDefault(); return;
-    }
     if(k === 'ArrowLeft') f[step] = Math.max(0, f[step] - 1);
     else if(k === 'ArrowRight') f[step] = Math.min(n - 1, f[step] + 1);
     else if(k === 'Enter') act((step === 'confirm' ? cBtns : dBtns)[f[step]].dataset.act);
@@ -157,7 +149,6 @@
   });
   $('.s-confirm .item, .doneb').forEach(function(el){ el.addEventListener('click', function(){ act(el.dataset.act); }); });
   oKeys.forEach(function(el, i){ el.addEventListener('click', function(){ okey = i; type(el.dataset.key); }); });
-  if(RET || NEXT) $('.doneb[data-act="store"]').forEach(function(b){ b.textContent = 'Done'; });   // back where it was bought, not the Store
-  f.done = ACTIVATE ? 0 : dBtns.length - 1;   // the design's focus: Activate Now, or Start Watching
+  f.done = 1;   // the design's focus: Activation Guide, or Start watching
   if(OB || RC) go('done'); else paint();   // paid already (package-detail.html's OTP): Purchase complete
 })();

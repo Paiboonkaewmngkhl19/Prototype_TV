@@ -28,9 +28,9 @@
   var CLIP = !SHORT_ON && m.v || 'video/spiderman.mp4';
   byId('video').src = byId('thumbV').src = CLIP;
   if(SHORT_ON) byId('video').poster = m.w;
-  byId('title').textContent = SER ? 'S' + S + ' E' + E + ' : ' + EP.t : m.t;
-  // no line under the title in the VOD player (no crown, no series' or short's name): only the Live TV player has one
-  byId('sub').innerHTML = '';
+  // a series: the episode's title, and under it "S1 E1 : <the series' title>"; a movie or a short: its title alone
+  byId('title').textContent = SER ? EP.t : m.t;
+  byId('sub').textContent = SER ? 'S' + S + ' E' + E + ' : ' + m.t : '';
   document.title = byId('title').textContent + ' · Player';
   function hms(s){ s = Math.max(0, Math.floor(s)); return Math.floor(s / 3600) + ':' + ('0' + Math.floor(s / 60) % 60).slice(-2) + ':' + ('0' + s % 60).slice(-2); }
   function vmod(t){ var d = byId('video').duration || 0; return d ? ((t % d) + d) % d : 0; }
@@ -132,8 +132,12 @@
   if(SER && !SHORT_ON){
     byId('rowChip').innerHTML = '<img src="icons/player/select-episode.svg" alt="">Select Episode';
     byId('ymalRow').innerHTML = MD.episodes(K, S).map(function(ep){
-      return '<div class="card item" data-s="' + ep.s + '" data-e="' + ep.n + '" data-ring-art=""><div class="pic" style="background-image:url(\'' + (ep.img || m.w || m.p) + '\')">' +
-        (ep.n === E ? '<span class="np"><i class="eq"><b></b><b></b><b></b></i></span>' : '') + '</div><div class="nm">E' + ep.n + ' : ' + ep.t.replace(/</g, '&lt;') + '</div><div class="len">' + mins(ep.m) + '</div></div>';
+      // the detail page's episode card (movie-detail.html Episodes): no fill, its length in the corner tag
+      // (corner-tag.css), "Ep.3 <title>" and its synopsis under the picture; the one playing has the sound bars
+      var x = function(s){ return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;'); };
+      return '<div class="ep item" data-s="' + ep.s + '" data-e="' + ep.n + '" data-ring-art=""><div class="pic" style="background-image:url(\'' + (ep.img || m.w || m.p) + '\')">' +
+        (ep.n === E ? '<span class="np"><i class="eq"><b></b><b></b><b></b></i></span>' : '') + '<span class="len corner-tag">' + mins(ep.m) + '</span></div>' +
+        '<div class="t">Ep.' + ep.n + ' ' + x(ep.t) + '</div><div class="d">' + x(ep.d) + '</div></div>';
     }).join('');
   } else {
     // You may also like: the same type only (a movie: movies; a short: shorts), content.js Content.related
@@ -166,7 +170,7 @@
 
   // ---- a short's Select Episode: Season 1, the 50-episode ranges (picked as focus lands, one filter), the range's
   //      episodes 10 a row: the one playing marked Watching with its progress, locked ones grey with a lock ----
-  var RANGE = 50, gRange = Math.floor((E - 1) / RANGE), gcol = { sea:0, rng:gRange, eps:(E - 1) % 10 };
+  var RANGE = 45, PER = 15, gRange = Math.floor((E - 1) / RANGE), gcol = { sea:0, rng:gRange, eps:(E - 1) % RANGE % PER };   // PER: episodes a row
   function buildGrid(){
     if(!SHORT_ON) return;
     byId('seasons').innerHTML = '<div class="sea sel item" data-act="season" data-ring-art="">Season 1</div>';
@@ -196,7 +200,7 @@
     if(view === 'ymal') return [{ n:'top', items:$('.top .item') }, { n:'head', items:$('.ymal-view .head .item') }, { n:'cards', items:$('#ymalRow .item') }];
     if(view === 'sgrid'){
       var g = [{ n:'ghead', items:$('.gblock .head .item') }, { n:'gsea', items:$('#seasons .item') }, { n:'grng', items:$('#ranges .item') }], eps = $('#sgridEps .item');
-      for(var i = 0; i < eps.length; i += 10) g.push({ n:'geps', items:eps.slice(i, i + 10) });
+      for(var i = 0; i < eps.length; i += PER) g.push({ n:'geps', items:eps.slice(i, i + PER) });
       return g;
     }
     var r = [{ n:'top', items:$('.top .item') }];
@@ -211,7 +215,7 @@
     var R = rows(); row = Math.max(0, Math.min(R.length - 1, row));
     var items = R[row].items, c = Math.max(0, Math.min(items.length - 1, curCol())); setCol(c);
     if(view === 'sgrid' && R[row].n === 'grng' && c !== gRange){ gRange = c; buildEps(); R = rows(); }   // the range under focus fills the grid
-    if(view === 'sgrid') byId('sgridEps').style.transform = row > 5 ? 'translateY(' + -(row - 5) * 188 + 'px)' : '';   // the header stays; the grid scrolls, the focused row at most the 3rd
+    if(view === 'sgrid') byId('sgridEps').style.transform = row > 5 ? 'translateY(' + -(row - 5) * 128 + 'px)' : '';   // the header stays; the grid scrolls, the focused row at most the 3rd
     $('.item.focused').forEach(function(e){ e.classList.remove('focused'); });
     var n = R[row].n;
     // nothing focused while it counts down (Figma); the seek bar shows focus itself (taller, with the handle), so it
@@ -221,7 +225,10 @@
     if(items[c] && !away && credits !== 'count' && n !== 'track') items[c].classList.add('focused');
     byId('track').classList.toggle('on', !away && n === 'track');
     byId('skip').classList.toggle('solo', n !== 'skip');   // Skip Intro stays light even when focus is elsewhere (Figma)
-    if(view === 'ymal'){ byId('ymalRow').style.transform = 'translateX(' + -Math.max(0, ycol - 3) * 384 + 'px)'; }
+    // the row slides a card at a time (a title card 384px, an episode card 472px), the focused one at most the 4th (an
+    // episode: the 3rd, as they are wider)
+    if(view === 'ymal'){ var c0 = byId('ymalRow').firstElementChild, ep = c0 && c0.classList.contains('ep');
+      byId('ymalRow').style.transform = 'translateX(' + -Math.max(0, ycol - (ep ? 2 : 3)) * (c0 ? c0.offsetWidth + 32 : 384) + 'px)'; }
   }
   // ---- idle, as the Live TV player (live-tv-player-2.js goIdle / wake): the controls fade out after 5s without a key
   // and focus is put away with them; the first key (or a real mouse move, or a click on the picture) only brings them
@@ -239,7 +246,7 @@
   function setView(v){
     view = v; document.body.classList.toggle('ymal', v === 'ymal'); document.body.classList.toggle('sgrid', v === 'sgrid');
     if(v === 'ymal'){ row = 2; }
-    else if(v === 'sgrid'){ gRange = Math.floor((E - 1) / RANGE); gcol = { sea:0, rng:gRange, eps:(E - 1) % 10 }; buildEps(); row = 3 + Math.floor(((E - 1) % RANGE) / 10); }   // on the one playing
+    else if(v === 'sgrid'){ gRange = Math.floor((E - 1) / RANGE); gcol = { sea:0, rng:gRange, eps:(E - 1) % RANGE % PER }; buildEps(); row = 3 + Math.floor(((E - 1) % RANGE) / PER); }   // on the one playing
     else { row = rowIx('btns'); col = SER ? 2 : 3; }   // back on the button that opened it
     paint();
   }

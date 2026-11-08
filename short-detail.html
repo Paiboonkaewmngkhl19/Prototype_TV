@@ -22,9 +22,10 @@
     then a grid of 10 a row. Episodes 1-10 are free;
     from 11 they are locked until unlocked. You May Also Like: other shorts, 6 a row. The focused grid row sits in
     the first row's place.
-  - A locked episode opens Unlock Episode N: Subscribe to unlock all (All Packages on its Short Drama tab, which
-    comes back here), Buy this episode (the short's payment: package-detail.html?short=N, a viewing pass that opens every
-    episode), or Watch Ads (an ad, a few a day). Close / Back keeps the episode locked.
+  - A locked episode opens Unlock this content: Subscribe to a package (All Packages on its Short Drama tab, which
+    comes back here), Buy this series (its detail page's Buy: package-detail.html?short=N&opt=buy), Buy episode N
+    (package-detail.html?short=N&opt=ep&ep=N, SHORT.EP_PRICE), or Watch Ads (an ad, a few a day). Close / Back keeps
+    the episode locked.
   - The top bar is visible on the top part, and steps away below it until Up / Left brings it back (as Store's).
   Remote / keyboard: arrows move, Enter selects, Esc / Back goes up a level (the popup, the tabs, the top), then home.
 -->
@@ -73,14 +74,18 @@
   </nav>
 
   <div class="mscrim"></div>
-  <div class="modal" role="dialog" aria-label="Unlock episode">
-    <div class="head"><img src="icons/short/unlock.svg" alt=""><h2>Unlock Episode 11</h2><p>Choose how you'd like to unlock this episode:</p></div>
-    <div class="opts">
-      <div class="opt item" data-o="sub" data-ring-art=""><span class="rd"></span>Subscribe to unlock all episodes</div>
-      <div class="opt item" data-o="buy" data-ring-art=""><span class="rd"></span>Buy this episode</div>
-      <div class="opt item" data-o="ads" data-ring-art=""><span class="rd"></span><span class="adtxt">Watch ads to unlock (4/5)</span></div>
+  <!-- Unlock (Figma PLAY-player "Modal Dialog (TV)" 2223:102007): the short on the left, the ways to unlock on the right
+       (radio cards: name, what it gives, price; short-detail-1.js fills them), then Close / Unlock Now -->
+  <div class="modal" role="dialog" aria-label="Unlock this content">
+    <div class="mleft">
+      <div class="head"><img src="icons/short/unlock.svg" alt=""><h2>Unlock this content</h2><p id="mSub">Choose how you would like to unlock</p></div>
+      <div class="mposter" id="mPoster"></div>
     </div>
-    <div class="mbtns"><div class="tv-btn tv-btn--secondary mbtn item" data-m="close" data-ring-art="">Close</div><div class="tv-btn tv-btn--primary mbtn item" data-m="confirm" data-ring-art="">Confirm</div></div>
+    <div class="mdiv"></div>
+    <div class="mright">
+      <div class="opts" id="mOpts"></div>
+      <div class="mbtns"><div class="tv-btn tv-btn--secondary mbtn item" data-m="close" data-ring-art="">Close</div><div class="tv-btn tv-btn--primary mbtn item" data-m="confirm" data-ring-art="">Unlock Now</div></div>
+    </div>
   </div>
   <div class="ad"><span class="tag">Ad</span><span class="count"></span></div>
   <div id="toast"></div>

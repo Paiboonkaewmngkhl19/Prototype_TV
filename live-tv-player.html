@@ -20,6 +20,7 @@
 -->
 <link rel="stylesheet" href="player.css">
 <link rel="stylesheet" href="live-tv-player/live-tv-player.css">
+<link rel="stylesheet" href="toast.css">
 </head>
 <body>
 <div id="frame"><div id="screen" data-ring-plain>
@@ -37,18 +38,25 @@
     <div class="bottom" id="bottom">
       <div class="cta-row">
         <div class="preview"><b>Free preview</b><span id="previewLeft"></span></div>
-        <div class="explore item" data-act="explore"><img src="icons/player/crown-dark.svg" alt="">Explore Package</div>
+        <div class="cta-right">
+          <!-- Start Over (Time Shift): over the seek bar's right end, for 5s each time the controls come up -->
+          <div class="pchip item" id="startOver" data-act="start-over">Start Over</div>
+          <!-- Go LIVE: while the picture is behind live (rewound or paused with Time Shift) -->
+          <div class="pchip outline item" id="goLive" data-act="go-live">Go LIVE</div>
+          <div class="explore item" data-act="explore"><img src="icons/player/crown-dark.svg" alt="">Explore Package</div>
+        </div>
       </div>
       <div class="seek">
         <div class="play" id="playBtn" data-act="play"><img id="playIc" src="icons/player/pause.svg" alt="Pause"></div>
         <div class="tm" id="elapsed"></div>
         <div class="track item" id="track" data-act="play"><div class="base"></div><div class="buf"></div><div class="played"></div><div class="handle"></div>
-          <div class="thumb" id="thumb"><div class="pic"><video id="thumbV" muted playsinline preload="auto"></video><div class="seekfx" id="seekfx"><div class="arr"><i></i><i></i><i></i></div><div class="lbl" id="seekLbl"></div></div></div><div class="t" id="thumbT"></div></div></div>
+          <div class="thumb" id="thumb"><div class="pic"><video id="thumbV" muted playsinline preload="auto"></video><div class="seekfx" id="seekfx"><div class="arr"><i></i><i></i><i></i></div><div class="lbl" id="seekLbl"></div></div></div></div>
+          <div class="ttip" id="ttip"></div></div>
+        <div class="tm end" id="endTm"></div>
       </div>
       <div class="btns">
         <div class="btn item" data-act="mini-epg"><img src="icons/player/mini-epg.svg" alt=""><span class="lbl">Browse Channels</span></div>
         <div class="btn item" data-act="guide"><img src="icons/player/guide-panel.svg" alt=""><span class="lbl">View Program Guide</span></div>
-        <div class="btn item" data-act="start-over"><img src="icons/player/start-over.svg" alt=""><span class="lbl">Start Over</span></div>
         <div class="btn item" data-act="fav"><span class="fav-ic-wrap"><img id="favIc" src="icons/player/fav.svg" alt=""></span><span class="lbl" id="favLbl">Add to Favorites</span></div>
         <div class="btn item" data-act="sub-audio"><img src="icons/player/sub-audio.svg" alt=""><span class="lbl">Subtitle/Audio</span></div>
         <div class="btn item" data-act="settings"><img src="icons/player/settings.svg" alt=""><span class="lbl">Settings</span></div>
@@ -69,5 +77,6 @@
 <script src="tv-screen.js"></script>
 <script src="live-tv-player/live-tv-player-2.js"></script>
 <script src="focus-ring.js"></script>
+<script src="toast.js"></script>
 </body>
 </html>

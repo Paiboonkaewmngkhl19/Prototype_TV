@@ -8,7 +8,7 @@
     the stack  at most 3, the newest on top; older ones dimmer (opacity only, no scaling); inside the TV safe area:
                90px from the screen's right, its bottom 60px from the screen's bottom (it grows upward), the toasts'
                right edges aligned. Never focusable.
-  The players (player.html, live-tv-player.html) show no toast: player.css hides it and they don't load this.
+  The VOD player (player.html) shows no toast: player.css hides it and it doesn't load this. The Live TV player does.
 */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400&display=swap');
 html #toast{ display:none !important; }

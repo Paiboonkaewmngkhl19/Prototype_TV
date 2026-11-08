@@ -56,6 +56,17 @@
   .card .pic{ position:relative; }
   .card .np{ position:absolute; inset:0; border-radius:16px; background:rgba(0,0,0,.55); display:flex; align-items:center; justify-content:center; color:#fff; }
   .card .np .eq{ width:36px; height:36px; }
+  /* Select Episode (a series): the detail page's episode card (movie-detail.css .ep), no fill: the picture with its
+     length in the corner tag (corner-tag.css), then "Ep.N title" and the synopsis in grey */
+  .ep{ flex:0 0 auto; width:440px; border-radius:24px; display:flex; flex-direction:column; padding-bottom:16px; cursor:pointer;
+    align-self:flex-start; transform-origin:center top; transition:transform .22s var(--ease); }   /* no fill: only rounds the focus ring */
+  .ep .pic{ position:relative; height:248px; border-radius:20px; overflow:hidden; background:#3a3a3a center / cover no-repeat; }
+  .ep .np{ position:absolute; inset:0; background:rgba(0,0,0,.55); display:flex; align-items:center; justify-content:center; color:#fff; }
+  .ep .np .eq{ width:36px; height:36px; }
+  .ep .t{ margin-top:20px; padding:0 12px; font:500 24px/1.3 var(--noto); color:var(--inverse-surface); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .ep .d{ margin-top:12px; padding:0 12px; display:-webkit-box; font:400 20px/28px var(--noto); color:var(--on-surface-variant);
+    -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .ep.focused{ transform:scale(1.06); }   /* the ring: focus-ring.js */
   /* ---------- a short drama: the 9:16 picture centred (Figma 2076:32401) on the page's colour (player.css: Home's default) ---------- */
   body.vertical #video{ left:50%; top:12px; width:594px; height:1056px; margin-left:-297px; border-radius:16px; }
   /* changing episode, as TikTok (player-1.js playEp / &sw=): the frame slides out up (next) or down (the one before)
@@ -95,15 +106,15 @@
   .sea.sel, .rng.sel{ opacity:1; color:#fff; text-decoration:underline; text-underline-offset:8px; text-decoration-thickness:2px; }
   .sea.focused, .rng.focused{ opacity:1; color:#fff; transform:scale(1.08); }
   /* the episodes' window (short-detail.css .gwin): the rest of the screen; 28px in, so the focused row's tile and ring
-     sit below the 14px fade. The grid slides inside it (player-1.js), 10 a row as on the detail page */
+     sit below the 14px fade. The grid slides inside it (player-1.js: a row 100px + 28px), 15 a row (PER) */
   .gwin{ flex:1; min-height:0; overflow:hidden; -webkit-mask-image:linear-gradient(180deg, transparent 0, #000 14px); mask-image:linear-gradient(180deg, transparent 0, #000 14px); }
-  .sgrid-eps{ padding:28px 0 0 0; display:grid; grid-template-columns:repeat(10, 148px); column-gap:16px; row-gap:40px; transition:transform .35s var(--ease); }
-  .sep{ position:relative; width:148px; height:148px; border-radius:8px; overflow:hidden; background:#474747; display:flex; flex-direction:column; cursor:pointer; transition:transform .22s var(--ease); }
-  .sep b{ flex:1; display:flex; align-items:center; justify-content:center; font:700 28px/16px var(--inter); color:#fff; }
+  .sgrid-eps{ padding:28px 0 0 0; display:grid; grid-template-columns:repeat(15, 100px); column-gap:14px; row-gap:28px; padding-left:6px; transition:transform .35s var(--ease); }
+  .sep{ position:relative; width:100px; height:100px; border-radius:8px; overflow:hidden; background:#474747; display:flex; flex-direction:column; cursor:pointer; transition:transform .22s var(--ease); }
+  .sep b{ flex:1; display:flex; align-items:center; justify-content:center; font:700 26px/16px var(--inter); color:#fff; }
   .sep.locked b{ color:var(--on-surface-variant); }
-  .sep .lk{ height:32px; background:var(--surface-container); display:flex; align-items:center; justify-content:center; }
-  .sep .lk img{ width:20px; height:20px; display:block; }
-  .sep .watching{ height:26px; background:#59d478; display:flex; align-items:center; justify-content:center; gap:4px; font:500 16px/14px var(--inter); color:#fff; }   /* the sound bars before the word, as the TV Guide's tag */
+  .sep .lk{ height:26px; background:var(--surface-container); display:flex; align-items:center; justify-content:center; }
+  .sep .lk img{ width:18px; height:18px; display:block; }
+  .sep .watching{ height:24px; background:#59d478; display:flex; align-items:center; justify-content:center; gap:3px; font:500 14px/14px var(--inter); color:#fff; }   /* the sound bars before the word, as the TV Guide's tag */
   .sep .bar{ height:6px; background:var(--on-surface-variant); }
   .sep .bar i{ display:block; height:100%; background:red; }
   .sep.focused{ transform:scale(1.08); }   /* 8%, as every rail card; the ring: focus-ring.js */

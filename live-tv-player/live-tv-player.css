@@ -28,7 +28,22 @@
 
   /* bottom: free preview + Explore Package, the seek bar, the action buttons */
   .cta-row{ display:flex; align-items:center; justify-content:space-between; gap:24px; }
-  .no-preview .preview, .no-preview .explore{ visibility:hidden; }
+  .no-preview .preview{ visibility:hidden; }   /* keeps the row's height, so the seek bar doesn't move */
+  .no-preview .explore{ display:none; }   /* Start Over then sits at the right end, over the seek bar's end */
+  .cta-right{ display:flex; align-items:center; gap:24px; }
+  /* Start Over: the player's glass chip (player.css .pchip, as Skip Intro), shown for 5s when the controls come up
+     (.show, see soShow), then fading away; never without Time Shift, nor while Explore Package shows (the channel is
+     not in the viewer's package: it comes once the package is bought) */
+  #startOver{ opacity:0; transition:opacity .35s ease; }
+  #startOver.show{ opacity:1; }
+  .ui #startOver:not(.show){ pointer-events:none; }
+  .no-ts #startOver, .bottom:not(.no-preview) #startOver{ display:none; }
+  /* Go LIVE (Figma TV_timeShift): an outlined chip at the right end, up while the picture is behind live (.show, see
+     goLiveSync); focused, the player's light chip (.pchip.focused) */
+  #goLive{ display:none; }
+  #goLive.show{ display:flex; }
+  .pchip.outline:not(.focused){ background:transparent; box-shadow:inset 0 0 0 3px rgba(255,255,255,.85);
+    backdrop-filter:none; -webkit-backdrop-filter:none; color:rgba(255,255,255,.85); }
   /* the chip's faint edge in Figma (1895:174884); filled like the site's other glass chips (Home / TV Guide --glass-chip),
      with the picture blurred behind it */
   /* free preview used up: the picture stops and dims behind the controls, which stay up */
@@ -36,13 +51,35 @@
 
   /* the track, Figma "Local Seek bar component": at rest a thin 8px bar with no handle (1895:175050); focused 12px with the
      handle (1895:174905), the bar stopping 10px short of the end for it. --f (0..1) is how far the playhead is */
-  /* no Time Shift on this programme: the bar stays full at live, with no handle, no play / pause and no Start Over */
-  .no-ts .track .handle, .no-ts .play, .no-ts .btn[data-act="start-over"]{ display:none; }
+  /* no Time Shift on this programme: the bar stays full at live, with no handle and no play / pause (nor Start Over) */
+  .no-ts .track .handle, .no-ts .play{ display:none; }
   /* Time Shift on a premium channel not in the viewer's package: shown, but locked until a package is bought (no
      lock marks; a locked control says why when pressed). The seek bar has no handle: nothing to move */
   .ts-locked .track .handle{ display:none; }
 
-  /* Time Shift scrubbing: a thumbnail of that moment over the handle, its time under it, and the speed while held */
+  /* the seek bar (Figma TV_timeShift): the programme's start and end times at its ends in grey, the bar grey up to live
+     and white up to the picture, and focused, the picture's time in a dark pill over the handle */
+  .seek{ gap:24px; }
+  .seek .play{ margin-right:-12px; }   /* play / pause stays beside the start time, 12px from it */
+  .seek .tm{ color:var(--on-surface-variant); }
+  .track .played{ background:var(--inverse-surface); }
+  .track .buf{ background:#8a8a8a; opacity:1; }
+  /* the pill: near-black, its time in light regular figures; under it, apart from it, a small light arrow pointing at
+     the handle */
+  .ttip{ position:absolute; left:calc(var(--f) * (100% - var(--r))); bottom:calc(100% + 18px); transform:translate(-50%, 6px);
+    padding:7px 20px; border-radius:9999px; background:#1c1c1c; white-space:nowrap; pointer-events:none;
+    font:400 24px/32px var(--inter); color:var(--inverse-surface); font-variant-numeric:tabular-nums; letter-spacing:.5px;
+    box-shadow:0 4px 12px rgba(0,0,0,.35);
+    opacity:0; transition:opacity .2s ease, transform .2s ease; }
+  .ttip::after{ content:''; position:absolute; left:50%; top:calc(100% + 6px); margin-left:-8px;
+    border-left:8px solid transparent; border-right:8px solid transparent; border-top:9px solid var(--inverse-surface); }
+  .track.on .ttip{ opacity:1; transform:translate(-50%, 0); }
+  /* (without Time Shift, or locked: no handle, but the pill still gives the time where the bar ends, live) */
+  /* focused: a 12px bar (Figma) under a 32px handle, white-ringed, as in the design's close-up */
+  .track.on .base, .track.on .buf, .track.on .played{ top:10px; height:12px; border-radius:6px; }
+  .track .handle{ top:0; width:32px; height:32px; margin-left:-16px; border-radius:16px; border-width:5px; }   /* no handle: nothing to point at */
+  /* Time Shift scrubbing: a thumbnail of that moment over the time pill, and the speed while held */
+  .thumb{ bottom:102px; }
 
   /* action buttons: round icon buttons, focused or not (the page's usual focus look: the shared glass ring, a frosted
      fill); the focused one names itself in a tooltip above it, in the room left under the seek bar */
@@ -171,11 +208,17 @@
   .mcard.focused .mnext{ max-height:62px; opacity:1; padding:16px 16px 16px 122px; border-top-color:rgba(255,255,255,.18); }
 
   /* channel number typed on the remote, top right (over the controls or the bare picture); it tunes after a pause */
-  .ch-in{ position:absolute; top:60px; right:90px; z-index:25; min-width:96px; height:96px; box-sizing:border-box; padding:0 28px; border-radius:16px;
-    display:flex; align-items:center; justify-content:center; gap:6px; font:600 56px/1 var(--inter); letter-spacing:2px; font-variant-numeric:tabular-nums;
+  .ch-in{ position:absolute; top:60px; right:90px; z-index:25; min-width:144px; height:144px; box-sizing:border-box; padding:0 42px; border-radius:24px;   /* 1.5x */
+    display:flex; align-items:center; justify-content:center; gap:9px; font:600 84px/1 var(--inter); letter-spacing:3px; font-variant-numeric:tabular-nums;
     background:linear-gradient(rgba(0,0,0,.35), rgba(0,0,0,.35)), rgba(255,255,255,.13); box-shadow:inset 0 0 0 1px rgba(255,255,255,.12), 0 6px 20px rgba(0,0,0,.35);
     backdrop-filter:blur(24px) saturate(1.4); -webkit-backdrop-filter:blur(24px) saturate(1.4);
     opacity:0; transform:translateY(-8px); transition:opacity .2s ease, transform .2s ease; pointer-events:none; }
   .ch-in.on{ opacity:1; transform:none; }
   .ch-in i{ font-style:normal; color:rgba(255,255,255,.35); }   /* the digits still to come */
 
+
+  /* the shared toast (toast.css), 1.5x on the Live TV player: read from across the room over the picture */
+  #screen .toasts{ max-width:780px; gap:18px; }
+  #screen .toast-i{ padding:21px 30px; border-radius:18px; gap:18px; box-shadow:0 6px 18px rgba(0,0,0,.33); }
+  #screen .toast-i i{ width:6px; height:33px; margin-top:6px; border-radius:4px; }
+  #screen .toast-i p{ font-size:33px; line-height:45px; }

@@ -75,13 +75,14 @@
   .rng{ height:80px; padding:0 40px; border-radius:15px; display:flex; align-items:center; font-weight:500; font-size:32px; line-height:32px; color:var(--on-surface-variant); opacity:.8; white-space:nowrap; cursor:pointer; }
   .rng.on{ opacity:1; color:#fff; text-decoration:underline; text-underline-offset:8px; text-decoration-thickness:2px; }
   .rng.focused{ opacity:1; color:#fff; }
-  .eps{ padding:28px 0 0 148px; display:flex; flex-direction:column; gap:40px; }
-  .eprow{ display:flex; gap:16px; }
-  .ep{ position:relative; width:148px; height:148px; border-radius:8px; overflow:hidden; background:#474747; display:flex; flex-direction:column; flex:0 0 auto; }
-  .ep b{ flex:1; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:28px; color:#fff; }
+  /* 15 a row (as the player's Select Episode grid): 100px tiles, 14px apart, rows 28px apart */
+  .eps{ padding:28px 0 0 148px; display:flex; flex-direction:column; gap:28px; }
+  .eprow{ display:flex; gap:14px; }
+  .ep{ position:relative; width:100px; height:100px; border-radius:8px; overflow:hidden; background:#474747; display:flex; flex-direction:column; flex:0 0 auto; }
+  .ep b{ flex:1; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:26px; color:#fff; }
   .ep.locked b{ color:var(--on-surface-variant); }
-  .ep .lock{ display:none; height:32px; background:var(--surface-container); align-items:center; justify-content:center; }
-  .ep .lock img{ width:20px; height:20px; display:block; }
+  .ep .lock{ display:none; height:26px; background:var(--surface-container); align-items:center; justify-content:center; }
+  .ep .lock img{ width:18px; height:18px; display:block; }
   .ep.locked .lock{ display:flex; }
 
   /* You May Also Like: 220 x 330 posters (Home's), 6 a row */
@@ -109,35 +110,41 @@
     color:#fff; text-shadow:0 0 6px rgba(0,0,0,.4); white-space:nowrap; }
   .topnav .item.focused:not(.tv-tab){ background:var(--th-pill); backdrop-filter:blur(12px) saturate(1.4); }   /* the tabs: button-theme.css */
 
-  /* ---------- Unlock Episode (Figma "Modal Dialog (TV)", 800 wide) over the blurred page ---------- */
+  /* ---------- Unlock this content (Figma PLAY-player "Modal Dialog (TV)" 2223:102007) over the blurred page: the short
+     on the left (unlock icon, title, line, its 2:3 poster), a divider, then the ways to unlock as radio cards and
+     Close / Unlock Now. The page's own theme: its font, button-theme.css buttons, the shared focus ring ---------- */
   .mscrim{ position:absolute; inset:0; z-index:20; background:rgba(var(--wash),.6); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); opacity:0; pointer-events:none; transition:opacity .2s ease; }
-  .modal{ position:absolute; left:560px; top:156px; z-index:21; width:800px; padding:60px; border-radius:36px; background:#1e1e1e; border:1px solid var(--surface-container-high);
-    display:flex; flex-direction:column; align-items:center; gap:40px; opacity:0; transform:translateY(12px); pointer-events:none; transition:opacity .2s ease, transform .2s var(--ease); }
+  .modal{ position:absolute; left:50%; top:50%; z-index:21; padding:60px; border-radius:36px; background:#1e1e1e; border:1px solid var(--surface-container-high);
+    display:flex; align-items:center; gap:60px; opacity:0; transform:translate(-50%, calc(-50% + 12px)); pointer-events:none; transition:opacity .2s ease, transform .2s var(--ease); }
   body.unlock .mscrim, body.unlock .modal{ opacity:1; pointer-events:auto; }
-  body.unlock .modal{ transform:none; }
+  body.unlock .modal{ transform:translate(-50%, -50%); }
+  .mleft{ display:flex; flex-direction:column; align-items:center; gap:32px; }
   .modal .head{ display:flex; flex-direction:column; align-items:center; gap:16px; text-align:center; }
   .modal .head img{ width:60px; height:60px; }
-  .modal h2{ margin:0; font-weight:400; font-size:40px; line-height:48px; color:#fff; }
-  .modal p{ margin:0; width:420px; font-size:32px; line-height:40px; color:var(--on-surface); }
-  .opts{ min-width:429px; display:flex;   /* Figma's 429, wider when the label needs it (Open Sans runs wider than Roboto) */ flex-direction:column; gap:16px; }
-  /* the options: three clear states.
-     idle: a grey outline, grey text, an empty grey radio;
-     active (the picked one): a white outline, white text, the radio a white ring with its dot;
-     focused: the glass pill (the tabs' and buttons' focus fill) with the ring, white text, the radio white (dotted if picked) */
-  .opt{ display:flex; align-items:center; gap:16px; padding:12px; border:3px solid var(--outline); border-radius:12px; font-weight:500; font-size:24px; line-height:32px; color:var(--on-surface-variant); white-space:nowrap;
-    transition:background .15s ease, border-color .15s ease, color .15s ease, transform .22s var(--ease); }
-  .opt .rd{ position:relative; width:48px; height:48px; flex:0 0 auto; border-radius:50%; border:3px solid var(--outline); transition:border-color .15s ease; }
-  .opt .rd::after{ content:''; position:absolute; left:50%; top:50%; width:22px; height:22px; margin:-11px 0 0 -11px; border-radius:50%; background:#fff; transform:scale(0); transition:transform .18s var(--ease); }
-  .opt.sel{ border-color:#e8e8e8; color:#fff; background:rgba(255,255,255,.06); }
+  .modal h2{ margin:0; font-weight:500; font-size:32px; line-height:40px; color:#fff; }
+  .modal .head p{ margin:0; font-size:22px; line-height:28px; color:var(--on-surface); white-space:nowrap; }
+  .mposter{ width:220px; height:330px; border-radius:16px; background:var(--surface-container-high) center / cover no-repeat; }
+  .mdiv{ align-self:stretch; width:1px; background:var(--surface-container-high); }
+  .mright{ display:flex; flex-direction:column; gap:40px; }
+  .opts{ display:flex; flex-direction:column; gap:16px; }
+  /* a radio card: its radio, its name over what it gives, its price on the right. Picked: the radio's dot and a white
+     edge; focus: the shared ring (focus-ring.js) and a small lift */
+  .opt{ width:640px; box-sizing:border-box; display:flex; align-items:center; gap:24px; padding:16px 24px; border-radius:16px; background:var(--surface-container-high);
+    box-shadow:inset 0 0 0 3px transparent; cursor:pointer; transition:box-shadow .15s ease, transform .22s var(--ease); }
+  .opt .rd{ position:relative; width:40px; height:40px; flex:0 0 auto; box-sizing:border-box; border-radius:50%; border:3px solid var(--outline); transition:border-color .15s ease; }
+  .opt .rd::after{ content:''; position:absolute; left:50%; top:50%; width:18px; height:18px; margin:-9px 0 0 -9px; border-radius:50%; background:#e8e8e8; transform:scale(0); transition:transform .18s var(--ease); }
+  .opt .what{ flex:1; min-width:0; display:flex; flex-direction:column; gap:8px; }
+  .opt .what b{ font-weight:500; font-size:24px; line-height:32px; color:var(--on-surface); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .opt .what span{ font-size:16px; line-height:24px; letter-spacing:.25px; color:var(--on-surface-variant); }
+  .opt .amt{ flex:0 0 auto; font-weight:500; font-size:24px; line-height:32px; color:var(--on-surface); white-space:nowrap; }
+  .opt.sel{ box-shadow:inset 0 0 0 3px #fff; }
   .opt.sel .rd{ border-color:#fff; }
   .opt.sel .rd::after{ transform:scale(1); }
-  .opt.focused{ border-color:transparent; background:var(--focus-fill); -webkit-backdrop-filter:blur(50px) saturate(1.4); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
-  .opt.focused .rd{ border-color:#fff; box-shadow:0 1px 4px rgba(0,0,0,.25); }
   .opt.off{ opacity:.4; }
-  .mbtns{ width:100%; display:flex; gap:40px; }
-  /* the popup's buttons: button-theme.css (Close secondary, Confirm primary), sharing the row; states from the theme */
+  .mbtns{ width:100%; display:flex; gap:16px; }
+  /* the popup's buttons: button-theme.css (Close secondary, Unlock Now primary), sharing the row; states from the theme */
   .mbtn{ --btn-w:auto; --btn-h:80px; flex:1; font-size:24px; }
-  #screen .modal .item.focused{ transform:scale(1.04); }   /* the popup's rows and buttons: a small lift */
+  #screen .modal .item.focused{ transform:scale(1.04); }   /* the popup's cards and buttons: a small lift */
 
   /* the ad (Watch Ads to unlock): full screen, a countdown, then the episode is unlocked */
   .ad{ position:absolute; inset:0; z-index:30; background:#000 center / cover no-repeat; display:none; }

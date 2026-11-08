@@ -9,7 +9,7 @@
   /* ---------- content: Home's Shorts row (the same titles and posters, content.js) ---------- */
   var SHORTS = window.SHORTS;   // content.js
   var si = Math.max(0, Math.min(SHORTS.length - 1, +((location.search.match(/[?&]s=(\d+)/) || [])[1] || 0)));
-  var S = SHORTS[si], EPS = 160, FREE = 10, RANGE = 40;
+  var S = SHORTS[si], EPS = 160, FREE = 10, RANGE = 45, PER = 15;   // a range: 3 rows of 15 (the player's grid too)
   var STORE_KEY = 'shortUnlocked' + si;   // the episodes unlocked this session (bought / ads / subscribed)
   var unlocked = {}, adsLeft = 4;
   try { unlocked = JSON.parse(sessionStorage.getItem(STORE_KEY) || '{}'); adsLeft = +(sessionStorage.getItem('shortAdsLeft') || 4); } catch(e){}
@@ -27,6 +27,9 @@
     history.replaceState(null, '', 'short-detail.html?s=' + si);
     setTimeout(function(){ toast('Your pass is active: every episode is unlocked'); }, 300);
   }
+  // one episode bought on the payment page (Buy episode N, ?epbought=N): it is open (package-detail.html kept it)
+  var EPB = +((location.search.match(/[?&]epbought=(\d+)/) || [])[1] || 0);
+  if(EPB){ unlocked[EPB] = 1; history.replaceState(null, '', 'short-detail.html?s=' + si); setTimeout(function(){ toast('Episode ' + EPB + ' unlocked'); }, 300); }
   function keep(){ try { sessionStorage.setItem(STORE_KEY, JSON.stringify(unlocked)); sessionStorage.setItem('shortAdsLeft', adsLeft); } catch(e){} }
 
   // the top
@@ -59,13 +62,14 @@
 
   // Episodes: the ranges and the grid for the picked range
   var rangesEl = $('.ranges')[0], epsEl = $('.eps')[0], rangeAt = 0;
-  for(var a = 1; a <= EPS; a += RANGE) rangesEl.insertAdjacentHTML('beforeend', '<div class="rng item" data-ring-art="">' + a + '-' + (a + RANGE - 1) + '</div>');
+  for(var a = 1; a <= EPS; a += RANGE) rangesEl.insertAdjacentHTML('beforeend', '<div class="rng item" data-ring-art="">' + a + '-' + Math.min(a + RANGE - 1, EPS) + '</div>');   // the last one ends at the last episode
   function buildEps(){
     var html = '';
-    for(var row = 0; row < RANGE / 10; row++){
+    for(var row = 0; row < RANGE / PER && rangeAt * RANGE + row * PER < EPS; row++){
       html += '<div class="eprow">';
-      for(var c = 1; c <= 10; c++){
-        var n = rangeAt * RANGE + row * 10 + c;
+      for(var c = 1; c <= PER; c++){
+        var n = rangeAt * RANGE + row * PER + c;
+        if(n > EPS) break;
         html += '<div class="ep item' + (isOpen(n) ? '' : ' locked') + '" data-n="' + n + '" data-ring-art=""><b>' + n + '</b><span class="lock"><img src="icons/short/lock.svg" alt="Locked"></span></div>';
       }
       html += '</div>';
@@ -76,7 +80,7 @@
   function paintLocks(){ $('.ep').forEach(function(el){ el.classList.toggle('locked', !isOpen(+el.dataset.n)); }); }
 
   /* ---------- focus rows ----------
-     nav (the top bar), actions, tabs, then the picked tab's rows: ranges + one row per 10 episodes, or one per 6
+     nav (the top bar), actions, tabs, then the picked tab's rows: ranges + one row per 15 episodes, or one per 6
      posters. cur.col is kept per row key; cur.from is the row the top bar was reached from. */
   var navItems = $('.topnav .item'), NAV_HOME = navItems.indexOf(document.querySelector('.navtab.active'));
   var tabAt = -1, rows = [], cur = { row:1, col:{ nav:NAV_HOME }, from:'actions' };
@@ -138,7 +142,7 @@
       var over = el.scrollHeight + 40 - el.parentNode.clientHeight, dy = at.grid && over > 0 ? Math.min(at.grid * step, over) : 0;
       el.style.transform = dy ? 'translateY(' + -dy + 'px)' : '';
     }
-    if(isEp){ slide(epsEl, 188); likesEl.style.transform = ''; } else { slide(likesEl, 412); epsEl.style.transform = ''; }
+    if(isEp){ slide(epsEl, 128); likesEl.style.transform = ''; } else { slide(likesEl, 412); epsEl.style.transform = ''; }
     document.body.classList.toggle('below', below);
     document.body.classList.toggle('on-nav', cur.row === 0);
     // the icon buttons' tooltips, and their icons filled while on (icon-toggle.js), as on Movie Detail
@@ -147,14 +151,29 @@
     paintModal();
   }
 
-  /* ---------- Unlock Episode ---------- */
-  var modalOn = false, mEp = 0, mSel = 1, mFocus = { area:'opts', i:1 };
-  var optEls = $('.opt'), mBtnEls = $('.mbtn');
+  /* ---------- Unlock this content (Figma 2223:102007): the ways to unlock a locked episode, as radio cards ----------
+     Subscribe to a package (its app's monthly price, packages.js), Buy this series (a short with a price: SHORTS buy),
+     Buy episode N (content.js SHORT.EP_PRICE), Watch ads (a few a day, free) */
+  var modalOn = false, mEp = 0, mSel = 0, mFocus = { area:'btns', i:1 }, optEls = [];
+  var mBtnEls = $('.mbtn');
+  function monthly(){
+    var ps = (window.Packages && Packages.PKG[S.plat]) || [], m = ps.filter(function(p){ return /month/i.test(p.per); });
+    return (m.length ? m : ps).map(function(p){ return p.price; }).sort(function(x, y){ return x - y; })[0];
+  }
   function openUnlock(n){
-    mEp = n; modalOn = true; mSel = 1; mFocus = { area:'btns', i:1 };   // Figma: Buy this episode picked, focus on Confirm
-    $('.modal h2')[0].textContent = 'Unlock Episode ' + n;
-    $('.adtxt')[0].textContent = 'Watch ads to unlock (' + adsLeft + '/5)';
-    optEls[2].classList.toggle('off', adsLeft <= 0);
+    mEp = n; modalOn = true; mFocus = { area:'btns', i:1 };   // focus on Unlock Now, the first way picked
+    var mo = monthly(), O = [];
+    if(mo) O.push({ o:'sub', t:'Subscribe to a package', s:'Subscribe to unlock all content', p:mo + ' ฿/month' });
+    if(S.buy) O.push({ o:'series', t:'Buy this series', s:'Unlock all episodes', p:S.buy + ' ฿' });
+    O.push({ o:'ep', t:'Buy episode ' + n, s:'Unlock one episode', p:SHORT.EP_PRICE + ' ฿' });
+    O.push({ o:'ads', t:'Watch ads to unlock (' + adsLeft + '/5)', s:adsLeft > 0 ? 'Unlock this episode for free' : 'No more ads today', p:'Free', off:adsLeft <= 0 });
+    $('#mOpts')[0].innerHTML = O.map(function(x){
+      return '<div class="opt item' + (x.off ? ' off' : '') + '" data-o="' + x.o + '" data-ring-art=""><span class="rd"></span>' +
+        '<div class="what"><b>' + esc(x.t) + '</b><span>' + esc(x.s) + '</span></div><div class="amt">' + esc(x.p) + '</div></div>';
+    }).join('');
+    $('#mPoster')[0].style.backgroundImage = "url('posters/shorts/" + S.img + "')";
+    optEls = $('.opt'); mSel = 0;
+    optEls.forEach(function(o, i){ o.addEventListener('click', function(){ if(o.classList.contains('off')) return; mSel = i; mFocus = { area:'opts', i:i }; paintModal(); }); });
     document.body.classList.add('unlock'); paint();
   }
   function closeUnlock(){ modalOn = false; document.body.classList.remove('unlock'); paint(); }
@@ -164,12 +183,9 @@
   }
   function confirmUnlock(){
     var o = optEls[mSel].dataset.o;
-    if(o === 'sub'){   // the Short Drama packages; All Packages comes back here
-      save(); location.href = 'all-packages.html?tab=shorts'; return;
-    }
-    if(o === 'buy'){   // the short's payment (package-detail.html, short mode): a viewing pass
-      save(); location.href = 'package-detail.html?short=' + si + '&ep=' + mEp; return;
-    }
+    if(o === 'sub'){ save(); location.href = 'all-packages.html?tab=shorts'; return; }   // the Short Drama packages; All Packages comes back here
+    if(o === 'series'){ save(); location.href = 'package-detail.html?short=' + si + '&opt=buy'; return; }   // as the page's Buy N ฿
+    if(o === 'ep'){ save(); location.href = 'package-detail.html?short=' + si + '&opt=ep&ep=' + mEp; return; }   // this episode only
     if(o === 'ads'){
       if(adsLeft <= 0){ toast('No more ads today: try another way'); return; }
       closeUnlock(); playAd(mEp);
@@ -177,9 +193,10 @@
   }
   function modalKey(k){
     if(k === 'Escape' || k === 'Backspace'){ closeUnlock(); return; }
+    var last = optEls.length - 1;
     if(mFocus.area === 'opts'){
       if(k === 'ArrowUp') mFocus.i = Math.max(0, mFocus.i - 1);
-      else if(k === 'ArrowDown'){ if(mFocus.i < 2) mFocus.i++; else mFocus = { area:'btns', i:1 }; }
+      else if(k === 'ArrowDown'){ if(mFocus.i < last) mFocus.i++; else mFocus = { area:'btns', i:1 }; }
       else if(k === 'Enter'){ if(!optEls[mFocus.i].classList.contains('off')) mSel = mFocus.i; }
     } else {
       if(k === 'ArrowLeft') mFocus.i = 0;
@@ -189,7 +206,6 @@
     }
     paintModal();
   }
-  optEls.forEach(function(o, i){ o.addEventListener('click', function(){ if(o.classList.contains('off')) return; mSel = i; mFocus = { area:'opts', i:i }; paintModal(); }); });
   mBtnEls.forEach(function(b, i){ b.addEventListener('click', function(){ mFocus = { area:'btns', i:i }; paintModal(); if(i === 0) closeUnlock(); else confirmUnlock(); }); });
   $('.mscrim')[0].addEventListener('click', closeUnlock);
 
