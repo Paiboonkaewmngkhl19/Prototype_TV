@@ -105,6 +105,12 @@
   // the start, as the cards say it (content.js LIVE.label), in Figma's words on the button: "Starting in 44:21" in the last hour
   function startsLabel(){ return LIVE.label({start:PROG.start}).replace(/^Start in/, 'Starting in'); }
   function progRange(){ return LIVE.range(PROG); }   // content.js: Home's screen text says the same
+  // the countdown's line: its day and time on air ("25 Oct 21:00 – 23:00"), then the time left in its four tiles
+  function upWhen(){ var d = new Date(PROG.start); return d.getDate() + ' ' + 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ')[d.getMonth()] + ' ' + progRange(); }
+  function paintCount(){
+    var s = Math.max(0, Math.floor((PROG.start - Date.now()) / 1000)), v = { Days:Math.floor(s / 86400), Hours:Math.floor(s / 3600) % 24, Mins:Math.floor(s / 60) % 60, Secs:s % 60 };
+    Array.prototype.forEach.call(document.querySelectorAll('.ucell b'), function(b){ b.textContent = v[b.dataset.u]; });
+  }
   // the LIVE / Upcoming cards: the other programmes (content.js LIVE), each to its own detail page or its channel
   // a premium channel's programme: Premium on its page (the meta row) and on its card (the crown tag), always together,
   // each with the channel's gold crown while it's not in the viewer's package (content.js)
@@ -131,8 +137,12 @@
       premBadge() +
       (PCH ? '<span class="chan">' + TV.logoHtml(PCH) + 'Channel ' + PCH.no + ': ' + esc(PCH.n) + '</span>' : '') +
       '<span class="pill">' + progRange() + '</span>';
-    var old = document.querySelector('.uposter'); if(old) old.remove();
-    if(up) document.getElementById('title').insertAdjacentHTML('beforebegin', '<div class="uposter" style="background-image:url(\'' + PROG.img + '\')"></div>');
+    // Upcoming: a countdown to its start over the title (Figma Movies "Upcoming MD with countdown" 2855:136907): its day and
+    // time on air, then Days / Hours / Mins / Secs, ticking every second
+    var old = document.querySelector('.ucount'); if(old) old.remove();
+    if(up) document.getElementById('title').insertAdjacentHTML('beforebegin', '<div class="ucount"><p class="uwhen">' + esc(upWhen()) + '</p><div class="utimer">' +
+      ['Days', 'Hours', 'Mins', 'Secs'].map(function(l){ return '<div class="ucell"><b data-u="' + l + '">0</b><span>' + l + '</span></div>'; }).join('') + '</div></div>');
+    if(up) paintCount();
     var others = Content.related({t:PROG.t}, 10);   // other LIVE / Upcoming programmes only, same league / sport first (content.js)
     if(up){
       state = 'up';
@@ -145,8 +155,9 @@
       document.getElementById('utrack').innerHTML = others.filter(function(p){ return p.live; }).concat(others.filter(function(p){ return !p.live; })).map(lcard).join('');
       clearInterval(tick);
       tick = setInterval(function(){
-        if(Date.now() >= PROG.start){ clearInterval(tick); PROG.live = 1; delete PROG.start; location.replace('movie-detail.html?prog=' + encodeURIComponent(JSON.stringify(PROG))); return; }   // it has started: its LIVE page
+        if(Date.now() >= PROG.start){ clearInterval(tick); PROG.live = 1; delete PROG.start; location.replace(LIVE.href(PROG, 'detail')); return; }   // it has started: a LIVE programme has no detail page, the player plays it
         document.getElementById('starts').textContent = startsLabel();
+        paintCount();
       }, 1000);
     } else {
       state = MD.state(K);

@@ -13,10 +13,9 @@
     (a package bought in Package Detail opens straight on Purchase Complete)
     1. Confirm Purchase: the title, its price, how it is paid (Charge to AIS Bill), Cancel / Confirm
     2. Confirm OTP: the 4-digit code typed on the Login page's keypad (login.html .pad: same keys, same look)
-    3. Purchase Complete, two designs. Have Activate (apps that need activating: PLAY ULTIMATE, and the OTT packages
-       with an Activation Guide): the receipt, a Next Step card with Activate Now (activation-guide.html), View My
-       Package / Activate Later. No Activate (everything else: PLAY ALL, leagues, other apps, a title): "You're all
-       set", the receipt, then Start Watching
+    3. Purchase complete, one layout in two cases. Activate (apps that need activating: PLAY ULTIMATE, and the OTT
+       packages with an Activation Guide): Next Step, the apps, Back / Activation Guide (activation-guide.html).
+       Seamless (everything else: PLAY ALL, leagues, other apps, a title): "You're all set", Back / Start watching
   Remote / keyboard: arrows move, Enter selects, the digit keys type the OTP, Back returns a step (then to the title).
 -->
 <link rel="stylesheet" href="button-theme.css">
@@ -70,39 +69,32 @@
     </div>
   </section>
 
-  <!-- 3. Purchase Complete, one of two (purchase-1.js picks; Figma Prototype 184:57466 / 184:57469):
-       Have Activate: apps that need activating, Next Step card with Activate Now. No Activate: ready to watch. -->
+  <!-- 3. Purchase complete (Figma Prototype "Purchase result" 226:55563 / 226:55564), one layout, two cases (purchase-1.js):
+       the check and "Purchase complete", the receipt (its picture, name and price, Renews monthly, the price with VAT;
+       its period | how it was paid), then a line, the apps it brings and the SMS note, then Back and one more button.
+       Activate (apps that need activating): "Next Step · Activate your app to start watching content", Activation Guide.
+       Seamless (nothing to activate): "You're all set...", Start watching. -->
   <section class="step s-done">
     <div class="result">
-      <div class="head"><img src="store-assets/pc-icon.svg" alt=""><h1 class="d-head"></h1></div>
+      <div class="head"><img src="store-assets/pc-icon.svg" alt=""><h1>Purchase complete</h1></div>
       <div class="rcpt">
         <div class="r-hero">
           <div class="pic d-pic"></div>
           <div class="r-l"><div class="r-nm"><span class="d-nm"></span><span class="d-base"></span></div><span class="r-badge d-renew"></span></div>
           <div class="r-r"><b class="d-amt"></b><span>VAT Included</span></div>
         </div>
-        <div class="r-rows only-act">
-          <div class="row"><span class="l"><img src="store-assets/pc-cal.svg" alt="">Package duration</span><span class="d-dur"></span></div>
-          <div class="row"><span class="l"><img src="store-assets/pc-wallet.svg" alt="">Payment method</span><span class="d-pm">Charge to AIS Bill: 8801234456</span></div>
-        </div>
-        <div class="r-line only-no"><span class="d-period"></span><span>|</span><span class="d-pmask"></span></div>
+        <div class="r-line"><span class="d-period"></span><span>|</span><span class="d-pmask"></span></div>
+        <span class="d-dur" hidden></span><span class="d-pm" hidden>Charge to AIS Bill: 8801234456</span>
       </div>
-      <div class="nextstep only-act">
-        <span class="r-badge">Next Step</span>
-        <div><h2>Activate your app to start watching content</h2><p>Your package is ready. One more step and you can watch.</p></div>
-        <div class="apps d-apps"></div>
-        <div class="tv-btn tv-btn--primary doneb" data-act="guide">Activate Now</div>
-      </div>
-      <div class="noact only-no">
-        <p class="lead d-lead"></p>
+      <div class="after">
+        <div class="lead-row"><span class="r-badge only-act">Next Step</span><p class="lead d-lead"></p></div>
         <div class="apps d-apps"></div>
         <p class="sms"><img src="store-assets/pc-sms.svg" alt="">We’ll send your details by SMS within 5 minutes.</p>
       </div>
       <div class="done-acts">
-        <div class="tv-btn tv-btn--primary doneb" data-act="mypkg">View My Package</div>
-        <div class="tv-btn tv-btn--primary doneb" data-act="later">Activate Later</div>
-        <div class="tv-btn tv-btn--secondary doneb" data-act="store">Back to Store</div>
-        <div class="tv-btn tv-btn--primary doneb" data-act="watch">Start Watching</div>
+        <div class="tv-btn tv-btn--secondary doneb" data-act="back">Back</div>
+        <div class="tv-btn tv-btn--primary doneb" data-act="guide">Activation Guide</div>
+        <div class="tv-btn tv-btn--primary doneb" data-act="watch">Start watching</div>
       </div>
     </div>
   </section>

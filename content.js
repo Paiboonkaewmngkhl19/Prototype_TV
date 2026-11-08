@@ -622,14 +622,14 @@ window.SHORTS = [
 
 /*
   Episodes of a short, shared by short-detail.html and the vertical player (player.html?short=N&ep=E):
-    SHORT.EPS episodes (the first SHORT.FREE free), SHORT.open(s, n) whether episode n of short s can be watched (free,
+    SHORT.EPS episodes (the first SHORT.FREE free; SHORT.EP_PRICE one locked episode bought on its own), SHORT.open(s, n) whether episode n of short s can be watched (free,
     unlocked this session, a pass, or the Short Drama package), SHORT.secs(n) its length in seconds (1-3 minutes),
     SHORT.at(s) / SHORT.setAt(s, ep, sec) where the short was left; SHORT.continueList() short.html's Continue watching. SHORT.owned(s) every episode is the viewer's: its
     app's package (MD.subscribed: ReelShort / DramaBox; PLAY ULTIMATE doesn't include short dramas), bought (SHORT.own: a short with buy, its
     detail page's Buy N ฿), a pass, or each locked episode unlocked.
 */
 window.SHORT = (function(){
-  var EPS = 160, FREE = 10;
+  var EPS = 160, FREE = 10, EP_PRICE = 9;   // EP_PRICE: one locked episode bought on its own (฿; Unlock this content)
   function get(k, d){ try { return JSON.parse(sessionStorage.getItem(k) || d); } catch(e){ return JSON.parse(d); } }
   function own(s){ var o = get('shortOwned', '[]'); if(o.indexOf(s) < 0){ o.push(s); try { sessionStorage.setItem('shortOwned', JSON.stringify(o)); } catch(e){} } }
   function owned(s){
@@ -651,7 +651,7 @@ window.SHORT = (function(){
     var p = get('shortProgress', '{}'), mine = Object.keys(p).map(function(s){ return { s:+s, ep:p[s].ep }; }).reverse();
     return mine.concat(CW.filter(function(c){ return !p[c.s]; })).filter(function(c){ return window.SHORTS[c.s]; });
   }
-  return { EPS:EPS, FREE:FREE, open:open, owned:owned, own:own, secs:secs, at:at, setAt:setAt, continueList:continueList };
+  return { EPS:EPS, FREE:FREE, EP_PRICE:EP_PRICE, open:open, owned:owned, own:own, secs:secs, at:at, setAt:setAt, continueList:continueList };
 })();
 
 /*
@@ -882,7 +882,7 @@ window.Content = (function(){
 
 /*
   LIVE and Upcoming programmes on the TV channels (Home's Live and Upcoming rail, Sport's matches, and the related rails on
-  their detail pages). A programme on a Movie or Sport channel has a detail page (movie-detail.html?prog=, Figma "MD LIVE
+  their detail pages). An Upcoming programme on a Movie or Sport channel has a detail page (movie-detail.html?prog=, Figma "MD LIVE
   State" / "Upcoming Has Access (MD)"), opened only from a picture card; the TV Guide and the EPGs always play the channel.
     LIVE.list          the programmes: t, img, tv (the TV Guide channel), live, or in (minutes from when the page opened,
                        so the demo's upcoming ones are always upcoming), d; heroOnly: shown in Home's first scene, not its rail;
@@ -893,7 +893,8 @@ window.Content = (function(){
     LIVE.label(p)      its card's label: "Starts in 58:12" in the last hour, else "Today 8:30 PM" / "Tomorrow 6:00 PM" / "2 Nov 8:30 PM"
     LIVE.hasMD(tv)     whether the channel's programmes have a detail page: a Sports channel, or a Movies one that isn't Digital
                        TV (channels-data.js)
-    LIVE.href(p, from) the card's link: its detail page, else the channel in the Live TV player (via the TV Guide)
+    LIVE.href(p, from) the card's link: a LIVE one always the channel in the Live TV player (via the TV Guide), no detail
+                       page; an Upcoming one its detail page if LIVE.hasMD, else the player too
     LIVE.hot          Home's Hot Channel Program: news channels' programmes on now (t, img, logo, tv, d; bg, v: its screen picture and video, the News page's too)
     LIVE.range(p), LIVE.find(title)   its time on air, a programme by its title (Home's screen text and the detail
                        page's meta row say the same); its Premium: Content.crown({tv:p.tv})
@@ -960,8 +961,10 @@ window.LIVE = (function(){
   // everything else: CH7 HD's MasterChef plays the channel)
   function hasMD(tv){ var c = window.TV && TV.byName(tv), has = function(k){ return c.cats.indexOf(k) >= 0; };
     return !!c && (has('sports') || (has('movies') && !has('digital'))); }
+  // a LIVE programme (on now) never has a detail page: its card plays the channel at once (the Live TV player, via the
+  // TV Guide); only an Upcoming one on a Movie / Sport channel opens movie-detail.html?prog=
   function href(p, from){
-    if(hasMD(p.tv)){
+    if(!p.live && hasMD(p.tv)){
       var o = {t:p.t, img:p.img, tv:p.tv, d:p.d || ''};
       if(p.lg) o.lg = p.lg;   // its league (View Package: that league's packages)
       if(p.bg) o.bg = p.bg;

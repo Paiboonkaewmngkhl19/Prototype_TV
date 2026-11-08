@@ -8,11 +8,12 @@
   // Terms and Conditions), Options on the right, then the same payment, a one-time charge:
   //   ?short=N[&ep=E]       a short's viewing passes ("Rent": 24 / 48 / 100 hours), from its Unlock Episode popup
   //   ?short=N&opt=buy      the whole short ("Vertical Content Full Series"), its detail page's Buy N ฿ (content.js SHORTS buy)
+  //   ?short=N&opt=ep&ep=E  one locked episode (its Unlock this content popup: Buy episode E, content.js SHORT.EP_PRICE)
   //   ?k=K&opt=buy          a title's Buy ("Buy": its quality, MD.buyPrice); a PPV event or AIS PLAY Exclusive (m.ev / m.ppv:
   //                         "PPV Event": an Event Pass)
   //   ?k=K&opt=rent         a title's Rent ("Rent": an MD.RENT_HOURS pass, MD.rentPrice)
   // bought: back to its detail page (?bought=1 / ?rented=1; a pass: ?pass=1), the title the viewer's ----
-  var OPT = (location.search.match(/[?&]opt=(buy|rent)/) || [])[1] || '';
+  var OPT = (location.search.match(/[?&]opt=(buy|rent|ep)/) || [])[1] || '';
   var PV = null;   // what the details view shows (Enter on the card): dt (its first heading), d, terms
   var SHORT = (location.search.match(/[?&]short=(\d+)/) || [])[1], SH = SHORT !== undefined ? window.SHORTS[+SHORT] : null;
   var TK = (location.search.match(/[?&]k=([\w-]+)/) || [])[1]; if(!(TK && MD.M[TK] && OPT)) TK = null;
@@ -30,15 +31,16 @@
     var TM = TK ? MD.M[TK] : null, H = MD.RENT_HOURS;
     var TV = SH ? { t:SH.t, pic:'posters/shorts/' + SH.img, meta:Content.metaHtml({s:+SHORT}, true), d:SH.d }
                 : { t:TM.t, pic:TM.p || TM.w || TM.b, meta:Content.metaHtml({k:TK}, true), d:TM.d };
-    KIND = SH ? (FULL ? 'buy' : 'pass') : OPT === 'rent' ? 'rent' : TM.ev || TM.ppv ? 'event' : 'buy';
+    KIND = SH ? (FULL ? 'buy' : OPT === 'ep' && EP ? 'ep' : 'pass') : OPT === 'rent' ? 'rent' : TM.ev || TM.ppv ? 'event' : 'buy';
     // its options: a pass (its hours and when to start it), an Event Pass, or the quality it is bought in
     var OPTS = KIND === 'pass' ? PASSES.map(function(p){ return { name:p.name, lines:[[CLOCK, 'Start anytime within ' + p.start + ' days.'], [FILM, 'Enjoy ' + p.hours + ' hours of unlimited viewing.']], amt:p.amt, vat:p.vat }; })
       : KIND === 'rent' ? [{ name:H + '-Hour Pass', lines:[[CLOCK, 'Start anytime within 7 days.'], [FILM, 'Enjoy ' + H + ' hours of unlimited viewing.']], amt:MD.rentPrice(TK) }]
+      : KIND === 'ep' ? [{ name:'Episode ' + EP, lines:[[FILM, 'Watch episode ' + EP + ' as many times as you like.']], amt:window.SHORT.EP_PRICE }]
       : KIND === 'event' ? [{ name:'Event Pass', lines:[[CLOCK, 'Watch live at the scheduled time']], amt:MD.buyPrice(TK) }]
       : [{ name:(SH ? 'Full HD' : TM.q === '4k' ? '4K' : 'Full HD'), lines:[], amt:SH ? SH.buy : MD.buyPrice(TK) }];
     OPTS.forEach(function(o){ if(typeof o.amt === 'number'){ o.vat = vatOf(o.amt) + ' baht'; o.amt = o.amt + ' baht'; } });
     document.body.classList.add('short');   // (the Title Details layout)
-    document.body.classList.toggle('no-note', KIND === 'buy');   // Figma "Buy": no viewing-period note
+    document.body.classList.toggle('no-note', KIND === 'buy' || KIND === 'ep');   // Figma "Buy" (and one episode): no viewing-period note
     document.title = TV.t;
     // (the heading stays "Package Details" (package-detail.html) in every mode)
     document.querySelector('.tdetails .poster').style.backgroundImage = "url('" + TV.pic + "')";
@@ -58,6 +60,7 @@
         'Once started, the pass runs continuously, including while you are not watching, and ends after its hours have passed.']
       : KIND === 'rent' ? ['A rental is a one-time purchase and does not renew automatically.', 'Start watching within 7 days; once started you have ' + H + ' hours to finish.',
         'The rental is for this title only, on the AIS PLAY app, website and supported TVs and devices.']
+      : KIND === 'ep' ? ['A one-time purchase of episode ' + EP + ' of ' + TV.t + ' only; its other locked episodes stay locked.', 'The purchase does not renew automatically.']
       : KIND === 'event' ? ['An Event Pass is a one-time purchase for this event only.', 'Watch it live at its scheduled time, and its replay afterwards while it is available.',
         'The pass does not renew automatically.']
       : ['A one-time purchase: ' + TV.t + ' is yours to watch again any time in My Rentals and Purchases.', 'The purchase does not renew automatically.'];
@@ -209,7 +212,7 @@
   function amountText(){
     var sel = picked(), per = sel.dataset.period, vat = sel.querySelector('.vat').textContent.replace('VAT Included: ', '').replace(/ (฿|baht)$/, '');
     $('.o-amt').forEach(function(e){ e.textContent = vat + ' baht'; });
-    $('.o-how').forEach(function(e){ e.textContent = KIND === 'buy' ? 'Charged once for ' + TV.t : TITLE || per === '7d' ? 'Charged once for the ' + sel.dataset.label
+    $('.o-how').forEach(function(e){ e.textContent = KIND === 'buy' ? 'Charged once for ' + TV.t : KIND === 'ep' ? 'Charged once for episode ' + EP + ' of ' + TV.t : TITLE || per === '7d' ? 'Charged once for the ' + sel.dataset.label
       : 'Renews every ' + (per === 'year' ? 'year' : 'month') + ' until you cancel'; });
   }
   function openOtp(){
@@ -238,13 +241,14 @@
     }
     if(OB){ MD.subscribe(OK); if(OB.league) Content.subscribeTv('sports'); }
     if(TITLE){
-      if(KIND === 'pass'){ try { var u = JSON.parse(sessionStorage.getItem('shortUnlocked' + SHORT) || '{}'); u.all = 1; sessionStorage.setItem('shortUnlocked' + SHORT, JSON.stringify(u)); } catch(e){} }
+      if(KIND === 'pass' || KIND === 'ep'){   // a pass: every episode; one episode: just that one (content.js SHORT.open)
+        try { var u = JSON.parse(sessionStorage.getItem('shortUnlocked' + SHORT) || '{}'); if(KIND === 'ep') u[EP] = 1; else u.all = 1; sessionStorage.setItem('shortUnlocked' + SHORT, JSON.stringify(u)); } catch(e){} }
       else if(SH) window.SHORT.own(+SHORT); else if(KIND === 'rent') MD.rent(TK); else MD.own(TK);
     }
   }
   // where Done on the Purchase complete page goes: the detail page that sent it (bought / rented / subscribed), else back
   function dest(){
-    if(TITLE) return RETURN + '&' + (KIND === 'pass' ? 'pass' : KIND === 'rent' ? 'rented' : 'bought') + '=1';
+    if(TITLE) return RETURN + '&' + (KIND === 'ep' ? 'epbought=' + EP : (KIND === 'pass' ? 'pass' : KIND === 'rent' ? 'rented' : 'bought') + '=1');
     if(RET) return RET + (RET.indexOf('?') < 0 ? '?' : '&') + 'subscribed=1';
     if(FROM === 'store') return 'store.html';
     if(FROM === 'all-packages') return 'all-packages.html?subscribed=1';

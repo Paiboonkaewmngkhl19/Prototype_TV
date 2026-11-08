@@ -21,15 +21,16 @@
       addEventListener('keydown', unmute, true); addEventListener('click', unmute, true);
     });
   })(byId('video'));
-  // Time Shift: set per programme in the TV Guide (its Time Shift icon). With it the viewer can pause, go back / forward
-  // 10s, hold to scrub faster (with a thumbnail) and Start Over; without it the player stays live
+  // Time Shift: set per programme in the TV Guide (its Time Shift icon). With it the viewer can pause, go back
+  // 10s, hold to rewind faster (with a thumbnail) and Start Over, but never go forward (it's live: Go LIVE returns
+  // there); without it the player stays live
   var TS = q.ts === '1';
   if(!TS) byId('bottom').classList.add('no-ts');
   // the channel's crown (content.js Content.crown): gold, a premium channel not in the viewer's package; owned, one in it
   // (crown 'owned', or a package bought this session, All Packages from Explore Package); '' a free channel
   var CROWN = Content.crown({ch:C});
   // Time Shift on a premium channel not in the package (gold crown): its icon still shows (TV Guide, mini EPG), but
-  // play / pause, back / forward, the hold speeds and Start Over stay locked until a package is bought
+  // play / pause, rewind, the hold speeds and Start Over stay locked until a package is bought
   var TS_LOCK = TS && CROWN === 'gold';
   if(TS_LOCK) byId('bottom').classList.add('ts-locked');
   // back from All Packages out of the browser's page cache: start again, so a package bought there takes effect
@@ -76,7 +77,6 @@
   var behind = 0, scrub = null, STEP = 10000, holdT = null, holdStart = 0, commitT = null;
   function win(){ return Math.max(0, Math.min(P.end - P.start, Date.now() - P.start)); }   // how much can be gone back over
   function vmod(t){ var d = byId('video').duration || 0; return d ? ((t % d) + d) % d : 0; }   // the demo clip loops for the channel
-  function hms(ms){ var s = Math.floor(ms / 1000); return Math.floor(s / 3600) + ':' + pad(Math.floor(s / 60) % 60) + ':' + pad(s % 60); }
   function scrubBy(ms){
     if(scrub === null) scrub = behind;
     scrub = Math.max(0, Math.min(win(), scrub - ms));
@@ -118,15 +118,28 @@
   }
   function stopHold(){ if(!holdT) return; clearInterval(holdT); holdT = null; setSpeed(0); commitT = setTimeout(commit, 800); }
   function paintSeek(){
-    var W = win(), el = W - (scrub === null ? behind : scrub), f = W ? el / W : 1, tr = byId('track');
-    byId('elapsed').textContent = hms(el);
+    // the whole programme, start to end (Figma TV_timeShift): the bar is filled grey up to live (now), white up to the
+    // picture; the times at the ends are the programme's, the one over the handle the picture's own (its clock time)
+    var L = Math.max(1, P.end - P.start), W = win(), el = W - (scrub === null ? behind : scrub), f = el / L, tr = byId('track');
+    byId('elapsed').textContent = hm(P.start); byId('endTm').textContent = hm(P.end);
+    byId('ttip').textContent = hm(new Date(P.start.getTime() + el));
     tr.style.setProperty('--f', f);
-    tr.style.setProperty('--b', Math.min(1, f + .02));
+    tr.style.setProperty('--b', Math.min(1, W / L));
+    goLiveSync();
     if(scrub !== null){
       var w = tr.offsetWidth - 10;   // the bar, focused
       byId('thumb').style.left = Math.max(160, Math.min(tr.offsetWidth - 160, f * w)) + 'px';
-      byId('thumbT').textContent = hms(el);
     }
+  }
+  // Go LIVE: up while the picture is behind live (more than a second); focus stays on the same control as it comes
+  // and goes, and on it, goes to the seek bar when it leaves
+  function goLiveSync(){
+    var g = byId('goLive'), want = TS && !preview && scrub === null && behind > 1000;
+    if(want === g.classList.contains('show')) return;
+    var r = rows(), cur = r[row] && r[row][col];
+    g.classList.toggle('show', want);
+    if(cur === g){ g.classList.remove('focused'); cur = byId('track'); }
+    if(cur){ at(cur); if(!document.body.classList.contains('idle')) paint(); }
   }
   function tick(){
     // paused with Time Shift: live moves on, so the picture falls further behind it
@@ -145,9 +158,10 @@
   function rows(){
     // the seek row is focused as one: the bar grows (Enter plays / pauses, Left / Right move through the programme);
     // the play / pause icon beside it only shows the state
-    // hidden buttons (Start Over without Time Shift) are left out, so focus skips them
+    // hidden buttons are left out, so focus skips them; Start Over only while it shows (soShow)
     var btns = $('.btn').filter(function(b){ return getComputedStyle(b).display !== 'none'; });
-    return [$('.back'), preview ? $('.explore') : [], [byId('track')], btns].filter(function(r){ return r.length; });
+    var cta = [byId('startOver'), byId('goLive')].filter(function(b){ return TS && !preview && b.classList.contains('show'); }).concat(preview ? $('.explore') : []);
+    return [$('.back'), cta, [byId('track')], btns].filter(function(r){ return r.length; });
   }
   var row = 2 - (preview ? 0 : 1), col = 0;   // the seek bar; see "first focus" below
   function paint(){
@@ -190,8 +204,8 @@
   }
   // a locked Time Shift control: say why, and put focus on Explore Package (the way to unlock it)
   function tsLocked(){
-    toast('Time Shift is part of the package. Get it to pause, rewind and fast-forward');
-    var r = rows(); for(var i = 0; i < r.length; i++) if(r[i][0].dataset.act === 'explore'){ row = i; col = 0; }
+    toast('Time Shift is part of the package. Get it to pause and rewind');
+    var r = rows(); for(var i = 0; i < r.length; i++) for(var j = 0; j < r[i].length; j++) if(r[i][j].dataset.act === 'explore'){ row = i; col = j; }
     paint();
   }
   function activate(el){
@@ -208,6 +222,10 @@
       case 'start-over':
         scrub = null; byId('thumb').classList.remove('on'); behind = win();
         v.currentTime = 0; v.play(); setPlayIcon(); paintSeek(); toast('Start Over: ' + P.t); break;
+      case 'go-live':
+        scrub = null; byId('thumb').classList.remove('on');
+        v.currentTime = vmod(v.currentTime + behind / 1000); behind = 0;
+        v.play(); setPlayIcon(); paintSeek(); toast('Back to live'); break;
       case 'fav':
         C.fav = !C.fav; setFav(); favAnim(C.fav);
         // the mini EPG's Favorite category follows
@@ -238,6 +256,11 @@
     chBuf += d; chPaint();
     clearTimeout(chT); chT = setTimeout(tune, chBuf.length === 3 ? 500 : 2000);
   }
+  // no such channel: the number box goes away and a toast says so (only the toast, nothing else on screen)
+  function chMissing(n){
+    clearTimeout(chShowT); byId('chIn').classList.remove('on');
+    toast('Channel ' + n + ' is not available');
+  }
   function chCancel(){ clearTimeout(chT); chBuf = ''; zapAt = null; chPaint(); }
   function tune(){
     clearTimeout(chT);
@@ -246,7 +269,7 @@
     if(String(n) === C.no){ chPaint(); if(!zapped) toast('You are watching channel ' + n); return; }   // (Up / Down back round to this channel: just stay)
     // no such channel (the TV Guide's list, when it opened this player): say so and keep playing, without reloading
     var nos = null; try { nos = JSON.parse(sessionStorage.getItem('tvChannelNos')); } catch(e){}
-    if(nos && nos.indexOf(n) < 0){ chPaint(); toast('Channel ' + n + ' is not available'); return; }
+    if(nos && nos.indexOf(n) < 0){ chMissing(n); return; }
     var here = location.pathname.split('/').pop() + location.search.replace(/[?&]nochan=\d+/, '');
     location.replace('tv-guide.html?tune=' + n + '&from=' + encodeURIComponent(here));
   }
@@ -307,11 +330,12 @@
     var hm2 = function(t){ return hm(new Date(t)); };
     return '<div class="mcard">' +
       '<div class="m1">' + miniAva(c) + '<div class="minfo">' +
-        '<div class="mname-row"><div class="mname">' + esc(c.n) + '</div><div class="mchips">' +
+        // the programme on now as the title, the channel's name under it
+        '<div class="mname-row"><div class="mname">' + esc(p[0] || c.n) + '</div><div class="mchips">' +
           (c.fav ? '<span class="mico"><img src="icons/tv-guide/heart-fill.svg" alt="Favorite"></span>' : '') +
           (Content.crownIcon({ch:c}) ? '<span class="mico">' + Content.crownIcon({ch:c}) + '</span>' : '') +
           (c.excl ? '' : '<span class="mno">' + c.no + '</span>') + '</div></div>' +
-        '<div class="mprog">' + esc(p[0]) + '</div>' +
+        '<div class="mprog">' + esc(c.n) + '</div>' +
         '<div class="mtime">' + hm2(p[1]) + ' - ' + hm2(p[2]) + '<span class="mtags">' +
           (p[3] ? '<img src="icons/tv-guide/timeshift.svg" alt="Time Shift">' : '') +
           // no Live / On Air / Don't Miss here (everything listed is on now): only Watching, on this channel
@@ -357,15 +381,16 @@
     byId('mini').classList.toggle('to-guide', toGuide);
     byId('miniTitle').textContent = toGuide ? 'View Program Guide' : mini.data.cats.filter(function(k){ return k.id === mini.cat; })[0].n;
     miniTip(mini.zone === 'cats' && !toGuide ? $('.mcat', byId('miniCats'))[mini.ci] : null);
-    // "Fixed focus", as Home's rails but up / down: the focused card sits in the first card's slot and the list slides
-    // under it, until the list's end reaches the bottom of the screen; past that the focus (and the ring) moves on alone
-    // to the last cards. A short list never scrolls. Worked out from the measured heights (mini.h a card, mini.H the
+    // Centred focus: the focused card sits in the middle of the list's window and the list slides under it; near the
+    // list's start (the first cards stay in place) and its end (the last card 24px clear of the screen's edge) the focus
+    // (and the ring) moves on alone instead. A short list never scrolls. Worked out from the measured heights (mini.h a card, mini.H the
     // focused one), not offsetTop: the cards are still growing / shrinking at this moment
     var n = mini.list.length, step = mini.h + 12;
     if(n){
       var total = n * step - 12 + (mini.H - mini.h), vh = byId('miniList').parentElement.clientHeight;
       var maxScroll = Math.max(0, MINI_SLOT + total + 24 - vh);   // the last card 24px clear of the screen's edge, ring included
-      var ty = Math.min(mini.i * step, maxScroll);
+      var mid = (vh - mini.H) / 2;   // the focused card's top, centred in the window
+      var ty = Math.max(0, Math.min(MINI_SLOT + mini.i * step - mid, maxScroll));
       byId('miniList').style.transform = 'translateY(' + (MINI_SLOT - ty) + 'px)';
       // the focus ring goes straight to where the focused card ends up (its slot), instead of riding along while the
       // card grows and the list slides: from the layout's offsets, which leave out the transforms still under way
@@ -440,34 +465,56 @@
     }
     miniPaint();
   }
-  if(q.nochan) toast('Channel ' + q.nochan + ' is not available');
   // a channel change (number or Up / Down) opens the new channel with the controls away: the viewer brings them up
   var quiet = q.quiet === '1' || !!q.nochan;
   // after a channel change (number or Up / Down) the new channel's number shows in the same box for 2s (its name, for
   // an Exclusive channel with no number)
   var chShowT;
-  if(q.quiet === '1'){
+  if(q.nochan) chMissing(q.nochan);   // (back from the TV Guide, which had no such channel)
+  else if(q.quiet === '1'){
     var chEl = byId('chIn'); chEl.textContent = C.no || C.n; chEl.classList.add('on');
     chShowT = setTimeout(function(){ if(!chBuf) chEl.classList.remove('on'); }, 2000);
   }
   try { history.replaceState(null, '', location.pathname + location.search.replace(/[?&](nochan|quiet)=\d+/g, '').replace(/^&/, '?')); } catch(e){}
 
   // idle: focus is put away too (Explore Package stays on screen, but without the ring) and comes back on wake
+  // Start Over: over the seek bar's right end for 5s each time the controls come up, then away (focus on it goes to
+  // the seek bar)
+  var soT;
+  // the row / column of a control, after Start Over has come or gone (it adds or removes a cell, maybe a whole row)
+  function at(el){ rows().forEach(function(r, ri){ r.forEach(function(x, ci){ if(x === el){ row = ri; col = ci; } }); }); }
+  // A channel not in the viewer's package (Explore Package showing) has no Start Over: it comes once the package is bought
+  function soShow(){
+    if(!TS || preview) return;
+    var r = rows(), cur = r[row] && r[row][col];
+    byId('startOver').classList.add('show'); clearTimeout(soT);
+    if(cur) at(cur);
+    soT = setTimeout(soHide, 5000);
+  }
+  function soHide(){
+    var so = byId('startOver'), r = rows(), cur = r[row] && r[row][col];
+    clearTimeout(soT); if(!so.classList.contains('show')) return;
+    so.classList.remove('show');
+    if(cur === so){ so.classList.remove('focused'); cur = byId('track'); }   // focus on it goes to the seek bar
+    if(cur) at(cur);
+    if(!document.body.classList.contains('idle')) paint();
+  }
   function goIdle(){
+    soHide();
     clearTimeout(idleT); document.body.classList.add('idle');
     $('.item').forEach(function(el){ el.classList.remove('focused', 'on'); });
   }
   function wake(){
     var was = document.body.classList.contains('idle'); document.body.classList.remove('idle'); clearTimeout(idleT);
     idleT = setTimeout(function(){ if(!document.body.classList.contains('preview-over')) goIdle(); }, 5000);   // after the preview they stay up
-    if(was) paint();
+    if(was){ soShow(); paint(); }
     return was;
   }
   if(quiet){
     goIdle();
     // the idle state now holds the controls away; transitions come back once it has been drawn
     requestAnimationFrame(function(){ requestAnimationFrame(function(){ document.documentElement.classList.remove('quiet-start'); }); });
-  } else wake();
+  } else { wake(); soShow(); }
 
   document.addEventListener('keydown', function(e){
     var k = e.key, back_ = k === 'Escape' || k === 'Backspace';
@@ -495,9 +542,11 @@
     if(k === 'ArrowUp' && row > 0){ row--; col = 0; }
     else if(k === 'ArrowDown' && row < r.length - 1){ row++; col = 0; }
     else if(r[row][col].id === 'track' && (k === 'ArrowLeft' || k === 'ArrowRight')){
-      // on the seek bar: a press goes 10s back / forward (not past live); held, it scrubs faster
+      // on the seek bar: a press goes 10s back; held, it rewinds faster. Live TV never goes forward (Right does
+      // nothing but say so): back to live is Go LIVE
       var dir = k === 'ArrowRight' ? 1 : -1;
       if(!TS) toast('Time Shift is not available for this program');
+      else if(dir > 0){ if(!e.repeat) toast(behind > 1000 ? 'Live TV can\u2019t fast-forward. Press Go LIVE to catch up' : 'You\u2019re watching live'); }
       else if(TS_LOCK){ if(!e.repeat) tsLocked(); }
       else if(e.repeat){ if(!holdT) startHold(dir); }
       else { scrubBy(dir * STEP); seekFx(dir); commitT = setTimeout(commit, 800); }

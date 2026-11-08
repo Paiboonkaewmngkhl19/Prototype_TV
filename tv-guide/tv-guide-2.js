@@ -458,7 +458,8 @@
     return V + 'concert.mp4';
   }
   // a live event with its own video (content.js LIVE v: Home's first scene), else the channel's
-  function liveVideo(t){ var e = window.LIVE && LIVE.find(t); return e && e.v || ''; }
+  // a LIVE card's own video (content.js LIVE.list, or Home's Hot Channel Program, LIVE.hot): the player plays what the card showed
+  function liveVideo(t){ var e = window.LIVE && t && (LIVE.find(t) || LIVE.hot.filter(function(p){ return p.t === t; })[0]); return e && e.v || ''; }
   // title: a live event's own name (a LIVE card elsewhere: Home), shown in place of the programme's
   function openPlayer(c, replace, loud, title){
     var p = c.progs[onAt(c, new Date())];
@@ -610,11 +611,11 @@
   // in the player in its place (so Back from there still comes here), or sends the viewer back to the player they came
   // from (?from=) when there is no such channel
   // ?play=<name>: a channel picked in the player's mini EPG (by name: Exclusive channels have no number), or a channel
-  // card on Home (&from=home: opened with the controls showing, and Back returns to Home; &t=: a LIVE card's event name)
+  // card on Home, Sport, News or a detail page (&from=: opened with the controls showing, and Back returns there; &t=: a LIVE card's event name)
   var pick = /[?&]play=([^&]*)/.exec(location.search);
   if(pick){
     var pc = CHANNELS.filter(function(c){ return c.n === decodeURIComponent(pick[1]); })[0];
-    if(pc){ document.body.style.visibility = 'hidden'; openPlayer(pc, true, /[?&]from=home/.test(location.search), decodeURIComponent((/[?&]t=([^&]*)/.exec(location.search) || [])[1] || '')); return; }
+    if(pc){ document.body.style.visibility = 'hidden'; openPlayer(pc, true, /[?&]from=/.test(location.search), decodeURIComponent((/[?&]t=([^&]*)/.exec(location.search) || [])[1] || '')); return; }
   }
   var tune = /[?&]tune=(\d+)/.exec(location.search);
   if(tune){

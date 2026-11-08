@@ -2,7 +2,7 @@
   toast.js: the shared toast (toast.css, Figma "Toast and snackbar"). Every page keeps its own toast(msg), which writes
   the message into its #toast and shows it (.on, Home's .show); this watches that element and shows each new message as
   a toast in the stack, bottom right: the newest on top, at most 3 (a 4th drops the oldest), each with its own timer
-  (3.5s; a message with a key hint, "Press …", 7s). Never focusable. Not loaded by the players, which show none.
+  (3.5s; a message with a key hint, "Press …", 7s). Never focusable. Not loaded by the VOD player (player.html), which shows none; the Live TV player uses it.
 */
 (function(){
   var src = document.getElementById('toast');
