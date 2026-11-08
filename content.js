@@ -44,7 +44,7 @@
   // a news series' episodes (MD.M eps), oldest first: [air date, episode title, its words (else the series')], img its
   // picture (news-assets/), m its minutes; more (with morePics, full paths): newer episodes after them, [3] a full-screen picture
   function newsEps(dir, m, pics, list, morePics, more){
-    var eps = list.map(function(e, i){ return { date:e[0], t:e[1], d:e[2], img:'news-assets/' + dir + pics[i], m:m }; });
+    var eps = list.map(function(e, i){ return { date:e[0], t:e[1], d:e[2], img:'news-assets/' + dir + pics[i], bg:e[3], m:m }; });   // e[3]: its own screen picture (else its card's)
     (more || []).forEach(function(e, i){ eps.push({ date:e[0], t:e[1], d:e[2], img:morePics[i], bg:e[3], m:m }); });   // (episodes whose pictures sit elsewhere: their own paths)
     return eps;
   }
@@ -374,26 +374,26 @@
                 ['23/06/26', 'Shoot the People', 'Global activism through photographer Misan Harriman\u2019s lens.'],
                 ['23/07/26', 'Inside Sednaya: Syria\u2019s Prison of Secrets', 'Inside Sednaya, the Syrian prison where thousands disappeared.'],
                 ['23/08/26', 'Gaza Family Reunion', 'Finding each other after the ceasefire: a Gaza family\u2019s search.'],
-                ['23/09/26', 'The Deaf Moroccan', 'A deaf Moroccan migrant in Spain struggling to reunite with his family.'],
+                ['23/09/26', 'The Deaf Moroccan', 'A deaf Moroccan migrant in Spain struggling to reunite with his family.', 'news-assets/bg-witness-deafmoroccan.webp'],
                 ['23/10/26', 'Peter Magubane', 'The legacy of one of South Africa\u2019s most renowned photographers.']])},
     // News page, Hot VOD: AIS PLAY's news and business talk series, each with its episodes (as above)
     secretsauce:{t:'The Secret Sauce', w:'news-assets/hotvod/hv-4.png', plat:'ais', g:['News', 'Business'], y:2026, len:'1 Season', age:'G',
              d:'Business stories from the people who build them: founders, leaders and creatives on how they win, and what they learned on the way.',
              eps:newsEps('', 45, [], [], ['news-assets/hotvod/hv-2.png', 'news-assets/hotvod/hv-4.png'],
-               [['11/05/24', 'The Secret Sauce Summit 2024', 'Live from Khon Kaen: "Don\u2019t erase the past, cross it out, so you never make the same mistake again."'],
-                ['02/05/26', 'รู้จัก Dan Epstein แห่ง CNN', 'Meet Dan Epstein of CNN, the creative who builds brands for the world\u2019s biggest partners.']])},
+               [['11/05/24', 'The Secret Sauce Summit 2024', 'Live from Khon Kaen: "Don\u2019t erase the past, cross it out, so you never make the same mistake again."', 'news-assets/bg-secretsauce.webp'],
+                ['02/05/26', 'รู้จัก Dan Epstein แห่ง CNN', 'Meet Dan Epstein of CNN, the creative who builds brands for the world\u2019s biggest partners.', 'news-assets/bg-secretsauce-danepstein.webp']])},
     spotlight:{t:'Spotlight', w:'news-assets/hotvod/hv-5.png', plat:'ais', g:['News', 'Business'], y:2026, len:'1 Season', age:'G',
              d:'Spotlight Short Cut: the ideas, people and deals shaping business in Thailand and the region.',
              eps:newsEps('', 30, [], [], ['news-assets/hotvod/hv-5.png'],
-               [['23/09/26', 'Global Perspectives: In Bangkok', 'CNN comes to Bangkok for Global Perspectives, 14 October 2026.']])},
+               [['23/09/26', 'Global Perspectives: In Bangkok', 'CNN comes to Bangkok for Global Perspectives, 14 October 2026.', 'news-assets/bg-spotlight-globalperspectives.webp']])},
     tnntech:{t:'TNN Tech', w:'news-assets/hotvod/hv-6.png', plat:'ais', g:['News', 'Tech'], y:2026, len:'1 Season', age:'G',
              d:'TNN Tech: the technology, startups and business ideas shaping tomorrow, from TNN.',
              eps:newsEps('', 30, [], [], ['news-assets/hotvod/hv-6.png'],
-               [['23/09/26', 'Future Forum 2026', 'TNN Future Forum 2026: happiness you can measure, and Happitat\u2019s customer-first strategy.']])},
+               [['23/09/26', 'Future Forum 2026', 'TNN Future Forum 2026: happiness you can measure, and Happitat\u2019s customer-first strategy.', 'news-assets/bg-tnntech-futureforum.webp']])},
     fastfact:{t:'Fast Fact', w:'news-assets/hotvod/hv-7.png', plat:'ais', g:['News', 'Talk Show'], y:2026, len:'1 Season', age:'G',
              d:'Fast Fact Perspective: one guest, one topic, the facts in minutes.',
              eps:newsEps('', 20, [], [], ['news-assets/hotvod/hv-7.png'],
-               [['30/07/26', 'สมชัย กูรูละแวกบ้าน', 'Fast Fact Perspective with Somchai, the neighborhood guru.']])},
+               [['30/07/26', 'สมชัย กูรูละแวกบ้าน', 'Fast Fact Perspective with Somchai, the neighborhood guru.', 'news-assets/bg-fastfact-somchai.webp']])},
     mrbean: {t:'Mr. Bean: The Animated Series', p:K + 'ch-mrbean.jpg', plat:'prime', g:['Animation', 'Comedy'], y:2002, len:'5 Seasons', age:'G', kids:1,
              d:'Mr. Bean, his teddy bear and his little car get into one silly scrape after another, with hardly a word said.'}
   };
