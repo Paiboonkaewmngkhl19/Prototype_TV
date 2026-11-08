@@ -102,11 +102,14 @@
     page.style.transform = 'translateY(' + -pageY + 'px)';
     // a section that would reach up under the page's title steps away (never the focused one); the rest stay, so the
     // page's end (Feed, More you'll love, Back to Top all in) shows every section that fits
+    // A tall section (the poster grid) is never stepped away whole: most of it is still on screen when focus is past it
+    // (Back to Top), so only its title goes, as the focused one's does
     var HEAD = 124;
     $('.sec', page).forEach(function(s){
-      s.classList.toggle('above', s !== r.sec && s.offsetTop < pageY + HEAD);
-      // the focused section's own title, when the page's end pulls it up under the page's title (the grid's last line)
-      s.classList.toggle('head-off', s === r.sec && s.offsetTop < pageY + HEAD);
+      var under = s.offsetTop < pageY + HEAD, tall = s.offsetHeight > 600 && s.offsetTop + s.offsetHeight > pageY + HEAD + 200;
+      s.classList.toggle('above', s !== r.sec && under && !tall);
+      // the section's own title, when the page's end pulls it up under the page's title (the grid's last line)
+      s.classList.toggle('head-off', (s === r.sec || tall) && under);
     });
   }
   // the top bar: Left on a rail's first card or Up from the first rail; Down (or Back) returns to the row it came from
