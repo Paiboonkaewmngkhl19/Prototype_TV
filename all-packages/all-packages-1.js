@@ -31,6 +31,11 @@
       PKGS.push(c);
     });
   });
+  // the packages hidden in the Store (its Sports, Movies, Short Series and Great Value rails) are off this page too:
+  // this page matches the Store: its For You packages, then its Highlights, in its order and with its tags
+  // (remove these lines to list every package again)
+  var X = Packages.PLAY_PACKS;
+  PKGS = [B[2], X.premiumplus, X.asianplus, Object.assign({}, B[0], { badge:'' }), X.disneyplus, X.premium, X.family];
 
   // the filters under each tab (Figma's variants); logos reuse the project's league and service logos
   var LOGO = {
@@ -53,8 +58,8 @@
     { key:'movies', t:'Movies', icon:'tab-movies', logos:['netflix', 'hbo', 'disney', 'iqiyi', 'viu', 'prime', 'wetv', 'monomax'] },
     { key:'shorts', t:'Short Drama', icon:'tab-shorts', logos:['reelshort', 'dramabox', 'shortmax', 'wetv', 'iqiyi'] },
     { key:'bundle', t:'AIS PLAY Bundle', icon:'tab-bundle',
-      names:[['all', 'All'], ['ultimate', 'PLAY ULTIMATE'], ['premiumplus', 'PLAY PREMIUM PLUS'], ['inter', 'PLAY INTER'], ['disneyplus', 'PLAY Disney+'],
-        ['premium', 'PLAY PREMIUM'], ['asian', 'PLAY ASIAN GAMES']],
+      names:[['all', 'All'], ['playall', 'PLAY ALL'], ['premiumplus', 'PLAY PREMIUM PLUS'], ['asianplus', 'PLAY ASIAN PLUS'], ['ultimate', 'PLAY ULTIMATE'],
+        ['disneyplus', 'PLAY Disney+'], ['premium', 'PLAY PREMIUM'], ['family', 'PLAY FAMILY']],
       logos:['netflix', 'hbo', 'disney', 'iqiyi', 'viu', 'epl', 'ucl', 'bundesliga', 'motogp', 'nba', 'nfl', 'lpga', 'atp', 'rws'] }
   ];
 
@@ -95,6 +100,7 @@
     $('.ava', logosEl).forEach(function(a){ a.classList.toggle('on', a.dataset.f === p.logo); });
     var list = matches();
     cardsEl.innerHTML = list.map(function(pk){ return cardHtml(pk, PKGS.indexOf(pk)); }).join('');
+    cardsEl.style.transform = '';   // a new list starts at its first card
     document.body.classList.toggle('none', !list.length);
     $('.tab', tabsEl).forEach(function(el, i){ el.classList.toggle('on', i === tabAt); });
     rows = [{ key:'nav', items:navItems }, { key:'tabs', el:tabsEl, items:$('.item', tabsEl) }];
