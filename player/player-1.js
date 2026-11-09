@@ -143,10 +143,10 @@
     // You may also like: the same type only (a movie: movies; a short: shorts), content.js Content.related
     byId('ymalRow').innerHTML = Content.related(SHORT_ON ? {s:SI} : {k:K}, 10).map(function(r){
       if(r.s !== undefined){ var x = SHORTS[r.s];
-        return '<div class="card item" data-s="' + r.s + '" data-ring-art=""><div class="pic" style="background-image:url(\'posters/shorts/' + x.img + '\')"></div>' +
+        return '<div class="card item" data-s="' + r.s + '" data-ring-art=""><div class="pic" style="background-image:url(\'posters/shorts/' + x.img + '\')">' + Content.ptag(x.plat) + '</div>' +
           '<div class="nm">' + x.t.replace(/</g, '&lt;') + '</div><div class="len">' + x.gen.join(' · ') + '</div></div>'; }
       var o = MD.M[r.k];
-      return '<div class="card item" data-k="' + r.k + '" data-ring-art=""><div class="pic" style="background-image:url(\'' + (o.w || o.p) + '\')"></div>' +
+      return '<div class="card item" data-k="' + r.k + '" data-ring-art=""><div class="pic" style="background-image:url(\'' + (o.w || o.p) + '\')">' + Content.ptag(o.plat) + '</div>' +
         '<div class="nm">' + o.t.replace(/</g, '&lt;') + '</div><div class="len">' + o.len + '</div></div>';
     }).join('');
   }

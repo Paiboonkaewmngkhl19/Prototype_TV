@@ -11,7 +11,7 @@
   var A = 'news-assets/';
   // the news channels by their TV Guide names (g: the channel Enter plays); name, number and logo come from
   // channels-data.js, so they match the TV Guide. cover: the logo fills its disc (else it sits inside it, on white)
-  var CH = {cnn:{g:'CNN'}, bbc:{g:'BBC News'}, cnbc:{g:'CNBC News'}, sky:{g:'SKY News'}, fox:{g:'FOX News'}, thaipbs:{g:'TPBS'}, pptv:{g:'PPTV HD'},
+  var CH = {cnn:{g:'CNN'}, bbc:{g:'BBC News'}, cnbc:{g:'CNBC News'}, fox:{g:'FOX News'}, thaipbs:{g:'TPBS'}, pptv:{g:'PPTV HD'},
             nation:{g:'Nation TV'}, one:{g:'ONE 31 HD'}, tnn:{g:'TNN'}, ch3:{g:'3 HD'}, ch7:{g:'CH7 HD'}};
   Object.keys(CH).forEach(function(k){
     var c = CH[k], d = TV.byName(c.g);
@@ -19,21 +19,20 @@
   });
   var NEWS_DESC = 'Live news around the clock: breaking stories, in-depth reports and analysis from the newsroom, as it happens.';
   var DONT_MISS = [
-    {t:'CNN News', img:A + 'dm-cnn.png', logo:1, ch:CH.cnn, time:'02:00 – 04:00', bg:A + 'hero-bg.png', v:window.LIVE.hot.filter(function(p){ return p.tv === 'CNN'; })[0].v,   // its video: content.js, shared with Home's Hot Channel Program
+    {t:'CNN News', img:A + 'dm-cnn.png', logo:1, ch:CH.cnn, time:'2:00 – 4:00', bg:A + 'hero-bg.png', v:window.LIVE.hot.filter(function(p){ return p.tv === 'CNN'; })[0].v,   // its video: content.js, shared with Home's Hot Channel Program
      d:'CNN Primetime brings the day’s biggest stories from around the world, with live reports from CNN’s correspondents and in-depth analysis.'},
-    {t:'เรื่องเล่าเช้านี้', img:A + 'dm-rueng.png', ch:CH.ch3, time:'06:00 – 08:00', v:window.LIVE.hot.filter(function(p){ return p.tv === '3 HD'; })[0].v,   // its video: content.js, shared with Home's Hot Channel Program
+    {t:'เรื่องเล่าเช้านี้', img:A + 'dm-rueng.png', ch:CH.ch3, time:'6:00 – 8:00', v:window.LIVE.hot.filter(function(p){ return p.tv === '3 HD'; })[0].v,   // its video: content.js, shared with Home's Hot Channel Program
      d:'ข่าวเช้าที่เล่าเรื่องราวรอบตัวคุณ อัปเดตทุกประเด็นร้อนตั้งแต่เช้าตรู่'},
-    {t:'BBC News', img:A + 'dm-bbc.png', ch:CH.bbc, time:'07:00 – 08:00', bg:A + 'bg-bbc.webp', d:'The latest from BBC News: the stories that matter in the UK and around the world, live.'},
-    {t:'สนามข่าว 7 สี', img:A + 'dm-sanam7.png', ch:CH.ch7, time:'08:00 – 09:00', bg:A + 'bg-sanam7.webp', d:'สนามข่าว 7 สี ติดตามทุกความเคลื่อนไหวของข่าวสำคัญ สดทุกวัน'},
-    {t:'One News', img:A + 'ch-one.png', ch:CH.one, time:'09:00 – 10:00', bg:A + 'bg-onenews.webp', d:'ข่าวสด ข่าวด่วน ทันทุกเหตุการณ์ จาก One News'},
-    {t:'News 24', img:A + 'ch-sky.png', fit:1, ch:CH.sky, time:'10:00 – 11:00', bg:A + 'bg-news24.webp', d:'Real news, honest views: breaking news, politics and business around the clock, live from the newsroom and the street.'}
+    {t:'BBC News', img:A + 'dm-bbc.png', ch:CH.bbc, time:'7:00 – 8:00', bg:A + 'bg-bbc.webp', d:'The latest from BBC News: the stories that matter in the UK and around the world, live.'},
+    {t:'สนามข่าว 7 สี', img:A + 'dm-sanam7.png', ch:CH.ch7, time:'8:00 – 9:00', bg:A + 'bg-sanam7.webp', d:'สนามข่าว 7 สี ติดตามทุกความเคลื่อนไหวของข่าวสำคัญ สดทุกวัน'},
+    {t:'One News', img:A + 'ch-one.png', ch:CH.one, time:'9:00 – 10:00', bg:A + 'bg-onenews.webp', d:'ข่าวสด ข่าวด่วน ทันทุกเหตุการณ์ จาก One News'},
+    {t:'America\'s Newsroom', img:'assets/logos/51_FOXNews.png', ch:CH.fox, time:'15:00 – 16:00', bg:A + 'bg-foxnews.webp', d:'The day\u2019s breaking headlines and the biggest political stories, live from the FOX News newsroom.'},
   ];
   // the category chips filter the rails below them (cat: the categories each card / rail carries in `cats`)
   var CATS = [
     {t:'All', cat:'', d:'Every story in one place: live channels, programs and the latest episodes from home and abroad.'},
     {t:'International', cat:'world', d:'International news from every continent, live from the world’s biggest newsrooms.'},
-    {t:'Business', cat:'business', d:'Markets, companies and the deals that move them, with live coverage of the business day.'},
-    {t:'Economics', cat:'economics', d:'The economy explained: growth, inflation, jobs and what they mean for you.'},
+    {t:'Economics', cat:'economics', d:'Markets, companies and the economy explained: growth, inflation, jobs and what they mean for you.'},
     {t:'Politics', cat:'politics', d:'Parliament, elections and policy, at home and around the world.'},
     {t:'Entertainment', cat:'entertainment', d:'Celebrity news, film, music and culture, from red carpets to premieres.'},
     {t:'IT & Tech', cat:'tech', d:'Gadgets, startups and the technology shaping tomorrow.'},
@@ -44,26 +43,30 @@
   // every news channel in the TV Guide (channels-data.js, cats 'news'), lowest number first: the Thai Digital TV ones
   // (Thai News Channel, and the Thai News chip) and the international ones; each with the categories it covers
   var NEWS_CATS = {
-    'FOX News':'politics economics', 'Bloomberg':'business economics', 'CNBC News':'business economics tech', 'SKY News':'world politics business',
+    'FOX News':'politics economics', 'Bloomberg':'economics', 'CNBC News':'economics tech',
     'NHK World Japan':'world tech', 'CNN':'world politics entertainment', 'BBC News':'world politics tech', 'CCTV 4':'world', 'CGTN':'world economics',
-    'CNA':'world business', 'Euronews':'world politics', 'DW':'world politics', 'France 24':'world politics', 'News 1':'world',
-    'FOX Business':'business economics', 'Al Jazeera':'world politics', 'Top News':'world politics', 'RT Channel':'world politics', 'TVBS':'world entertainment',
-    'NBT 2 HD':'politics', 'TPBS':'politics world', 'CH5 HD':'politics', 'T Sports 7':'entertainment', 'Parliament':'politics', 'TNN':'business economics tech',
-    'JKN 18':'business world', 'Nation TV':'politics business', 'GMM25':'entertainment', 'CH 8':'entertainment', 'MCOT HD':'politics economics',
+    'CNA':'world economics', 'Euronews':'world politics', 'DW':'world politics', 'France 24':'world politics', 'News 1':'world',
+    'FOX Business':'economics', 'Al Jazeera':'world politics', 'Top News':'world politics', 'RT Channel':'world politics', 'TVBS':'world entertainment',
+    'NBT 2 HD':'politics', 'TPBS':'politics world', 'CH5 HD':'politics', 'T Sports 7':'entertainment', 'Parliament':'politics', 'TNN':'economics tech',
+    'JKN 18':'economics world', 'Nation TV':'politics economics', 'GMM25':'entertainment', 'CH 8':'entertainment', 'MCOT HD':'politics economics',
     'ONE 31 HD':'entertainment', 'Thairath TV HD':'politics entertainment', '3 HD':'politics entertainment', 'AmarinTV HD':'entertainment',
-    'CH7 HD':'politics entertainment', 'PPTV HD':'entertainment business' };
+    'CH7 HD':'politics entertainment', 'PPTV HD':'entertainment economics' };
   var INTL = [], THAI = [];
-  TV.CHANNELS.filter(function(d){ return (d.cats || []).indexOf('news') >= 0; }).sort(function(a, b){ return a.no - b.no; }).forEach(function(d){
+  TV.CHANNELS.filter(function(d){ return (d.cats || []).indexOf('news') >= 0 && d.n !== 'SKY News'; }).sort(function(a, b){ return a.no - b.no; }).forEach(function(d){
     var thai = d.cats.indexOf('digital') >= 0, e = { c:{ g:d.n, n:d.n, no:String(d.no), d:d }, tv:d.n, cats:(NEWS_CATS[d.n] || 'world') + (thai ? ' thai' : '') };
     (thai ? THAI : INTL).push(e);
   });
+  // favourites at the very front of each rail (channels-data.js TV.favFirst)
+  function tvOf(e){ return e.tv; }
+  INTL = TV.favFirst(INTL, tvOf); THAI = TV.favFirst(THAI, tvOf);
+  TV.reloadOnFavChange();   // back from the player with a favourite changed: the cards in their new order
   // (every localized programme is Thai: the Thai News chip keeps the whole rail)
   var LOCAL = [
-    {t:'ทันโลก กับ Thai PBS', cats:'world', img:A + 'lc-1.png', ch:CH.thaipbs, time:'09:00 – 10:00', d:'สรุปข่าวต่างประเทศรอบวัน เจาะลึกประเด็นที่คนทั้งโลกจับตา'},
+    {t:'ทันโลก กับ Thai PBS', cats:'world', img:A + 'lc-1.png', ch:CH.thaipbs, time:'9:00 – 10:00', d:'สรุปข่าวต่างประเทศรอบวัน เจาะลึกประเด็นที่คนทั้งโลกจับตา'},
     {t:'เปิดโต๊ะข่าว PPTV', cats:'politics', img:A + 'lc-2.png', ch:CH.pptv, time:'10:00 – 11:00', d:'เปิดโต๊ะข่าว ถกทุกประเด็นร้อนประจำวันกับทีมข่าว PPTV'},
     {t:'สถานีประชาชน', cats:'politics economics', img:A + 'lc-3.png', ch:CH.thaipbs, time:'11:00 – 12:00', d:'เสียงของประชาชน ปัญหาใกล้ตัวที่รอการแก้ไข'},
     {t:'คมชัดลึก Nation', cats:'politics', img:A + 'lc-4.png', ch:CH.nation, time:'21:00 – 22:00', d:'คมชัดลึก เจาะประเด็นการเมืองและสังคมแบบตรงไปตรงมา'},
-    {t:'เข้าข่าวค่ำ PPTV', cats:'economics business', img:A + 'lc-5.png', ch:CH.pptv, time:'18:00 – 19:00', d:'สรุปข่าวรอบวันในช่วงค่ำ ครบทุกประเด็นสำคัญ'},
+    {t:'เข้าข่าวค่ำ PPTV', cats:'economics', img:A + 'lc-5.png', ch:CH.pptv, time:'18:00 – 19:00', d:'สรุปข่าวรอบวันในช่วงค่ำ ครบทุกประเด็นสำคัญ'},
     {t:'แสงจากพ่อ', cats:'entertainment', img:A + 'lc-6.png', ch:CH.thaipbs, time:'19:00 – 20:00', d:'สารคดีเล่าเรื่องแรงบันดาลใจจากพระราชกรณียกิจ'}
   ];
   // a news episode card (content.js MD.M k, its episode e in MD.episodes): its picture, then "air date - episode title"
@@ -147,7 +150,7 @@
   var RETURNING = false, PICK = 0;
   try { RETURNING = !!sessionStorage.getItem('newsReturn'); if(RETURNING) PICK = +(sessionStorage.getItem('newsCat') || 0) || 0; } catch(e){}
   var html = '';
-  html += '<section class="sec" data-row="dontmiss"><h2 class="sec-title">Watch on</h2><div class="rail"><div class="track">' +
+  html += '<section class="sec" data-row="dontmiss"><h2 class="sec-title">What\'s on</h2><div class="rail"><div class="track">' +
     DONT_MISS.map(function(it, i){ return liveCard(it, i, 'dontmiss'); }).join('') + '</div></div></section>';
   var SHOW_HOT_VOD = false;   // the Hot VOD rail is hidden for now (true brings it back; its data stays in content.js MD.HOT_VOD)
   if(SHOW_HOT_VOD) html += '<section class="sec eps" data-row="hot"><h2 class="sec-title">Hot VOD</h2><div class="rail"><div class="track">' +

@@ -87,8 +87,8 @@
   body.otp .dlg.otpd{ opacity:1; pointer-events:auto; transform:translate(-50%,-50%); }
   body.otp .scrim{ opacity:1; pointer-events:auto; }
   .otpd{ width:800px; padding:60px; display:flex; flex-direction:column; align-items:center; gap:40px; }
-  .otpd .ohead, .qrd .ohead{ display:flex; flex-direction:column; align-items:center; gap:16px; text-align:center; }
-  .otpd .ohead h2, .qrd .ohead h2{ margin:0; font-size:40px; font-weight:500; line-height:1.2; letter-spacing:-.2px; }
+  .otpd .ohead, .qrd .ohead, .cfd .ohead{ display:flex; flex-direction:column; align-items:center; gap:16px; text-align:center; }
+  .otpd .ohead h2, .qrd .ohead h2, .cfd .ohead h2{ margin:0; font-size:40px; font-weight:500; line-height:1.2; letter-spacing:-.2px; }
   .otpd .ohead p, .qrd .ohead p{ margin:0; font-size:24px; line-height:40px; letter-spacing:-.2px; color:#fff; }
   .otpd .ohead p b, .qrd .ohead p b{ font-weight:700; }
   .pad{ display:flex; flex-direction:column; align-items:center; gap:24px; }
@@ -111,6 +111,29 @@
   .obtn{ --btn-h:80px; font-size:24px; cursor:pointer; }
   .obtn.back{ --btn-w:207px; }
   .obtn.req{ --btn-w:auto; flex:1; }
+
+  /* ---------- Confirm (Figma Store 5875:184049): the OTP popup's dialog, heading, card and buttons, opened by the body's cfm
+     class: what is being paid for (its logo or poster, name, price, total with VAT), how it is charged, what comes next ---------- */
+  body.cfm .dlg.cfd{ opacity:1; pointer-events:auto; transform:translate(-50%,-50%); }
+  body.cfm .scrim{ opacity:1; pointer-events:auto; }
+  .cfd{ width:800px; padding:60px; display:flex; flex-direction:column; align-items:center; gap:40px; }
+  .csum{ display:flex; flex-direction:column; gap:20px; text-align:left; }
+  .cwhat{ display:flex; align-items:center; gap:16px; }
+  .cfd .lg{ width:80px; height:80px; border-radius:8px; background:#000 center / cover no-repeat; overflow:hidden; flex:0 0 auto; }
+  .cfd .lg img{ width:100%; height:100%; object-fit:contain; display:block; }
+  .cdet{ flex:1; min-width:0; font-size:22px; line-height:28px; color:#fff; }
+  .cdet p{ margin:0; }
+  .c-name{ display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .ctot{ flex:0 0 auto; display:flex; flex-direction:column; align-items:flex-end; font-size:22px; line-height:28px; color:#fff; }
+  .ctot p{ margin:0; font-size:32px; line-height:40px; font-weight:500; white-space:nowrap; }
+  .ctot p b{ font-weight:500; }
+  .cterm{ padding:16px; border-radius:24px; background:var(--surface-container, #2a2a2a); text-align:center; font-size:24px; line-height:32px; color:#e8e8e8; }
+  .cterm p{ margin:0; }
+  .cfd .sent{ margin:0; text-align:center; font-size:24px; line-height:1.2; letter-spacing:-.2px; }
+  .cfd .sent b{ font-weight:700; }
+  .cbtn{ --btn-h:80px; font-size:24px; cursor:pointer; }
+  .cbtn.back{ --btn-w:240px; }
+  .cbtn.ok{ --btn-w:auto; flex:1; }
 
   /* ---------- Scan QR PromptPay (Figma Store 5510:189647): the OTP popup's dialog, heading, card and buttons; the QR
      (300, 8px corners), the amount card under it, the note, Cancel and the disabled "QR expires in" countdown ---------- */

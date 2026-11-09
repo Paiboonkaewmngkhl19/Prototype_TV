@@ -100,7 +100,7 @@
   var LEARN = [{s:'English', c:'Grade 1'}, {s:'Math', c:'Grade 2'}, {s:'Thai', c:'Grade 3'}, {s:'Science', c:'Grade 4'},
                {s:'Japanese', c:'Grade 5'}, {s:'Chinese', c:'Grade 6'}, {s:'Chinese', c:'Grade 7'}];   // (Thai Prathom 1-6, Mathayom 1)
   // Kids Channel: the TV Guide's cartoon channels (channels-data.js), lowest number first
-  var CHANNELS = TV.CHANNELS.filter(function(c){ return c.cats.indexOf('cartoons') >= 0 && !c.excl; }).sort(function(a, b){ return a.no - b.no; });
+  var CHANNELS = TV.CHANNELS.filter(function(c){ return c.cats.indexOf('cartoons') >= 0; }).sort(function(a, b){ return a.no - b.no; });
 
   /* ---------- markup ---------- */
   function ptag(m){ return m.plat === 'ais' ? '<span class="ptag ais"></span>' : '<img class="ptag" src="badges/tag-' + m.plat + '.png" alt="">'; }

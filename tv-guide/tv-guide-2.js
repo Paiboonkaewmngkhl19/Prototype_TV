@@ -16,7 +16,7 @@
   try { var FAVS = JSON.parse(sessionStorage.getItem('tvFavs') || 'null'); if(FAVS) CHANNELS.forEach(function(c){ if(c.n in FAVS) c.fav = FAVS[c.n]; }); } catch(e){}
   function saveFav(c){ try { var f = JSON.parse(sessionStorage.getItem('tvFavs') || '{}'); f[c.n] = c.fav; sessionStorage.setItem('tvFavs', JSON.stringify(f)); } catch(e){} }
   var CATS = [
-    {id:'all', n:'All Channels'}, {id:'recent', n:'Recently Watched'}, {id:'fav', n:'Favorite'}, {id:'exclusive', n:'Exclusive'}, {id:'digital', n:'Digital TV'},
+    {id:'all', n:'All Channels'}, {id:'recent', n:'Recently Watched'}, {id:'fav', n:'Favorite'}, {id:'digital', n:'Digital TV'},
     {id:'sports', n:'Sports', subs:[['all','All Sports'],['multi','Multi-Sports'],['football','Football'],['motorsport','Motorsport'],['golf','Golf'],
       ['basketball','Basketball'],['tennis','Tennis'],['rugby','Rugby'],['boxing','Boxing']]},
     {id:'movies', n:'Movies & Series'}, {id:'news', n:'News'}, {id:'cartoons', n:'Cartoons'}, {id:'variety', n:'Variety'}, {id:'others', n:'Others', subs:[['all','All'],['education','Education'],['documentary','Documentary'],['shopping','Shopping']]}
@@ -49,7 +49,7 @@
   var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   function fmtDate(d){ return d.getDate() + ' ' + MON[d.getMonth()] + ' ' + d.getFullYear(); }
   function pad(n){ return (n < 10 ? '0' : '') + n; }
-  function fmtTime(d){ return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+  function fmtTime(d){ return d.getHours() + ':' + pad(d.getMinutes()); }
   var today = new Date(); today.setHours(0, 0, 0, 0);
   var DAYS_AHEAD = 7;   // the date picker: today and the next 7 days (the guide's columns run through the last one)
   var onAt = window.TV.onAt;   // each channel's line-up around the real clock: channels-data.js
@@ -113,7 +113,7 @@
       return '<div class="ch-card item" data-no="' + c.no + '" data-ring-art="">' +
         '<div class="ch-slot"><div class="ava">' + logoHtml(c) + '</div></div>' +
         '<div class="ch-name clip">' + esc(c.n) + '</div>' +
-        '<div class="ch-meta">' + heartIcon(c) + crownIcon(c) + (c.excl ? '' : '<div class="ch-no">' + c.no + '</div>') + '</div>' +
+        '<div class="ch-meta">' + heartIcon(c) + crownIcon(c) + '<div class="ch-no">' + c.no + '</div></div>' +
       '</div>';
     }).join('');
   }
@@ -130,7 +130,6 @@
     var later = S.day > 0, lastEnd = today.getTime() + (DAYS_AHEAD + 1) * 864e5;
     guideEl.innerHTML = list.map(function(c){
       var pin = '', i0 = onAt(c, when), shown = c.progs.slice(i0).filter(function(p, j){ return j === 0 || p.start.getTime() < lastEnd; })   /* through the last day in the date picker: the last card is the real end */, lastDay = dayOf(when), body = '', bigHtml = '';
-      if(c.excl) shown = shown.slice(0, 1 + c.up);   // Exclusive: the live programme and at most 2 after it
       shown.forEach(function(p, j){
         // a date divider only where a later day starts: none for the day being shown (today), even when the live
         // card began the evening before
@@ -160,7 +159,7 @@
       return '<div class="col' + (later ? ' next-day' : '') + '" data-no="' + c.no + '">' +
         '<div class="col-head"><div class="ava-sm">' + logoHtml(c) + '</div><div class="col-name clip">' + esc(c.n) + '</div>' +
           '<div class="col-icons"><span class="heart">' + heartIcon(c) + '</span>' +
-            (crownIcon(c) ? '<span class="crown">' + crownIcon(c) + '</span>' : '') + (c.excl ? '' : '<div class="col-no">' + c.no + '</div>') + '</div></div>' +
+            (crownIcon(c) ? '<span class="crown">' + crownIcon(c) + '</span>' : '') + '<div class="col-no">' + c.no + '</div></div></div>' +
         // the live card stays pinned under the channel header; what comes after scrolls inside the column on its own
         '<div class="col-body">' + bigHtml + pin + '<div class="col-scroll"><div class="col-list">' + body + '</div></div></div></div>';
     }).join('');
@@ -186,7 +185,7 @@
   // the time picker: today, Now and the hours still to come; a later day, every hour of it (no Now)
   function timeOpts(){
     var today_ = S.day === 0, o = today_ ? [{v:-1, n:'Now'}] : [];
-    for(var h = today_ ? new Date().getHours() + 1 : 0; h < 24; h++) o.push({v:h, n:pad(h) + ':00'});
+    for(var h = today_ ? new Date().getHours() + 1 : 0; h < 24; h++) o.push({v:h, n:h + ':00'});
     return o;
   }
   // after a date is picked, the time must be one that date offers: Now on a later day becomes the same hour that day;
@@ -199,7 +198,7 @@
     var now = new Date();
     chipDate.textContent = fmtDate(now); chipTime.textContent = fmtTime(now);
     dds.date.querySelector('.v').textContent = fmtDate(new Date(today.getTime() + S.day * 864e5));
-    dds.time.querySelector('.v').textContent = S.hour < 0 ? fmtTime(now) : pad(S.hour) + ':00';
+    dds.time.querySelector('.v').textContent = S.hour < 0 ? fmtTime(now) : S.hour + ':00';
   }
   setInterval(paintHead, 20000);
 
@@ -229,8 +228,10 @@
 
   /* ---------- focus: zones top to bottom, each remembers its position ---------- */
   var GRID_COLS = 8;   // View Channels: cards to a row (.grid)
-  var mem = { head:0, tabs:0, subs:0, grid:0, guide:{c:0, r:0} }, zone = 'tabs';
+  var mem = { nav:0, head:0, tabs:0, subs:0, grid:0, guide:{c:0, r:0} }, zone = 'tabs';
+  var navItems = $('.topnav .item'), profileEl = document.querySelector('.topnav .profile'), navFrom = 'tabs';   // nav: the top bar, woken from zone navFrom
   function zoneItems(z){
+    if(z === 'nav') return navItems;
     if(z === 'head') return $('.sw').concat(S.view === 'guide' ? [dds.date.querySelector('.dd-trigger'), dds.time.querySelector('.dd-trigger'), document.getElementById('ddReset')] : []);
     if(z === 'tabs') return $('.tab', tabsEl);
     if(z === 'subs') return $('.sub', subsEl);
@@ -259,7 +260,8 @@
   function paint(){
     $('.focused').forEach(function(e){ e.classList.remove('focused'); });
     var el = focusedEl(); if(!el) return;
-    el.classList.add('focused');   // focus-ring.js puts the ring on it
+    document.body.classList.toggle('on-nav', zone === 'nav');
+    if(!prof.paint(zone === 'nav' && el === profileEl)) el.classList.add('focused');   // focus-ring.js puts the ring on it (in the profile panel: on its button)
     // first time focus reaches a programme in the guide (once per visit, not per column): the favourites hint again
     if(zone === 'guide' && !guideHinted){ guideHinted = true; showHint(HINT_FAV); }
     // ... and the first time it reaches an upcoming programme's card: the reminder hint (once per visit)
@@ -267,6 +269,7 @@
     // a programme column stays lit while focus is on one of its programmes
     $('.col.hl', guideEl).forEach(function(c){ c.classList.remove('hl'); });
     if(zone === 'guide'){ var own = el.closest('.col'); if(own) own.classList.add('hl'); }
+    if(zone === 'nav') return;   // the page stays as it was under the top bar
     // keep it in view. Sideways, exactly like Home's rails ("fixed focus", updateTrackTransform in home.html): the
     // focused item sits at the first item's slot (the 110px margin) and the rail slides under it, until the rail's end
     // is in: it stops where the last item ends as far from the right edge as the first starts from the left; past that,
@@ -323,7 +326,7 @@
           var prev = +(o.dataset.scrollTopTo || 0);
           st = st > prev ? Math.ceil(st / 106) * 106 : st < prev ? Math.floor(st / 106) * 106 : prev;
           if(nextDay) st = Math.max(st, sepTop + 106);   // the day before (and the list's own divider) stays out of sight
-          var isLast = S.cat !== 'exclusive' && el === $('.prog', o).pop();   // Exclusive's short lists never hug
+          var isLast = el === $('.prog', o).pop();
           o.classList.toggle('end', isLast);   // this column hugs its last card; the others keep running on
           st = Math.max(0, Math.min(st, o.scrollHeight - (isLast ? VIS : FULL)));
         } else {
@@ -357,7 +360,21 @@
   function selectSub(id){ if(S.sub === id) return; S.sub = id; render(); resetZones(); }
   function setView(v){ if(S.view === v) return; S.view = v; closeMenu(); render(); resetZones(); }
 
+  // Left from the first item of any row wakes the top bar, on this page's tab (Live TV); Down or Back returns to that row
+  var prof = ProfilePanel(profileEl, { paint:function(){ paint(); }, toast:function(m){ toast(m); } });
+  function toNav(){ navFrom = zone; zone = 'nav'; mem.nav = navItems.indexOf(document.querySelector('.navtab.active')); }
+  function atRowStart(){
+    if(zone === 'grid') return mem.grid % GRID_COLS === 0;
+    if(zone === 'guide') return mem.guide.c === 0;
+    return mem[zone] === 0;
+  }
   function move(dx, dy){
+    if(zone === 'nav'){
+      if(dx) mem.nav = Math.max(0, Math.min(navItems.length - 1, mem.nav + dx));
+      else if(dy > 0) zone = navFrom;
+      return;
+    }
+    if(dx < 0 && atRowStart()){ toNav(); return; }
     var zs = zones(), zi = zs.indexOf(zone);
     if(dx){
       if(zone === 'grid'){
@@ -425,6 +442,7 @@
   // Back steps out one level at a time: a programme below the live card → that column's live card → the selected sub-tab (when the category has them)
   // → the selected main category → Home
   function stepBack(){
+    if(zone === 'nav'){ zone = navFrom; return; }
     // in a guide column below its live card: Back first returns to that column's live card (what's on now)
     // (and that column's list goes back to its start: only that column, the others stay as they are)
     if(zone === 'guide' && mem.guide.r > 0){
@@ -465,20 +483,20 @@
     var p = c.progs[onAt(c, new Date())];
     try { sessionStorage.setItem('tvGuideBack', JSON.stringify({view:S.view, cat:S.cat, sub:S.sub, no:c.no})); } catch(e){}
     // the channel numbers there are, so the player can say "not available" for a typed number without leaving
-    try { sessionStorage.setItem('tvChannelNos', JSON.stringify(CHANNELS.filter(function(x){ return !x.excl; }).map(function(x){ return x.no; }))); } catch(e){}
+    try { sessionStorage.setItem('tvChannelNos', JSON.stringify(CHANNELS.map(function(x){ return x.no; }))); } catch(e){}
     // and the channels with their programmes around now, for the player's mini EPG (Browse Channels)
     try {
       var t0 = Date.now() - 36e5, t1 = Date.now() + 12 * 36e5;
       sessionStorage.setItem('tvMini', JSON.stringify({
         cats: CATS.map(function(k){ return {id:k.id, n:k.n}; }),
         chans: CHANNELS.map(function(x){
-          return {n:x.n, no:x.no, excl:!!x.excl, logo:x.logo || '', fit:x.fit || '', box:x.box || null, bg:x.bg || '', txt:x.txt || '', fg:x.fg || '',
+          return {n:x.n, no:x.no, logo:x.logo || '', fit:x.fit || '', box:x.box || null, bg:x.bg || '', txt:x.txt || '', fg:x.fg || '',
             crown:x.crown || '', fav:!!x.fav, recent:!!x.recent, cats:x.cats, live:SPORT_CH.some(function(k){ return x.cats.indexOf(k) >= 0; }),
             progs:x.progs.filter(function(pr){ return pr.end > t0 && pr.start < t1; }).map(function(pr){ return [pr.t, pr.start.getTime(), pr.end.getTime(), pr.ts ? 1 : 0, pr.hot ? 1 : 0]; })};
         })
       }));
     } catch(e){}
-    var q = {n:c.n, no:c.excl ? '' : c.no, crown:c.crown || '', fav:c.fav ? 1 : '', logo:c.logo || '', fit:c.fit || '', box:c.box ? c.box.join(',') : '',
+    var q = {n:c.n, no:c.no, crown:c.crown || '', fav:c.fav ? 1 : '', logo:c.logo || '', fit:c.fit || '', box:c.box ? c.box.join(',') : '',
              bg:c.bg || '', txt:c.txt || '', fg:c.fg || '', t:title || p.t, s:p.start.getTime(), e:p.end.getTime(), v:liveVideo(title || p.t) || videoFor(c),
              ts:p.ts ? 1 : '', quiet:replace && !loud ? 1 : ''};   // Time Shift: what's on now has the Time Shift icon; quiet: a channel change (see the player)
     var url = 'live-tv-player.html?' + Object.keys(q).filter(function(k){ return q[k] !== ''; })
@@ -487,6 +505,12 @@
   }
   function chByNo(no){ return CHANNELS.filter(function(c){ return c.no === +no; })[0]; }
   function activate(el){
+    if(el.closest('.topnav')){
+      if(el.dataset.href) location.href = el.dataset.href;
+      else if(el.classList.contains('active')) zone = navFrom;   // Live TV: this page already
+      else toast(el.dataset.label + ' (demo)');
+      return;
+    }
     // sub-tabs: moving along them only moves focus; Enter picks one (underlined) and filters
     if(el.classList.contains('sub')){ selectSub(el.dataset.sub); return; }
     if(el.classList.contains('sw')){ setView(el.dataset.view); mem.head = S.view === 'guide' ? 1 : 0; zone = 'head'; return; }
@@ -526,6 +550,7 @@
     paint();
   }
   $('.sw, .tab, .dd-trigger').forEach(function(el){ el.addEventListener('click', onClick); });
+  navItems.forEach(function(el, i){ el.addEventListener('click', function(e){ e.stopPropagation(); mem.nav = i; if(el !== profileEl) activate(el); paint(); }); });
 
   var guideHinted = false, remHinted = false;
   var HOLD_MS = 600, hold = { el:null, done:true, t:0 };
@@ -572,6 +597,7 @@
       if(handled){ e.preventDefault(); if(menu) paintMenu(); }
       return;
     }
+    if(prof.key(e.key)){ e.preventDefault(); return; }   // the profile photo / its panel
     if(e.key === 'ArrowRight') move(1, 0);
     else if(e.key === 'ArrowLeft') move(-1, 0);
     else if(e.key === 'ArrowDown') move(0, 1);
@@ -610,7 +636,7 @@
   // ?tune=N: the player asked for channel N (typed on the remote). This page only passes through: it opens that channel
   // in the player in its place (so Back from there still comes here), or sends the viewer back to the player they came
   // from (?from=) when there is no such channel
-  // ?play=<name>: a channel picked in the player's mini EPG (by name: Exclusive channels have no number), or a channel
+  // ?play=<name>: a channel picked in the player's mini EPG (by name), or a channel
   // card on Home, Sport, News or a detail page (&from=: opened with the controls showing, and Back returns there; &t=: a LIVE card's event name)
   var pick = /[?&]play=([^&]*)/.exec(location.search);
   if(pick){
@@ -621,7 +647,7 @@
   if(tune){
     var tc = chByNo(tune[1]), from = (/[?&]from=([^&]*)/.exec(location.search) || [])[1];
     document.body.style.visibility = 'hidden';
-    if(tc && !tc.excl){ openPlayer(tc, true); return; }
+    if(tc){ openPlayer(tc, true); return; }
     if(from){
       try { if(ret) sessionStorage.setItem('tvGuideBack', JSON.stringify(ret)); } catch(e){}   // still there for Back from that player
       from = decodeURIComponent(from); location.replace(from + (from.indexOf('?') < 0 ? '?' : '&') + 'nochan=' + tune[1]); return; }
@@ -629,7 +655,7 @@
   }
   paintHead(); render();
   if(ret && !/view=/.test(location.search)){
-    var at = channelsFor().map(function(c){ return ret.n ? c.n : c.no; }).indexOf(ret.n || ret.no);   // by name from the player (Exclusive channels have no number)
+    var at = channelsFor().map(function(c){ return ret.n ? c.n : c.no; }).indexOf(ret.n || ret.no);   // by name from the player
     if(at >= 0){ if(S.view === 'channels'){ zone = 'grid'; mem.grid = at; } else { zone = 'guide'; mem.guide = {c:at, r:0}; } }
   }
   // back from the player (Back or View Program Guide): the card is focused at once, no scrolling or growing into place

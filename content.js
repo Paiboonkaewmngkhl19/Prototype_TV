@@ -53,17 +53,17 @@
              d:'Aliens stranded over Johannesburg are forced into a slum, until a field agent exposed to their technology starts to become one of them.'},
     topgun: {t:'Top Gun: Maverick', p:PP + 'topgun_m.jpg', w:P + 'topgun-m.jpg', plat:'hbo', g:['Action', 'Drama'], y:2022, len:'2h 11m', age:'13+',
              d:'After thirty years, Maverick trains a new generation of Top Gun graduates for a dangerous mission.'},
-    wicked: {t:'Wicked', w:P + 'wicked.jpg', v:'video/wicked.mp4', plat:'prime', g:['Musical', 'Fantasy'], y:2024, len:'2h 40m', age:'G',
+    wicked: {t:'Wicked', w:P + 'wicked.jpg', v:'video/wicked.mp4', ppos:'100% center', plat:'prime', g:['Musical', 'Fantasy'], y:2024, len:'2h 40m', age:'G',
              d:'The untold story of the witches of Oz: Elphaba and Glinda, long before Dorothy arrived.'},
-    superman:{t:'Superman', w:P + 'superman.jpg', plat:'hbo', g:['Action', 'Sci-Fi'], y:2025, len:'2h 9m', age:'13+',
+    superman:{t:'Superman', w:P + 'superman.jpg', ppos:'87% center', plat:'hbo', g:['Action', 'Sci-Fi'], y:2025, len:'2h 9m', age:'13+',
              d:'The Man of Steel balances his Kryptonian heritage with his human upbringing as the ultimate protector of Earth.'},
     house:  {t:'House of the Dragon', p:PP + 'House.jpg', w:P + 'house-of-the-dragon.jpg', plat:'hbo', g:['Fantasy', 'Drama'], y:2024, len:'2 Seasons', age:'18+',
              d:'Set 200 years before Game of Thrones, the Targaryen dynasty tears itself apart in a war for the Iron Throne.'},
-    lastofus:{t:'The Last of Us', w:P + 'last-of-us.jpg', plat:'hbo', g:['Drama', 'Thriller'], y:2025, len:'2 Seasons', age:'18+',
+    lastofus:{t:'The Last of Us', w:P + 'last-of-us.jpg', ppos:'0% center', plat:'hbo', g:['Drama', 'Thriller'], y:2025, len:'2 Seasons', age:'18+',
              d:'Joel and Ellie journey across a post-pandemic United States, facing new threats and impossible choices.'},
     loki:   {t:'Loki', w:P + 'loki.jpg', plat:'disney', g:['Fantasy', 'Adventure'], y:2023, len:'2 Seasons', age:'13+',
              d:'The God of Mischief must fix a fractured timeline while pursued by the Time Variance Authority.'},
-    dragon: {t:'How to Train Your Dragon', w:P + 'how-to-train.jpg', plat:'prime', g:['Family', 'Adventure'], y:2025, len:'2h 5m', age:'G',
+    dragon: {t:'How to Train Your Dragon', w:P + 'how-to-train.jpg', ppos:'88% center', plat:'prime', g:['Family', 'Adventure'], y:2025, len:'2h 5m', age:'G',
              d:'A young Viking and an injured dragon form an unlikely friendship that changes their island forever.'},
     john:   {t:'John Wick: Chapter 4', p:PP + 'John.jpg', plat:'netflix', g:['Action', 'Thriller'], y:2023, len:'2h 49m', age:'18+',
              d:'John Wick uncovers a path to defeating the High Table, but must face a powerful new enemy first.'},
@@ -122,13 +122,13 @@
     readyornot:{t:'Ready or Not', p:PP + 'lotr/r11.jpg', plat:'disney', g:['Horror', 'Thriller'], y:2019, len:'1h 35m', age:'18+',
              d:'A new bride\'s wedding night turns deadly when her rich in-laws force her into a game of hide-and-seek where losing means death.'},
     // My List (Home): w their 16:9 picture (posters/mylist/)
-    queensgambit:{t:'The Queen\'s Gambit', w:P + 'mylist/m1.jpg', plat:'netflix', g:['Drama'], y:2020, len:'1 Season', age:'16+',
+    queensgambit:{t:'The Queen\'s Gambit', w:P + 'mylist/m1.jpg', ppos:'79% center', plat:'netflix', g:['Drama'], y:2020, len:'1 Season', age:'16+',
              d:'An orphaned chess prodigy fights her own demons on her way to the top of the 1960s chess world.'},
     guilty:{t:'The Guilty', w:P + 'mylist/m2.jpg', plat:'netflix', g:['Thriller', 'Crime'], y:2021, len:'1h 30m', age:'16+',
              d:'A troubled police officer working the 911 desk races to save a caller in danger over one tense morning.'},
-    reply1988:{t:'Reply 1988', w:P + 'mylist/m3.jpg', plat:'netflix', g:['Comedy', 'Drama'], y:2015, len:'1 Season', age:'13+',
+    reply1988:{t:'Reply 1988', w:P + 'mylist/m3.jpg', ppos:'15% center', plat:'netflix', g:['Comedy', 'Drama'], y:2015, len:'1 Season', age:'13+',
              d:'Five friends and their families share the joys and growing pains of life in one Seoul neighborhood in 1988.'},
-    fourweddings:{t:'Four Weddings and a Funeral', w:P + 'mylist/m4.jpg', plat:'prime', g:['Romance', 'Comedy'], y:1994, len:'1h 57m', age:'16+',
+    fourweddings:{t:'Four Weddings and a Funeral', w:P + 'mylist/m4.jpg', ppos:'69% center', plat:'prime', g:['Romance', 'Comedy'], y:1994, len:'1h 57m', age:'16+',
              d:'A charming but commitment-shy Englishman keeps meeting the same American woman at a series of weddings, and one funeral.'},
     // iQIYI (Home: Date Night Picks, We think you'll love this, Worlds in Chaos; Movie: Series)
     predict:{t:'Predict You in 3 Seconds', p:PP + 'iqiyi/q1.jpg', plat:'iqiyi', g:['Romance', 'Fantasy'], y:2026, len:'1 Season', age:'13+',
@@ -240,9 +240,9 @@
              d:'A prosecutor killed by a corrupt politician gets a second chance at life, and at taking him down.'},
     sherlock:{t:'Young Sherlock', w:P + 'continue/c1.jpg', plat:'prime', g:['Mystery', 'Drama'], y:2026, len:'1 Season', age:'13+',
              d:'A teenage Sherlock Holmes stumbles into his first real mystery at Oxford, long before Baker Street.'},
-    brazil: {t:'All or Nothing: Brazil National Team', w:P + 'continue/c4.jpg', plat:'netflix', g:['Documentary', 'Sport'], y:2023, len:'1 Season', age:'13+',
+    brazil: {t:'All or Nothing: Brazil National Team', w:P + 'continue/c4.jpg', ppos:'31% center', plat:'netflix', g:['Documentary', 'Sport'], y:2023, len:'1 Season', age:'13+',
              d:'Unprecedented access to the Seleção on their road to the World Cup, on and off the pitch.'},
-    endgame:{t:'Avengers: Endgame', w:P + 'continue/c2.jpg', plat:'disney', g:['Action', 'Sci-Fi'], y:2019, len:'3h 1m', age:'13+',
+    endgame:{t:'Avengers: Endgame', w:P + 'continue/c2.jpg', ppos:'37% center', plat:'disney', g:['Action', 'Sci-Fi'], y:2019, len:'3h 1m', age:'13+',
              d:'After Thanos wiped out half of all life, the remaining Avengers assemble once more to undo the snap.'},
     hailmary:{t:'Project Hail Mary', w:P + 'continue/c5.jpg', plat:'netflix', g:['Sci-Fi', 'Drama'], y:2026, len:'2h 36m', age:'13+',
              d:'A lone astronaut wakes up light-years from home with one mission: save humanity from extinction.'},
@@ -250,7 +250,7 @@
              d:'The Madrigals live in a magical house in the mountains of Colombia, where every child has a gift, except Mirabel.'},
     stranger:{t:'Stranger Things', w:P + 'hero/stranger-things.jpg', plat:'netflix', g:['Sci-Fi', 'Horror'], y:2016, len:'1 Season', age:'16+',
              d:'When a young boy vanishes, a small town uncovers secret experiments, terrifying forces and one strange little girl.'},
-    spider: {t:'Spider-Man: No Way Home', w:P + 'P10-spiderman.jpg', plat:'disney', g:['Action', 'Adventure'], y:2021, len:'2h 28m', age:'13+',
+    spider: {t:'Spider-Man: No Way Home', w:P + 'P10-spiderman.jpg', ppos:'0% center', plat:'disney', g:['Action', 'Adventure'], y:2021, len:'2h 28m', age:'13+',
              d:'With his identity revealed, Peter Parker asks Doctor Strange for help, and the multiverse breaks open.'},
     prada:  {t:'The Devil Wears Prada 2', w:P + 'P10-Devil.jpg', plat:'disney', g:['Comedy', 'Drama'], y:2026, len:'1h 59m', age:'13+',
              d:'Miranda Priestly faces the decline of print, and an old assistant who now holds the purse strings.'},
@@ -264,12 +264,12 @@
              d:'The Fellowship is broken, but its members fight on to defend Middle-earth against Saruman and Sauron.'},
     smaug:  {t:'The Hobbit: The Desolation of Smaug', p:PP + 'lotr/r4.jpg', plat:'hbo', g:['Fantasy', 'Adventure'], y:2013, len:'2h 41m', age:'13+',
              d:'Bilbo, Gandalf and the dwarves press on toward Erebor, where the dragon Smaug guards a lost kingdom.'},
-    siralex:{t:'Sir Alex Ferguson: Never Give In', w:P + 'maxresdefault.jpg', plat:'prime', g:['Documentary', 'Sport'], y:2021, len:'1h 52m', age:'13+',
+    siralex:{t:'Sir Alex Ferguson: Never Give In', w:P + 'maxresdefault.jpg', ppos:'100% center', plat:'prime', g:['Documentary', 'Sport'], y:2021, len:'1h 52m', age:'13+',
              d:'The life of Manchester United\'s legendary manager, told by his son: from the Govan shipyards to 26 years at Old Trafford, and the fight back from a brain hemorrhage.'},
     // AIS PLAY Exclusive (Home): AIS PLAY's own; p its poster, b its wide picture
-    missuni:{t:'Miss Universe Thailand 2026', p:'login-assets/ppv/universe-bg.webp', b:'login-assets/ppv/universe-bg.webp', plat:'ais', g:['Pageant', 'Live Event'], y:2026, len:'1h 55m', age:'G',
+    missuni:{t:'Miss Universe Thailand 2026', p:'login-assets/ppv/universe-bg.webp', b:'login-assets/ppv/universe-bg.webp', ppos:'95% center', plat:'ais', g:['Pageant', 'Live Event'], y:2026, len:'1h 55m', age:'G',
              d:'The Miss Universe Thailand 2026 pageant is underway with provincial preliminaries and delegate selections, highlighted by Tharina Botes winning Miss Universe Krung Thep Maha Nakhon (Bangkok).'},
-    assanee:{t:'Asanee-Wasan Farewell Concert', p:'login-assets/ppv/assanee-bg.webp', b:'login-assets/ppv/assanee-bg.webp', w:'login-assets/ppv/assanee-card.webp', plat:'ais', g:['Concert', 'Music'], y:2026, len:'2h 30m', age:'G',
+    assanee:{t:'Asanee-Wasan Farewell Concert', p:'login-assets/ppv/assanee-bg.webp', b:'login-assets/ppv/assanee-bg.webp', w:'login-assets/ppv/assanee-card.webp', ppos:'88% center', plat:'ais', g:['Concert', 'Music'], y:2026, len:'2h 30m', age:'G',
              d:'Asanee-Wasan say goodbye in their farewell concert, live from Impact Arena, Muang Thong Thani on 3, 5 and 6 September 2026.'},
     sophomores:{t:'Happy Boss Day: The Sophomores – D-Day', p:PP + 'ex1.jpg', b:P + 'hero/ex-sophomores.jpg', plat:'ais', g:['Concert'], y:2026, len:'2h 30m', age:'G',
              d:'Relive The Sophomores\' sold-out D-Day concert, exclusively on AIS PLAY. Rerun from 1 February to 30 April 2026.'},
@@ -300,7 +300,7 @@
              d:'Odysseus fights his way home across a hostile sea after the fall of Troy, ten years from his family.'},
     // Kids (kids.html, Figma Prototype "PLAY:kidsHome_mainPageStructure" 210:53522; pictures in kids-assets/). logo: a title
     // drawn as its logo on its screen (Steven Universe)
-    moana:  {t:'Moana', w:K + 'moana-bg.jpg', logo:K + 'moana-logo.png', plat:'disney', g:['Animation', 'Adventure'], y:2016, len:'1h 47m', age:'G', kids:1,
+    moana:  {t:'Moana', w:K + 'moana-bg.jpg', logo:K + 'moana-logo.png', ppos:'60% center', plat:'disney', g:['Animation', 'Adventure'], y:2016, len:'1h 47m', age:'G', kids:1,
              d:'A spirited teenager sails out on a daring mission to save her people, joined by the once-mighty demigod Maui.'},
     dora:   {t:'Dora the Explorer', p:K + 'dora-p.jpg', w:K + 'dora-w.jpg', plat:'prime', g:['Animation', 'Learning'], y:2000, len:'8 Seasons', age:'G', kids:1,
              d:'Dora and her best friend Boots set off on adventures, solving puzzles and learning Spanish words along the way.'},
@@ -308,7 +308,7 @@
              d:'Sing and dance along with Baby Shark and the Pinkfong friends in songs made for little ones.'},
     powerpuff:{t:'The Powerpuff Girls', p:K + 'powerpuff-p.jpg', w:K + 'powerpuff-w.jpg', b:K + 'powerpuff-bg.webp', plat:'hbo', g:['Animation', 'Action'], y:2016, len:'3 Seasons', age:'7+', kids:1,
              d:'Blossom, Bubbles and Buttercup save the day in Townsville, all before bedtime.'},
-    bluey:  {t:'Bluey', w:K + 'bluey-w.jpg', plat:'disney', g:['Animation', 'Family'], y:2018, len:'3 Seasons', age:'G', kids:1,
+    bluey:  {t:'Bluey', w:K + 'bluey-w.jpg', ppos:'90% center', plat:'disney', g:['Animation', 'Family'], y:2018, len:'3 Seasons', age:'G', kids:1,
              d:'Bluey, a Blue Heeler puppy, turns everyday family life into big imaginative games with her sister Bingo.'},
     steven: {t:'Steven Universe', p:K + 'steven-p.jpg', w:K + 'steven-w.jpg', b:K + 'steven-bg.jpg', logo:K + 'steven-logo.png', plat:'hbo', g:['Animation', 'Adventure'], y:2013, len:'5 Seasons', age:'7+', kids:1,
              d:'Half-human, half-Gem, Steven learns to use his powers alongside the Crystal Gems to protect the world.'},
@@ -344,7 +344,7 @@
              d:'Lady and Tramp\'s puppy Scamp longs for the wild life of a street dog, until he learns what home really means.'},
     // News page: AIS PLAY's own news series, each episode a dated programme with its own picture (eps: oldest first;
     // MD.episodes gives them as Season 1). The News page's episode rails show them newest first
-    honekrasae:{t:'Hone-Krasae (โหนกระแส)', w:'news-assets/ep-honkrasae-1.png', plat:'ais', g:['News', 'Talk Show'], y:2026, len:'1 Season', age:'G',
+    honekrasae:{t:'Hone-Krasae (โหนกระแส)', w:'news-assets/ep-honkrasae-1.png', ppos:'40% center', plat:'ais', g:['News', 'Talk Show'], y:2026, len:'1 Season', age:'G',
              d:'โหนกระแส ทุกประเด็นร้อนที่สังคมพูดถึง ถามตรง ตอบจริง กับหนุ่ม กรรชัย', eps:newsEps('ep-honkrasae', 60,
                ['-7.jpg', '-6.jpg', '-5.jpg', '-4.jpg', '-3.jpg', '-2.png', '-1.png'],
                [['15/10/26', 'จักรวาล "สาวเฟิร์น"'],
@@ -416,7 +416,7 @@
    // kids (kids.html): a few premium, one per platform, the rest free
    'moana', 'steven', 'trollsbt', 'doraemonart', 'doraemoncastle']
     .forEach(function(k){ M[k].premium = true; });
-  // the titles with their own options, so a detail page has 1, 2 or 3 buttons (View Package, Buy N ฿, Rent N ฿); pkg 0:
+  // the titles with their own options, so a detail page has 1, 2 or 3 buttons (View Package, Buy N Baht, Rent N Baht); pkg 0:
   // no package has it (Content.packageFor: none)
   // Most premium titles are sold on their own only (pkg 0: Buy and / or Rent, no View Package); fewer come with a package
   var OFFERS = { // kids: each in its platform's package (View Package: Disney+, HBO Max, Prime Video; AIS PLAY's own: PLAY
@@ -438,7 +438,7 @@
   for(var ok in OFFERS){ M[ok].pkg = !!OFFERS[ok].pkg; M[ok].buy = OFFERS[ok].buy || 0; M[ok].rent = OFFERS[ok].rent || 0; if(OFFERS[ok].ev) M[ok].ev = 1; }
   // titles made from a card that had no data of its own (Content.open): back into the catalogue on every page
   try { var ADHOC = JSON.parse(sessionStorage.getItem('contentAdhoc') || '{}'); for(var ak in ADHOC) if(!M[ak]) M[ak] = ADHOC[ak]; } catch(e){}
-  var CONTINUE = [{k:'sherlock', s:1, e:5, w:31, of:58}, {k:'endgame', w:122, of:181}, {k:'lastofus', s:1, e:4, w:22, of:50}, {k:'goodpartner', s:2, e:3, w:35, of:62}, {k:'hailmary', w:101, of:156}, {k:'encanto', w:61, of:102},
+  var CONTINUE = [{k:'sherlock', s:1, e:5, w:31, of:58}, {k:'honekrasae', s:1, e:8, w:38, of:60}, {k:'endgame', w:122, of:181}, {k:'globalstory', s:1, e:8, w:9, of:25, pos:'center 18%'}, {k:'lastofus', s:1, e:4, w:22, of:50}, {k:'goodpartner', s:2, e:3, w:35, of:62}, {k:'hailmary', w:101, of:156}, {k:'encanto', w:61, of:102},
                   {k:'spider', w:41, of:148}, {k:'stranger', s:1, e:3, w:34, of:50}];
   var FOR_YOU = [{k:'d9', price:199}, {k:'avatar', price:399}, {k:'f1', price:199}, {k:'topgun', price:149}, {k:'john', price:149}];
   var RENT = [{k:'avatar', b:'Recommended'}, {k:'f1', b:'Best Seller'}, {k:'topgun', b:'Best Seller'}, {k:'john'}, {k:'venom'}, {k:'lotr'}, {k:'hobbit'}];
@@ -456,10 +456,10 @@
   // News page Hot VOD: the latest news episodes everyone is watching (series key, episode number in MD.episodes)
   var HOT_VOD = [{k:'honekrasae', e:8}, {k:'secretsauce', e:1}, {k:'witness', e:7}, {k:'secretsauce', e:2}, {k:'spotlight', e:1}, {k:'tnntech', e:1}, {k:'fastfact', e:1}];
   var MY_RENTAL = ['odyssey', 'spider', 'd9', 'lastofus', 'vikings'];   // (F1 and Top Gun are for sale: OFFERS)
-  // series sold one by one (Figma "Series MD: First scene": View Package + Buy 279 baht)
+  // series sold one by one (Figma "Series MD: First scene": View Package + Buy 279 Baht)
   var SERIES_PRICE = { house:279, got:279, loki:199 };
   // a rental's last day (Figma "Package Available until")
-  var UNTIL = { lastofus:{d:'13 November 2026', t:'09:00 PM'}, vikings:{d:'20 November 2026', t:'11:59 PM'} };
+  var UNTIL = { lastofus:{d:'13 November 2026', t:'21:00'}, vikings:{d:'20 November 2026', t:'23:59'} };
 
   // ---- series: seasons and their episodes (the prototype gives every series the same 8 episode names) ----
   var EP_NAMES = ['The Beginning', 'Strangers', 'Old Wounds', 'Crossroads', 'The Long Night', 'Into the Fire', 'Reckoning', 'Homecoming'];
@@ -480,9 +480,9 @@
   function until(k){ return MY_RENTAL.indexOf(k) >= 0 && UNTIL[k] || null; }
   // rented this session (purchase.html, Rent): 48 hours from then, first in My Rental, with its last day
   var RENT_HOURS = 48;
-  function fmtUntil(t){ var d = new Date(t), h = d.getHours();
+  function fmtUntil(t){ var d = new Date(t);
     return { d:d.getDate() + ' ' + 'January February March April May June July August September October November December'.split(' ')[d.getMonth()] + ' ' + d.getFullYear(),
-             t:((h % 12) || 12) + ':' + ('0' + d.getMinutes()).slice(-2) + ' ' + (h < 12 ? 'AM' : 'PM') }; }
+             t:d.getHours() + ':' + ('0' + d.getMinutes()).slice(-2) }; }
   function rented(){ try { return JSON.parse(sessionStorage.getItem('mdRented') || '{}'); } catch(e){ return {}; } }
   (function(r){ Object.keys(r).forEach(function(k){ if(MY_RENTAL.indexOf(k) < 0) MY_RENTAL.unshift(k); UNTIL[k] = fmtUntil(r[k]); }); })(rented());
   function rent(k){
@@ -499,7 +499,7 @@
   function subscribed(plat){ return !!plat && subs().indexOf(plat) >= 0; }
   function subscribe(plat){ var s = subs(); if(plat && s.indexOf(plat) < 0){ s.push(plat); try { sessionStorage.setItem('ottSubscribed', JSON.stringify(s)); } catch(e){} } }
   function find(list, k){ for(var i = 0; i < list.length; i++) if(list[i].k === k) return list[i]; return null; }
-  function listPrice(k){ var f = find(FOR_YOU, k); return f ? f.price : find(RENT, k) ? 149 : SERIES_PRICE[k] || (M[k] && M[k].price) || 0; }   // Rent or Buy titles: 149 baht
+  function listPrice(k){ var f = find(FOR_YOU, k); return f ? f.price : find(RENT, k) ? 149 : SERIES_PRICE[k] || (M[k] && M[k].price) || 0; }   // Rent or Buy titles: 149 Baht
   function offers(k){ return !!M[k] && 'pkg' in M[k]; }
   function buyPrice(k){ return offers(k) ? M[k].buy : listPrice(k); }
   function rentPrice(k){ return offers(k) ? M[k].rent : 0; }
@@ -562,7 +562,7 @@
 /*
   The short dramas: Home's Shorts row (the same titles and posters, posters/shorts/), shared by short-detail.html
   (each short's page) and package-detail.html (its payment, ?short=N). buy: its price to own every episode (its detail
-  page's Buy N ฿, purchase.html?s=N&opt=buy).
+  page's Buy N Baht, purchase.html?s=N&opt=buy).
 */
 window.SHORTS = [
   { t:'Seven Days Back, Old Love Ends', img:'s1.jpg', plat:'reelshort', gen:['Romance', 'Period'], rate:'13+', premium:true, buy:199,
@@ -626,10 +626,10 @@ window.SHORTS = [
     unlocked this session, a pass, or the Short Drama package), SHORT.secs(n) its length in seconds (1-3 minutes),
     SHORT.at(s) / SHORT.setAt(s, ep, sec) where the short was left; SHORT.continueList() short.html's Continue watching. SHORT.owned(s) every episode is the viewer's: its
     app's package (MD.subscribed: ReelShort / DramaBox; PLAY ULTIMATE doesn't include short dramas), bought (SHORT.own: a short with buy, its
-    detail page's Buy N ฿), a pass, or each locked episode unlocked.
+    detail page's Buy N Baht), a pass, or each locked episode unlocked.
 */
 window.SHORT = (function(){
-  var EPS = 160, FREE = 10, EP_PRICE = 9;   // EP_PRICE: one locked episode bought on its own (฿; Unlock this content)
+  var EPS = 160, FREE = 10, EP_PRICE = 9;   // EP_PRICE: one locked episode bought on its own (Baht; Unlock this content)
   function get(k, d){ try { return JSON.parse(sessionStorage.getItem(k) || d); } catch(e){ return JSON.parse(d); } }
   function own(s){ var o = get('shortOwned', '[]'); if(o.indexOf(s) < 0){ o.push(s); try { sessionStorage.setItem('shortOwned', JSON.stringify(o)); } catch(e){} } }
   function owned(s){
@@ -859,7 +859,7 @@ window.Content = (function(){
   }
   // a title's or short's main button, as its detail page has it (a screen's own Play button says the same):
   //   gold (premium, not the viewer's)  View Package (ic-pkg): its package, which comes back to the detail page bought;
-  //                                     a title no package has: Buy N ฿ / Rent N ฿ (its purchase)
+  //                                     a title no package has: Buy N Baht / Rent N Baht (its purchase)
   //   being watched                     Resume (a series: "Resume S1: Ep.5"), else Play (a short: "Play Ep.N")
   // {act:'package' | 'play', label, icon (the <i> class), url}
   function mainAction(info){
@@ -867,7 +867,7 @@ window.Content = (function(){
     if(crown(f) === 'gold'){
       // no package has it: its first own option, as its detail page's first button (Buy, else Rent)
       var b = f.k && !packageFor(f) && (window.MD.buyPrice(f.k) ? 'buy' : window.MD.rentPrice(f.k) ? 'rent' : '');
-      if(b) return { act:b, label:(b === 'buy' ? 'Buy ' + window.MD.buyPrice(f.k) : 'Rent ' + window.MD.rentPrice(f.k)) + ' ฿', icon:'ic-pkg', url:'package-detail.html?k=' + f.k + '&opt=' + b };
+      if(b) return { act:b, label:(b === 'buy' ? 'Buy ' + window.MD.buyPrice(f.k) : 'Rent ' + window.MD.rentPrice(f.k)) + ' Baht', icon:'ic-pkg', url:'package-detail.html?k=' + f.k + '&opt=' + b };
       return { act:'package', label:'View Package', icon:'ic-pkg', url:packageUrl(f, detailUrl(f)) };
     }
     if(f.s !== undefined){ var ep = (window.SHORT.at(f.s) || {}).ep || 1;
@@ -875,7 +875,7 @@ window.Content = (function(){
     var c = window.MD.state(f.k) === 'resume' && window.MD.cw(f.k);
     return { act:'play', label:c ? (window.MD.series(f.k) ? 'Resume S' + c.s + ': Ep.' + c.e : 'Resume') : 'Play', icon:'ic-play', url:playUrl(f) };
   }
-  return { find:find, info:info, hero:hero, metaHtml:metaHtml, related:related, detailUrl:detailUrl, playUrl:playUrl,
+  return { find:find, info:info, hero:hero, ptag:ptag, metaHtml:metaHtml, related:related, detailUrl:detailUrl, playUrl:playUrl,
     crown:crown, crownIcon:crownIcon, packageFor:packageFor, packageUrl:packageUrl, mainAction:mainAction, subscribeTv:subscribeTv,
     open:function(i){ location.href = detailUrl(i); }, play:function(i){ location.href = playUrl(i); } };
 })();
@@ -888,9 +888,9 @@ window.Content = (function(){
                        so the demo's upcoming ones are always upcoming), d; heroOnly: shown in Home's first scene, not its rail;
                        sportRail: also Sport's Live and Upcoming, in this order; hidden: kept here but shown on no rail
                        (remove the flag to bring it back)
-    LIVE.start(p)      when an upcoming programme starts (ms): from in, or a label ("Starts in 16:12", "Today 8:30 PM",
-                       "Tomorrow 2:30 AM"; a time today that has gone by is taken as tomorrow's)
-    LIVE.label(p)      its card's label: "Starts in 58:12" in the last hour, else "Today 8:30 PM" / "Tomorrow 6:00 PM" / "2 Nov 8:30 PM"
+    LIVE.start(p)      when an upcoming programme starts (ms): from in, or a label ("Starts in 16:12", "Today 20:30",
+                       "Tomorrow 2:30"; a time today that has gone by is taken as tomorrow's)
+    LIVE.label(p)      its card's label: "Starts in 58:12" in the last hour, else "Today 20:30" / "Tomorrow 18:00" / "2 Nov 20:30"
     LIVE.hasMD(tv)     whether the channel's programmes have a detail page: a Sports channel, or a Movies one that isn't Digital
                        TV (channels-data.js)
     LIVE.href(p, from) the card's link: a LIVE one always the channel in the Live TV player (via the TV Guide), no detail
@@ -904,9 +904,9 @@ window.LIVE = (function(){
   var list = [
     {t:'Liverpool vs Brentford', hidden:true, img:U + 'liverpool-brentford.webp', bg:'posters/liver-ben.jpg', tv:'MONOMAX 1', live:true, sp:'football', lg:'epl',   // bg: Home's first scene and the detail page; v: its video, Home's and the player's
      d:'Liverpool hosts Brentford at Anfield in a big Premier League clash. Follow every moment live, from kick-off to the final whistle.'},
-    {t:'Bayern München vs Arsenal', img:SP + '1.webp', bg:SP + '1-2.webp', v:'video/B&A.mp4', tv:'PLAY SPORTS (Football)', live:true, sportRail:1, sp:'football', lg:'ucl', range:'02:00 – 04:00',   // v: its video, Sport's screen and the player's
+    {t:'Bayern München vs Arsenal', img:SP + '1.webp', bg:SP + '1-2.webp', v:'video/B&A.mp4', tv:'PLAY SPORTS (Football)', live:true, sportRail:1, sp:'football', lg:'ucl', range:'2:00 – 4:00',   // v: its video, Sport's screen and the player's
      d:'Live from the UEFA Champions League. Every touch in Full HD with Thai and English commentary, plus the build-up and post-match analysis.'},
-    {t:'Real Madrid vs RB Leipzig', img:SP + '2.webp', bg:SP + '2-2.jpg', v:'video/Real Madrid vs RB Leipzig.mp4', tv:'Real Madrid TV', live:true, sportRail:1, sp:'football', lg:'ucl', range:'02:00 – 04:00',
+    {t:'Real Madrid vs RB Leipzig', img:SP + '2.webp', bg:SP + '2-2.jpg', v:'video/Real Madrid vs RB Leipzig.mp4', tv:'Real Madrid TV', live:true, sportRail:1, sp:'football', lg:'ucl', range:'2:00 – 4:00',
      d:'Live from the UEFA Champions League. Every touch in Full HD with Thai and English commentary, plus the build-up and post-match analysis.'},
     {t:'MasterChef Thailand', img:U + 'u1.jpg', bg:U + 'masterchef-bg.webp', tv:'CH7 HD', in:58.2, sp:'', lg:'',
      d:'Thailand\'s best home cooks battle it out in the kitchen for the title of MasterChef. Season 7 premieres soon.'},
@@ -916,21 +916,21 @@ window.LIVE = (function(){
      d:'The Yellow Wall awaits as Borussia Dortmund hosts Hamburger SV at Signal Iduna Park.'},
     {t:'CT14 Eala vs Jovic (R1)', img:U + 'u4.png', tv:'FutureChannel Tennis', in:1260, sp:'tennis', lg:'wta',
      d:'Alex Eala takes on Iva Jovic in the first round, live from the WTA tour.'},
-    {t:'Portland Trail Blazers vs Utah Jazz', img:SP + '3.webp', bg:SP + '3-2.webp', tv:'PLAY SPORTS (NBA)', when:'Today 6:00 PM', sportRail:1, sp:'basketball', lg:'nba', range:'18:00 – 20:30',
+    {t:'Portland Trail Blazers vs Utah Jazz', img:SP + '3.webp', bg:SP + '3-2.webp', tv:'PLAY SPORTS (NBA)', when:'Today 18:00', sportRail:1, sp:'basketball', lg:'nba', range:'18:00 – 20:30',
      d:'Portland visits the Delta Center in Salt Lake City in Week 2 of the NBA season. Live in Full HD with Thai and English commentary.'},
-    {t:'Philadelphia 76ers vs Charlotte Hornets', img:SP + '4.webp', bg:SP + '4-2.webp', tv:'PLAY SPORTS (NBA)', when:'Today 7:00 PM', sportRail:1, sp:'basketball', lg:'nba', range:'19:00 – 21:30',
+    {t:'Philadelphia 76ers vs Charlotte Hornets', img:SP + '4.webp', bg:SP + '4-2.webp', tv:'PLAY SPORTS (NBA)', when:'Today 19:00', sportRail:1, sp:'basketball', lg:'nba', range:'19:00 – 21:30',
      d:'The 76ers take on the Hornets at the Spectrum Center in Charlotte in Week 2 of the NBA season. Live in Full HD with Thai and English commentary.'},
-    {t:'Arizona Cardinals vs Dallas Cowboys', img:SP + '5.webp', bg:SP + '5-2.webp', tv:'PLAY SPORTS (NFL)', when:'Tomorrow 1:00 AM', sportRail:1, sp:'rugby', lg:'nfl', range:'01:00 – 04:00',
+    {t:'Arizona Cardinals vs Dallas Cowboys', img:SP + '5.webp', bg:SP + '5-2.webp', tv:'PLAY SPORTS (NFL)', when:'Tomorrow 1:00', sportRail:1, sp:'rugby', lg:'nfl', range:'1:00 – 4:00',
      d:'The Cardinals visit AT&T Stadium in Arlington in Week 8 of the NFL season. Live in Full HD with Thai and English commentary.'},
-    {t:'Cleveland Browns vs Pittsburgh Steelers', img:SP + '6.webp', bg:SP + '6-2.webp', tv:'PLAY SPORTS (NFL)', when:'Tomorrow 4:00 AM', sportRail:1, sp:'rugby', lg:'nfl', range:'04:00 – 07:00',
+    {t:'Cleveland Browns vs Pittsburgh Steelers', img:SP + '6.webp', bg:SP + '6-2.webp', tv:'PLAY SPORTS (NFL)', when:'Tomorrow 4:00', sportRail:1, sp:'rugby', lg:'nfl', range:'4:00 – 7:00',
      d:'An AFC North rivalry at Acrisure Stadium in Pittsburgh in Week 8 of the NFL season. Live in Full HD with Thai and English commentary.'},
-    {t:'Bayer Leverkusen vs VfB Stuttgart', img:SP + '7.webp', bg:SP + '7-2.webp', tv:'PLAY SPORTS (Football)', when:'Today 8:30 PM', sportRail:1, sp:'football', lg:'bundesliga', range:'20:30 – 22:30',
+    {t:'Bayer Leverkusen vs VfB Stuttgart', img:SP + '7.webp', bg:SP + '7-2.webp', tv:'PLAY SPORTS (Football)', when:'Today 20:30', sportRail:1, sp:'football', lg:'bundesliga', range:'20:30 – 22:30',
      d:'Leverkusen hosts Stuttgart at the BayArena on Bundesliga Matchday 8. Live in Full HD with Thai and English commentary.'},
-    {t:'FC Schalke 04 vs RB Leipzig', img:SP + '8.webp', bg:SP + '8-2.webp', tv:'PLAY SPORTS (Football)', when:'Today 9:00 PM', sportRail:1, sp:'football', lg:'bundesliga', range:'21:00 – 23:00',
+    {t:'FC Schalke 04 vs RB Leipzig', img:SP + '8.webp', bg:SP + '8-2.webp', tv:'PLAY SPORTS (Football)', when:'Today 21:00', sportRail:1, sp:'football', lg:'bundesliga', range:'21:00 – 23:00',
      d:'Schalke hosts RB Leipzig at the VELTINS-Arena in Gelsenkirchen on Bundesliga Matchday 8. Live in Full HD with Thai and English commentary.'},
-    {t:'Bayern München vs Borussia Dortmund', img:SP + '9.webp', bg:SP + '9-2.webp', tv:'PLAY SPORTS (Football)', when:'Today 9:00 PM', sportRail:1, sp:'football', lg:'bundesliga', range:'21:00 – 23:00',
+    {t:'Bayern München vs Borussia Dortmund', img:SP + '9.webp', bg:SP + '9-2.webp', tv:'PLAY SPORTS (Football)', when:'Today 21:00', sportRail:1, sp:'football', lg:'bundesliga', range:'21:00 – 23:00',
      d:'Der Klassiker on Bundesliga Matchday 8: Bayern München hosts Borussia Dortmund at the Allianz Arena, Munich. Live in Full HD with Thai and English commentary.'},
-    {t:'Crystal Palace vs Hoffenheim', img:SP + '10.webp', bg:SP + '10-2.webp', tv:'PLAY SPORTS (Football)', when:'Tomorrow 3:00 PM', sportRail:1, sp:'football', lg:'', range:'15:00 – 17:00',
+    {t:'Crystal Palace vs Hoffenheim', img:SP + '10.webp', bg:SP + '10-2.webp', tv:'PLAY SPORTS (Football)', when:'Tomorrow 15:00', sportRail:1, sp:'football', lg:'', range:'15:00 – 17:00',
      d:'Crystal Palace hosts Hoffenheim at Selhurst Park, London, on Matchday 4. Live in Full HD with Thai and English commentary.'}
   ];
   var LOADED = Date.now();   // "Start in" counts from when the page was opened, as the card's label does
@@ -939,23 +939,20 @@ window.LIVE = (function(){
     if(p.in) return LOADED + p.in * 60000;
     var w = p.when || '', m = /Starts in (\d+):(\d+)/i.exec(w);
     if(m) return LOADED + (+m[1] * 60 + +m[2]) * 1000;
-    m = /(Today|Tomorrow)\s+(\d{1,2}):(\d{2})\s*(AM|PM)?/i.exec(w);
+    m = /(Today|Tomorrow)\s+(\d{1,2}):(\d{2})/i.exec(w);
     if(!m) return LOADED + 3600000;
-    var d = new Date(), h = +m[2];
-    if(m[4] && /PM/i.test(m[4]) && h < 12) h += 12;
-    if(m[4] && /AM/i.test(m[4]) && h === 12) h = 0;
-    d.setHours(h, +m[3], 0, 0);
+    var d = new Date();
+    d.setHours(+m[2], +m[3], 0, 0);
     if(/Tomorrow/i.test(m[1]) || d.getTime() <= Date.now()) d.setDate(d.getDate() + 1);
     return d.getTime();
   }
-  function hm(t){ var d = new Date(t); return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
-  function hm12(t){ var d = new Date(t), h = d.getHours(); return ((h % 12) || 12) + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes() + (h < 12 ? ' AM' : ' PM'); }
+  function hm(t){ var d = new Date(t); return d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }   // 24-hour H:MM
   function label(p){
     var t = start(p), left = t - Date.now();
     if(left < 3600000){ var s = Math.max(0, Math.floor(left / 1000)); return 'Starts in ' + Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + s % 60; }
     var a = new Date(t), b = new Date(); a.setHours(0, 0, 0, 0); b.setHours(0, 0, 0, 0);
     var dd = Math.round((a - b) / 864e5), d = new Date(t);
-    return (dd === 0 ? 'Today ' : dd === 1 ? 'Tomorrow ' : d.getDate() + ' ' + 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ')[d.getMonth()] + ' ') + hm12(t);
+    return (dd === 0 ? 'Today ' : dd === 1 ? 'Tomorrow ' : d.getDate() + ' ' + 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ')[d.getMonth()] + ' ') + hm(t);
   }
   // a Sports channel, or a Movies one that isn't a free-to-air Digital TV channel (those carry Movies & Series among
   // everything else: CH7 HD's MasterChef plays the channel)

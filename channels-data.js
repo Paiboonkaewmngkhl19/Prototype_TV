@@ -15,7 +15,7 @@
 */
 (function(){
   /* ---------- the channels: AIS PLAY's line-up (data/AISPLAY_ContentTVChannel.csv, the source of truth), lowest number first,
-     then a few the prototype keeps that aren't in it (TV5 HD1, CNBC, SKY, MONOMAX 1, the Asian Games, the four Exclusive) ----------
+     then a few the prototype keeps that aren't in it (TV5 HD1, CNBC, SKY, MONOMAX 1, the Asian Games) ----------
      From the CSV: premium (Premium), category (Category, split at the commas), sub (Sub-Category; "null" is empty).
      cats / tags: the TV Guide's tabs and sub-tabs they show under (Education -> Others / Education; Women's Sports and
      American Football -> Multi-Sports). crown: 'gold' premium, or 'owned' (premium, in the viewer's package: no crown shown).
@@ -203,14 +203,6 @@
       sched:[['PL Match: v Chelsea (A) 25/26',120,'posters/maxresdefault.jpg',1],['Inside United',60],['Sir Alex Ferguson: Never Give In',90,'posters/maxresdefault.jpg'],['Reserves Highlights',60],['Classic Match: 1999 Final',120],['United Review',30]]},
     {no:999, n:'PLAY SPORTS (NFL)', premium:true, category:['Sports'], sub:['American Football'], txt:'PLAY SPORTS (NFL)', bg:'#2a2a2a', cats:['sports'], tags:['multi'], crown:'gold',
       sched:[['NFL Game Pass Live',180,null,1],['NFL RedZone',60],['Game Recap',60],['NFL Films',60]]},
-    {no:9001, excl:true, up:2, n:'TrueID Exclusive', logo:'partners/trueid.png', bg:'#e3232e', cats:['exclusive'], crown:'gold', premium:true, box:[-13.16,-12.88,126.32,126.32],
-      sched:[['Liverpool vs Brentford',120,'posters/liver-ben.jpg',1],['Arsenal: Match Highlights',30,'posters/arsenal.jpg'],['TrueID Original Series',60],['Premier League Review',60]]},
-    {no:9002, excl:true, up:1, n:'COOL Live', logo:'tv-features-test/concert-assets/channel-cool.png', fit:'cover', cats:['exclusive','variety'], premium:false,
-      sched:[['COOL Live Concert 2026',150,'tv-features-test/concert-assets/moment-080.jpg',1],['Backstage Pass',30],['COOL Countdown',60],['Acoustic Night',60]]},
-    {no:9003, excl:true, n:'Miss Universe Live', txt:'MU', bg:'#8e24aa', cats:['exclusive','variety'], premium:false,
-      sched:[['Miss Universe 2026: Preliminary',120,'posters/miss-universe.jpg',1],['Road to the Crown',60],['Miss Universe Daily',30],['Behind the Sash',60]]},
-    {no:9004, excl:true, up:2, n:'F1 Exclusive', txt:'F1', bg:'#e10600', cats:['exclusive','sports'], tags:['motorsport'], crown:'gold', premium:true,
-      sched:[['F1 Grand Prix: Qualifying',90,'posters/f1.jpg',1],['F1 Paddock Live',60],['Onboard Classics',60],['F1 Race Replay',120]]},
   ];
   CHANNELS.sort(function(a, b){ return a.no - b.no; });   // lowest channel number first, everywhere
   CHANNELS.forEach(function(c){ if(c.crown) c.pkg = c.cats.indexOf('sports') >= 0 ? 'sports' : 'ultimate'; });   // its package (above)
@@ -237,9 +229,23 @@
     try { var f = JSON.parse(sessionStorage.getItem('tvFavs') || 'null'); if(f && c.n in f) return !!f[c.n]; } catch(e){}
     return !!c.fav;
   }
+  // the TV Guide card rails (Home, Sport, News): favourites at the very front, in the rail's own order, then any other
+  // favourite of `pool` the rail doesn't list (make: its rail item), then the rest. name(item): the item's channel name
+  function favFirst(list, name, pool, make){
+    function fav(x){ var c = byName(name(x)); return !!c && isFav(c); }
+    var has = {}; list.forEach(function(x){ has[name(x)] = 1; });
+    var more = !pool ? [] : pool.filter(function(c){ return isFav(c) && !has[c.n]; }).sort(function(a, b){ return a.no - b.no; }).map(make);
+    return list.filter(fav).concat(more, list.filter(function(x){ return !fav(x); }));
+  }
+  // a rail page coming back out of the browser's page cache runs no scripts: rebuild it if a favourite changed meanwhile
+  function favKey(){ return CHANNELS.filter(isFav).map(function(c){ return c.n; }).join('|'); }
+  function reloadOnFavChange(){
+    var key = favKey();
+    addEventListener('pageshow', function(e){ if(e.persisted && favKey() !== key) location.reload(); });
+  }
   // what a channel card shows (Home's TV Guide rail, Sport's and News' channel rails): the programme on now and the next,
-  // their times ("9:30 PM"), how far in (0-100) and whether the one on now has Time Shift
-  function clock(d){ var h = d.getHours(), m = d.getMinutes(); return (h % 12 || 12) + ':' + (m < 10 ? '0' : '') + m + ' ' + (h < 12 ? 'AM' : 'PM'); }
+  // their times ("21:30"), how far in (0-100) and whether the one on now has Time Shift
+  function clock(d){ var m = d.getMinutes(); return d.getHours() + ':' + (m < 10 ? '0' : '') + m; }   // 24-hour H:MM, everywhere
   function onNow(c, when){
     when = when || new Date();
     var i = onAt(c, when), p = c.progs[i], n = c.progs[i + 1] || p;
@@ -271,5 +277,5 @@
     return '<span class="' + (cls || '') + ' ch-logo" style="background:' + (c.logo ? c.bg || 'transparent' : '#2a2a2a') + '"><img src="' + logoSrc(c) + '"' + logoAttrs(c) +
       (b ? ' style="left:' + b[0] + '%;top:' + b[1] + '%;width:' + b[2] + '%;height:' + b[3] + '%"' : ' class="cover"') + '></span>';
   }
-  window.TV = { CHANNELS:CHANNELS, onAt:onAt, byName:byName, isFav:isFav, onNow:onNow, clock:clock, ph:ph, logoSrc:logoSrc, logoFail:logoFail, logoAttrs:logoAttrs, logoHtml:logoHtml };
+  window.TV = { CHANNELS:CHANNELS, onAt:onAt, byName:byName, isFav:isFav, favFirst:favFirst, reloadOnFavChange:reloadOnFavChange, onNow:onNow, clock:clock, ph:ph, logoSrc:logoSrc, logoFail:logoFail, logoAttrs:logoAttrs, logoHtml:logoHtml };
 })();

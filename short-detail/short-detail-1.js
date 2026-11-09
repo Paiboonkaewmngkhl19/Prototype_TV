@@ -46,17 +46,17 @@
     '<div class="tv-btn tv-btn--secondary ic item" data-act="startover" data-tip="Start Over" data-ring-art=""><img src="icons/player/start-over.svg" alt="Start Over"><span class="tip"></span></div>');
   // not the viewer's yet (gold crown): View Package next to Play, its app's Short Drama packages (content.js); the
   // locked episodes keep their own unlock options. Owned: every episode open, no View Package
-  // a short with a price (content.js SHORTS buy): Buy N ฿ after it, to own every episode (package-detail.html, as a movie's Buy)
+  // a short with a price (content.js SHORTS buy): Buy N Baht after it, to own every episode (package-detail.html, as a movie's Buy)
   if(Content.crown({s:si}) === 'gold') $('.actions .main')[0].insertAdjacentHTML('afterend',
     '<div class="tv-btn tv-btn--secondary main item" data-act="package" data-label="View Package" data-ring-art=""><i class="ic-pkg"></i>View Package</div>' +
-    (S.buy ? '<div class="tv-btn tv-btn--secondary buy item" data-act="buyshort" data-label="Buy" data-ring-art="">Buy ' + S.buy + ' ฿</div>' : ''));
+    (S.buy ? '<div class="tv-btn tv-btn--secondary buy item" data-act="buyshort" data-label="Buy" data-ring-art="">Buy ' + S.buy + ' Baht</div>' : ''));
 
   // You May Also Like: other short dramas only (content.js Content.related), never a movie in their place
-  var LIKES = Content.related({s:si}, 18).map(function(r){ return { t:SHORTS[r.s].t, img:'posters/shorts/' + SHORTS[r.s].img, s:r.s }; });
+  var LIKES = Content.related({s:si}, 18).map(function(r){ return { t:SHORTS[r.s].t, img:'posters/shorts/' + SHORTS[r.s].img, plat:SHORTS[r.s].plat, s:r.s }; });
   var likesEl = $('.likes')[0];
   for(var r = 0; r < LIKES.length; r += 6){
     likesEl.insertAdjacentHTML('beforeend', '<div class="likerow">' + LIKES.slice(r, r + 6).map(function(x, j){
-      return '<div class="poster item" data-l="' + (r + j) + '" data-s="' + x.s + '" style="background-image:url(\'' + x.img + '\')"></div>';
+      return '<div class="poster item" data-l="' + (r + j) + '" data-s="' + x.s + '" style="background-image:url(\'' + x.img + '\')">' + Content.ptag(x.plat) + '</div>';
     }).join('') + '</div>');
   }
 
@@ -163,9 +163,9 @@
   function openUnlock(n){
     mEp = n; modalOn = true; mFocus = { area:'btns', i:1 };   // focus on Unlock Now, the first way picked
     var mo = monthly(), O = [];
-    if(mo) O.push({ o:'sub', t:'Subscribe to a package', s:'Subscribe to unlock all content', p:mo + ' ฿/month' });
-    if(S.buy) O.push({ o:'series', t:'Buy this series', s:'Unlock all episodes', p:S.buy + ' ฿' });
-    O.push({ o:'ep', t:'Buy episode ' + n, s:'Unlock one episode', p:SHORT.EP_PRICE + ' ฿' });
+    if(mo) O.push({ o:'sub', t:'Subscribe to a package', s:'Subscribe to unlock all content', p:mo + ' Baht/month' });
+    if(S.buy) O.push({ o:'series', t:'Buy this series', s:'Unlock all episodes', p:S.buy + ' Baht' });
+    O.push({ o:'ep', t:'Buy episode ' + n, s:'Unlock one episode', p:SHORT.EP_PRICE + ' Baht' });
     O.push({ o:'ads', t:'Watch ads to unlock (' + adsLeft + '/5)', s:adsLeft > 0 ? 'Unlock this episode for free' : 'No more ads today', p:'Free', off:adsLeft <= 0 });
     $('#mOpts')[0].innerHTML = O.map(function(x){
       return '<div class="opt item' + (x.off ? ' off' : '') + '" data-o="' + x.o + '" data-ring-art=""><span class="rd"></span>' +
@@ -184,7 +184,7 @@
   function confirmUnlock(){
     var o = optEls[mSel].dataset.o;
     if(o === 'sub'){ save(); location.href = 'all-packages.html?tab=shorts'; return; }   // the Short Drama packages; All Packages comes back here
-    if(o === 'series'){ save(); location.href = 'package-detail.html?short=' + si + '&opt=buy'; return; }   // as the page's Buy N ฿
+    if(o === 'series'){ save(); location.href = 'package-detail.html?short=' + si + '&opt=buy'; return; }   // as the page's Buy N Baht
     if(o === 'ep'){ save(); location.href = 'package-detail.html?short=' + si + '&opt=ep&ep=' + mEp; return; }   // this episode only
     if(o === 'ads'){
       if(adsLeft <= 0){ toast('No more ads today: try another way'); return; }

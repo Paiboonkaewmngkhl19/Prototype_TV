@@ -14,7 +14,7 @@
   Everything it shows comes from packages.js (nothing typed here): Package Details on the left (the package's logo and
   name, Package Description / Terms and Conditions, its apps with screens / 4K / Dolby, sports, channels, devices; a
   section with no data is left out), Package Options on the right (its plans), then Choose how to pay: Charge to AIS
-  Bill opens the OTP popup; the 4th digit pays and opens the Purchase complete page (purchase.html), whose Done returns
+  Bill opens the Confirm popup, then the OTP popup; the 4th digit pays and opens the Purchase complete page (purchase.html), whose Done returns
   to ?ret= (the detail page) with ?subscribed=1. Paying makes every title of
   the package the viewer's (content.js Content.crown: owned).
   Short drama mode (?short=N&ep=E, Figma Store "Details Short pay" 3998:120134, "Rent"), opened from Buy this episode in
@@ -83,7 +83,24 @@
 
 
   <div class="scrim tv-scrim"></div>
-  <!-- OTP (Figma Store 5555:183690): Charge to AIS Bill opens it; the 4th digit pays, then the Purchase complete page -->
+  <!-- Confirm (Figma Store 5875:184049): either payment button opens it; Confirm goes on to the OTP or the QR -->
+  <div class="dlg tv-dialog cfd" role="dialog" aria-label="Confirm payment">
+    <div class="ohead"><h2 class="c-title"></h2></div>
+    <div class="ocard csum">
+      <div class="cwhat">
+        <div class="lg c-lg"></div>
+        <div class="cdet"><p class="c-name"></p><p class="c-base"></p></div>
+        <div class="ctot"><p><b class="o-amt"></b><span class="c-per"></span></p><span>VAT Included</span></div>
+      </div>
+      <div class="cterm"><p class="o-how"></p><p class="c-via"></p></div>
+    </div>
+    <p class="sent c-next"></p>
+    <div class="oacts">
+      <div class="tv-btn tv-btn--secondary cbtn back" data-c="back">Cancel</div>
+      <div class="tv-btn tv-btn--primary cbtn ok" data-c="ok">Confirm</div>
+    </div>
+  </div>
+  <!-- OTP (Figma Store 5555:183690): the Confirm popup's Confirm opens it for Charge to AIS Bill; the 4th digit pays, then the Purchase complete page -->
   <div class="dlg tv-dialog otpd" role="dialog" aria-label="Enter the OTP">
     <div class="ohead">
       <h2>Enter the 4-digit OTP</h2>
@@ -100,7 +117,7 @@
       <div class="tv-btn tv-btn--primary obtn req" data-o="req">Resend OTP</div>
     </div>
   </div>
-  <!-- Scan QR PromptPay (Figma Store 5510:189647): QR PromptPay opens it; paid (5 s in this demo), the Purchase complete page -->
+  <!-- Scan QR PromptPay (Figma Store 5510:189647): the Confirm popup's Confirm opens it for QR PromptPay; paid (5 s in this demo), the Purchase complete page -->
   <div class="dlg tv-dialog qrd" role="dialog" aria-label="Scan QR PromptPay">
     <div class="ohead">
       <h2>Scan QR PromptPay</h2>

@@ -30,16 +30,6 @@
     if(!f) return '';
     return '<img src="badges/'+f+'" class="'+(cls||'badge-logo')+'" alt="'+name+'">';
   }
-  function platformTag(name){
-    var map = {
-      netflix:['N','#000'], prime:['prime video','#1a98ff'], disney:['D+','#0a3161'],
-      hbo:['max','#000'], viu:['viu','#0f8a8a'], def:['TV','#333']
-    };
-    var v = map[name] || map.def;
-    var logo = badgeImg(name);
-    if(logo) return '<span class="card-tag has-logo">' + logo + '</span>';
-    return '<span class="card-tag" style="background:' + v[1] + ';">' + v[0] + '</span>';
-  }
   function platformPill(name){
     var map = {
       netflix:['N','#000'], prime:['prime video','#0578ff'], disney:['D+','#0a3161'],
@@ -66,13 +56,13 @@
      This row also drives the dynamic hero banner above it: whichever card
      is focused here updates the hero background/title/description. */
   (function(){
-    // the slides: a live match (content.js LIVE, by its title) or a title (content.js MD.M, by its key); their words,
+    // the slides: a live match (content.js LIVE, by its title), a channel's programme on now (LIVE.hot) or a title (content.js MD.M, by its key); their words,
     // tag and picture come from there, so the slide and the detail page it opens say the same
-    var SLIDES = [{live:FIRST_SLIDE}, {k:'d9'}, {k:'loki'}, {k:'lastofus'}, {k:'wicked'}, {k:'superman'}, {k:'topgun'}, {k:'dragon'},
+    var SLIDES = [{live:FIRST_SLIDE}, {hot:'CNN News'}, {k:'d9'}, {k:'loki'}, {k:'goodpartner'}, {k:'wicked'}, {k:'superman'}, {k:'topgun'}, {k:'dragon'},
                   {k:'f1'}];
     function attr(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }   // e.g. Pete "Maverick" Mitchell
     var items = SLIDES.map(function(s){
-      if(s.live){ var p = LIVE.find(s.live); return { t:p.t, img:p.img, crown:{tv:p.tv}, href:LIVE.href(p, 'home'), hero:{logo:'monomax', channel:'', live:true, tv:p.tv, desc:p.d}, bg:p.bg || p.img }; }
+      if(s.live || s.hot){ var p = s.live ? LIVE.find(s.live) : LIVE.hot.filter(function(h){ return h.t === s.hot; })[0]; return { t:p.t, img:p.img, logo:p.logo, crown:{tv:p.tv}, href:LIVE.href(p, 'home'), hero:{logo:'monomax', channel:'', live:true, tv:p.tv, desc:p.d}, bg:p.bg || p.img }; }
       var h = Content.hero({k:s.k}), m = M(s.k);
       return { k:s.k, t:h.t, img:m.w || h.bg, crown:{k:s.k}, hero:{logo:h.plat, channel:h.meta, live:false, desc:h.d}, bg:h.bg };
     });
@@ -81,7 +71,7 @@
         ' data-hero-title="'+attr(it.t)+'" data-hero-logo="'+attr(it.hero.logo)+'" data-hero-channel="'+attr(it.hero.channel)+'"'+
         ' data-hero-live="'+(it.hero.live?'1':'0')+'"'+(it.hero.tv?' data-hero-tv="'+attr(it.hero.tv)+'"':'')+' data-hero-desc="'+attr(it.hero.desc)+'" data-hero-img="'+it.bg+'"'+
         (it.k ? ' data-k="'+it.k+'"' : ' data-href="'+attr(it.href)+'"')+'>'+   // Enter: its detail page (content.js)
-        '<div class="thumb" style="background-image:url(\''+it.img+'\');background-size:cover;background-position:center;">'+Content.crownIcon(it.crown, 0, 'crown-tag')+'</div>'+
+        '<div class="thumb" style="background-image:url(\''+it.img+'\');background-position:center;'+(it.logo ? 'background-size:67% auto;background-repeat:no-repeat;background-color:#fff;' : 'background-size:cover;')+'">'+Content.crownIcon(it.crown, 0, 'crown-tag')+'</div>'+
         // (no title under the first rail's cards: the hero above says it)
         (it.hero.live ? '<span class="live-ribbon">Live</span>' : '')+
       '</div>';
@@ -92,7 +82,7 @@
   /* ---------- Row: Quick menu chips ---------- */
   (function(){
     var chips = [
-      {label:'Live TV', href:'tv-guide.html?play=MUTV&from=home'}, {label:'News', href:'news.html'}, {label:'Short', href:'short.html'}, {label:'Kids', href:'kids.html'},
+      {label:'Live TV', href:'tv-guide.html?play=MUTV&from=home'}, {label:'News', href:'news.html'}, {label:'Shorts', href:'short.html'}, {label:'Kids', href:'kids.html'},
       {label:'Lifestyle'}, {label:'Music'}, {label:'IoT'}   // Figma Category (3256:175126)
     ];
     var html = chips.map(function(c, i){
@@ -105,14 +95,15 @@
   (function(){
     // Continue Watching from content.js: this session's viewing first, each with its real progress (and episode)
     // only titles with a full-screen picture of their own (MD.M b) are shown: it fills the screen while a card is focused
-    var items = MD.continueList().filter(function(c){ return M(c.k).b; }).map(function(c){
-      var m = M(c.k), left = Math.max(1, c.of - c.w);
-      return {k:c.k, t:m.t + (c.s ? ' S' + c.s + ':E' + c.e : ''), plat:m.plat, img:m.w || m.p, pct:Math.round(c.w / c.of * 100), dur:c.of, s:left + ' mins left'};
+    // (a news show, MD.M eps: its episode's own picture, title and words instead, as on the News page; pos: how to crop it)
+    var items = MD.continueList().filter(function(c){ return M(c.k).b || M(c.k).eps; }).map(function(c){
+      var m = M(c.k), left = Math.max(1, c.of - c.w), ep = m.eps && MD.episode(c.k, c.s, c.e);
+      return {k:c.k, e:ep ? c.e : 0, pos:c.pos, t:m.t + (c.s ? ' S' + c.s + ':E' + c.e : ''), img:(ep && ep.img) || m.w || m.p, pct:Math.round(c.w / c.of * 100), dur:c.of, s:left + ' mins left'};
     });
     function q(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
     var cards = items.map(function(it,i){
-      return '<div class="card card-content item" data-k="'+it.k+'" data-title="'+q(it.t)+'">'+
-        '<div class="thumb" style="background-image:url(\''+it.img+'\');background-size:cover;background-position:center;">'+platformTag(it.plat)+
+      return '<div class="card card-content item" data-k="'+it.k+'" data-title="'+q(it.t)+'"'+(it.e ? ' data-ep="'+it.e+'"' : '')+(it.pos ? ' data-pos="'+it.pos+'"' : '')+'>'+
+        '<div class="thumb" style="background-image:url(\''+it.img+'\');background-size:cover;background-position:'+(it.pos || 'center')+';">'+
           '<span class="cw-left corner-tag s">'+it.s+'</span>'+
           '<div class="progress"><i class="play-prog" data-dur="'+it.dur+'" style="width:'+it.pct+'%"></i></div></div>'+
       '</div>';
@@ -126,8 +117,10 @@
     // (channels-data.js), so the card, the hero text and the player (Enter) show the same programme at the same time.
     // MUTV and CNN have Time Shift on what's on now: the Time Shift icon next to the heart.
     // the logos are the TV Guide's (channels-data.js), on their discs' colours
-    var items = [{ch:'MUTV'}, {ch:'CNN'}, {ch:'Real Madrid TV'}, {ch:'BBC News'}, {ch:'W-Sports'}];
-    function clock(d){ var h = d.getHours(), m = d.getMinutes(); return (h % 12 || 12) + ':' + (m < 10 ? '0' : '') + m + ' ' + (h < 12 ? 'AM' : 'PM'); }
+    // favourites at the very front, from every channel (channels-data.js TV.favFirst)
+    var items = window.TV.favFirst([{ch:'MUTV'}, {ch:'CNN'}, {ch:'Real Madrid TV'}, {ch:'BBC News'}, {ch:'W-Sports'}],
+      function(it){ return it.ch; }, window.TV.CHANNELS, function(c){ return {ch:c.n}; });
+    var clock = window.TV.clock;
     function attrQ(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
     var nowT = new Date();
     items.forEach(function(it){
@@ -166,17 +159,7 @@
       });
     }, 3000);
     var countdown = '<div class="epg-countdown tv-chip item" data-title="TV Guide – View All" data-href="tv-guide.html"><b>TV Guide</b><span>View All</span></div>';
-    // back from the player out of the browser's page cache: each card's heart as it is now (a favourite added there)
-    addEventListener('pageshow', function(e){
-      if(!e.persisted) return;
-      document.querySelectorAll('.epg-card').forEach(function(card){
-        var m = /[?&]play=([^&]+)/.exec(card.dataset.href || ''), c = m && window.TV.byName(decodeURIComponent(m[1]));
-        if(!c) return;
-        var icons = card.querySelector('.epg-icons'), h = icons.querySelector('.epg-heart'), on = window.TV.isFav(c);
-        if(on && !h) icons.insertAdjacentHTML('beforeend', '<span class="epg-heart"><img src="icons/epg/heart.svg" alt=""></span>');
-        else if(!on && h) h.remove();
-      });
-    });
+    window.TV.reloadOnFavChange();   // back from the player with a favourite changed: the cards in their new order, with their hearts
     addRow('<div class="row-block epg-row"><div class="rail-viewport"><div class="rail-track">'+countdown+epgCards+'</div></div></div>');
   })();
 
@@ -299,7 +282,7 @@
         '<div class="xc-scrim ev-scrim"></div><span class="top-tag ev-top">'+(it.when || it.badges[0])+'</span>'+
         '<div class="xc-content ev-info">'+
           '<h3>'+m.t+'</h3>'+
-          (MD.price(it.k) ? '<div class="cost"><b>'+MD.price(it.k)+' baht</b><span>(VAT Included: '+vat(MD.price(it.k))+' baht)</span></div>' : '')+
+          (MD.price(it.k) ? '<div class="cost"><b>'+MD.price(it.k)+' Baht</b><span>(VAT Included: '+vat(MD.price(it.k))+' Baht)</span></div>' : '')+
           '<div class="meta">'+Content.metaHtml({k:it.k}, true)+'</div>'+
           '<p class="syn">'+m.d+'</p>'+
         '</div>'+
@@ -413,14 +396,21 @@
 
   /* ---------- Row: Choose what you like (genre tabs on the left, a five-column grid on the right, then Skip / Continue) ---------- */
   (function(){
-    // each genre reuses the closest of the 12 topic pictures (posters/genres/g1..g12)
+    // [topic, its own picture (no two tiles share one), how to crop it]
+    var G = 'posters/genres/', H = 'posters/hero/', PS = 'posters_portrait/sport/';
     var cats = [
-      {name:'Entertainment', items:[['Action',1],['Adult',3],['Animal',8],['Anime',12],['Cartoon',5],['Classic',3],['Comedy',5],['Concert',6],
-        ['Crime',1],['Dark',2],['Drama',3],['Esports',9],['Family',11],['Fantasy',4],['Food',10],['Game show',11],['History',8],['Horror',2],
-        ['LGBTQ',3],['Martial arts',12],['Music',6],['Musical',6],['Mystery',2],['Reality',11],['Religious',8],['Romance',3],['Sci-fi',4],
-        ['Sports',7],['Talk show',9],['Thriller',2],['Travel',10],['Variety',11]]},
-      {name:'Sports', items:[['Football',7],['Tennis',7],['Golf',7],['Basketball',7],['Boxing',7],['NFL',7],['Rugby',7],['International Tournament',7],['Other',7]]},
-      {name:'Live TV', items:[['Movies & Series',12],['Cartoons',5],['Variety',11],['Sports',7],['News',9],['Education',8],['Shopping',10],['Documentary',8]]}
+      {name:'Entertainment', items:[['Action',G+'g1.jpg'],['Adult',G+'adult.jpg'],['Animal',PS+'rc-secretariat.webp'],['Anime','kids-assets/doraemon-collection.webp'],
+        ['Cartoon',G+'cartoon.jpg'],['Classic',G+'g5.jpg','center 75%'],['Comedy',G+'g11.jpg','center 70%'],['Concert',G+'g6.jpg'],
+        ['Crime',G+'crime.jpg'],['Dark',H+'house-of-the-dragon.jpg'],['Drama',G+'drama.jpg'],['Esports',H+'app-google-play-games.webp'],
+        ['Family',G+'family.jpg','center 40%'],['Fantasy',H+'lotr.jpg'],['Food',G+'g10.jpg','center 75%'],['Game show','posters/upcoming/masterchef-bg.webp'],
+        ['History',G+'history.jpg','center 70%'],['Horror','posters_portrait/the-medium.jpg','center 78%'],['LGBTQ','posters_portrait/love/v4.jpg','center 72%'],
+        ['Martial arts',PS+'doc-the-knockout.jpg','center 30%'],['Music','posters/chip-bg-music.webp'],['Musical',H+'wicked.jpg'],['Mystery',G+'g2.jpg'],
+        ['Reality','login-assets/ppv/universe-bg.webp','95% center'],['Religious',G+'religious.jpg'],['Romance',G+'g3.jpg'],['Sci-fi',G+'g4.jpg'],
+        ['Sports',G+'sports-fans.jpg','center 60%'],['Talk show',G+'talk-show.jpg'],['Thriller',G+'g12.jpg'],['Travel',G+'g8.jpg'],['Variety',H+'ex-sophomores.jpg']]},
+      {name:'Sports', items:[['Football',G+'g7.jpg'],['Motorsports',G+'motorsports.jpg'],['Golf',G+'golf.jpg','center 30%'],['Basketball',G+'basketball.jpg'],
+        ['Tennis',G+'tennis.jpg'],['Rugby',G+'rugby.jpg'],['Boxing',G+'boxing.jpg','center 80%']]},   // Sport's chips, in its order
+      {name:'Live TV', items:[['Movies & Series',H+'topgun-m.jpg'],['Cartoons','posters/chip-bg-kids.webp'],['Variety',H+'ex-bossckm.jpg'],['Sports',G+'sports-volleyball.jpg'],
+        ['News',G+'news.jpg'],['Education',G+'education.jpg'],['Shopping','store-assets/others-5g-tiktok-shop.webp'],['Documentary',G+'documentary.jpg','center 60%']]}
     ];
     function esc(t){ return t.replace(/&/g,'&amp;'); }
     addRow('<div class="row-block gc-picker"><div class="gc-title"><h2>Choose what you like</h2>'+
@@ -430,7 +420,7 @@
       }).join('')+'</div>'+
       '<div class="gc-pane"><div class="gc-vp">'+cats.map(function(c, ci){
         return '<div class="gc-grid'+(ci ? '' : ' cur')+'">'+c.items.map(function(g, i){
-          return '<div class="genre item" data-act="genre" data-cat="'+ci+'" data-i="'+i+'" data-title="'+esc(g[0])+'" style="background-image:url(\'posters/genres/g'+g[1]+'.jpg\');">'+
+          return '<div class="genre item" data-act="genre" data-cat="'+ci+'" data-i="'+i+'" data-title="'+esc(g[0])+'" style="background-image:url(\''+g[1]+'\');'+(g[2] ? 'background-position:'+g[2]+';' : '')+'">'+
             '<span class="gchk" aria-hidden="true"></span><span>'+esc(g[0])+'</span></div>';
         }).join('')+'</div>';
       }).join('')+'</div></div></div>'+
@@ -494,7 +484,6 @@
   var profBtns = Array.prototype.slice.call(profPanel.querySelectorAll('.prof-btn')), profAt = -1;
   function profAction(b){
     var act = b.dataset.act;
-    if(act === 'exit'){ window.location.href = 'launcher.html'; return; }
     toast(b.textContent.trim() + ' isn\'t part of this prototype yet');
   }
   // keys while the photo or its panel has focus; returns true when handled
@@ -663,7 +652,7 @@
   document.addEventListener('visibilitychange', syncHeroSound);
   addEventListener('pagehide', function(){ if(heroVideo) heroVideo.muted = true; });
   // crossfade the screen background to a new picture (key: anything identifying it, css: a CSS url(...))
-  function setHeroBg(key, css){
+  function setHeroBg(key, css, pos){   // pos: how to crop it (else the screen's own)
     if(!key || key === currentHeroImgKey || !heroBgA || !heroBgB) return;
     currentHeroImgKey = key;
     if(heroVideo){
@@ -677,6 +666,7 @@
     }
     var to = heroBgActive === 'a' ? heroBgB : heroBgA, from = heroBgActive === 'a' ? heroBgA : heroBgB;
     to.style.backgroundImage = css;
+    to.style.backgroundPosition = pos || '';
     to.style.opacity = '1';
     from.style.opacity = '0';
     heroBgActive = heroBgActive === 'a' ? 'b' : 'a';
@@ -725,17 +715,19 @@
     // a title (movie, series, short, AIS PLAY's own): word for word what its detail page shows (content.js Content.hero)
     var ci = !el.dataset.ch && Content.info(el.closest('.rank-wrap') || el), h = ci && Content.hero(ci);
     if(h){
-      if(h.bg) setHeroBg(h.bg, "url('" + h.bg + "')");
-      heroTitleEl.textContent = h.t;
+      var cwEp = el.dataset.ep && MD.episode(h.k, 1, +el.dataset.ep);   // a news episode in Jump Right Back In: its picture, title and words
+      var hb = cwEp ? cwEp.bg || cwEp.img : h.bg;
+      if(hb) setHeroBg(hb, "url('" + hb + "')", cwEp && !cwEp.bg ? el.dataset.pos : '');
+      heroTitleEl.textContent = cwEp ? cwEp.t : h.t;
       heroLogoEl.classList.toggle('ais', h.plat === 'ais');
       heroLogoEl.src = h.plat === 'ais' ? 'icons/aisplay-mark.png' : 'badges/' + heroTagFile(h.plat);
-      heroLogoEl.style.display = '';
+      heroLogoEl.style.display = el.querySelector('.play-prog[data-dur]') ? 'none' : '';   // Jump Right Back In: no platform logo
       // after the tag: Premium and the meta row, as the detail page (content.js)
-      if(h.k){ heroChannelEl.innerHTML = Content.metaHtml({k:h.k}); showHeroWatched(el, h.k); }
+      if(h.k){ heroChannelEl.innerHTML = Content.metaHtml({k:h.k}) + (cwEp ? '<span class="pill">EP ' + cwEp.n + '</span><span class="pill">' + cwEp.date + '</span>' : ''); showHeroWatched(el, h.k); }
       else heroChannelEl.innerHTML = Content.metaHtml({s:h.s});
       heroLiveEl.style.display = 'none';
       heroChannelEl.parentElement.style.display = '';
-      heroDescEl.textContent = h.d; heroDescEl.style.display = '';
+      heroDescEl.textContent = cwEp ? cwEp.d : h.d; heroDescEl.style.display = '';
       heroSection.classList.add('card-mode');
       return;
     }
@@ -790,7 +782,7 @@
       heroLogoEl.style.display = 'none';
       heroChLogoEl.innerHTML = window.TV.logoHtml(tvc); heroChLogoEl.style.display = '';
       heroChannelEl.textContent = 'Channel ' + tvc.no + ': ' + tvc.n;
-      showHeroProg(LIVE.find(item.dataset.heroTitle));
+      showHeroProg(LIVE.find(item.dataset.heroTitle) || {t:item.dataset.heroTitle, tv:tvc.n, live:true});   // (Hot Channel Program's: what's on now)
     }
   }
 
@@ -1248,7 +1240,7 @@
     'Sports':      {d:'Every match, every moment.<br>Catch live games, highlights and replays from the leagues you love.'},
     'Movies':      {d:'Blockbusters, new releases and timeless classics.<br>Find your next movie night, all in one place.'},
     'News':        {d:'Breaking stories and in-depth coverage.<br>Follow local and world news around the clock.', bg:'posters/chip-bg-news.webp'},
-    'Short':       {d:'Bite-size dramas you can binge in minutes.<br>New episodes of the most talked-about short series every day.', bg:'posters/chip-bg-short.webp'},
+    'Shorts':      {d:'Bite-size dramas you can binge in minutes.<br>New episodes of the most talked-about short series every day.', bg:'posters/chip-bg-short.webp'},
     'Kids':        {d:'Cartoons, adventures and learning fun.<br>Safe, colorful shows the whole family can enjoy.', bg:'posters/chip-bg-kids.webp'},
     'IoT':         {d:'Your smart home on the big screen.<br>Check cameras, lights and devices without leaving the sofa.', bg:'posters/chip-bg-iot.webp'},
     'Game':        {d:'Esports tournaments, game shows and live streams.<br>Watch the biggest plays as they happen.'},

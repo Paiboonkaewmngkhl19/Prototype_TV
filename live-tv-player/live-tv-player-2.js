@@ -5,7 +5,7 @@
   var byId = function(id){ return document.getElementById(id); };
   function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
   function pad(n){ return (n < 10 ? '0' : '') + n; }
-  function hm(d){ return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+  function hm(d){ return d.getHours() + ':' + pad(d.getMinutes()); }
 
   /* ---------- the channel and programme, from the query string ---------- */
   var q = {}; location.search.slice(1).split('&').forEach(function(kv){ if(!kv) return; var i = kv.indexOf('='); q[decodeURIComponent(kv.slice(0, i))] = decodeURIComponent(kv.slice(i + 1).replace(/\+/g, ' ')); });
@@ -51,7 +51,7 @@
   // the gold crown (not in the viewer's package), as on the TV Guide's cards; none when free or owned
   var crownImg = Content.crownIcon({ch:C});
   if(!crownImg) byId('crown').style.display = 'none'; else byId('crown').innerHTML = crownImg;
-  if(C.no) byId('chNo').textContent = C.no; else byId('chNo').style.display = 'none';   // Exclusive channels have no number
+  if(C.no) byId('chNo').textContent = C.no; else byId('chNo').style.display = 'none';
   byId('progTm').textContent = hm(P.start) + ' - ' + hm(P.end);
   // free preview + Explore Package: a premium channel not in the viewer's package (gold crown)
   // (an owned one plays in full). The 3 minutes count only while playing and are kept per
@@ -282,12 +282,12 @@
     markWatching();
     location.href = 'tv-guide.html';
   }
-  // Up / Down with the controls away: the next / previous channel by number (wrapping round; the Exclusive channels have
-  // no number, so they are left out). A single press tunes at once. Pressed again within ZAP_RAPID of the last press (the
+  // Up / Down with the controls away: the next / previous channel by number (wrapping round).
+  // A single press tunes at once. Pressed again within ZAP_RAPID of the last press (the
   // time is kept across the reload a tune makes), it only moves the number, shown top right, and tunes 2s after the last
   var ZAP_RAPID = 1000;
   function zap(dir){
-    var nums = TV.CHANNELS.filter(function(c){ return !c.excl; }).sort(function(a, b){ return a.no - b.no; }),
+    var nums = TV.CHANNELS.slice().sort(function(a, b){ return a.no - b.no; }),
         last = 0, now = Date.now();
     try { last = +sessionStorage.getItem('tvZapAt') || 0; sessionStorage.setItem('tvZapAt', now); } catch(e){}
     var rapid = zapAt !== null || now - last < ZAP_RAPID;
@@ -305,7 +305,7 @@
   /* ---------- mini EPG: the channels come from the TV Guide (tvMini in sessionStorage, written when it opened this
      player). Up / Down move along the channels, Left / Right between them and the category bar (moving along the bar
      picks that category, like the TV Guide's tabs), Enter plays the channel, Back closes ---------- */
-  var MINI_ICONS = {all:'all-on', recent:'recent', fav:'fav', exclusive:'exclusive', digital:'digital', sports:'sports', movies:'movies',
+  var MINI_ICONS = {all:'all-on', recent:'recent', fav:'fav', digital:'digital', sports:'sports', movies:'movies',
                     news:'news', cartoons:'cartoons', variety:'variety', others:'others'};
   var mini = null;
   var MINI_SLOT = 32;   // the focused card's place in the list's window: below the 24px fade, room for its ring   // open: {data, cat, list, i (focused channel), zone 'list' | 'cats', ci (focused chip)}
@@ -334,7 +334,7 @@
         '<div class="mname-row"><div class="mname">' + esc(p[0] || c.n) + '</div><div class="mchips">' +
           (c.fav ? '<span class="mico"><img src="icons/tv-guide/heart-fill.svg" alt="Favorite"></span>' : '') +
           (Content.crownIcon({ch:c}) ? '<span class="mico">' + Content.crownIcon({ch:c}) + '</span>' : '') +
-          (c.excl ? '' : '<span class="mno">' + c.no + '</span>') + '</div></div>' +
+          '<span class="mno">' + c.no + '</span></div></div>' +
         '<div class="mprog">' + esc(c.n) + '</div>' +
         '<div class="mtime">' + hm2(p[1]) + ' - ' + hm2(p[2]) + '<span class="mtags">' +
           (p[3] ? '<img src="icons/tv-guide/timeshift.svg" alt="Time Shift">' : '') +
@@ -467,8 +467,7 @@
   }
   // a channel change (number or Up / Down) opens the new channel with the controls away: the viewer brings them up
   var quiet = q.quiet === '1' || !!q.nochan;
-  // after a channel change (number or Up / Down) the new channel's number shows in the same box for 2s (its name, for
-  // an Exclusive channel with no number)
+  // after a channel change (number or Up / Down) the new channel's number shows in the same box for 2s
   var chShowT;
   if(q.nochan) chMissing(q.nochan);   // (back from the TV Guide, which had no such channel)
   else if(q.quiet === '1'){

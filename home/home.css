@@ -156,23 +156,18 @@
   .prof-ava{ position:relative; width:80px; height:80px; border-radius:100px; flex:0 0 auto; overflow:hidden; background:#404045; }
   .prof-ava img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
   .prof-info{ flex:1; min-width:0; display:flex; flex-direction:column; gap:8px; }
-  .prof-name-row{ display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
   .prof-name{ flex:1; min-width:0; font-weight:500; font-size:24px; color:#e8e8e8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .prof-chip{ height:24px; padding:2px 10px; box-sizing:border-box; border-radius:999px; background:rgba(255,255,255,.16); display:flex; align-items:center;
-    font-weight:700; font-size:11px; line-height:1.4; color:#e8e8e8; white-space:nowrap; flex:0 0 auto; }
   .prof-acc{ font-size:14px; color:#a8a8a8; white-space:nowrap; }
-  .prof-net{ font-size:12px; color:#a8a8a8; white-space:nowrap; }
   .prof-div{ display:block; width:354px; height:1px; opacity:.6; }
   .prof-menu{ display:flex; flex-direction:column; gap:16px; }
   /* TV / Button, h56 pill */
   .prof-btn{ position:relative; height:56px; box-sizing:border-box; padding:16px; border-radius:9999px; display:flex; align-items:center; gap:8px; cursor:pointer;
     background:transparent; box-shadow:inset 0 0 0 2px rgba(255,255,255,.16);   /* outlined, as Figma's resting TV / Button */
-    font-weight:700; font-size:16px; line-height:24px; color:#f0f0f0; white-space:nowrap; transition:background .2s ease; }
+    font-weight:500; font-size:20px; line-height:24px; color:#f0f0f0; white-space:nowrap; transition:background .2s ease; }
   .prof-btn .ic{ position:relative; width:24px; height:24px; flex:0 0 auto; }
   .prof-btn .ic img{ display:block; width:24px; height:24px; }
   /* Figma exports these icons in their base dark grey (#3B3C3E): shown white, like the labels */
-  .prof-btn .ic img.tint{ filter:brightness(0) invert(.94); }   /* #f0f0f0, as the labels */
-  .prof-btn .ic .dot{ position:absolute; right:-1px; top:-1px; width:8px; height:8px; }
+  .prof-btn .ic .dot{ position:absolute; right:0; top:0; width:8px; height:8px; }
   .prof-btn .lbl{ position:relative; }
   .prof-btn.focused{ background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%), var(--th-pill); box-shadow:none; color:#fff; }
   .prof-btn.focused .lbl{ text-shadow:0 1px 4px rgba(0,0,0,.35); }

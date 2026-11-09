@@ -15,7 +15,7 @@
     PROG.key = 'prog-' + Math.abs((PROG.tv + '|' + PROG.t).split('').reduce(function(h, c){ return (h * 31 + c.charCodeAt(0)) | 0; }, 7)).toString(36);
     MD.M[PROG.key] = { t:PROG.t, plat:PCH && /^MONOMAX/.test(PCH.n) ? 'monomax' : 'prime', g:[PCH && PCH.cats.indexOf('sports') >= 0 ? 'Sports' : 'Movies'], y:2026, len:'2h 15m', age:'13+',
       d:PROG.d || PROG.t, w:PROG.bg || PROG.img,   // the picture Home's first scene shows for it
-      price:PROG.live && Content.crown({tv:PROG.tv}) === 'gold' ? 299 : 0 };   // a premium channel not in the package: View Package / Buy 299 ฿
+      price:PROG.live && Content.crown({tv:PROG.tv}) === 'gold' ? 299 : 0 };   // a premium channel not in the package: View Package / Buy 299 Baht
     try { sessionStorage.setItem('mdProg', JSON.stringify(PROG)); } catch(e){}
   }
   // ---- the title: ?k=, else the one this page last showed (back from the purchase), else District 9 ----
@@ -62,8 +62,8 @@
   function offerButtons(){
     var o = [];
     if(Content.packageFor(CI)) o.push(['View Package', '<i class="ic-pkg"></i>View Package']);
-    if(MD.buyPrice(K)) o.push(['Buy', 'Buy ' + MD.buyPrice(K) + ' ฿']);
-    if(MD.rentPrice(K)) o.push(['Rent', 'Rent ' + MD.rentPrice(K) + ' ฿']);
+    if(MD.buyPrice(K)) o.push(['Buy', 'Buy ' + MD.buyPrice(K) + ' Baht']);
+    if(MD.rentPrice(K)) o.push(['Rent', 'Rent ' + MD.rentPrice(K) + ' Baht']);
     return o.map(function(b, i){
       return '<div class="tv-btn ' + (i ? 'tv-btn--secondary buy' : 'tv-btn--primary main') + ' item" data-label="' + b[0] + '" data-ring-art="">' + b[1] + '</div>';
     }).join('');
@@ -81,7 +81,7 @@
     if(u) ue.innerHTML = 'Available until:<span class="when">' + u.d + '<i></i>' + u.t + '</span>';
     var resumeLbl = SER && cw ? 'Resume S' + cw.s + ': Ep.' + cw.e : 'Resume';
     // gold (premium, not the viewer's): its options, each only if it has it, in this order: View Package (a package
-    // has it: Content.packageFor), Buy N ฿ (MD.buyPrice), Rent N ฿ (MD.rentPrice); the first primary, the rest
+    // has it: Content.packageFor), Buy N Baht (MD.buyPrice), Rent N Baht (MD.rentPrice); the first primary, the rest
     // secondary. Owned or free: Play / Resume
     var main = Content.crown(CI) === 'gold' && state !== 'soon' ? offerButtons()
       : state === 'resume' ? '<div class="tv-btn tv-btn--primary main item" data-label="Resume" data-ring-art=""><i class="ic-play"></i>' + resumeLbl + '</div>'
@@ -101,7 +101,7 @@
   }
   // ---- a channel's programme: LIVE (Play, or View Package / Buy on a premium channel not in the package) or Upcoming
   //      (its start time on a disabled button: a countdown in the last hour; it turns LIVE when it starts) ----
-  function hm(t){ var d = new Date(t); return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
+  function hm(t){ var d = new Date(t); return d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
   // the start, as the cards say it (content.js LIVE.label), in Figma's words on the button: "Starting in 44:21" in the last hour
   function startsLabel(){ return LIVE.label({start:PROG.start}).replace(/^Start in/, 'Starting in'); }
   function progRange(){ return LIVE.range(PROG); }   // content.js: Home's screen text says the same
@@ -162,7 +162,7 @@
     } else {
       state = MD.state(K);
       ctasEl.innerHTML = (gold
-        ? VIEW_PACKAGE + '<div class="tv-btn tv-btn--secondary buy item" data-label="Buy" data-ring-art="">Buy ' + MD.price(K) + ' ฿</div>'
+        ? VIEW_PACKAGE + '<div class="tv-btn tv-btn--secondary buy item" data-label="Buy" data-ring-art="">Buy ' + MD.price(K) + ' Baht</div>'
         : '<div class="tv-btn tv-btn--primary main item" data-label="Play" data-ring-art=""><i class="ic-play"></i>Play</div>') + FAVORITE() + LIKE;
       document.getElementById('urow').hidden = true;
       document.getElementById('ymal').innerHTML = '<div class="lrow"><div class="ltrack" id="ltrack">' + others.map(lcard).join('') + '</div></div>';
@@ -171,10 +171,10 @@
   render();
 
   // ---- You May Also Like: titles of the same type (a movie: movies; a series: series), content.js Content.related;
-  // 2:3 posters (a title with only a 16:9 picture shows its centre) ----
+  // 2:3 posters (a title with a wider picture crops to its people: content.js ppos, else its centre) ----
   if(!PROG) document.getElementById('ymal').innerHTML = Content.related({k:K}, 18).map(function(r){
     var o = MD.M[r.k];
-    return '<div class="pst item" data-k="' + r.k + '" data-ring-art="" style="background-image:url(\'' + (o.p || o.w) + '\')"></div>';
+    return '<div class="pst item" data-k="' + r.k + '" data-ring-art="" style="background-image:url(\'' + (o.p || o.w) + '\')' + (o.ppos ? ';background-position:' + o.ppos : '') + '">' + Content.ptag(o.plat) + '</div>';
   }).join('');
 
   // ---- a series: the Episodes tab first; season chips over that season's episode cards ----
@@ -199,7 +199,7 @@
   // the top bar (Short Drama detail's, Home's): Up from the buttons or Left from a row's first item; Down / Back leave it.
   // Its tab: Movie for a movie or series, Sport / Live TV for a channel's programme. The photo opens the profile panel
   var navItems = $('.topnav .item'), profileEl = document.querySelector('.topnav .profile'), nav = null;   // nav: {col} while the bar has focus
-  var tabEl = document.querySelector('.topnav .navtab[data-label="' + (PROG ? (PCH && PCH.cats.indexOf('sports') >= 0 ? 'Sport' : 'Live TV') : 'Movie') + '"]');
+  var tabEl = document.querySelector('.topnav .navtab[data-label="' + (PROG ? (PCH && PCH.cats.indexOf('sports') >= 0 ? 'Sports' : 'Live TV') : 'Movies') + '"]');
   var NAV_TAB = navItems.indexOf(tabEl);
   var prof = ProfilePanel(profileEl, { paint:function(){ paint(); }, toast:function(m){ toast(m); } });
   function toNav(){ nav = { col:NAV_TAB }; }

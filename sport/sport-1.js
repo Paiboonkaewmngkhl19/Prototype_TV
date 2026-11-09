@@ -49,12 +49,12 @@
   // sp: a sport's own Live and Upcoming takes its matches from here (NBA and NFL: All Sports only)
   var LIVE = window.LIVE.list.filter(function(p){ return p.sportRail; }).map(function(p){ return {sp:p.sp, t:p.t}; });   // sync() fills in the rest
   var UCL = [
-    mp('UCL', 1, {t:'Bayern München vs Arsenal', live:true, ch:CH.play, time:'02:00 – 04:00'}, 1),
-    mp('UCL', 2, {t:'Real Madrid vs RB Leipzig', live:true, ch:CH.rm, time:'02:00 – 04:00'}, 1),
-    mp('UCL', 3, {t:'Inter Milan vs Shakhtar Donetsk', when:'Tomorrow 2:45 AM', ch:CH.play, time:'02:45 – 04:45'}, 1),
-    mp('UCL', 4, {t:'Aston Villa vs Viking', when:'Tomorrow 2:45 AM', ch:CH.play, time:'02:45 – 04:45'}, 1),
-    mp('UCL', 5, {t:'Club Brugge vs Lens', when:'Tomorrow 3:00 PM', ch:CH.play, time:'15:00 – 17:00'}, 1),
-    mp('UCL', 6, {t:'Real Betis vs Feyenoord', when:'Tomorrow 3:00 PM', ch:CH.play, time:'15:00 – 17:00'}, 1)
+    mp('UCL', 1, {t:'Bayern München vs Arsenal', live:true, ch:CH.play, time:'2:00 – 4:00'}, 1),
+    mp('UCL', 2, {t:'Real Madrid vs RB Leipzig', live:true, ch:CH.rm, time:'2:00 – 4:00'}, 1),
+    mp('UCL', 3, {t:'Inter Milan vs Shakhtar Donetsk', when:'Tomorrow 2:45', ch:CH.play, time:'2:45 – 4:45'}, 1),
+    mp('UCL', 4, {t:'Aston Villa vs Viking', when:'Tomorrow 2:45', ch:CH.play, time:'2:45 – 4:45'}, 1),
+    mp('UCL', 5, {t:'Club Brugge vs Lens', when:'Tomorrow 15:00', ch:CH.play, time:'15:00 – 17:00'}, 1),
+    mp('UCL', 6, {t:'Real Betis vs Feyenoord', when:'Tomorrow 15:00', ch:CH.play, time:'15:00 – 17:00'}, 1)
   ];
   var CHIPS = [
     // sp: the sport each chip filters the rails below by (channels-data.js's tags); All Sports shows everything.
@@ -89,7 +89,10 @@
   ];
   // what's on now on the sport channels: the TV Guide's own channels (channels-data.js, `tv`), so the card, the TV Guide
   // and the player show the same programme, time, Time Shift and favourite
-  var EPG = [CH.play, CH.mutv, CH.rm, CH.ws, CH.ag902].map(function(c){ return {c:c, tv:c.tv}; });
+  // favourites at the very front, from every sports channel (channels-data.js TV.favFirst)
+  var EPG = TV.favFirst([CH.play, CH.mutv, CH.rm, CH.ws, CH.ag902].map(function(c){ return {c:c, tv:c.tv}; }), function(e){ return e.tv; },
+    TV.CHANNELS.filter(function(d){ return (d.cats || []).indexOf('sports') >= 0; }), function(d){ return {c:{d:d, tv:d.n}, tv:d.n}; });
+  TV.reloadOnFavChange();   // back from the player with a favourite changed: the cards in their new order
   // y: which part of the tall poster the 16:9 card shows (background-position %), set so the people stay in frame
   var FOR_YOU = [
     {title:'Football For You', sp:'football', items:[
@@ -166,9 +169,9 @@
       band:{t:'UEFA Champions League', ucl:1, d:'The road to the final runs through here. Every match of the league phase live, with the knockout draw, highlights and the best goals of each matchday.', matches:UCL},
       forYou:FOR_YOU[0] },
     tennis:{ label:'Tennis', who:'Ben Shelton', ph:'Athlete',
-      upcoming:[{t:vs('Athlete'), live:true, ch:CH.play, time:'02:00 – 04:00'}, {t:vs('Athlete'), live:true, ch:CH.play, time:'02:00 – 04:00'}],
+      upcoming:[{t:vs('Athlete'), live:true, ch:CH.play, time:'2:00 – 4:00'}, {t:vs('Athlete'), live:true, ch:CH.play, time:'2:00 – 4:00'}],
       band:{t:'ATP Tour', img:'posters/upcoming/u4.png', d:'The men’s tour from the first round to the Finals: every court live, with the day’s best rallies and the results.',
-        matches:[{t:vs('Athlete'), live:true, ch:CH.play, time:'02:00 – 04:00'}, {t:vs('Athlete'), live:true, ch:CH.play, time:'02:00 – 04:00'}]},
+        matches:[{t:vs('Athlete'), live:true, ch:CH.play, time:'2:00 – 4:00'}, {t:vs('Athlete'), live:true, ch:CH.play, time:'2:00 – 4:00'}]},
       highlights:[phv('F. Cobolli vs A. Zverev Men’s Final Highlights','12m','posters/upcoming/u4.png')], leagueHl:{t:'ATP Tour Highlights'} },
     motorsport:{ label:'Motorsport', who:'Max Verstappen', ph:'Race Title', race:1,
       band:{t:'Formula 1', img:'posters/f1.jpg', d:'Every Grand Prix weekend live: practice, qualifying and the race, with onboard cameras and race replays.'},
@@ -223,8 +226,8 @@
   Object.keys(SPORT).forEach(function(k){
     var S = SPORT[k], t = S.race ? S.ph : vs(S.ph || 'Team'), durs = ['6m','8m','12m','17m','11m','64m'];
     function fill(list, n){ list = (list || []).slice(); while(list.length < n) list.push(phv(t, durs[list.length % durs.length])); return list; }
-    if(!S.upcoming) S.upcoming = [{t:t, live:true, ch:CH.play, time:'02:00 – 04:00'}, {t:t, live:true, ch:CH.play, time:'02:00 – 04:00'},
-      {t:t, when:'Today 8:30 PM', ch:CH.play, time:'20:30 – 22:30'}, {t:t, when:'Tomorrow 2:30 AM', ch:CH.play, time:'02:30 – 04:30'}];
+    if(!S.upcoming) S.upcoming = [{t:t, live:true, ch:CH.play, time:'2:00 – 4:00'}, {t:t, live:true, ch:CH.play, time:'2:00 – 4:00'},
+      {t:t, when:'Today 20:30', ch:CH.play, time:'20:30 – 22:30'}, {t:t, when:'Tomorrow 2:30', ch:CH.play, time:'2:30 – 4:30'}];
     if(S.band && !S.band.matches) S.band.matches = S.upcoming;
     S.because = fill(S.because, 5); S.highlights = fill(S.highlights, 5);
     S.leagueHl.items = fill(S.leagueHl.items, 5);
@@ -232,7 +235,7 @@
   });
   // the NBA match on now (Figma For PBR 8:10938): first in Basketball's Live and Upcoming, its court as the screen picture
   SPORT.basketball.upcoming.unshift({t:'Minnesota Timberwolves vs Denver Nuggets', live:true, img:'sport-assets/match-min-den.jpg', bg:'sport-assets/match-min-den-bg.jpg',
-    ch:CH.play, time:'02:00 – 04:30', d:'A thrilling NBA showdown as the Minnesota Timberwolves take on the Denver Nuggets. Expect fast-paced action, elite scoring, and a battle for every possession.'});
+    ch:CH.play, time:'2:00 – 4:30', d:'A thrilling NBA showdown as the Minnesota Timberwolves take on the Denver Nuggets. Expect fast-paced action, elite scoring, and a battle for every possession.'});
 
   /* ---------- markup ---------- */
   function thumbStyle(img, y){ return img ? ' style="background-image:url(\'' + img + '\')' + (y != null ? ';background-position:center ' + y + '%' : '') + '"' : ''; }

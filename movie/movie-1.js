@@ -22,7 +22,7 @@
     {t:'Music', d:'Musicals, concert films and the stories behind the songs.', bg:P + 'wicked.jpg'},
     {t:'Mystery', d:'Whodunits, detectives and twists you will not see coming.', bg:P + 'continue/c1.jpg'}
   ];
-  var CONTINUE = MD.continueList();   // this session's viewing first (content.js)
+  var CONTINUE = MD.continueList().filter(function(c){ return M[c.k].g.indexOf('News') < 0; });   // this session's viewing first (content.js); news shows stay on Home
   // Home's rails (content.js MD.RAILS): the same titles in the same rails; Movies and Series every title in them
   var R = MD.RAILS, key = function(x){ return x.k || x; };
   var TOP10 = R.top10;
@@ -109,7 +109,7 @@
       ' style="background-image:url(\'' + (m.p || pic(k)) + '\')">' + ptag(m) + '</div></div>';   // (no poster: its full-screen picture, as Home's)
   }).join('') + '</div></div></section>';
   html += sec('hot', 'Hot Off the Big Screen', HOT.map(function(h, i){ return poster(h.k, i, 'hot', h.b); }).join(''), 'tall-rail');
-  html += '<section class="sec tall-rail" data-row="short"><h2 class="sec-title">Short</h2><div class="rail"><div class="track">' + window.SHORTS.map(function(s, i){
+  html += '<section class="sec tall-rail" data-row="short"><h2 class="sec-title">Shorts</h2><div class="rail"><div class="track">' + window.SHORTS.map(function(s, i){
     return '<div class="pst item"' + attrs({kind:'short', i:i}) + ' data-href="short-detail.html?s=' + i + '" style="background-image:url(\'posters/shorts/' + s.img + '\')">' + ptag(s) + '</div>';   // its app's tag
   }).join('') + '</div></div></section>';
   html += '<section class="sec" data-row="foryou"><h2 class="sec-title">For You</h2><div class="rail"><div class="track">' + FOR_YOU.map(function(f, i){
@@ -120,7 +120,7 @@
       // open: the Store's PPV Event details (event-card.css): title, its price (MD.price: buy, else rent) with VAT, the meta
       // row (its platform tag, MD.metaHtml: no crown on a title's card) and synopsis
       '<div class="xc-content ev-info"><h3>' + esc(m.t) + '</h3>' +
-        '<div class="cost"><b>' + MD.price(f.k) + ' baht</b><span>(VAT Included: ' + (Math.round(MD.price(f.k) * 107) / 100).toLocaleString('en-US', { minimumFractionDigits:2 }) + ' baht)</span></div>' +
+        '<div class="cost"><b>' + MD.price(f.k) + ' Baht</b><span>(VAT Included: ' + (Math.round(MD.price(f.k) * 107) / 100).toLocaleString('en-US', { minimumFractionDigits:2 }) + ' Baht)</span></div>' +
         '<div class="meta">' + metaRow(m) + '</div><p class="syn">' + esc(m.d) + '</p></div></div>';
   }).join('') + '</div></div></section>';
   html += sec('because', R.because.t, BECAUSE.map(function(k, i){ return poster(k, i, 'because'); }).join(''), 'tall-rail');

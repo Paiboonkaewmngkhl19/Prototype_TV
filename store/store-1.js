@@ -78,7 +78,7 @@
     sports:['Popular', 'Premier League', 'UEFA Champions League', 'NBA', 'Thai League', 'RWS', 'Bundesliga', 'MotoGP', 'PGA Tour'],
     movies:['Popular', 'Netflix', 'HBO Max', 'Disney+', 'iQIYI', 'Viu', 'MONOMAX'],
     short:['Popular', 'ReelShort', 'DramaBox', 'ShortMax'],
-    value:['< 100 baht Enjoy Asian Movies & Shorts', '< 100 baht Sports Lover', '300 - 500 baht Enjoy Movies & Sports', 'Asian Games']
+    value:['< 100 Baht Enjoy Asian Movies & Shorts', '< 100 Baht Sports Lover', '300 - 500 Baht Enjoy Movies & Sports', 'Asian Games']
   };
   // the OTT tabs carry the project's own platform tag logos (Home's cards use the same ones)
   var TAB_LOGO = { 'Netflix':'badges/tag-netflix.png', 'HBO Max':'badges/tag-hbo.png', 'Disney+':'badges/tag-disney.png',
@@ -92,9 +92,9 @@
   }
   var ASIA = ['iqiyi', 'viu', 'monomax', 'disney', 'reelshort', 'dramabox', 'shortmax'], LEAGUE = function(p){ return !!OTT[p.ott].league; };
   var VALUE = [
-    pick(function(p){ return p.price < 100 && ASIA.indexOf(p.ott) >= 0; }, 'Best Saver'),                 // < 100 baht Enjoy Asian Movies & Shorts
-    pick(function(p){ return p.price < 100 && LEAGUE(p); }, 'Best Saver'),                               // < 100 baht Sports Lover
-    pick(function(p){ return p.price >= 300 && p.price <= 500; }, 'Recommended'),                          // 300 - 500 baht Enjoy Movies & Sports
+    pick(function(p){ return p.price < 100 && ASIA.indexOf(p.ott) >= 0; }, 'Best Saver'),                 // < 100 Baht Enjoy Asian Movies & Shorts
+    pick(function(p){ return p.price < 100 && LEAGUE(p); }, 'Best Saver'),                               // < 100 Baht Sports Lover
+    pick(function(p){ return p.price >= 300 && p.price <= 500; }, 'Recommended'),                          // 300 - 500 Baht Enjoy Movies & Sports
     [ ROWS.sports[0] ]
       .concat(pick(function(p){ return LEAGUE(p) && p.card === 'Month'; }))                              // Asian Games: PLAY ALL, then the leagues
   ];
@@ -115,13 +115,13 @@
     { t:'AIS 5G MAX Experience', price:599, per:'Month', tags:['Monthly', '5G', 'Postpaid'], art:{ img:SA + 'others-5g-max-experience.webp' }, still:1,
       d:'Calls, 5G data and entertainment in one plan, with HBO Max, Prime Video, iQIYI, Viu and WeTV. A new lucky number gets 9GB and 99 minutes free every month for 9 months.' },
     { t:'The One SIM', price:50, per:'SIM', tags:['Prepaid', '5G', 'New SIM'], art:{ img:SA + 'others-the-one-sim.webp' }, still:1,
-      d:'A 1-2-Call 5G SIM with 2GB of 5G data the day you open it. Top up 150 baht to get 1GB more 5G data, data for YouTube and TikTok, and free AIS Super WiFi.' },
+      d:'A 1-2-Call 5G SIM with 2GB of 5G data the day you open it. Top up 150 Baht to get 1GB more 5G data, data for YouTube and TikTok, and free AIS Super WiFi.' },
     { t:'AIS 5G TikTok Shop', price:749, per:'Month', tags:['Monthly', '5G', 'Seller'], art:{ img:SA + 'others-5g-tiktok-shop.webp' }, still:1,
       d:'For live sellers: faster live uploads, SlipOK free for 3 months, MyOrder free for 12 months and FlowAccount free for 2 months.' },
     { t:'AIS 5G Seller', price:699, per:'Month', tags:['Monthly', '5G', 'Seller'], art:{ img:SA + 'others-5g-seller.webp' }, still:1,
       d:'Every tool an online shop needs: SlipOK checks slips in 1 second, MyOrder brings chats and shipping together, and FlowAccount does the books.' },
     { t:'Fam Save', price:299, per:'Month', tags:['Monthly', '5G', 'Family'], art:{ img:SA + 'others-fam-save.webp' }, still:1,
-      d:'Add a family number for 299 baht a month (usually 399): 20GB at full speed and 100 minutes of calls, with AIS Secure Net free for 12 months.' },
+      d:'Add a family number for 299 Baht a month (usually 399): 20GB at full speed and 100 minutes of calls, with AIS Secure Net free for 12 months.' },
     { t:'AIS ZEED Movie Lover', price:199, per:'Month', tags:['Monthly', '5G', 'Add-on'], art:{ img:SA + 'others-zeed-movie-lover.webp' }, still:1,
       d:'A free movie at Major Cineplex every month, VIP on iQIYI, Viu, WeTV and AIS PLAY, and 10GB of 5G data. Dial *824# to sign up.' }];
   // the banner carousel's slides: the promotions' own art
@@ -174,7 +174,7 @@
       '<div class="xc-wide" style="background-image:url(\'' + wide + '\');background-position:' + (e.pos || 'center') + '"></div>' +
       '<div class="xc-scrim ev-scrim"></div><span class="top-tag ev-top">' + esc(e.when || e.badge) + '</span>' +
       '<div class="xc-content ev-info"><h3>' + esc(m.t) + '</h3>' +
-        (pr ? '<div class="cost"><b>' + pr + ' baht</b><span>(VAT Included: ' + vat(pr) + ' baht)</span></div>' : '') +
+        (pr ? '<div class="cost"><b>' + pr + ' Baht</b><span>(VAT Included: ' + vat(pr) + ' Baht)</span></div>' : '') +
         '<div class="meta">' + Content.metaHtml({ k:e.k }, true) + '</div><p class="syn">' + esc(m.d) + '</p></div></div>';   // (content.js: its crown in the meta row)
   }
   // a Rent or Buy title: its poster (content.js), its badge and its app's tag (platform-tag.css), as the Movie page's
@@ -259,8 +259,8 @@
       heroKey = key;
       heroEl.querySelector('.tags').innerHTML = it.tags.map(function(t){ return '<span class="tag">' + esc(t) + '</span>'; }).join('');
       heroEl.querySelector('h1').textContent = it.t;
-      heroEl.querySelector('.price b').textContent = Number(it.price).toLocaleString('en-US') + ' baht / ' + it.per;
-      heroEl.querySelector('.price span').textContent = '(VAT Included: ' + vat(it.price) + ' baht)';
+      heroEl.querySelector('.price b').textContent = Number(it.price).toLocaleString('en-US') + ' Baht / ' + it.per;
+      heroEl.querySelector('.price span').textContent = '(VAT Included: ' + vat(it.price) + ' Baht)';
       heroEl.querySelector('.desc').textContent = it.d;
       heroEl.classList.remove('swap'); void heroEl.offsetWidth; heroEl.classList.add('swap');
     }
