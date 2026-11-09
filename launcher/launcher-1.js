@@ -59,8 +59,8 @@
   }).join('');
   byId('launch').innerHTML = '<video src="video/Splash.mp4" preload="auto" playsinline></video>';
 
-  // the clock, as the box shows it in Thai ("10:19 น.")
-  function clock(){ var d = new Date(); byId('clock').textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0') + ' น.'; }
+  // the clock, 24-hour H:MM ("10:19")
+  function clock(){ var d = new Date(); byId('clock').textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0'); }
   clock(); setInterval(clock, 10000);
 
   /* ---------- focus: rows top to bottom, Left / Right along a row; each row remembers its place ---------- */

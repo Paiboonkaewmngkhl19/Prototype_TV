@@ -88,7 +88,9 @@
   /* You May Also Like: 220 x 330 posters (Home's), 6 a row */
   .likes{ padding:93px 0 0 190px; display:flex; flex-direction:column; gap:82px; }
   .likerow{ display:flex; gap:44px; }
-  .poster{ width:220px; height:330px; border-radius:12px; flex:0 0 auto; background:var(--surface-container-high) center / cover no-repeat; }
+  .poster{ position:relative; width:220px; height:330px; border-radius:12px; flex:0 0 auto; background:var(--surface-container-high) center / cover no-repeat; }
+
+  .poster .ptag{ position:absolute; left:12px; bottom:12px; }   /* its app's tag (platform-tag.css: 56 x 36), as Short's poster cards */
 
   /* focused items grow 8%, as on every page (top bar 6%) */
   #screen .item{ transition:transform .22s var(--ease), background .15s ease, color .15s ease, box-shadow .2s ease; }

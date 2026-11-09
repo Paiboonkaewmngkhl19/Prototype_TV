@@ -8,17 +8,19 @@
 <script src="tv-guide/tv-guide-1.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&family=Noto+Sans:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&family=Noto+Sans:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;600&family=Roboto:wght@400;500&family=Open+Sans:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
 <!--
   TV Guide (EPG) page, opened from the "TV Guide / View All" tile on Home. Two views behind the Switcher, from Figma
   PLAY-player: "View Channels" (epg_viewChannels, 1784:31259) and "View Program Guide" (epg_viewProgramGuide, 1784:27421).
   The Figma frames are wireframes (ChannelName / ProgramName, grey avatars); this page fills them with the channels Home
   already shows and a generated schedule around the real clock.
   A 1920x1080 TV screen scaled to the window, like home.html.
-  Remote / keyboard: arrows move focus, Enter selects, Esc / Back closes a dropdown or returns to Home.
+  Remote / keyboard: arrows move focus, Enter selects, Esc / Back closes a dropdown or returns to Home. Left from the
+  first item of any row wakes Home's top bar; Down or Back returns to that row.
   Category tabs (and the Sports sub-tabs) filter as focus moves onto them, like a TV tab bar.
 -->
 <link rel="stylesheet" href="package-card.css">
+<link rel="stylesheet" href="button-theme.css">
 <link rel="stylesheet" href="tv-guide/tv-guide.css">
 <link rel="stylesheet" href="toast.css">
 </head>
@@ -40,6 +42,18 @@
         <div class="dd-reset item only-guide" id="ddReset" data-ring-art="" aria-label="Back to now"><img src="icons/tv-guide/reset.svg" alt=""></div>
       </div>
     </div>
+  <!-- Home's top bar: away until Left from the first item of any row wakes it, on its Live TV tab -->
+  <nav class="topnav">
+    <div class="profile item" data-label="Profile"><img src="icons/profile-tv.png" alt="Profile"></div>
+    <div class="center">
+      <div class="navsearch item" data-label="Search"><img src="icons/nav-search.svg" alt="Search"></div>
+      <div class="navtab tv-tab item" data-label="Home" data-href="home.html">Home</div>
+      <div class="navtab tv-tab item active" data-label="Live TV">Live TV</div>
+      <div class="navtab tv-tab item" data-label="Movies" data-href="movie.html">Movies</div>
+      <div class="navtab tv-tab item" data-label="Sports" data-href="sport.html">Sports</div>
+      <div class="navtab tv-tab item" data-label="Store" data-href="store.html">Store</div>
+    </div>
+  </nav>
   <div class="cat-label" id="catLabel"></div>
   <div class="now-playing" id="nowPlaying" hidden></div>
   <div id="page"><div id="content">
@@ -53,6 +67,7 @@
   <div id="toast"></div>
 </div></div>
 
+<script src="profile-panel.js"></script>
 <script src="channels-data.js"></script>
 <script src="content.js"></script>
 <script src="tv-guide/tv-guide-2.js"></script>

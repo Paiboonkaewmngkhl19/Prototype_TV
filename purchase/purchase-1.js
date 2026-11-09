@@ -30,15 +30,15 @@
   $('.o-nm').forEach(function(e){ e.textContent = m.t; });
   // Premium beside the title's name, with its crown (content.js: gold until bought); an OTT package has none
   $('.prem').forEach(function(e){ var ic = OB ? '' : Content.crownIcon({k:K}); if(ic) e.innerHTML = ic + 'Premium'; else e.remove(); });
-  $('.c-amt, .d-amt, .o-amt').forEach(function(e){ e.textContent = price + ' baht'; });
-  $('.c-vat').forEach(function(e){ e.textContent = '(VAT Included: ' + vat(price) + ' baht)'; });
+  $('.c-amt, .d-amt, .o-amt').forEach(function(e){ e.textContent = price + ' Baht'; });
+  $('.c-vat').forEach(function(e){ e.textContent = '(VAT Included: ' + vat(price) + ' Baht)'; });
   // its picture; a title without one (a PPV placeholder): AIS PLAY's mark on black, as its platform tag
   if(OB) $('.d-pic').forEach(function(e){ e.style.background = OB.league ? '#fff' : '#000'; e.innerHTML = OB.league
     ? '<span style="position:relative;display:block;width:100%;height:100%;border-radius:8px;overflow:hidden">' + Leagues.pic(Leagues.list.filter(function(l){ return l.id === OB.league; })[0]) + '</span>'
     : '<img src="' + OB.logo + '" alt="" style="width:100%;height:100%;object-fit:' + (OB.icon ? 'cover' : 'contain') + ';border-radius:8px">'; });
   else $('.c-pic, .d-pic').forEach(function(e){ e.style.background = pic ? "#3a3a3a url('" + pic + "') center / cover no-repeat" : "#000 url('icons/aisplay-mark.png') center / 60% auto no-repeat"; });
-  $('.c-until').forEach(function(e){ e.textContent = day(end) + ' | 23:59:59'; });
-  $('.d-dur').forEach(function(e){ e.textContent = day(now) + ' | 00:00:00 - ' + day(end) + ' | 23:59:59'; });
+  $('.c-until').forEach(function(e){ e.textContent = day(end) + ' | 23:59'; });
+  $('.d-dur').forEach(function(e){ e.textContent = day(now) + ' | 0:00 - ' + day(end) + ' | 23:59'; });
   // the receipt from package-detail.html: its own name, price (the plan picked), picture (a package's logo: whole, on
   // black) and period
   if(RC){
@@ -61,12 +61,12 @@
   if(ACTIVATE && !GUIDE) GUIDE = 'netflix';   // a bundle's guide opens on its first app
   var PACKAGE = !!(OB || AISPKG);
   // the receipt: the price, then with VAT and per what; a recurring package says it renews
-  var AMT = RC ? RC.amt : OB ? price + ' baht / ' + (OP.card === 'Month' ? 'Month' : '7 Days') : price + ' baht',
-      VATS = RC ? RC.vat : vat(price) + ' baht', PER = AMT.split(' / ')[1], BASE = AMT.split(' / ')[0];
+  var AMT = RC ? RC.amt : OB ? price + ' Baht / ' + (OP.card === 'Month' ? 'Month' : '7 Days') : price + ' Baht',
+      VATS = RC ? RC.vat : vat(price) + ' Baht', PER = AMT.split(' / ')[1], BASE = AMT.split(' / ')[0];
   $('.d-base').forEach(function(e){ e.textContent = BASE; });
-  $('.d-amt').forEach(function(e){ e.textContent = ((VATS.match(/[\d,.]+ baht/) || [BASE])[0]) + (PER ? ' / ' + PER : ''); });
+  $('.d-amt').forEach(function(e){ e.textContent = ((VATS.match(/[\d,.]+ Baht/) || [BASE])[0]) + (PER ? ' / ' + PER : ''); });
   $('.d-renew').forEach(function(e){ if(!PACKAGE) e.remove(); else e.textContent = PER === 'Month' ? 'Renews monthly' : PER === 'Year' ? 'Renews yearly' : 'One-time'; });
-  $('.d-period').forEach(function(e){ e.textContent = document.querySelector('.d-dur').textContent.replace(/ \| \d\d:\d\d(:\d\d)?/g, ''); });
+  $('.d-period').forEach(function(e){ e.textContent = document.querySelector('.d-dur').textContent.replace(/ \| \d{1,2}:\d\d/g, ''); });
   $('.d-pmask').forEach(function(e){ e.textContent = document.querySelector('.d-pm').textContent.replace(/\d+$/, function(n){ return '****' + n.slice(-4); }); });
   // the line under the receipt (Activate: after the Next Step badge)
   document.querySelector('.d-lead').textContent = ACTIVATE ? 'Activate your app to start watching content'

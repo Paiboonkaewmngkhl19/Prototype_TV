@@ -86,7 +86,8 @@
   .ywin{ height:936px; overflow:hidden;   /* 1080 - the 144px tabs bar */
     -webkit-mask-image:linear-gradient(180deg, transparent 0, transparent 14px, #000 40px); mask-image:linear-gradient(180deg, transparent 0, transparent 14px, #000 40px); }
   .ymal{ display:grid; grid-template-columns:repeat(6, 220px); column-gap:44px; row-gap:82px; padding:93px 190px 120px; }
-  .ymal .pst{ width:220px; height:330px; border-radius:12px; background:#2a2a2a center / cover no-repeat; transition:transform .22s var(--ease); }
+  .ymal .pst{ position:relative; width:220px; height:330px; border-radius:12px; background:#2a2a2a center / cover no-repeat; transition:transform .22s var(--ease); }
+  .ymal .pst .ptag{ position:absolute; left:12px; bottom:12px; }   /* its app's tag (platform-tag.css: 56 x 36), as Movie's poster cards */
   .ymal .pst.focused{ transform:scale(1.08); }
 
   /* ---------- a channel's programme (?prog=; content.js LIVE): Figma "MD LIVE State" (2712:80712) with its You May Also

@@ -54,6 +54,7 @@
   .card.focused{ transform:scale(1.04); }   /* the ring: focus-ring.js, its usual 4px off the card's (now visible) glass edge */
   /* Select Episode: the one playing has the sound bars (player.css .eq, the Watching tag's) on its dimmed picture */
   .card .pic{ position:relative; }
+  .card .pic .ptag{ position:absolute; left:12px; bottom:12px; }   /* You may also like: its app's tag (platform-tag.css: 56 x 36) */
   .card .np{ position:absolute; inset:0; border-radius:16px; background:rgba(0,0,0,.55); display:flex; align-items:center; justify-content:center; color:#fff; }
   .card .np .eq{ width:36px; height:36px; }
   /* Select Episode (a series): the detail page's episode card (movie-detail.css .ep), no fill: the picture with its

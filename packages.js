@@ -66,7 +66,7 @@ window.Packages = (function(){
       op('hbo', 'HBO Max 7 Days', 79, 7, 'HBO originals, Warner Bros. films and the DC universe for 7 days, charged once to your AIS bill.', 'Recommended'),
       op('hbo', 'HBO Max Standard', 199, 30, 'HBO Max in Full HD on two screens at a time, billed to your AIS account every month.'),
       op('hbo', 'HBO Max Ultimate', 349, 30, 'HBO Max in 4K Dolby Vision on four screens at a time, with downloads on every device.'),
-      // Figma Store "Standalone Streaming": HBO Max on its own, paid monthly or yearly (VAT included: 299 / 2,090 baht)
+      // Figma Store "Standalone Streaming": HBO Max on its own, paid monthly or yearly (VAT included: 299 / 2,090 Baht)
       Object.assign(op('hbo', 'HBO Max Standalone', 279.44, 30, 'HBO Max on its own, in 4K on four screens at a time, billed to your AIS account monthly or yearly.'),
         { screens:4, q:'4K', plans:[{ name:'Monthly plan', amt:279.44, per:'Monthly', period:'month', renew:1 }, { name:'Yearly plan', amt:1953.27, per:'Yearly', period:'year', renew:1 }] })],
     prime:[
@@ -159,7 +159,7 @@ window.Packages = (function(){
       sports:{ tiles:[t('d-ucl.png', 'pad'), t('l19.png'), t('d-motogp.png', 'pad'), t('l21.png', 'pad')], more:'13+', names:['UEFA Champions League', 'Bundesliga', 'MotoGP', 'NBA'] },
       channels:{ tiles:[t('d-cn.png'), t('d-cnn.png', 'pad'), t('d-eurosport.png', 'pad'), t('d-discovery.png', 'pad')], more:'99+', names:['Cartoon Network', 'CNN', 'Eurosport', 'Discovery'] },
       devices:['tv', 'phone', 'tablet', 'laptop'],
-      d:"Enjoy Netflix, HBO Max, Disney+ Hotstar, iQIYI, Viu, and WeTV in one PLAY ULTIMATE package. THB 999/month for 12 billing cycles, excluding 7% VAT and internet charges. Available to individual AIS postpaid customers with at least 3 months of active service.",
+      d:"Enjoy Netflix, HBO Max, Disney+ Hotstar, iQIYI, Viu, and WeTV in one PLAY ULTIMATE package. 999 Baht/month for 12 billing cycles, excluding 7% VAT and internet charges. Available to individual AIS postpaid customers with at least 3 months of active service.",
       terms:[
         "The package renews automatically at the end of each billing cycle until canceled.",
         "Prices exclude 7% VAT and internet charges.",
@@ -169,7 +169,7 @@ window.Packages = (function(){
         "AIS reserves the right to change the package terms without prior notice."],
       tc:[
         "1. This package is available to AIS postpaid customers who have been active for at least 3 months and are registered as individual customers only.",
-        "2. The PLAY ULTIMATE package is priced at THB 999/month for 12 billing cycles. The price excludes 7% VAT and internet charges.",
+        "2. The PLAY ULTIMATE package is priced at 999 Baht/month for 12 billing cycles. The price excludes 7% VAT and internet charges.",
         "3. The package includes access to Netflix, HBO Max, Disney+ Hotstar, iQIYI, Viu, and WeTV at no additional charge while the package remains active.",
         "4. Once the subscription is successfully activated, a confirmation SMS will be sent with subscription details.",
         "5. If the PLAY ULTIMATE package is canceled, access to all included streaming services will be terminated immediately.",
@@ -233,7 +233,7 @@ window.Packages = (function(){
       '<div class="mid"><div class="chans"><div class="grid">' + c.grid.map(tileHtml).join('') + '</div>' +
       (c.count ? '<div class="chanlist"><div class="small">' + esc(c.count) + '</div><div class="row40">' + c.row.map(tileHtml).join('') + '</div></div>' : '') + '</div>' +
       '<div class="feats">' + c.feats.map(function(f){ return '<div class="feat"><img src="' + f[0] + '" alt="">' + esc(f[1]) + '</div>'; }).join('') + '</div></div>' +
-      '<div class="price"><div class="amtwrap"><div class="amt' + (String(c.amt).length > 4 ? ' long' : '') + '"><b>' + esc(c.amt) + ' baht</b><span>' + esc(c.per) + '</span></div><div class="vat">(Exclude VAT)</div></div>' +
+      '<div class="price"><div class="amtwrap"><div class="amt' + (String(c.amt).length > 4 ? ' long' : '') + '"><b>' + esc(c.amt) + ' Baht</b><span>' + esc(c.per) + '</span></div><div class="vat">(Exclude VAT)</div></div>' +
       '<div class="subscribe tv-btn tv-btn--primary tv-btn--lit">Subscribe<img src="' + P + 'ichev.svg" alt=""></div></div></div></div>';
   }
   function suggest(o){

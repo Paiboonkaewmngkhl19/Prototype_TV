@@ -1,6 +1,7 @@
 /*
-  Profile panel, as on Home (home.html, Figma "profilePanel" 430:137036): drops down under the top bar's profile photo
-  while the photo has focus: the profile card, My Account, then Settings, Help & Support and Exit AIS PLAY.
+  Profile panel, as on Home (home.html, Figma PLAY profile "profilePanel_PLAYBOX" 1364:124240): drops down under the top
+  bar's profile photo while the photo has focus: the profile card, My Account, My List, Inbox and Settings, then
+  Notifications and Help & Support.
   Down / Enter on the photo go into it, Up from My Account (or Back) comes out; Left / Right stay in it.
 
   Shared by the pages with Home's top bar (sport.html, store.html). The page keeps its own focus model and asks:
@@ -24,21 +25,16 @@
     '.prof-ava{ position:relative; width:80px; height:80px; border-radius:100px; flex:0 0 auto; overflow:hidden; background:#404045; }' +
     '.prof-ava img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }' +
     '.prof-info{ flex:1; min-width:0; display:flex; flex-direction:column; gap:8px; }' +
-    '.prof-name-row{ display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }' +
     '.prof-name{ flex:1; min-width:0; font-weight:500; font-size:24px; color:#e8e8e8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }' +
-    '.prof-chip{ height:24px; padding:2px 10px; box-sizing:border-box; border-radius:999px; background:rgba(255,255,255,.16); display:flex; align-items:center;' +
-    '  font-weight:700; font-size:11px; line-height:1.4; color:#e8e8e8; white-space:nowrap; flex:0 0 auto; }' +
     '.prof-acc{ font-size:14px; color:#a8a8a8; white-space:nowrap; }' +
-    '.prof-net{ font-size:12px; color:#a8a8a8; white-space:nowrap; }' +
     '.prof-div{ display:block; width:354px; height:1px; opacity:.6; }' +
     '.prof-menu{ display:flex; flex-direction:column; gap:16px; }' +
     '.prof-btn{ position:relative; height:56px; box-sizing:border-box; padding:16px; border-radius:9999px; display:flex; align-items:center; gap:8px; cursor:pointer;' +
     '  background:transparent; box-shadow:inset 0 0 0 2px rgba(255,255,255,.16);' +
-    '  font-weight:700; font-size:16px; line-height:24px; color:#f0f0f0; white-space:nowrap; transition:background .2s ease; }' +
+    '  font-weight:500; font-size:20px; line-height:24px; color:#f0f0f0; white-space:nowrap; transition:background .2s ease; }' +
     '.prof-btn .ic{ position:relative; width:24px; height:24px; flex:0 0 auto; }' +
     '.prof-btn .ic img{ display:block; width:24px; height:24px; }' +
-    '.prof-btn .ic img.tint{ filter:brightness(0) invert(.94); }' +
-    '.prof-btn .ic .dot{ position:absolute; right:-1px; top:-1px; width:8px; height:8px; }' +
+    '.prof-btn .ic .dot{ position:absolute; right:0; top:0; width:8px; height:8px; }' +
     '.prof-btn .lbl{ position:relative; }' +
     '.prof-btn.focused{ background:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%), var(--th-pill); box-shadow:none; color:#fff; }' +
     '.prof-btn.focused .lbl{ text-shadow:0 1px 4px rgba(0,0,0,.35); }' +
@@ -49,18 +45,19 @@
       '<div class="prof-card">' +
         '<div class="prof-ava"><img src="icons/profile-tv.png" alt=""></div>' +
         '<div class="prof-info">' +
-          '<div class="prof-name-row"><div class="prof-name">User</div><div class="prof-chip">Not Linked</div></div>' +
+          '<div class="prof-name">User</div>' +
           '<div class="prof-acc">Account: 88X XXX XXXX</div>' +
-          '<div class="prof-net">AIS Fibre</div>' +
         '</div>' +
       '</div>' +
       '<div class="prof-btn" data-act="account"><span class="ic"><img src="icons/profile/icon-account.svg" alt=""></span><span class="lbl">My Account</span></div>' +
+      '<div class="prof-btn" data-act="mylist"><span class="ic"><img src="icons/profile/icon-mylist.svg" alt=""></span><span class="lbl">My List</span></div>' +
+      '<div class="prof-btn" data-act="inbox"><span class="ic"><img src="icons/profile/icon-inbox.svg" alt=""><img class="dot" src="icons/profile/badge.svg" alt=""></span><span class="lbl">Inbox</span></div>' +
+      '<div class="prof-btn" data-act="settings"><span class="ic"><img src="icons/profile/icon-settings.svg" alt=""></span><span class="lbl">Settings</span></div>' +
     '</div>' +
     '<img class="prof-div" src="icons/profile/divider.svg" alt="">' +
     '<div class="prof-menu">' +
-      '<div class="prof-btn" data-act="settings"><span class="ic"><img class="tint" src="icons/profile/icon-settings.svg" alt=""><img class="dot" src="icons/profile/badge.svg" alt=""></span><span class="lbl">Settings</span></div>' +
-      '<div class="prof-btn" data-act="help"><span class="ic"><img class="tint" src="icons/profile/icon-help.svg" alt=""></span><span class="lbl">Help &amp; Support</span></div>' +
-      '<div class="prof-btn" data-act="exit"><span class="ic"><img class="tint" src="icons/profile/icon-exit.svg" alt=""></span><span class="lbl">Exit AIS PLAY</span></div>' +
+      '<div class="prof-btn" data-act="notifications"><span class="ic"><img src="icons/profile/icon-notifications.svg" alt=""></span><span class="lbl">Notifications</span></div>' +
+      '<div class="prof-btn" data-act="help"><span class="ic"><img src="icons/profile/icon-help.svg" alt=""></span><span class="lbl">Help &amp; Support</span></div>' +
     '</div>';
 
   window.ProfilePanel = function(profileEl, opts){
@@ -76,7 +73,6 @@
     var at = -1, on = false;   // at: the focused button in the panel (-1: focus is not in it); on: the photo has focus
 
     function act(b){
-      if(b.dataset.act === 'exit'){ location.href = 'launcher.html'; return; }
       opts.toast(b.textContent.trim() + ' isn\'t part of this prototype yet');
     }
     btns.forEach(function(b, i){ b.addEventListener('click', function(e){ e.stopPropagation(); at = i; opts.paint(); act(b); }); });
