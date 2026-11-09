@@ -199,18 +199,39 @@ window.Packages = (function(){
     { title:'HBO Max Standard Package', badge:'Best Seller', logo:P + 'l3.png', href:'package-detail.html?ott=hbo&p=1',
       grid:[t('l3.png')], count:'6 Premium Channels', row:[t('l13.png'), t('l14.png', 'cover'), t('l15.png'), t('l16.png'), t('l17.png')],
       feats:[F4K, FDOLBY, fscreen(4)], amt:'199', per:'/Month', tags:['hbo', 'premium'] },
-    { title:'PLAY ALL', logo:P + 'l18.png',
+    { title:'PLAY ALL', badge:'Best Seller', logo:P + 'l18.png',
       grid:[t('l19.png', 'white cover'), t('l20.png', 'white pad'), t('l21.png', 'white pad'), t('l22.png', 'white cover'), t('l23.png', 'white pad'),
         t('l24.png', 'white cover'), t('l25.png', 'white pad'), { more:'13+' }],
       count:'99 Premium Channels', row:['l28', 'l29', 'l30', 'l31', 'l32'].map(function(l){ return t(l + '.png', 'white cover'); }).concat([t('l33.png', 'white pad')]),
       feats:[FHD, FDOLBY, fscreen(4)], amt:'1,999', per:'/Year',
-      tags:['football', 'golf', 'basketball', 'tennis', 'motorsports', 'bundesliga', 'nba', 'nfl', 'lpga', 'atp', 'motogp', 'rws', 'premiumplus'],
+      tags:['football', 'golf', 'basketball', 'tennis', 'motorsports', 'bundesliga', 'nba', 'nfl', 'lpga', 'atp', 'motogp', 'rws', 'playall'],
       // its detail page (package-detail.html?bundle=2): the same leagues and channels as its card, its yearly plan;
       // bought: the sports premium channels (channels-data.js pkg 'sports')
       href:'package-detail.html?bundle=2', tv:'sports' }
   ];
   (function(A){ A.sports = { tiles:A.grid.filter(function(x){ return !x.more; }), more:'13+' }; A.channels = { tiles:A.row, more:'99+' };
     A.plans = [{ name:'Yearly plan', amt:1999, per:'Yearly', period:'year', renew:1 }]; })(BUNDLES[2]);
+  // ---- the Store's other AIS PLAY packages (For You, Highlights) as All Packages' cards: their Store art stands in for
+  // a logo, their tiles are the apps the Store names. No detail page of their own yet: they open PLAY ULTIMATE's, as the Store's cards do ----
+  var PACK_TABS = ['foryou', 'bundle', 'movies'], SA = 'store-assets/', HBO = t('l3.png'), IQIYI = t('l5.png', 'cover'), VIU = t('l6.png', 'cover'), WETV = t('d-wetv.png', 'white');
+  function pack(o){ return Object.assign({ logoCls:'cover', detail:1, href:'package-detail.html', count:'', row:[], tabs:PACK_TABS }, o); }
+  var PLAY_PACKS = {
+    premiumplus:pack({ title:'PLAY PREMIUM PLUS Monthly', badge:'New Release', logo:SA + 'foryou-supergirl.webp',
+      grid:[HBO, { img:'badges/tag-prime.png', cls:'cover' }, IQIYI, VIU, WETV], feats:[FHD, fscreen(2)], amt:'299', per:'/Month',
+      tags:['hbo', 'prime', 'iqiyi', 'viu', 'wetv', 'premiumplus'] }),
+    asianplus:pack({ title:'PLAY ASIAN PLUS Monthly', logo:SA + 'foryou-asian-plus.webp',
+      grid:[VIU, IQIYI, WETV, { name:'oneD' }], feats:[FHD, fscreen(2)], amt:'169', per:'/Month',
+      tags:['viu', 'iqiyi', 'wetv', 'asianplus'] }),
+    disneyplus:pack({ title:'PLAY Disney+', logo:SA + 'highlight-play-disney.webp',
+      grid:[t('l4.png')], feats:[F4K, FDOLBY, fscreen(4)], amt:'289', per:'/Month',
+      tags:['disney', 'disneyplus'] }),
+    premium:pack({ title:'PLAY PREMIUM', logo:SA + 'highlight-play-premium.webp',
+      grid:[HBO], count:'AIS PLAY Premium Channels', row:BUNDLES[0].row, feats:[FHD, fscreen(2)], amt:'199', per:'/Month',
+      tags:['hbo', 'premium'] }),
+    family:pack({ title:'PLAY FAMILY', logo:SA + 'highlight-play-family.webp',
+      grid:[{ name:'Family' }], feats:[FHD, fscreen(2)], amt:'249', per:'/Month',
+      tags:['family'] })
+  };
   // a brand's package (PKG) as a card: its logo (a league's: its logo, leagues.js), its quality and screens, its price; bought on package-detail.html
   function ottCard(k, i){
     var p = PKG[k][i], b = OTT[k], lg = b.league && window.Leagues && Leagues.list.filter(function(l){ return l.id === b.league; })[0];
@@ -222,6 +243,7 @@ window.Packages = (function(){
   function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
   function tileHtml(x){
     if(x.more) return '<span class="tile more">' + esc(x.more) + '</span>';
+    if(x.name) return '<span class="tile name">' + esc(x.name) + '</span>';   // no logo yet: its name
     if(x.ph) return '<span class="tile ph' + (x.half ? ' half' : '') + '"></span>';
     return '<span class="tile ' + x.cls + '"><img src="' + x.img + '" alt=""></span>';
   }
@@ -252,5 +274,5 @@ window.Packages = (function(){
     // one Recommend: the first card's
     return out.map(function(c, i){ return i && c.badge === 'Recommended' ? Object.assign({}, c, { badge:'' }) : c; });
   }
-  return { OTT:OTT, PKG:PKG, AIS:'store-assets/ott/ais-playbox.png', BUNDLES:BUNDLES, cardHtml:cardHtml, ottCard:ottCard, suggest:suggest };
+  return { OTT:OTT, PKG:PKG, AIS:'store-assets/ott/ais-playbox.png', BUNDLES:BUNDLES, PLAY_PACKS:PLAY_PACKS, cardHtml:cardHtml, ottCard:ottCard, suggest:suggest };
 })();

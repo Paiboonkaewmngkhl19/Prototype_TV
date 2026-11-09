@@ -10,7 +10,7 @@
      Every card is real: the packages (packages.js), the events and titles (content.js MD.M) and AIS's own art (store-assets/). */
   var SA = 'store-assets/';
   // art: how the card shows its picture; hero: the picture behind the hero (a logo on black keeps Figma's placeholder hero)
-  var ULTIMATE = { badge:'Recommended', dark:1, t:'PLAY ULTIMATE', price:999, per:'Month', tags:['Monthly', 'Recurring', 'Recommended'],
+  var ULTIMATE = { dark:1, t:'PLAY ULTIMATE', price:999, per:'Month', tags:['Monthly', 'Recurring'],
     d:'HBO Max, Prime Video, Viu, iQIYI and WeTV in one package, with AIS PLAY Premium channels and live sports. Watch on your TV, phone and tablet.',
     art:{ img:SA + 'foryou-play-ultimate.webp' }, hero:SA + 'hero-play-ultimate.webp', wide:1, pkg:1 };   // hero: its 16:9 key art, across the screen
   // PLAY ALL: For You's Best Seller, the Sports rail's first card (Recommended) and Great Value's Asian Games
@@ -26,25 +26,26 @@
     // the Short Series tabs: each app's own packages
     'ReelShort':'reelshort', 'DramaBox':'dramabox', 'ShortMax':'shortmax' };
   var NETFLIX_7D = PKG.netflix[0];
+  function shown(it){ return !it.hidden; }   // hidden:1 keeps a package out of its rail
   var ROWS = {
-    foryou:[ ULTIMATE,
-      PLAY_ALL,
+    foryou:[ PLAY_ALL,
       { badge:'New Release', dark:1, t:'PLAY PREMIUM PLUS Monthly', price:299, per:'Month', tags:['Monthly', 'Recurring', 'New Release'],
         d:'Supergirl from DC Studios and the newest originals: HBO Max, Prime Video, iQIYI, Viu and WeTV in one package on AIS PLAYBOX.',
         art:{ img:SA + 'foryou-supergirl.webp' }, hero:SA + 'hero-supergirl.webp', wide:1, pkg:1 },
       // AIS's own package art (store-assets/): each package once in a rail
-      { badge:'Flash Sale', timer:43 * 3600 + 14 * 60 + 38, dark:1, t:'PLAY PREMIUM PLUS Annual', price:2990, per:'Year', tags:['Annual', 'Recurring', 'Flash Sale'],
+      { hidden:1, badge:'Flash Sale', timer:43 * 3600 + 14 * 60 + 38, dark:1, t:'PLAY PREMIUM PLUS Annual', price:2990, per:'Year', tags:['Annual', 'Recurring', 'Flash Sale'],
         d:'A full year of HBO Max, Prime Video, iQIYI, Viu and WeTV for the price of 10 months, with The Rings of Power on Prime Video.',
         art:{ img:SA + 'foryou-premium-plus-annual.webp' }, hero:SA + 'hero-premium-plus-annual.webp', wide:1, pkg:1 },
       { dark:1, t:'PLAY ASIAN PLUS Monthly', price:169, per:'Month', tags:['Monthly', 'Recurring'],
         d:'Viu, iQIYI, WeTV and oneD in one package: Thai, Korean and Chinese series, from Raeng Ngao to every new one31 drama.',
         art:{ img:SA + 'foryou-asian-plus.webp' }, hero:SA + 'hero-asian-plus.webp', wide:1, pkg:1 },
-      { dark:1, t:'PLAY ASIAN PLUS Annual', price:1690, per:'Year', tags:['Annual', 'Recurring'],
+      { hidden:1, dark:1, t:'PLAY ASIAN PLUS Annual', price:1690, per:'Year', tags:['Annual', 'Recurring'],
         d:'A full year of Viu, iQIYI, WeTV and oneD for the price of 10 months: Thai, Korean and Chinese series, new episodes every week.',
-        art:{ img:SA + 'foryou-asian-plus-annual.webp' }, hero:SA + 'hero-asian-plus-annual.webp', wide:1, pkg:1 }],
+        art:{ img:SA + 'foryou-asian-plus-annual.webp' }, hero:SA + 'hero-asian-plus-annual.webp', wide:1, pkg:1 },
+      ULTIMATE ].filter(shown),
     highlight:[
       // the shows each package brings (AIS's package art, store-assets/)
-      { dark:1, t:'PLAY INTER', price:199, per:'Month', tags:['Monthly', 'Recurring'],
+      { hidden:1, dark:1, t:'PLAY INTER', price:199, per:'Month', tags:['Monthly', 'Recurring'],
         d:'Disney, Pixar, Marvel and Star Wars in one package: Encanto, Turning Red, Moana, Frozen II, Loki, Ms. Marvel and Obi-Wan Kenobi.',
         art:{ img:SA + 'highlight-play-inter.webp' }, hero:SA + 'hero-play-inter.webp', wide:1, pkg:1 },   // hero: its 16:9 key art, across the screen
       { dark:1, t:'PLAY Disney+', price:289, per:'Month', tags:['Monthly', 'Recurring'],
@@ -56,12 +57,12 @@
       { dark:1, t:'PLAY FAMILY', price:249, per:'Month', tags:['Monthly', 'Recurring'],
         d:'Movies the whole family can watch together, from holiday favorites like The Family Man with Nicolas Cage and Téa Leoni to new family films every month.',
         art:{ img:SA + 'highlight-play-family.webp' }, hero:SA + 'hero-play-family.webp', wide:1, pkg:1 },
-      { dark:1, t:'PLAY ShortMax', price:99, per:'Month', tags:['Monthly', 'Recurring'],
+      { hidden:1, dark:1, t:'PLAY ShortMax', price:99, per:'Month', tags:['Monthly', 'Recurring'],
         d:'Every short drama on ShortMax, from palace romances to revenge stories, with new episodes every day in a minute or two each.',
         art:{ img:SA + 'highlight-play-shortmax.webp' }, hero:SA + 'hero-play-shortmax.webp', wide:1, pkg:1 },
-      { dark:1, t:'Good TV', price:59, per:'Month', tags:['Monthly', 'Recurring'],
+      { hidden:1, dark:1, t:'Good TV', price:59, per:'Month', tags:['Monthly', 'Recurring'],
         d:'Documentaries and feel-good stories from Good TV, with Next Step and Sarakadee Lok: real people, new ideas and the world around us.',
-        art:{ img:SA + 'highlight-good-tv.webp' }, hero:SA + 'hero-good-tv.webp', wide:1, pkg:1 }],
+        art:{ img:SA + 'highlight-good-tv.webp' }, hero:SA + 'hero-good-tv.webp', wide:1, pkg:1 }].filter(shown),
     sports:[
       Object.assign({}, PLAY_ALL, { badge:'Recommended', tags:['Annual', 'Recurring', 'Recommended'] })
       // then one package of each league (packages.js): its disc | AIS PLAYBOX, as the Movies rail's OTT cards
@@ -185,7 +186,9 @@
   function railSec(key, title, inner, cls){
     return '<section class="sec' + (cls ? ' ' + cls : '') + '" data-sec="' + key + '"><h2 class="sec-title">' + title + '</h2><div class="rail"><div class="track">' + inner + '</div></div></section>';
   }
+  var HIDDEN_SEC = { sports:1, movies:1, short:1, value:1 };   // rails kept out of the page (remove a key to bring its rail back)
   function catSec(key, title, more){
+    if(HIDDEN_SEC[key]) return '';
     return '<section class="sec cat" data-sec="' + key + '"><h2 class="sec-title">' + title + '</h2>' +
       '<div class="tabs" data-row="' + key + '-tabs">' + TABS[key].map(chipHtml).join('') + '</div>' +
       '<div class="rail"><div class="track" data-row="' + key + '">' + cardsHtml(key, ROWS[key], more) + '</div></div></section>';
@@ -227,7 +230,7 @@
   var NAV_STORE = rows[0].items.indexOf(document.querySelector('.navtab.active'));
   var cur = { row:R.foryou, col:rows.map(function(){ return 0; }), tab:{ sports:0, movies:0, short:0, value:0 }, from:0 };
   cur.col[0] = NAV_STORE;
-  var DYNAMIC_END = R.value;   // For You to Great Value keep the hero (dynamic background)
+  var DYNAMIC_END = R.value || R.highlight;   // For You to Great Value keep the hero (dynamic background); with Great Value hidden, up to Highlights
   var HERO_Y = 600, STATIC_Y = 200;
 
   // ---- the hero speaks for the focused package ----
