@@ -438,7 +438,7 @@
   for(var ok in OFFERS){ M[ok].pkg = !!OFFERS[ok].pkg; M[ok].buy = OFFERS[ok].buy || 0; M[ok].rent = OFFERS[ok].rent || 0; if(OFFERS[ok].ev) M[ok].ev = 1; }
   // titles made from a card that had no data of its own (Content.open): back into the catalogue on every page
   try { var ADHOC = JSON.parse(sessionStorage.getItem('contentAdhoc') || '{}'); for(var ak in ADHOC) if(!M[ak]) M[ak] = ADHOC[ak]; } catch(e){}
-  var CONTINUE = [{k:'sherlock', s:1, e:5, w:31, of:58}, {k:'honekrasae', s:1, e:8, w:38, of:60}, {k:'endgame', w:122, of:181}, {k:'globalstory', s:1, e:8, w:9, of:25, pos:'center 18%'}, {k:'lastofus', s:1, e:4, w:22, of:50}, {k:'goodpartner', s:2, e:3, w:35, of:62}, {k:'hailmary', w:101, of:156}, {k:'encanto', w:61, of:102},
+  var CONTINUE = [{k:'sherlock', s:1, e:5, w:31, of:58}, {k:'endgame', w:122, of:181}, {k:'globalstory', s:1, e:8, w:9, of:25, pos:'center 18%'}, {k:'lastofus', s:1, e:4, w:22, of:50}, {k:'goodpartner', s:2, e:3, w:35, of:62}, {k:'hailmary', w:101, of:156}, {k:'encanto', w:61, of:102},
                   {k:'spider', w:41, of:148}, {k:'stranger', s:1, e:3, w:34, of:50}];
   var FOR_YOU = [{k:'d9', price:199}, {k:'avatar', price:399}, {k:'f1', price:199}, {k:'topgun', price:149}, {k:'john', price:149}];
   var RENT = [{k:'avatar', b:'Recommended'}, {k:'f1', b:'Best Seller'}, {k:'topgun', b:'Best Seller'}, {k:'john'}, {k:'venom'}, {k:'lotr'}, {k:'hobbit'}];
@@ -456,6 +456,7 @@
   // News page Hot VOD: the latest news episodes everyone is watching (series key, episode number in MD.episodes)
   var HOT_VOD = [{k:'honekrasae', e:8}, {k:'secretsauce', e:1}, {k:'witness', e:7}, {k:'secretsauce', e:2}, {k:'spotlight', e:1}, {k:'tnntech', e:1}, {k:'fastfact', e:1}];
   var MY_RENTAL = ['odyssey', 'spider', 'd9', 'lastofus', 'vikings'];   // (F1 and Top Gun are for sale: OFFERS)
+  var KIDS_RENTAL = ['moana', 'steven', 'bluey', 'pinkfong'];   // Kids' My Rentals and Purchases: already the viewer's, as MY_RENTAL
   // series sold one by one (Figma "Series MD: First scene": View Package + Buy 279 Baht)
   var SERIES_PRICE = { house:279, got:279, loki:199 };
   // a rental's last day (Figma "Package Available until")
@@ -542,10 +543,10 @@
     // even if it was played before: progress alone never makes it theirs (Content.crown stays gold)
     var bought = owned().indexOf(k) >= 0 || !!(M[k] && M[k].premium && subscribed(M[k].plat));
     if(!bought && PACKAGE.indexOf(k) >= 0) return 'buy';
-    if(!bought && MY_RENTAL.indexOf(k) < 0 && (price(k) || (offers(k) && M[k].pkg))) return 'buy';   // (View Package only: for sale too)
+    if(!bought && MY_RENTAL.indexOf(k) < 0 && KIDS_RENTAL.indexOf(k) < 0 && (price(k) || (offers(k) && M[k].pkg))) return 'buy';   // (View Package only: for sale too)
     return cw(k) ? 'resume' : 'play';
   }
-  window.MD = { P:P, PP:PP, M:M, RAILS:RAILS, HOT_VOD:HOT_VOD, CONTINUE:CONTINUE, FOR_YOU:FOR_YOU, RENT:RENT, MY_RENTAL:MY_RENTAL, state:state, price:price, own:own, cw:cw, setProgress:setProgress, minutes:minutes,
+  window.MD = { P:P, PP:PP, M:M, RAILS:RAILS, HOT_VOD:HOT_VOD, CONTINUE:CONTINUE, FOR_YOU:FOR_YOU, RENT:RENT, MY_RENTAL:MY_RENTAL, KIDS_RENTAL:KIDS_RENTAL, state:state, price:price, own:own, cw:cw, setProgress:setProgress, minutes:minutes,
     subscribe:subscribe, subscribed:subscribed, buyPrice:buyPrice, rentPrice:rentPrice, rent:rent, RENT_HOURS:RENT_HOURS,
     soon:soon, continueList:continueList, kidsContinue:kidsContinue, series:series, seasons:seasons, episodes:episodes, episode:episode, next:next, until:until,
     bg:function(k){ var m = M[k]; return m ? m.b || m.w || m.p : ''; },

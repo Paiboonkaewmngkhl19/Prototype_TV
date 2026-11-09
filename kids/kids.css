@@ -95,6 +95,9 @@
   .top10 .track{ gap:0; padding:33px 110px; }
   .rank-poster{ width:220px; height:330px; border-radius:12px; background:var(--surface-container-high) center / cover no-repeat; }
   .rank-poster .ptag{ position:absolute; left:12px; bottom:12px; }
+  .xc-portrait .ptag{ position:absolute; left:12px; bottom:12px; }
+  /* the gold crown sits beside the platform tag (56 wide + an 8px gap) */
+  .ptag + .crown-tag{ left:76px; bottom:12px; }
   .top10 .rank-wrap + .rank-wrap{ margin-left:32px; }
   .rank-color{ position:absolute; z-index:0; left:0; bottom:45px; height:240px; width:auto; opacity:0; transition:opacity .3s ease; pointer-events:none; }
   .top10.lit .rank-color{ opacity:1; }

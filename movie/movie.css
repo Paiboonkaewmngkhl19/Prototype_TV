@@ -145,8 +145,6 @@
     background:rgba(0,0,0,.35); font-size:20px; font-weight:600; }
 
   /* My Subscription / FAQs / Customer Support: Home's Quick Access cards (Figma "Rail - My Subscription"), 3 across */
-  .quick-track{ gap:32px; }   /* 32px apart; three 545px cards fill the 1700px between the margins */
-  .quick-card{ --qc-w:545px; }   /* quick-card.css, as Home's */
 
   /* (Back to Top: button-theme.css) */
 
