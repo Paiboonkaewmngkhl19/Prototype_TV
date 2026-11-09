@@ -58,17 +58,17 @@
   (function(){
     // the slides: a live match (content.js LIVE, by its title), a channel's programme on now (LIVE.hot) or a title (content.js MD.M, by its key); their words,
     // tag and picture come from there, so the slide and the detail page it opens say the same
-    var SLIDES = [{live:FIRST_SLIDE}, {hot:'CNN News'}, {k:'d9'}, {k:'loki'}, {k:'goodpartner'}, {k:'wicked'}, {k:'superman'}, {k:'topgun'}, {k:'dragon'},
+    var SLIDES = [{live:FIRST_SLIDE}, {k:'honekrasae', e:8}, {k:'d9'}, {k:'loki'}, {k:'goodpartner'}, {k:'wicked'}, {k:'superman'}, {k:'topgun'}, {k:'dragon'},
                   {k:'f1'}];
     function attr(v){ return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }   // e.g. Pete "Maverick" Mitchell
     var items = SLIDES.map(function(s){
       if(s.live || s.hot){ var p = s.live ? LIVE.find(s.live) : LIVE.hot.filter(function(h){ return h.t === s.hot; })[0]; return { t:p.t, img:p.img, logo:p.logo, crown:{tv:p.tv}, href:LIVE.href(p, 'home'), hero:{logo:'monomax', channel:'', live:true, tv:p.tv, desc:p.d}, bg:p.bg || p.img }; }
-      var h = Content.hero({k:s.k}), m = M(s.k);
-      return { k:s.k, t:h.t, img:m.w || h.bg, crown:{k:s.k}, hero:{logo:h.plat, channel:h.meta, live:false, desc:h.d}, bg:h.bg };
+      var h = Content.hero({k:s.k}), m = M(s.k), ep = s.e && MD.episode(s.k, 1, s.e);   // e: one episode of a news show (its own picture, title and words)
+      return { k:s.k, e:s.e, t:h.t, heroT:ep ? ep.t : h.t, img:ep ? ep.img : m.w || h.bg, crown:{k:s.k}, hero:{logo:h.plat, channel:h.meta, live:false, desc:ep ? ep.d : h.d}, bg:ep ? ep.bg || ep.img : h.bg };
     });
     var cards = items.map(function(it){
       return '<div class="card card-content item'+(it.hero.live ? ' has-ribbon' : '')+'" data-title="'+attr(it.t)+'"'+
-        ' data-hero-title="'+attr(it.t)+'" data-hero-logo="'+attr(it.hero.logo)+'" data-hero-channel="'+attr(it.hero.channel)+'"'+
+        ' data-hero-title="'+attr(it.heroT || it.t)+'"'+(it.e ? ' data-ep="'+it.e+'"' : '')+' data-hero-logo="'+attr(it.hero.logo)+'" data-hero-channel="'+attr(it.hero.channel)+'"'+
         ' data-hero-live="'+(it.hero.live?'1':'0')+'"'+(it.hero.tv?' data-hero-tv="'+attr(it.hero.tv)+'"':'')+' data-hero-desc="'+attr(it.hero.desc)+'" data-hero-img="'+it.bg+'"'+
         (it.k ? ' data-k="'+it.k+'"' : ' data-href="'+attr(it.href)+'"')+'>'+   // Enter: its detail page (content.js)
         '<div class="thumb" style="background-image:url(\''+it.img+'\');background-position:center;'+(it.logo ? 'background-size:67% auto;background-repeat:no-repeat;background-color:#fff;' : 'background-size:cover;')+'">'+Content.crownIcon(it.crown, 0, 'crown-tag')+'</div>'+
@@ -83,7 +83,7 @@
   (function(){
     var chips = [
       {label:'Live TV', href:'tv-guide.html?play=MUTV&from=home'}, {label:'News', href:'news.html'}, {label:'Shorts', href:'short.html'}, {label:'Kids', href:'kids.html'},
-      {label:'Lifestyle'}, {label:'Music'}, {label:'IoT'}   // Figma Category (3256:175126)
+      {label:'Lifestyle'}, {label:'Music'}   // Figma Category (3256:175126)
     ];
     var html = chips.map(function(c, i){
       return '<div class="chip tv-chip item" data-title="'+c.label+'"'+(c.href ? ' data-href="'+c.href+'"' : '')+'>'+c.label+'</div>';   // Live TV: Enter plays the channel in the Live TV player (via the TV Guide); News opens news.html
@@ -770,9 +770,13 @@
     if(heroDescEl) heroDescEl.style.display = '';
     if(heroChannelEl) heroChannelEl.parentElement.style.display = '';
     if(heroTitleEl) heroTitleEl.textContent = item.dataset.heroTitle;
-    if(heroLogoEl){ heroLogoEl.classList.remove('ais'); heroLogoEl.src = 'badges/' + heroTagFile(item.dataset.heroLogo); heroLogoEl.alt = item.dataset.heroLogo; }
+    if(heroLogoEl){ var heroAis = item.dataset.heroLogo === 'ais'; heroLogoEl.classList.toggle('ais', heroAis); heroLogoEl.src = heroAis ? 'icons/aisplay-mark.png' : 'badges/' + heroTagFile(item.dataset.heroLogo); heroLogoEl.alt = item.dataset.heroLogo; }
     // a title's slide: its meta row and how far in, as its detail page (content.js); a live slide: below
-    if(heroChannelEl){ if(item.dataset.k) heroChannelEl.innerHTML = Content.metaHtml({k:item.dataset.k}); else heroChannelEl.textContent = item.dataset.heroChannel; }
+    if(heroChannelEl){
+      var slideEp = item.dataset.ep && MD.episode(item.dataset.k, 1, +item.dataset.ep);
+      if(item.dataset.k) heroChannelEl.innerHTML = Content.metaHtml({k:item.dataset.k}) + (slideEp ? '<span class="pill">EP ' + slideEp.n + '</span><span class="pill">' + slideEp.date + '</span>' : '');
+      else heroChannelEl.textContent = item.dataset.heroChannel;
+    }
     if(item.dataset.k) showHeroWatched(null, item.dataset.k);
     if(heroDescEl) heroDescEl.textContent = item.dataset.heroDesc;
     if(heroLiveEl) heroLiveEl.style.display = (item.dataset.heroLive === '1') ? '' : 'none';
@@ -1242,7 +1246,6 @@
     'News':        {d:'Breaking stories and in-depth coverage.<br>Follow local and world news around the clock.', bg:'posters/chip-bg-news.webp'},
     'Shorts':      {d:'Bite-size dramas you can binge in minutes.<br>New episodes of the most talked-about short series every day.', bg:'posters/chip-bg-short.webp'},
     'Kids':        {d:'Cartoons, adventures and learning fun.<br>Safe, colorful shows the whole family can enjoy.', bg:'posters/chip-bg-kids.webp'},
-    'IoT':         {d:'Your smart home on the big screen.<br>Check cameras, lights and devices without leaving the sofa.', bg:'posters/chip-bg-iot.webp'},
     'Game':        {d:'Esports tournaments, game shows and live streams.<br>Watch the biggest plays as they happen.'},
     'Lifestyle':   {d:'Food, travel, home and well-being.<br>Fresh ideas and inspiration for everyday living.', bg:'posters/chip-bg-lifestyle.webp'},
     'Music':       {d:'Concerts, music videos and karaoke hits.<br>Turn it up with the artists you love.', bg:'posters/chip-bg-music.webp'},

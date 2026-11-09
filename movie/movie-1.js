@@ -26,8 +26,7 @@
   // Home's rails (content.js MD.RAILS): the same titles in the same rails; Movies and Series every title in them
   var R = MD.RAILS, key = function(x){ return x.k || x; };
   var TOP10 = R.top10;
-  var NEW = {avatar:1, f1:1, debt:1, john:1};   // Hot Off the Big Screen's NEW tags
-  var HOT = R.hot.map(function(k){ return {k:k, b:NEW[k] ? 'NEW' : ''}; });
+  var HOT = R.hot.map(function(k){ return {k:k}; });
   var FOR_YOU = MD.FOR_YOU;
   var BECAUSE = R.because.list.map(key);
   var DISNEY = ['endgame', 'loki', 'prada', 'spider', 'avatar'];
@@ -69,8 +68,6 @@
       else if(!c.fav && h) h.remove();
     });
   });
-  var QUICK = [{t:'My Subscription', sub:'4 Subscriptions', ic:'icons/quick/subscription.svg'}, {t:'FAQs', sub:'Billing, devices, how to watch', ic:'icons/quick/faqs.svg'},
-               {t:'Customer Support', sub:'Call customer support or visit the support website.', ic:'store-assets/headset.svg'}];
 
   /* ---------- markup ---------- */
   function ptag(m){ return m.plat === 'ais' ? '<span class="ptag ais"></span>' : '<img class="ptag" src="badges/tag-' + m.plat + '.png" alt="">'; }
@@ -98,7 +95,7 @@
   }).join('') + '</div></div></section>';
   html += '<section class="sec" data-row="cw"><h2 class="sec-title">Continue Watching</h2><div class="rail"><div class="track">' + CONTINUE.map(function(c, i){
     var m = M[c.k], left = c.of - c.w;
-    return '<div class="card item"' + attrs({kind:'cw', k:c.k, i:i}) + '><div class="thumb" style="background-image:url(\'' + m.w + '\')">' + ptag(m) +
+    return '<div class="card item"' + attrs({kind:'cw', k:c.k, i:i}) + '><div class="thumb" style="background-image:url(\'' + m.w + '\')">' +
       '<span class="left corner-tag">' + (left >= 60 ? Math.floor(left / 60) + 'h ' + left % 60 + 'm' : left + 'm') + ' left</span>' +
       '<div class="prog"><i style="width:' + Math.round(c.w / c.of * 100) + '%"></i></div></div><div class="t">' + esc(m.t) + (c.s ? ' S' + c.s + ':E' + c.e : '') + '</div></div>';   // a series: its episode
   }).join('') + '</div></div></section>';
@@ -108,7 +105,7 @@
     return '<div class="rank-wrap">' + Top10.numeral(i + 1) + '<div class="rank-poster item"' + attrs({kind:'title', k:k, set:'top10', i:i}) +
       ' style="background-image:url(\'' + (m.p || pic(k)) + '\')">' + ptag(m) + '</div></div>';   // (no poster: its full-screen picture, as Home's)
   }).join('') + '</div></div></section>';
-  html += sec('hot', 'Hot Off the Big Screen', HOT.map(function(h, i){ return poster(h.k, i, 'hot', h.b); }).join(''), 'tall-rail');
+  html += sec('hot', 'Hot Off the Big Screen', HOT.map(function(h, i){ return poster(h.k, i, 'hot'); }).join(''), 'tall-rail');
   html += '<section class="sec tall-rail" data-row="short"><h2 class="sec-title">Shorts</h2><div class="rail"><div class="track">' + window.SHORTS.map(function(s, i){
     return '<div class="pst item"' + attrs({kind:'short', i:i}) + ' data-href="short-detail.html?s=' + i + '" style="background-image:url(\'posters/shorts/' + s.img + '\')">' + ptag(s) + '</div>';   // its app's tag
   }).join('') + '</div></div></section>';
@@ -139,7 +136,7 @@
     return '<div class="actor"><div class="ph item"' + attrs({kind:'actor', i:i}) + ' data-ring-art=""' + (a.img ? ' style="background-image:url(\'' + a.img + '\')"' : '') + '>' +
       (a.img ? '' : ini) + '</div><div class="nm">' + esc(a.n) + '</div></div>';
   }).join(''), 'actors');
-  html += sec('leaving', 'Leaving Soon', LEAVING.map(function(k, i){ return poster(k, i, 'leaving', 'Leaving Soon'); }).join(''), 'tall-rail');
+  html += sec('leaving', 'Leaving Soon', LEAVING.map(function(k, i){ return poster(k, i, 'leaving'); }).join(''), 'tall-rail');
   html += sec('seasonal', 'Movie Collection', SEASONAL.map(function(c, i){
     return '<div class="season-card item"' + attrs({kind:'season', i:i}) + ' style="background-image:url(\'' + c.img + '\')"><span>' + esc(c.t) + '</span></div>';
   }).join(''), 'seasonal');
@@ -150,10 +147,6 @@
       (c.fav ? '<img class="ic20 fav-ic" src="icons/tv-guide/heart-fill.svg" alt="Favorite">' : '') +
       Content.crownIcon({ch:c.n}, 0, 'ic20') +
       '<div class="ch-no">' + c.no + '</div></div></div>';
-  }).join('') + '</div></div></section>';
-  html += '<section class="sec" data-row="quick"><div class="rail"><div class="track quick-track">' + QUICK.map(function(q, i){
-    return '<div class="quick-card tv-chip item"' + attrs({kind:'quick', i:i}) + ' data-href="store.html" data-ring-art=""><span class="qc-sub">' + esc(q.sub) + '</span>' +
-      '<span class="qc-name"><img src="' + q.ic + '" alt="">' + esc(q.t) + '</span></div>';
   }).join('') + '</div></div></section>';
   html += '<section class="sec totop" data-row="totop"><div class="tv-btn tv-btn--primary tv-btn--top item" data-kind="totop" data-ring-art=""><i></i>Back to Top</div></section>';
   var page = document.getElementById('page');
@@ -194,14 +187,14 @@
   }
   // a title's screen text: its detail page's tag, Premium and meta row (content.js), and how far in when it is being
   // watched (MD.watched: this session's progress, as the detail page)
-  function titleHero(k){ var m = M[k], wd = MD.watched(k);
-    return { t:m.t, meta:Content.metaHtml({k:k}, true), d:m.d, bg:pic(k), v:m.v,
+  function titleHero(k, noTag){ var m = M[k], wd = MD.watched(k);   // noTag: no platform logo (Continue Watching)
+    return { t:m.t, meta:Content.metaHtml({k:k}, !noTag), d:m.d, bg:pic(k), v:m.v,
       watched:wd ? '<span class="bar"><i style="width:' + wd.pct + '%"></i></span>' + wd.w + 'm of ' + wd.of + 'm' : '' }; }
   function heroFor(el, rowKey){
     if(rowKey === 'scene') return titleHero(SLIDES[cur.slide]);
     var kind = el && el.dataset.kind, i = el ? +el.dataset.i : 0;
     if(kind === 'cat'){ var c = CATS[i]; return { t:c.t === 'All' ? 'Movies & Series' : c.t, d:c.d, bg:c.bg }; }
-    if(kind === 'cw') return titleHero(CONTINUE[i].k);
+    if(kind === 'cw') return titleHero(CONTINUE[i].k, true);
     if(kind === 'short'){ var s = window.SHORTS[i]; return { t:s.t, meta:Content.metaHtml({s:i}, true), d:s.d, bg:'posters/shorts/' + s.img }; }
     if(el && el.dataset.k) return titleHero(el.dataset.k);
     return null;

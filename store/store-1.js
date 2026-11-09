@@ -108,8 +108,6 @@
   var RENT_POS = { superman:'87% center' };
   var RENTALS = MD.RENT.map(function(r){ return { k:r.k, badge:r.b }; })
     .concat(['superman', 'debt', 'medium', 'khemjira'].map(function(k){ return { k:k, ppos:RENT_POS[k] }; }));
-  // One Time Package: every 7-day pass, charged once (packages.js), Netflix's first
-  var ONETIME = [NETFLIX_7D].concat(pick(function(p){ return p.card === '7 Days' && p !== NETFLIX_7D; }));
   // Others: the add-ons, then AIS's offers with their own art (go: the package it opens)
   var OTHERS = [   // AIS's mobile offers (their own square art); shown only, Enter does nothing (still:1)
     { t:'AIS 5G MAX Experience', price:599, per:'Month', tags:['Monthly', '5G', 'Postpaid'], art:{ img:SA + 'others-5g-max-experience.webp' }, still:1,
@@ -201,8 +199,7 @@
   html += catSec('value', 'Great Value');
   html += railSec('event', 'PPV Event', EVENTS.map(eventCard).join(''));
   html += railSec('rent', 'Rent or Buy', RENTALS.map(function(p, i){ return posterCard(p, 'rent', i); }).join('') + viewAll('rent'), 'rent');
-  html += railSec('onetime', 'One-Time Package', cardsHtml('onetime', ONETIME));
-  html += railSec('others', 'Others', cardsHtml('others', OTHERS));
+  html += railSec('others', 'Add-ons', cardsHtml('others', OTHERS));
   html += '<section class="sec" data-sec="banner"><div class="banner item" data-kind="banner" data-label="Smart Soundbar"><div class="slides">' +
     BANNERS.map(function(b){ return '<div class="slide" style="background-image:url(\'' + b.img + '\')' + (b.pos ? ';background-position:' + b.pos : '') + '"></div>'; }).join('') + '</div>' +
     '<div class="carr tv-chip l"><img src="' + SA + 'carousel-arrow-left.svg" alt=""></div><div class="carr tv-chip r"><img src="' + SA + 'carousel-arrow-right.svg" alt=""></div>' +
@@ -374,7 +371,7 @@
     if(el.dataset.href){ location.href = el.dataset.href; return; }
     if(el === profileEl) return;   // its panel is already open under it
     if(k === 'pkg'){
-      var set = el.dataset.set, it = (set === 'onetime' ? ONETIME : set === 'others' ? OTHERS : listOf(set))[i];
+      var set = el.dataset.set, it = (set === 'others' ? OTHERS : listOf(set))[i];
       // an OTT package: Package Detail for it (packages.js), its own price picked
       if(it.still) return;   // an offer of Others: shown only
       if(it.ott){ leave('package-detail.html?ott=' + it.ott + '&p=' + PKG[it.ott].map(function(p){ return p.t; }).indexOf(it.t)); return; }

@@ -21,7 +21,6 @@
   var TOP10 = [3, 8, 14, 19, 0, 4, 9, 15, 20, 1];      // ten shorts, ranked
   var NEW_EPS = [1, 9, 16, 21, 4, 0, 12, 17, 22, 6, 3, 7, 2, 5];
   var FOR_YOU = [4, 10, 18, 23, 0, 3, 6, 13, 17, 24];
-  var SELECTION = [2, 11, 18, 24, 5, 0, 7, 4, 1, 6, 3, 13, 16, 21];
   var MORE = mix([6, 3, 1, 7, 0, 5, 2, 4, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]);
   var GRID_COLS = 7;
 
@@ -58,7 +57,6 @@
       '<div class="xc-content ev-info"><h3>' + esc(sh.t) + '</h3><div class="meta">' + Content.metaHtml({s:s}, true) + '</div>' +
       '<p class="syn">' + esc(sh.d) + '</p></div></div>';
   }).join(''));
-  html += sec('selection', 'Drama Selection', SELECTION.map(function(s, n){ return poster(s, 'selection', n); }).join(''));
   html += sec('drama', 'Drama', genre('Drama').map(function(s, n){ return poster(s, 'drama', n); }).join(''));
   html += sec('romance', 'Romance', genre('Romance').map(function(s, n){ return poster(s, 'romance', n); }).join(''));
   // Feed: a banner with its Explore Feed button, no action yet (no feed player)

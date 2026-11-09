@@ -84,15 +84,15 @@
                {n:'Doraemon', img:'ch-doraemon.jpg', k:'standbyme', swap:DORAEMON_SWAP}, {n:'Mr. Bean', img:'ch-mrbean.jpg', k:'mrbean', swap:BEAN_SWAP}];
   var FOR_YOU = ['steven', 'doraemonart', 'powerpuff', 'trolls', 'dora'];
   var DORAEMON = ['doraemonart', 'doraemoncastle', 'doraemonsymphony', 'doraemonsky', 'doraemondino', 'doraemonjapan', 'standbyme'];
-  var YOUNGER = [{k:'pororo', b:'New'}, {k:'dora', tag:1}, {k:'phineas', b:'Best Seller'}, {k:'trollsholiday', tag:1}, {k:'standbyme', b:'Leaving Soon'}, {k:'lady'}, {k:'trolls'}];
-  var OLDER = [{k:'steven'}, {k:'powerpuff'}, {k:'tomjerry', tag:1}, {k:'mrbean', b:'Leaving Soon'}, {k:'trollswt'}, {k:'doraemoncastle', b:'New'}, {k:'trollsbt'}];
-  var QUICK = [{k:'tomjerry'}, {k:'pororo', b:'Best Seller'}, {k:'powerpuff', tag:1}, {k:'phineas'}, {k:'dora'}, {k:'mrbean', b:'Leaving Soon'}, {k:'trollsholiday'}];
+  var YOUNGER = [{k:'pororo', b:'New'}, {k:'dora'}, {k:'phineas', b:'Best Seller'}, {k:'trollsholiday'}, {k:'standbyme', b:'Leaving Soon'}, {k:'lady'}, {k:'trolls'}];
+  var OLDER = [{k:'steven'}, {k:'powerpuff'}, {k:'tomjerry'}, {k:'mrbean', b:'Leaving Soon'}, {k:'trollswt'}, {k:'doraemoncastle', b:'New'}, {k:'trollsbt'}];
+  var QUICK = [{k:'tomjerry'}, {k:'pororo', b:'Best Seller'}, {k:'powerpuff'}, {k:'phineas'}, {k:'dora'}, {k:'mrbean', b:'Leaving Soon'}, {k:'trollsholiday'}];
   var TROLLS = ['trollsholiday', 'trollswt', 'trolls', 'trollsbt'];
   // the collection bands' words (Doraemon, Trolls): the collection's own, whichever of its films has focus
   var DORAEMON_TEXT = { t:'Doraemon the Movie', d:'Big adventures with Doraemon, Nobita and friends: magical gadgets, faraway worlds and a friendship that lasts forever.' };
   var TROLLS_TEXT = { t:'Trolls Collection', d:'Sing, dance and hug along with Poppy, Branch and the whole Troll family, from their very first adventure to the holiday special, World Tour and Band Together.' };
-  var RENTAL = ['moana', 'steven', 'bluey', 'pinkfong'];
-  var MY_LIST = [{k:'bluey', b:'New'}, {k:'dora', tag:1}, {k:'powerpuff', b:'Leaving Soon'}, {k:'pinkfong'}, {k:'moana'}];
+  var RENTAL = MD.KIDS_RENTAL;   // content.js: already the viewer's (no gold crown)
+  var MY_LIST = [{k:'bluey', b:'New'}, {k:'dora'}, {k:'powerpuff', b:'Leaving Soon'}, {k:'pinkfong'}, {k:'moana'}];
   var COLLECTIONS = [{t:'Trolls Collection', img:KA + 'trolls-collection.webp'}, {t:'Doraemon the Movie', img:KA + 'doraemon-collection.webp'},
                      {t:'Moana & Friends', img:KA + 'moana-bg.jpg'}, {t:'Cartoon Classics', img:KA + 'cartoon-classics.webp'}, {t:'Bluey', img:KA + 'bluey-w.jpg'},
                      {t:'Tom and Jerry', img:KA + 'tomjerry-collection.webp'}];
@@ -104,19 +104,19 @@
 
   /* ---------- markup ---------- */
   function ptag(m){ return m.plat === 'ais' ? '<span class="ptag ais"></span>' : '<img class="ptag" src="badges/tag-' + m.plat + '.png" alt="">'; }
-  // a card's bottom-left corner: the gold crown while a premium title isn't the viewer's (content.js Content.crown, as Figma's
-  // kids cards), else its platform tag when the card shows one
-  function corner(k, tag){ return Content.crownIcon({k:k}, 0, 'crown-tag') || (tag ? ptag(M[k]) : ''); }
-  function wide(k, i, set, badge, tag, img, noTitle){
+  // a card's bottom-left corner: its platform tag, then the gold crown beside it while a premium title isn't the
+  // viewer's (content.js Content.crown). Every card but Continue Watching's
+  function corner(k){ return ptag(M[k]) + Content.crownIcon({k:k}, 0, 'crown-tag'); }
+  function wide(k, i, set, badge, img, noTitle){
     var m = M[k];
     return '<div class="card item"' + attrs({kind:'title', k:k, set:set, i:i}) + '><div class="thumb" style="background-image:url(\'' + (img || m.w || m.b || m.p) + '\')">' +
-      (badge ? '<span class="top-tag">' + esc(badge) + '</span>' : '') + corner(k, tag) + '</div>' +
-      (noTitle ? '' : '<div class="t">' + esc(m.t) + '</div>') + '</div>';   // its title under the picture, as Continue Watching's cards (not on the first rail: the hero says it, as Home's)
+      (badge ? '<span class="top-tag">' + esc(badge) + '</span>' : '') + corner(k) + '</div>' +
+      (noTitle ? '' : '<div class="t">' + esc(m.t) + '</div>') + '</div>';   // its title under the picture, as Continue Watching's cards (not on the first rail, My Rentals and Purchases or My List: the hero says it, as Home's)
   }
-  function poster(k, i, set, badge, tag){
+  function poster(k, i, set, badge){
     var m = M[k];
     return '<div class="pst item"' + attrs({kind:'title', k:k, set:set, i:i}) + ' style="background-image:url(\'' + m.p + '\')">' +
-      (badge ? '<span class="top-tag">' + esc(badge) + '</span>' : '') + corner(k, tag) + '</div>';
+      (badge ? '<span class="top-tag">' + esc(badge) + '</span>' : '') + corner(k) + '</div>';
   }
   function sec(key, title, body, cls){
     return '<section class="sec' + (cls ? ' ' + cls : '') + '" data-row="' + key + '">' + (title ? '<h2 class="sec-title">' + esc(title) + '</h2>' : '') +
@@ -128,7 +128,7 @@
     return '<div class="logo"' + (c.bg ? ' style="background:' + c.bg + '"' : '') + '>' + img + '</div>';
   }
   var html = '';
-  html += sec('scene', '', SCENE.map(function(k, i){ return wide(k, i, 'scene', '', 0, '', 1); }).join(''));
+  html += sec('scene', '', SCENE.map(function(k, i){ return wide(k, i, 'scene', '', '', 1); }).join(''));
   if(CONTINUE.length) html += '<section class="sec" data-row="cw"><h2 class="sec-title">Continue Watching</h2><div class="rail"><div class="track">' + CONTINUE.map(function(c, i){
     var m = M[c.k], left = c.of - c.w;
     return '<div class="card item"' + attrs({kind:'title', k:c.k, set:'cw', i:i}) + '><div class="thumb" style="background-image:url(\'' + (c.img || m.w) + '\')">' +
@@ -140,7 +140,7 @@
   html += '<section class="sec top10" data-row="top10"><h2 class="sec-title">Top 10</h2><div class="rail"><div class="track">' + TOP10.map(function(k, i){
     var m = M[k];
     return '<div class="rank-wrap">' + Top10.numeral(i + 1) + (i < RANK_COLOR ? '<img class="rank-color" src="' + KA + 'rank-' + (i + 1) + '.svg" alt="">' : '') +
-      '<div class="rank-poster item"' + attrs({kind:'title', k:k, set:'top10', i:i}) + ' style="background-image:url(\'' + m.p + '\')">' + corner(k, 1) + '</div></div>';
+      '<div class="rank-poster item"' + attrs({kind:'title', k:k, set:'top10', i:i}) + ' style="background-image:url(\'' + m.p + '\')">' + corner(k) + '</div></div>';
   }).join('') + '</div></div></section>';
   html += sec('chars', 'Characters', CHARS.map(function(c, i){
     return '<div class="char"><div class="ph item' + (c.swap ? ' swap' : '') + '"' + attrs({kind:'char', i:i}) + ' data-ring-art=""' + (c.swap ? '' : ' style="background-image:url(\'' + KA + c.img + '\')"') + '>' + (c.swap ? swapHtml(c.swap) : '') +
@@ -150,19 +150,19 @@
     var m = M[k];
     // Movie's For You (expand-card.css): the poster at rest; open, the title's meta row and synopsis over its picture
     return '<div class="xcard item"' + attrs({kind:'title', k:k, set:'foryou', i:i}) + ' data-ring-art="">' +
-      '<div class="xc-portrait" style="background-image:url(\'' + (m.p || m.w) + '\')"></div>' +
+      '<div class="xc-portrait" style="background-image:url(\'' + (m.p || m.w) + '\')">' + corner(k) + '</div>' +
       '<div class="xc-wide" style="background-image:url(\'' + MD.bg(k) + '\')"></div><div class="xc-scrim ev-scrim"></div>' +
       '<div class="xc-content ev-info"><h3>' + esc(m.t) + '</h3><div class="meta">' + Content.metaHtml({k:k}, true) + '</div><p class="syn">' + esc(m.d) + '</p></div></div>';
   }).join(''));
   html += '<section class="sec band" data-row="doraemon"><div class="b-pic" style="background-image:url(\'' + KA + 'doraemon-band.jpg\')"></div><div class="b-t"></div><p class="b-d"></p><div class="rail"><div class="track">' +
     DORAEMON.map(function(k, i){ return poster(k, i, 'doraemon'); }).join('') + '</div></div></section>';
-  html += sec('younger', 'Younger Kids (Ages 4–8)', YOUNGER.map(function(c, i){ return poster(c.k, i, 'younger', c.b, c.tag); }).join(''), 'tall');
-  html += sec('older', 'Older Kids (Ages 9–12)', OLDER.map(function(c, i){ return poster(c.k, i, 'older', c.b, c.tag); }).join(''), 'tall');
-  html += sec('quick', 'Quick Watch: 20 Minutes or Less', QUICK.map(function(c, i){ return poster(c.k, i, 'quick', c.b, c.tag); }).join(''), 'tall');
+  html += sec('younger', 'Younger Kids (Ages 4–8)', YOUNGER.map(function(c, i){ return poster(c.k, i, 'younger', c.b); }).join(''), 'tall');
+  html += sec('older', 'Older Kids (Ages 9–12)', OLDER.map(function(c, i){ return poster(c.k, i, 'older', c.b); }).join(''), 'tall');
+  html += sec('quick', 'Quick Watch: 20 Minutes or Less', QUICK.map(function(c, i){ return poster(c.k, i, 'quick', c.b); }).join(''), 'tall');
   html += '<section class="sec band side" data-row="trolls"><div class="b-pic" style="background-image:url(\'' + KA + 'trolls-band.jpg\')"></div><div class="b-text"><div class="b-t"></div><p class="b-d"></p></div>' +
     '<div class="rail"><div class="track">' + TROLLS.map(function(k, i){ return poster(k, i, 'trolls'); }).join('') + '</div></div></section>';
-  html += sec('rental', 'My Rentals and Purchases', RENTAL.map(function(k, i){ return wide(k, i, 'rental'); }).join(''));
-  html += sec('mylist', 'My List', MY_LIST.map(function(c, i){ return wide(c.k, i, 'mylist', c.b, c.tag); }).join(''));
+  html += sec('rental', 'My Rentals and Purchases', RENTAL.map(function(k, i){ return wide(k, i, 'rental', '', '', 1); }).join(''));
+  html += sec('mylist', 'My List', MY_LIST.map(function(c, i){ return wide(c.k, i, 'mylist', c.b, '', 1); }).join(''));
   html += '<section class="sec coll" data-row="coll"><div class="stage">' + COLLECTIONS.map(function(c, i){
     return '<div class="coll-card item"' + attrs({kind:'coll', i:i}) + ' data-ring-art="" style="background-image:url(\'' + c.img + '\')"><span>' + esc(c.t) + '</span></div>';
   }).join('') + '</div><div class="coll-dots">' + COLLECTIONS.map(function(){ return '<i></i>'; }).join('') + '</div></section>';
@@ -205,16 +205,16 @@
   function paintHero(el){
     var k = el && el.dataset.k;
     if(!k || !M[k]) return;
-    var m = M[k], key = k;
+    var noTag = el.dataset.set === 'cw', m = M[k], key = k + (noTag ? '|cw' : '');   // Continue Watching: no platform logo
     if(key !== heroKey){
       heroKey = key;
       heroEl.classList.toggle('has-logo', !!m.logo);
       heroEl.querySelector('.logo-t').src = m.logo || '';
       heroEl.querySelector('.logo-t').alt = m.t;
       heroEl.querySelector('h1').textContent = m.t;
-      var wd = MD.watched(k);
-      heroEl.querySelector('.watched').innerHTML = wd ? '<span class="bar"><i style="width:' + wd.pct + '%"></i></span>' + wd.w + 'm of ' + wd.of + 'm' : '';
-      heroEl.querySelector('.meta').innerHTML = Content.metaHtml({k:k}, true);
+      var wd = noTag ? CONTINUE[+el.dataset.i] : null;   // how far in: Continue Watching only
+      heroEl.querySelector('.watched').innerHTML = wd ? '<span class="bar"><i style="width:' + Math.round(wd.w / wd.of * 100) + '%"></i></span>' + wd.w + 'm of ' + wd.of + 'm' : '';
+      heroEl.querySelector('.meta').innerHTML = Content.metaHtml({k:k}, !noTag);
       heroEl.querySelector('.desc').textContent = m.d || '';
       heroEl.classList.remove('swap'); void heroEl.offsetWidth; heroEl.classList.add('swap');
     }
