@@ -147,9 +147,10 @@
   var RETURNING = false, PICK = 0;
   try { RETURNING = !!sessionStorage.getItem('newsReturn'); if(RETURNING) PICK = +(sessionStorage.getItem('newsCat') || 0) || 0; } catch(e){}
   var html = '';
-  html += '<section class="sec" data-row="dontmiss"><h2 class="sec-title">Don’t Miss</h2><div class="rail"><div class="track">' +
+  html += '<section class="sec" data-row="dontmiss"><h2 class="sec-title">Watch on</h2><div class="rail"><div class="track">' +
     DONT_MISS.map(function(it, i){ return liveCard(it, i, 'dontmiss'); }).join('') + '</div></div></section>';
-  html += '<section class="sec eps" data-row="hot"><h2 class="sec-title">Hot VOD</h2><div class="rail"><div class="track">' +
+  var SHOW_HOT_VOD = false;   // the Hot VOD rail is hidden for now (true brings it back; its data stays in content.js MD.HOT_VOD)
+  if(SHOW_HOT_VOD) html += '<section class="sec eps" data-row="hot"><h2 class="sec-title">Hot VOD</h2><div class="rail"><div class="track">' +
     HOT.map(function(it, i){ return epCard(it, 'hot', i); }).join('') + '</div></div></section>';
   html += '<section class="sec" data-row="cats"><div class="rail"><div class="chips">' + CATS.map(function(c, i){
     return '<div class="chip tv-chip item' + (i === PICK ? ' sel' : '') + '"' + attrs({kind:'cat', i:i}) + ' data-ring-art="">' +
@@ -157,7 +158,8 @@
   }).join('') + '</div></div></section>';
   html += chanRail('intl', 'International News Channel', INTL);
   html += chanRail('thai', 'Thai News Channel', THAI);
-  html += '<section class="sec discs-sec" data-row="discs"><h2 class="sec-title">Special Channels</h2><div class="rail"><div class="track discs">' + DISCS.map(discHtml).join('') + '</div></div></section>';
+  var SHOW_HOT_CHANNELS = false;   // the Hot Channels rail is hidden for now (true brings it back)
+  if(SHOW_HOT_CHANNELS) html += '<section class="sec discs-sec" data-row="discs"><h2 class="sec-title">Hot Channels</h2><div class="rail"><div class="track discs">' + DISCS.map(discHtml).join('') + '</div></div></section>';
   html += '<section class="sec" data-row="local"><h2 class="sec-title">Localized Program News</h2><div class="rail"><div class="track">' +
     LOCAL.map(function(it, i){ return liveCard(it, i, 'local'); }).join('') + '</div></div></section>';
   EPISODES.forEach(function(r, ri){
@@ -240,7 +242,7 @@
     }
     if(k === 'disc'){
       var dc = DISCS[i], on = TV.onNow(TV.byName(dc.tv));   // the channel: what's on now (channels-data.js), as its TV Guide card
-      return { t:on.now.t, meta:'<span class="badge live">LIVE</span>' + chMeta(dc.c) + '<span class="pill">' + on.startedAt + ' – ' + TV.clock(on.now.end) + '</span>', d:'Next: ' + on.next.t + ' at ' + on.nextAt + '. ' + NEWS_DESC, bg:A + 'special-channels-bg.webp' };   // Special Channels: its own channels' picture
+      return { t:on.now.t, meta:'<span class="badge live">LIVE</span>' + chMeta(dc.c) + '<span class="pill">' + on.startedAt + ' – ' + TV.clock(on.now.end) + '</span>', d:'Next: ' + on.next.t + ' at ' + on.nextAt + '. ' + NEWS_DESC, bg:A + 'special-channels-bg.webp' };   // Hot Channels: its own channels' picture
     }
     if(k === 'ep'){
       var v = epInfo(el), c = Content.hero(v), ep = epOf(el);   // its series' words (content.js)
