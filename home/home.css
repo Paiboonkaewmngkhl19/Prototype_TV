@@ -368,7 +368,8 @@
   .card-karaoke .meta .artist{font-size:20px;}
 
   /* chips */
-  .chip-row .rail-track{align-items:center;padding-top:6px;padding-bottom:6px;}
+  .chip-row .rail-track{align-items:center;width:1700px;box-sizing:border-box;padding:6px 0;}   /* the row fills the 110px margins */
+  .chip-row .chip{flex:1 1 0;width:auto;min-width:0;}   /* six chips share it, 32px apart */
   /* Category chips (Figma "TV / Chip", 3256:175126): 250 wide, 100px tall (Figma's 130, lowered on request), 32px label. Colours and focus come from the shared chip
      theme (chip-theme.css, .tv-chip): frosted glass at rest, the grey glass pill when focused. */
   .chip{

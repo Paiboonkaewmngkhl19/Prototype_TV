@@ -552,7 +552,7 @@
     var first = r.items[0], last = r.items[r.items.length - 1];
     var lastRight = last.offsetLeft + last.offsetWidth;
     var extra = last.offsetWidth * (focusScale(last) - 1) / 2 + RING_W_DESIGN;
-    var maxScroll = Math.max(0, lastRight + extra + 2 * pad - viewport.clientWidth);
+    var maxScroll = r.el.classList.contains('chip-row') ? 0 : Math.max(0, lastRight + extra + 2 * pad - viewport.clientWidth);   // (the chips fill the row exactly: they never slide)
     var desired = item.offsetLeft - first.offsetLeft;
     var x = -clamp(desired, 0, maxScroll);
     r.track.style.transform = 'translateX(' + x + 'px)';
