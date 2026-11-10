@@ -5,7 +5,7 @@
   var byId = function(id){ return document.getElementById(id); };
   function esc(s){ return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
   function pad(n){ return (n < 10 ? '0' : '') + n; }
-  function hm(d){ return d.getHours() + ':' + pad(d.getMinutes()); }
+  function hm(d){ return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
 
   /* ---------- the channel and programme, from the query string ---------- */
   var q = {}; location.search.slice(1).split('&').forEach(function(kv){ if(!kv) return; var i = kv.indexOf('='); q[decodeURIComponent(kv.slice(0, i))] = decodeURIComponent(kv.slice(i + 1).replace(/\+/g, ' ')); });

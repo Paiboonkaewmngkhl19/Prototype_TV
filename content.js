@@ -483,7 +483,7 @@
   var RENT_HOURS = 48;
   function fmtUntil(t){ var d = new Date(t);
     return { d:d.getDate() + ' ' + 'January February March April May June July August September October November December'.split(' ')[d.getMonth()] + ' ' + d.getFullYear(),
-             t:d.getHours() + ':' + ('0' + d.getMinutes()).slice(-2) }; }
+             t:('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) }; }
   function rented(){ try { return JSON.parse(sessionStorage.getItem('mdRented') || '{}'); } catch(e){ return {}; } }
   (function(r){ Object.keys(r).forEach(function(k){ if(MY_RENTAL.indexOf(k) < 0) MY_RENTAL.unshift(k); UNTIL[k] = fmtUntil(r[k]); }); })(rented());
   function rent(k){
@@ -890,7 +890,7 @@ window.Content = (function(){
                        sportRail: also Sport's Live and Upcoming, in this order; hidden: kept here but shown on no rail
                        (remove the flag to bring it back)
     LIVE.start(p)      when an upcoming programme starts (ms): from in, or a label ("Starts in 16:12", "Today 20:30",
-                       "Tomorrow 2:30"; a time today that has gone by is taken as tomorrow's)
+                       "Tomorrow 02:30"; a time today that has gone by is taken as tomorrow's)
     LIVE.label(p)      its card's label: "Starts in 58:12" in the last hour, else "Today 20:30" / "Tomorrow 18:00" / "2 Nov 20:30"
     LIVE.hasMD(tv)     whether the channel's programmes have a detail page: a Sports channel, or a Movies one that isn't Digital
                        TV (channels-data.js)
@@ -905,9 +905,9 @@ window.LIVE = (function(){
   var list = [
     {t:'Liverpool vs Brentford', hidden:true, img:U + 'liverpool-brentford.webp', bg:'posters/liver-ben.jpg', tv:'MONOMAX 1', live:true, sp:'football', lg:'epl',   // bg: Home's first scene and the detail page; v: its video, Home's and the player's
      d:'Liverpool hosts Brentford at Anfield in a big Premier League clash. Follow every moment live, from kick-off to the final whistle.'},
-    {t:'Bayern München vs Arsenal', img:SP + '1.webp', bg:SP + '1-2.webp', v:'video/B&A.mp4', tv:'PLAY SPORTS (Football)', live:true, sportRail:1, sp:'football', lg:'ucl', range:'2:00 – 4:00',   // v: its video, Sport's screen and the player's
+    {t:'Bayern München vs Arsenal', img:SP + '1.webp', bg:SP + '1-2.webp', v:'video/B&A.mp4', tv:'PLAY SPORTS (Football)', live:true, sportRail:1, sp:'football', lg:'ucl', range:'02:00 – 04:00',   // v: its video, Sport's screen and the player's
      d:'Live from the UEFA Champions League. Every touch in Full HD with Thai and English commentary, plus the build-up and post-match analysis.'},
-    {t:'Real Madrid vs RB Leipzig', img:SP + '2.webp', bg:SP + '2-2.jpg', v:'video/Real Madrid vs RB Leipzig.mp4', tv:'Real Madrid TV', live:true, sportRail:1, sp:'football', lg:'ucl', range:'2:00 – 4:00',
+    {t:'Real Madrid vs RB Leipzig', img:SP + '2.webp', bg:SP + '2-2.jpg', v:'video/Real Madrid vs RB Leipzig.mp4', tv:'Real Madrid TV', live:true, sportRail:1, sp:'football', lg:'ucl', range:'02:00 – 04:00',
      d:'Live from the UEFA Champions League. Every touch in Full HD with Thai and English commentary, plus the build-up and post-match analysis.'},
     {t:'MasterChef Thailand', img:U + 'u1.jpg', bg:U + 'masterchef-bg.webp', tv:'CH7 HD', in:58.2, sp:'', lg:'',
      d:'Thailand\'s best home cooks battle it out in the kitchen for the title of MasterChef. Season 7 premieres soon.'},
@@ -921,9 +921,9 @@ window.LIVE = (function(){
      d:'Portland visits the Delta Center in Salt Lake City in Week 2 of the NBA season. Live in Full HD with Thai and English commentary.'},
     {t:'Philadelphia 76ers vs Charlotte Hornets', img:SP + '4.webp', bg:SP + '4-2.webp', tv:'PLAY SPORTS (NBA)', when:'Today 19:00', sportRail:1, sp:'basketball', lg:'nba', range:'19:00 – 21:30',
      d:'The 76ers take on the Hornets at the Spectrum Center in Charlotte in Week 2 of the NBA season. Live in Full HD with Thai and English commentary.'},
-    {t:'Arizona Cardinals vs Dallas Cowboys', img:SP + '5.webp', bg:SP + '5-2.webp', tv:'PLAY SPORTS (NFL)', when:'Tomorrow 1:00', sportRail:1, sp:'rugby', lg:'nfl', range:'1:00 – 4:00',
+    {t:'Arizona Cardinals vs Dallas Cowboys', img:SP + '5.webp', bg:SP + '5-2.webp', tv:'PLAY SPORTS (NFL)', when:'Tomorrow 01:00', sportRail:1, sp:'rugby', lg:'nfl', range:'01:00 – 04:00',
      d:'The Cardinals visit AT&T Stadium in Arlington in Week 8 of the NFL season. Live in Full HD with Thai and English commentary.'},
-    {t:'Cleveland Browns vs Pittsburgh Steelers', img:SP + '6.webp', bg:SP + '6-2.webp', tv:'PLAY SPORTS (NFL)', when:'Tomorrow 4:00', sportRail:1, sp:'rugby', lg:'nfl', range:'4:00 – 7:00',
+    {t:'Cleveland Browns vs Pittsburgh Steelers', img:SP + '6.webp', bg:SP + '6-2.webp', tv:'PLAY SPORTS (NFL)', when:'Tomorrow 04:00', sportRail:1, sp:'rugby', lg:'nfl', range:'04:00 – 07:00',
      d:'An AFC North rivalry at Acrisure Stadium in Pittsburgh in Week 8 of the NFL season. Live in Full HD with Thai and English commentary.'},
     {t:'Bayer Leverkusen vs VfB Stuttgart', img:SP + '7.webp', bg:SP + '7-2.webp', tv:'PLAY SPORTS (Football)', when:'Today 20:30', sportRail:1, sp:'football', lg:'bundesliga', range:'20:30 – 22:30',
      d:'Leverkusen hosts Stuttgart at the BayArena on Bundesliga Matchday 8. Live in Full HD with Thai and English commentary.'},
@@ -947,7 +947,7 @@ window.LIVE = (function(){
     if(/Tomorrow/i.test(m[1]) || d.getTime() <= Date.now()) d.setDate(d.getDate() + 1);
     return d.getTime();
   }
-  function hm(t){ var d = new Date(t); return d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }   // 24-hour H:MM
+  function hm(t){ var d = new Date(t); return ('0' + d.getHours()).slice(-2) + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }   // 24-hour HH:MM
   function label(p){
     var t = start(p), left = t - Date.now();
     if(left < 3600000){ var s = Math.max(0, Math.floor(left / 1000)); return 'Starts in ' + Math.floor(s / 60) + ':' + (s % 60 < 10 ? '0' : '') + s % 60; }

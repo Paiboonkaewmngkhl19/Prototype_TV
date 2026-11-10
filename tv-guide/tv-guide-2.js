@@ -49,7 +49,7 @@
   var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   function fmtDate(d){ return d.getDate() + ' ' + MON[d.getMonth()] + ' ' + d.getFullYear(); }
   function pad(n){ return (n < 10 ? '0' : '') + n; }
-  function fmtTime(d){ return d.getHours() + ':' + pad(d.getMinutes()); }
+  function fmtTime(d){ return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
   var today = new Date(); today.setHours(0, 0, 0, 0);
   var DAYS_AHEAD = 7;   // the date picker: today and the next 7 days (the guide's columns run through the last one)
   var onAt = window.TV.onAt;   // each channel's line-up around the real clock: channels-data.js
@@ -185,7 +185,7 @@
   // the time picker: today, Now and the hours still to come; a later day, every hour of it (no Now)
   function timeOpts(){
     var today_ = S.day === 0, o = today_ ? [{v:-1, n:'Now'}] : [];
-    for(var h = today_ ? new Date().getHours() + 1 : 0; h < 24; h++) o.push({v:h, n:h + ':00'});
+    for(var h = today_ ? new Date().getHours() + 1 : 0; h < 24; h++) o.push({v:h, n:pad(h) + ':00'});
     return o;
   }
   // after a date is picked, the time must be one that date offers: Now on a later day becomes the same hour that day;
@@ -198,7 +198,7 @@
     var now = new Date();
     chipDate.textContent = fmtDate(now); chipTime.textContent = fmtTime(now);
     dds.date.querySelector('.v').textContent = fmtDate(new Date(today.getTime() + S.day * 864e5));
-    dds.time.querySelector('.v').textContent = S.hour < 0 ? fmtTime(now) : S.hour + ':00';
+    dds.time.querySelector('.v').textContent = S.hour < 0 ? fmtTime(now) : pad(S.hour) + ':00';
   }
   setInterval(paintHead, 20000);
 
