@@ -6,14 +6,15 @@
 <title>Package Activation Guide · AIS PLAY</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Roboto:wght@400;500&family=Noto+Sans+Thai:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Roboto:wght@400;500;700&family=Noto+Sans:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
 <!--
-  Package Activation Guide (Figma Store 5215:262576 VIU Premium, 5215:255285 HBO Max, 5215:264605 Disney+), opened
-  from Purchase complete (purchase.html) or ?app=hbo. Left: the apps (TV / Chip list, scrolls) and the myAIS QR.
-  Right: that app's steps, a phone screenshot and its text each; more than five slide sideways with the page dots and
-  arrows. Footer: where to find the guide again, and Back to Home.
-  Remote / keyboard: Up / Down picks an app (its steps show at once), Right goes to the steps (Left / Right slide
-  them), Down to Back to Home; Enter on it, or Back, returns to Home.
+  Package Activation Guide (Figma Store 5215:262576 Viu, 5215:255285 HBO Max on AIS PLAYBOX, 5215:264605 on Mobile,
+  5873:303065 Monomax on AIS PLAYBOX, 5875:181106 on Mobile), opened
+  from Purchase complete (purchase.html) or ?app=hbo. Left: the apps (TV / Card list, scrolls). Right: the Switcher
+  (on AIS PLAYBOX / on Mobile, every app but Viu) and that app's steps, a screenshot and its text each; steps past
+  the first page slide sideways with the page dots and arrows. Footer: where to find the guide again, and Back to Store.
+  Remote / keyboard: Up / Down picks an app (its steps show at once), Right goes to the Switcher (Left / Right change
+  the tab), Down to the arrows (Left / Right, Enter slides), Down to Back to Store; Enter on it, or Back, returns to the Store.
 -->
 <link rel="stylesheet" href="button-theme.css">
 <link rel="stylesheet" href="chip-theme.css">
@@ -23,52 +24,83 @@
   :root{ color-scheme:dark; --on:#e8e8e8; --muted:#a8a8a8; --ease:cubic-bezier(.2,0,0,1);
     --bg-0:#070e16; --th-glow:rgba(214,222,240,.12);
     --th-pill:linear-gradient(135deg, rgba(244,247,253,.66) 0%, rgba(220,226,240,.58) 55%, rgba(196,204,224,.52) 100%);
-    --focus-fill:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%), var(--th-pill);
-    --roboto:'Roboto', 'Noto Sans Thai', system-ui, sans-serif; --inter:'Inter', 'Noto Sans Thai', system-ui, sans-serif; }
+    --pill-hi:linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0) 60%);
+    --focus-fill:var(--pill-hi), var(--th-pill);
+    --glass-chip:rgba(255,255,255,.13); --chip-inset:inset 0 3px 3px rgba(0,0,0,.23);
+    --roboto:'Roboto', 'Noto Sans Thai', system-ui, sans-serif; --inter:'Inter', 'Noto Sans Thai', system-ui, sans-serif;
+    --noto:'Noto Sans', 'Noto Sans Thai', system-ui, sans-serif; }
   html,body{ margin:0; height:100%; background:#000; overflow:hidden; font-family:var(--roboto); color:#fff; -webkit-font-smoothing:antialiased; }
   #frame{ position:absolute; left:50%; top:50%; overflow:hidden; background:var(--bg-0); }
   #screen{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left;
     background:radial-gradient(1400px 900px at 85% 110%, var(--th-glow), transparent 70%), var(--bg-0); }   /* Home's page colour and glow */
 
-  /* ---------- left: the apps and the myAIS QR ---------- */
-  .side{ position:absolute; left:0; top:0; width:550px; height:1080px; background:rgba(0,0,0,.25); border-right:1px solid rgba(255,255,255,.1); box-sizing:border-box; }   /* a darker panel over the navy */
+  /* ---------- left: the apps ---------- */
+  .side{ position:absolute; left:0; top:0; width:663px; height:1080px; background:rgba(0,0,0,.25); border-right:1px solid #808080; box-sizing:border-box; }   /* a darker panel over the navy */
   .side h1{ position:absolute; left:110px; top:60px; margin:0; font:500 32px/40px var(--roboto); color:var(--on); }
-  .apps{ position:absolute; left:100px; top:122px; width:400px; height:520px; overflow:hidden; padding:10px;
-    -webkit-mask-image:linear-gradient(180deg, #000 88%, transparent 100%); mask-image:linear-gradient(180deg, #000 88%, transparent 100%); }
-  .apps .list{ display:flex; flex-direction:column; gap:24px; transition:transform .3s var(--ease); }
-  .app{ width:380px; height:70px; box-sizing:border-box; padding:0 32px; border-radius:12px; display:flex; align-items:center;
-    font:400 32px/1 var(--roboto); color:var(--on); position:relative; flex:0 0 auto; }
+  /* the list's window: tall enough for all eight cards whole (912px, Figma's 888px cut the last one), plus 10px each way */
+  .apps{ position:absolute; left:100px; top:122px; width:512px; height:932px; box-sizing:border-box; overflow:hidden; padding:10px; transition:clip-path .3s var(--ease); }
+  .apps .list{ display:flex; flex-direction:column; gap:16px; transition:transform .3s var(--ease); }
+  .app{ width:492px; height:100px; box-sizing:border-box; padding:0 8px; border-radius:12px; display:flex; align-items:center; gap:16px; color:var(--on); position:relative; flex:0 0 auto; }
   /* (a tv-chip: the chip glass; focused, the glass pill and the ring) the picked app keeps the pill while focus is elsewhere */
   .app.on:not(.focused){ background:var(--focus-fill); -webkit-backdrop-filter:blur(50px) saturate(1.4); backdrop-filter:blur(50px) saturate(1.4); color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.35); }
-  .myais{ position:absolute; left:110px; top:664px; width:379px; text-align:center; }
-  .myais .or{ font:400 24px/32px var(--roboto); color:var(--on); }
-  .myais .t{ margin-top:16px; font:400 28px/36px var(--roboto); color:var(--on); }
-  .qrbox{ position:relative; width:250px; height:250px; box-sizing:border-box; margin:16px auto 0; padding:16px; border-radius:16px; background:#fff; }
-  .qrbox > img:first-child{ width:100%; height:100%; display:block; }
-  .qrbox .app-ic{ position:absolute; left:93px; top:93px; width:67px; height:67px; border-radius:20px; }
+  .ic{ position:relative; width:56px; height:56px; flex:0 0 auto; box-sizing:border-box; overflow:hidden; border-radius:16px; }
+  .ic img{ position:absolute; left:0; top:0; width:100%; height:100%; display:block; object-fit:contain; }
+  .ic.sq{ border-radius:6.737px; }
+  .ic.blk{ background:#000; }
+  .ic.cover img{ object-fit:cover; }
+  .ic.iq img{ width:101.3%; height:101.3%; }
+  .ic.wht{ background:#fff; border:2.111px solid #5a5a5a; }
+  .ic.drk{ background:#000; border:2.111px solid #5a5a5a; }
+  .app .tx{ display:flex; flex-direction:column; justify-content:center; align-items:flex-start; }
+  .app .nr{ display:flex; align-items:center; gap:8px; }
+  .app .nm{ font:500 28px/36px var(--roboto); white-space:nowrap; }
+  .app .sub{ font:400 16px/24px var(--roboto); letter-spacing:.25px; white-space:nowrap; }
+  .badge{ height:28px; box-sizing:border-box; padding:0 8px; display:flex; align-items:center; gap:4px; border-radius:9999px; background:rgba(0,0,0,.28); font:500 14px/normal var(--inter); color:var(--on); white-space:nowrap; text-shadow:none; }
+  .badge img{ width:20px; height:20px; display:block; }
 
-  /* ---------- right: the steps ---------- */
-  .main{ position:absolute; left:550px; top:0; width:1370px; height:917px; }
-  .win{ position:absolute; left:60px; top:104px; width:1250px; height:680px; overflow:hidden; }
-  .win.centred .track{ justify-content:center; width:100%; }
-  .track{ display:flex; gap:32px; transition:transform .35s var(--ease); }
+  /* ---------- right: the Switcher (the TV Guide's) and the steps ---------- */
+  .main{ position:absolute; left:663px; top:0; width:1257px; height:949px; background:rgba(255,255,255,.14); }
+  .switcher{ position:absolute; left:395.5px; top:60px; width:466px; height:77px; box-sizing:border-box; padding:8px; display:flex; gap:8px; align-items:center; border-radius:12px; background:var(--glass-chip); box-shadow:var(--chip-inset); backdrop-filter:blur(50px); -webkit-backdrop-filter:blur(50px); }
+  .sw{ position:relative; flex:1 1 0; height:100%; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; font:400 22px/1.2 var(--noto); letter-spacing:-.24px; color:var(--on); white-space:nowrap; }
+  .sw.on{ background:rgba(255,255,255,.22); font-weight:500; color:#fff; transition:background .22s var(--ease); }   /* the chosen tab: dim until focus is on it */
+  .sw.on.focused{ background:var(--focus-fill); font-weight:600; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+  /* the window runs to the screen's edge: a fifth phone, or a third TV step, shows past the page's 60px margin */
+  .win{ position:absolute; left:60px; top:169px; width:1197px; height:672px; overflow:hidden; }
+  .win.centred .track{ justify-content:center; width:1137px; }
+  .win.land .track{ height:100%; align-items:center; }
+  .track{ display:flex; align-items:flex-start; gap:32px; transition:transform .35s var(--ease); }
   .stepc{ width:209px; flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:16px; }
-  .stepc .n{ width:50px; height:50px; border-radius:50%; background:#fff; color:#000; display:flex; align-items:center; justify-content:center; font:500 30px/1 var(--inter); }
-  .stepc img{ width:209px; height:410px; object-fit:contain; display:block; }
-  .stepc p{ margin:0; width:209px; font:400 22px/28px var(--roboto); color:var(--on); }
-  .nav{ position:absolute; left:60px; top:796px; width:1250px; height:40px; }
+  .stepc .n{ width:50px; height:50px; border-radius:50%; background:#fff; color:#101010; display:flex; align-items:center; justify-content:center; font:500 32px/32px var(--roboto); }
+  .shot{ position:relative; width:209px; height:410px; overflow:hidden; }
+  .shot img{ position:absolute; left:0; top:0; width:100%; height:100%; display:block; object-fit:cover; }
+  .win.tall .shot{ height:418px; border-radius:30px; }   /* Viu's pictures carry a background outside the phone: cut to its corners */
+  .win.land .stepc{ width:492px; }
+  .win.land .shot{ width:492px; height:281px; }
+  .win.land .shot img{ max-width:none; object-fit:fill; }   /* one picture of all the TV screens, each step shows its own part */
+  /* Monomax (Figma): its few steps sit in the middle of the panel, a little larger; every caption keeps two lines' height so they line up */
+  .win.mono{ top:167px; height:722px; }
+  .win.mono .track{ width:1137px; height:100%; align-items:center; justify-content:center; }
+  .win.mono .stepc{ width:210px; }
+  .win.mono .shot{ width:210px; height:420px; }
+  .win.mono.land .stepc{ width:520px; }
+  .win.mono.land .shot{ width:520px; height:293px; }
+  .win.mono.land .shot img{ object-fit:cover; }
+  .win.mono ol{ min-height:56px; }
+  .stepc ol{ margin:0; padding:0 0 0 24px; width:100%; box-sizing:border-box; font:400 16px/28px var(--roboto); color:#fff; }
+  .nav{ position:absolute; left:60px; top:861.5px; width:1137px; height:40px; }
   .dots{ position:absolute; left:50%; top:12px; transform:translateX(-50%); display:flex; gap:12px; }
-  .dots i{ width:16px; height:16px; border-radius:8px; background:rgba(232,232,232,.35); transition:width .25s var(--ease), background .25s; }
-  .dots i.on{ width:40px; background:#e8e8e8; }
+  .dots i{ width:16px; height:16px; border-radius:8px; background:var(--muted); transition:width .25s var(--ease), background .25s; }
+  .dots i.on{ width:40px; background:var(--on); }
   .arrows{ position:absolute; right:0; top:0; display:flex; gap:10px; }
   .arw{ width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; opacity:.4; }   /* tv-chip: the chip glass, focused the glass pill */
   .arw.can{ opacity:1; }
 
   /* ---------- footer ---------- */
-  .foot{ position:absolute; left:550px; top:949px; width:1370px; height:131px; background:rgba(255,255,255,.06); border-top:1px solid rgba(255,255,255,.08); }   /* frosted over the navy */
-  .foot .info{ position:absolute; left:60px; top:48px; display:flex; gap:12px; align-items:center; font:400 24px/32px var(--roboto); color:var(--on); }
-  .foot .info b{ font-weight:500; }
-  .foot .tv-btn{ position:absolute; right:60px; top:24px; --btn-w:279px; --btn-h:83px; font-size:30px; }
+  .foot{ position:absolute; left:663px; top:949px; width:1257px; height:131px; background:rgba(255,255,255,.05); }   /* darker than the steps' panel */
+  .foot .info{ position:absolute; left:60px; top:48px; display:flex; gap:12px; align-items:flex-start; font:400 24px/34.526px var(--roboto); color:rgba(255,255,255,.8); white-space:nowrap; }
+  .foot .info img{ width:32px; height:32px; display:block; }
+  .foot .info b{ font-weight:700; }
+  .foot .tv-btn{ position:absolute; right:60px; top:24px; --btn-w:279px; --btn-h:83px; font-size:31px; }
 </style>
 </head>
 <body>
@@ -76,13 +108,9 @@
   <aside class="side">
     <h1>Package Activation Guide</h1>
     <div class="apps"><div class="list"></div></div>
-    <div class="myais">
-      <div class="or">or</div>
-      <div class="t">Activate on myAIS</div>
-      <div class="qrbox"><img src="store-assets/qr-myais-big.png" alt="myAIS QR code"><img class="app-ic" src="store-assets/myais-app.png" alt=""></div>
-    </div>
   </aside>
   <section class="main">
+    <div class="switcher"><div class="sw">on AIS PLAYBOX</div><div class="sw">on Mobile</div></div>
     <div class="win"><div class="track"></div></div>
     <div class="nav"><div class="dots"></div>
       <div class="arrows">
@@ -92,86 +120,132 @@
     </div>
   </section>
   <footer class="foot">
-    <div class="info"><svg width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="13" fill="none" stroke="#e8e8e8" stroke-width="2"/><path d="M16 14.5v8" stroke="#e8e8e8" stroke-width="2.4" stroke-linecap="round"/><circle cx="16" cy="10" r="1.6" fill="#e8e8e8"/></svg>
-      <span>View activation steps anytime in <b>the Package Activation Guide menu</b></span></div>
-    <div class="tv-btn tv-btn--secondary home">Back to Home</div>
+    <div class="info"><img src="store-assets/guide/ic-info.svg" alt="">
+      <span>View activation steps anytime in <b>Package Activation Guide Menu</b></span></div>
+    <div class="tv-btn tv-btn--secondary home">Back to Store</div>
   </footer>
 </div></div>
 <script src="tv-screen.js"></script>
 <script>
 (function(){
   var G = 'store-assets/guide/';
-  // the steps (Figma): VIU's own three; HBO Max's seven, which the other apps share until they have their own
+  // the steps (Figma): Viu's own three, phone only; HBO Max's, on AIS PLAYBOX and on Mobile, which the other apps share until they have their own
   var VIU = [
-    { img:G + 'viu-1.png', t:'1. รอรับ SMS ยืนยันสิทธิ์การรับชม Viu และกดลิงก์เพื่อรับสิทธิ์' },
-    { img:G + 'viu-2.png', t:'2. ใส่หมายเลขโทรศัพท์ที่ทำการสมัครแพ็กเกจโดยใส่รหัส OTP ที่ได้รับผ่าน SMS แล้วกดเปิดใช้งาน' },
-    { img:G + 'viu-3.png', t:'3. ผูกบัญชีกับ Viu สำเร็จทำตามขั้นตอนของ Application Viu และเริ่มใช้งาน' }];
-  function std(app){
-    return [
-      { img:G + 'hbo-1.png', t:'1. Activate your ' + app + ' subscription by clicking the link in the SMS you receive' },
-      { img:G + 'hbo-2.png', t:'2. Enter your AIS number or your AIS Fibre 3 home internet number, then click "Receive OTP"' },
-      { img:G + 'hbo-3.png', t:'3. Enter the OTP you received, then click "Confirm"' },
-      { img:G + 'hbo-4.png', t:'4. Click "Continue watching on ' + app + '"' },
-      { img:G + 'hbo-5.png', t:'5. Enter the email for registration, then click \'Continue\'' },
-      { img:G + 'hbo-6.png', t:'6. Enter the details and click \'Create Account\' (If you already have an account, you will receive a One-Time Code via email to activate)' },
-      { img:G + 'hbo-7.png', t:'7. Account activated! You can now download ' + app + ' from the App Store or Google Play to start enjoying entertainment' }];
+    { img:G + 'viu-1.png', t:'รอรับ SMS ยืนยันสิทธิ์การรับชม VIU และกดลิงก์เพื่อรับสิทธิ์' },
+    { img:G + 'viu-2.png', t:'ใส่หมายเลขโทรศัพท์ที่ทำการสมัครแพ็กเกจโดยใส่รหัส OTP ที่ได้รับผ่าน SMS แล้วกดเปิดใช้งาน' },
+    { img:G + 'viu-3.png', t:'ผูกบัญชีกับ VIU สำเร็จทำตามขั้นตอนของ Application VIU และเริ่มใช้งาน' }];
+  function tv(app){
+    return [   // crop: Figma's place for each screen within the one picture (width, height, left, top, in %)
+      { crop:[219.51, 480.43, -7.72, -62.28], t:'Open the ' + app + ' app on your AIS PLAYBOX' },
+      { crop:[219.51, 480.43, -111.43, -62.28], t:'Select “Get Started”' },
+      { crop:[219.51, 480.43, -8.14, -194.17], t:'Enter the email you want to use, then select “Continue”' }];
   }
+  function mobile(app){
+    return [
+      { img:G + 'hbo-1.png', t:'Activate your ' + app + ' subscription by clicking the link in the SMS you receive' },
+      { img:G + 'hbo-2.png', t:'Enter your AIS number or your AIS Fibre 3 home internet number, then click "Receive OTP"' },
+      { img:G + 'hbo-3.png', t:'Enter the OTP you received, then click "Confirm"' },
+      { img:G + 'hbo-4.png', t:'Click "Continue watching on ' + app + '"' },
+      { img:G + 'hbo-5.png', t:'Enter the email for registration, then click \'Continue\'' },
+      { img:G + 'hbo-6.png', t:'Enter the details and click \'Create Account\'<br>(If you already have an account, you will receive a One-Time Code via email to activate)' },
+      { img:G + 'hbo-7.png', t:'Account activated! You can now download ' + app + ' from the App Store or Google Play to start enjoying entertainment' }];
+  }
+  var MONO_TV = [
+    { img:G + 'mono-tv1.png', t:'Choose the MONOMAX menu to open the application on AIS PLAYBOX' },
+    { img:G + 'mono-tv2.png', t:'A MONOMAX username is generated automatically, and you can start enjoying entertainment' }];
+  var MONO_MOBILE = [
+    { img:G + 'mono-m1.png', t:'Choose Log in' },
+    { img:G + 'mono-m2.png', t:'Fill in your username and password' },
+    { img:G + 'mono-m3.png', t:'Select or create your profile' },
+    { img:G + 'mono-m4.png', t:'Enjoy MONOMAX' }];
+  function app(id, n, ic, cls, ready){ return { id:id, n:n, ic:ic, cls:cls, ready:ready, tv:tv(n), mobile:mobile(n) }; }
   var APPS = [
-    { id:'viu', n:'Viu Premium', steps:VIU }, { id:'netflix', n:'Netflix', steps:std('Netflix') }, { id:'hbo', n:'HBO Max', steps:std('HBO Max') },
-    { id:'iqiyi', n:'iQIYI', steps:std('iQIYI') }, { id:'wetv', n:'WE TV', steps:std('WeTV') }, { id:'disney', n:'Disney+', steps:std('Disney+') }];
-  var PER = 5, STEP_W = 209 + 32;
+    app('netflix', 'Netflix', 'app-netflix.png', 'sq blk'), app('hbo', 'HBO Max', 'app-hbo.png', 'sq blk'), app('disney', 'Disney+', 'app-disney.png', 'sq'),
+    app('iqiyi', 'iQIYI', 'app-iqiyi.png', 'iq'), { id:'viu', n:'viu', ic:'app-viu.png', cls:'cover', mobile:VIU, tall:1 },
+    app('wetv', 'WeTV', 'app-wetv.png', 'wht', 1), { id:'monomax', n:'Monomax', ic:'partners/monomax.png', cls:'wht', ready:1, tv:MONO_TV, mobile:MONO_MOBILE, mono:1 }, app('oned', 'OneD', 'app-oned.png', 'drk', 1)];
+  var CARD = 116, CARD_H = 100, LIST_H = 912;   // a card and its 16px gap, a card, the list's window (eight whole cards)
+  var MOBILE = { per:5, w:209 + 32 }, LAND = { per:2, w:492 + 32 };   // steps on a page, and one step's width with its gap
 
-  var list = document.querySelector('.apps .list'), track = document.querySelector('.track'), win = document.querySelector('.win');
+  var list = document.querySelector('.apps .list'), box = document.querySelector('.apps'), track = document.querySelector('.track'), win = document.querySelector('.win');
   var dots = document.querySelector('.dots'), arws = [].slice.call(document.querySelectorAll('.arw')), home = document.querySelector('.home');
-  list.innerHTML = APPS.map(function(a){ return '<div class="app tv-chip">' + a.n + '</div>'; }).join('');
+  var switcher = document.querySelector('.switcher'), tabs = [].slice.call(document.querySelectorAll('.sw'));
+  list.innerHTML = APPS.map(function(a){
+    return '<div class="app tv-chip"><div class="ic ' + a.cls + '"><img src="' + (a.ic.indexOf('/') < 0 ? G : '') + a.ic + '" alt=""></div><div class="tx">' +
+      '<div class="nr"><span class="nm">' + a.n + '</span>' + (a.ready ? '<span class="badge"><img src="' + G + 'ic-check.svg" alt="">Ready to watch</span>' : '') + '</div>' +
+      (a.ready ? '<div class="sub">Log in through the partner app to start.</div>' : '') + '</div></div>';
+  }).join('');
   var appEls = [].slice.call(list.children);
   var want = (location.search.match(/[?&]app=(\w+)/) || [])[1];
-  var cur = { area:'apps', app:Math.max(0, APPS.map(function(a){ return a.id; }).indexOf(want)), page:0, arw:1 };
+  var cur = { area:'apps', app:Math.max(0, APPS.map(function(a){ return a.id; }).indexOf(want)), tab:0, page:0, arw:1 };
 
-  function pages(){ return Math.ceil(APPS[cur.app].steps.length / PER); }
+  function hasTabs(){ return !!APPS[cur.app].tv; }
+  function isLand(){ return hasTabs() && cur.tab === 0; }
+  function steps(){ var a = APPS[cur.app]; return isLand() ? a.tv : a.mobile; }
+  function geo(){ return isLand() ? LAND : MOBILE; }
+  function pages(){ return Math.ceil(steps().length / geo().per); }
+  function picture(s){
+    if(!s.crop) return '<img src="' + s.img + '" alt="">';
+    return '<img src="' + G + 'hbo-tv-sheet.png" alt="" style="width:' + s.crop[0] + '%;height:' + s.crop[1] + '%;left:' + s.crop[2] + '%;top:' + s.crop[3] + '%">';
+  }
   function show(){
-    var a = APPS[cur.app];
-    track.innerHTML = a.steps.map(function(s, i){ return '<div class="stepc"><div class="n">' + (i + 1) + '</div><img src="' + s.img + '" alt=""><p>' + s.t + '</p></div>'; }).join('');
-    win.classList.toggle('centred', a.steps.length <= PER);
-    win.style.top = a.steps.length <= PER ? '152px' : '104px';   // Figma: three steps sit lower, centred
+    var s = steps();
+    track.innerHTML = s.map(function(x, i){ return '<div class="stepc"><div class="n">' + (i + 1) + '</div><div class="shot">' + picture(x) + '</div><ol start="' + (i + 1) + '"><li>' + x.t + '</li></ol></div>'; }).join('');
+    win.classList.toggle('land', isLand());
+    win.classList.toggle('centred', !isLand() && s.length <= MOBILE.per);
+    win.classList.toggle('tall', !!APPS[cur.app].tall);
+    win.classList.toggle('mono', !!APPS[cur.app].mono);
+    switcher.style.display = hasTabs() ? '' : 'none';
   }
   function paint(){
     appEls.forEach(function(el, i){ el.classList.toggle('on', i === cur.app); el.classList.toggle('focused', cur.area === 'apps' && i === cur.app); });
-    // the list scrolls to keep the picked app in its window
-    list.style.transform = 'translateY(' + -Math.max(0, Math.min(cur.app * 94 - 94 * 3, appEls.length * 94 - 24 - 500)) + 'px)';
-    var n = pages(), multi = n > 1;
-    track.style.transform = 'translateX(' + -(cur.page * PER * STEP_W) + 'px)';
+    // the list scrolls only as far as it must to show the picked app
+    var max = Math.max(0, appEls.length * CARD - 16 - LIST_H), y = Math.min(max, Math.max(0, cur.app * CARD + CARD_H - LIST_H));
+    list.style.transform = 'translateY(' + -y + 'px)';
+    box.style.clipPath = 'inset(' + (y > 0 ? 10 : 0) + 'px 0 ' + (y < max ? 10 : 0) + 'px 0)';
+    tabs.forEach(function(el, i){ el.classList.toggle('on', i === cur.tab); el.classList.toggle('focused', cur.area === 'tabs' && i === cur.tab); });
+    var n = pages(), multi = n > 1, g = geo();
+    track.style.transform = 'translateX(' + -(cur.page * g.per * g.w) + 'px)';
     dots.innerHTML = multi ? Array.apply(null, Array(n)).map(function(_, i){ return '<i class="' + (i === cur.page ? 'on' : '') + '"></i>'; }).join('') : '';
     arws.forEach(function(el, i){ el.style.display = multi ? '' : 'none'; el.classList.toggle('can', i ? cur.page < n - 1 : cur.page > 0);
       el.classList.toggle('focused', cur.area === 'steps' && i === cur.arw); });
     home.classList.toggle('focused', cur.area === 'home');
   }
-  function goHome(){ location.href = 'home.html'; }
+  function goStore(){ location.href = 'store.html'; }
   function slide(d){ cur.page = Math.max(0, Math.min(pages() - 1, cur.page + d)); }
+  function pickTab(i){ if(i !== cur.tab){ cur.tab = i; cur.page = 0; show(); } }
+  function pickApp(i){ if(i !== cur.app){ cur.app = i; cur.page = 0; show(); } }
   document.addEventListener('keydown', function(e){
     var k = e.key;
-    if(k === 'Escape' || k === 'Backspace'){ goHome(); e.preventDefault(); return; }
+    if(k === 'Escape' || k === 'Backspace'){ goStore(); e.preventDefault(); return; }
     if(cur.area === 'apps'){
-      if(k === 'ArrowUp' && cur.app > 0){ cur.app--; cur.page = 0; show(); }
-      else if(k === 'ArrowDown' && cur.app < APPS.length - 1){ cur.app++; cur.page = 0; show(); }
-      else if(k === 'ArrowRight') cur.area = pages() > 1 ? 'steps' : 'home';
+      if(k === 'ArrowUp' && cur.app > 0) pickApp(cur.app - 1);
+      else if(k === 'ArrowDown' && cur.app < APPS.length - 1) pickApp(cur.app + 1);
+      else if(k === 'ArrowRight') cur.area = hasTabs() ? 'tabs' : pages() > 1 ? 'steps' : 'home';
+      else return;
+    } else if(cur.area === 'tabs'){
+      if(k === 'ArrowLeft'){ if(cur.tab === 1) pickTab(0); else cur.area = 'apps'; }
+      else if(k === 'ArrowRight') pickTab(1);
+      else if(k === 'ArrowDown') cur.area = pages() > 1 ? 'steps' : 'home';
       else return;
     } else if(cur.area === 'steps'){
       if(k === 'ArrowLeft'){ if(cur.arw === 1) cur.arw = 0; else cur.area = 'apps'; }
       else if(k === 'ArrowRight') cur.arw = 1;
+      else if(k === 'ArrowUp' && hasTabs()) cur.area = 'tabs';
       else if(k === 'ArrowDown') cur.area = 'home';
       else if(k === 'Enter') slide(cur.arw ? 1 : -1);
       else return;
     } else {
-      if(k === 'ArrowUp' || k === 'ArrowLeft') cur.area = pages() > 1 && k === 'ArrowUp' ? 'steps' : 'apps';
-      else if(k === 'Enter'){ goHome(); return; }
+      if(k === 'ArrowLeft') cur.area = 'apps';
+      else if(k === 'ArrowUp') cur.area = pages() > 1 ? 'steps' : hasTabs() ? 'tabs' : 'apps';
+      else if(k === 'Enter'){ goStore(); return; }
       else return;
     }
     paint(); e.preventDefault();
   });
-  appEls.forEach(function(el, i){ el.addEventListener('click', function(){ cur.area = 'apps'; cur.app = i; cur.page = 0; show(); paint(); }); });
+  appEls.forEach(function(el, i){ el.addEventListener('click', function(){ cur.area = 'apps'; pickApp(i); paint(); }); });
+  tabs.forEach(function(el, i){ el.addEventListener('click', function(){ cur.area = 'tabs'; pickTab(i); paint(); }); });
   arws.forEach(function(el, i){ el.addEventListener('click', function(){ slide(i ? 1 : -1); paint(); }); });
-  home.addEventListener('click', goHome);
+  home.addEventListener('click', goStore);
   show(); paint();
 })();
 </script>
