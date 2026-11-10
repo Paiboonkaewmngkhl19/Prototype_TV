@@ -19,13 +19,13 @@
   });
   var NEWS_DESC = 'Live news around the clock: breaking stories, in-depth reports and analysis from the newsroom, as it happens.';
   var DONT_MISS = [
-    {t:'CNN News', img:A + 'dm-cnn.png', logo:1, ch:CH.cnn, time:'2:00 – 4:00', bg:A + 'hero-bg.png', v:window.LIVE.hot.filter(function(p){ return p.tv === 'CNN'; })[0].v,   // its video: content.js, shared with Home's Hot Channel Program
+    {t:'CNN News', img:A + 'dm-cnn.png', logo:1, ch:CH.cnn, time:'02:00 – 04:00', bg:A + 'hero-bg.png', v:window.LIVE.hot.filter(function(p){ return p.tv === 'CNN'; })[0].v,   // its video: content.js, shared with Home's Hot Channel Program
      d:'CNN Primetime brings the day’s biggest stories from around the world, with live reports from CNN’s correspondents and in-depth analysis.'},
-    {t:'เรื่องเล่าเช้านี้', img:A + 'dm-rueng.png', ch:CH.ch3, time:'6:00 – 8:00', v:window.LIVE.hot.filter(function(p){ return p.tv === '3 HD'; })[0].v,   // its video: content.js, shared with Home's Hot Channel Program
+    {t:'เรื่องเล่าเช้านี้', img:A + 'dm-rueng.png', ch:CH.ch3, time:'06:00 – 08:00', v:window.LIVE.hot.filter(function(p){ return p.tv === '3 HD'; })[0].v,   // its video: content.js, shared with Home's Hot Channel Program
      d:'ข่าวเช้าที่เล่าเรื่องราวรอบตัวคุณ อัปเดตทุกประเด็นร้อนตั้งแต่เช้าตรู่'},
-    {t:'BBC News', img:A + 'dm-bbc.png', ch:CH.bbc, time:'7:00 – 8:00', bg:A + 'bg-bbc.webp', d:'The latest from BBC News: the stories that matter in the UK and around the world, live.'},
-    {t:'สนามข่าว 7 สี', img:A + 'dm-sanam7.png', ch:CH.ch7, time:'8:00 – 9:00', bg:A + 'bg-sanam7.webp', d:'สนามข่าว 7 สี ติดตามทุกความเคลื่อนไหวของข่าวสำคัญ สดทุกวัน'},
-    {t:'One News', img:A + 'ch-one.png', ch:CH.one, time:'9:00 – 10:00', bg:A + 'bg-onenews.webp', d:'ข่าวสด ข่าวด่วน ทันทุกเหตุการณ์ จาก One News'},
+    {t:'BBC News', img:A + 'dm-bbc.png', ch:CH.bbc, time:'07:00 – 08:00', bg:A + 'bg-bbc.webp', d:'The latest from BBC News: the stories that matter in the UK and around the world, live.'},
+    {t:'สนามข่าว 7 สี', img:A + 'dm-sanam7.png', ch:CH.ch7, time:'08:00 – 09:00', bg:A + 'bg-sanam7.webp', d:'สนามข่าว 7 สี ติดตามทุกความเคลื่อนไหวของข่าวสำคัญ สดทุกวัน'},
+    {t:'One News', img:A + 'ch-one.png', ch:CH.one, time:'09:00 – 10:00', bg:A + 'bg-onenews.webp', d:'ข่าวสด ข่าวด่วน ทันทุกเหตุการณ์ จาก One News'},
     {t:'America\'s Newsroom', img:'assets/logos/51_FOXNews.png', ch:CH.fox, time:'15:00 – 16:00', bg:A + 'bg-foxnews.webp', d:'The day\u2019s breaking headlines and the biggest political stories, live from the FOX News newsroom.'},
   ];
   // the category chips filter the rails below them (cat: the categories each card / rail carries in `cats`)
@@ -62,7 +62,7 @@
   TV.reloadOnFavChange();   // back from the player with a favourite changed: the cards in their new order
   // (every localized programme is Thai: the Thai News chip keeps the whole rail)
   var LOCAL = [
-    {t:'ทันโลก กับ Thai PBS', cats:'world', img:A + 'lc-1.png', ch:CH.thaipbs, time:'9:00 – 10:00', d:'สรุปข่าวต่างประเทศรอบวัน เจาะลึกประเด็นที่คนทั้งโลกจับตา'},
+    {t:'ทันโลก กับ Thai PBS', cats:'world', img:A + 'lc-1.png', ch:CH.thaipbs, time:'09:00 – 10:00', d:'สรุปข่าวต่างประเทศรอบวัน เจาะลึกประเด็นที่คนทั้งโลกจับตา'},
     {t:'เปิดโต๊ะข่าว PPTV', cats:'politics', img:A + 'lc-2.png', ch:CH.pptv, time:'10:00 – 11:00', d:'เปิดโต๊ะข่าว ถกทุกประเด็นร้อนประจำวันกับทีมข่าว PPTV'},
     {t:'สถานีประชาชน', cats:'politics economics', img:A + 'lc-3.png', ch:CH.thaipbs, time:'11:00 – 12:00', d:'เสียงของประชาชน ปัญหาใกล้ตัวที่รอการแก้ไข'},
     {t:'คมชัดลึก Nation', cats:'politics', img:A + 'lc-4.png', ch:CH.nation, time:'21:00 – 22:00', d:'คมชัดลึก เจาะประเด็นการเมืองและสังคมแบบตรงไปตรงมา'},

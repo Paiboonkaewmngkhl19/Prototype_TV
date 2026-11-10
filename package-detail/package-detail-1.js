@@ -294,7 +294,7 @@
   function pay(){
     var sel = picked(), lbl = sel.dataset.label, d0 = new Date(), d1 = null, dl, dur;
     var f = function(d){ return d.getDate() + ' ' + d.toLocaleString('en-GB', { month:'short' }) + ' ' + d.getFullYear(); };
-    var hm = function(d){ return d.getHours() + ':' + ('0' + d.getMinutes()).slice(-2); };
+    var hm = function(d){ return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); };
     keep();
     if(TITLE && (KIND === 'pass' || KIND === 'rent')){
       var hrs = KIND === 'pass' ? PASSES[+sel.dataset.pass].hours : MD.RENT_HOURS; d1 = new Date(d0.getTime() + hrs * 36e5);
@@ -303,7 +303,7 @@
     else {
       d1 = new Date(d0);
       if(sel.dataset.period === '7d') d1.setDate(d1.getDate() + 6); else if(sel.dataset.period === 'year'){ d1.setFullYear(d1.getFullYear() + 1); d1.setDate(d1.getDate() - 1); } else { d1.setMonth(d1.getMonth() + 1); d1.setDate(d1.getDate() - 1); }
-      dl = 'Package duration'; dur = f(d0) + ' | 0:00 - ' + f(d1) + ' | 23:59';
+      dl = 'Package duration'; dur = f(d0) + ' | 00:00 - ' + f(d1) + ' | 23:59';
     }
     var name = TITLE ? TV.t + ' · ' + lbl : PK.t + (PK.plans.length > 1 ? ' · ' + lbl : '');
     // its price as the receipt says it: "999 Baht / Month" (a plan's per: Monthly → Month, Yearly → Year)

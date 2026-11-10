@@ -38,7 +38,7 @@
     : '<img src="' + OB.logo + '" alt="" style="width:100%;height:100%;object-fit:' + (OB.icon ? 'cover' : 'contain') + ';border-radius:8px">'; });
   else $('.c-pic, .d-pic').forEach(function(e){ e.style.background = pic ? "#3a3a3a url('" + pic + "') center / cover no-repeat" : "#000 url('icons/aisplay-mark.png') center / 60% auto no-repeat"; });
   $('.c-until').forEach(function(e){ e.textContent = day(end) + ' | 23:59'; });
-  $('.d-dur').forEach(function(e){ e.textContent = day(now) + ' | 0:00 - ' + day(end) + ' | 23:59'; });
+  $('.d-dur').forEach(function(e){ e.textContent = day(now) + ' | 00:00 - ' + day(end) + ' | 23:59'; });
   // the receipt from package-detail.html: its own name, price (the plan picked), picture (a package's logo: whole, on
   // black) and period
   if(RC){

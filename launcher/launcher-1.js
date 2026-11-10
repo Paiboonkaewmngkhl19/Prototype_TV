@@ -59,8 +59,8 @@
   }).join('');
   byId('launch').innerHTML = '<video src="video/Splash.mp4" preload="auto" playsinline></video>';
 
-  // the clock, 24-hour H:MM ("10:19")
-  function clock(){ var d = new Date(); byId('clock').textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0'); }
+  // the clock, 24-hour HH:MM ("10:19")
+  function clock(){ var d = new Date(); byId('clock').textContent = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
   clock(); setInterval(clock, 10000);
 
   /* ---------- focus: rows top to bottom, Left / Right along a row; each row remembers its place ---------- */

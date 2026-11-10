@@ -245,7 +245,7 @@
   }
   // what a channel card shows (Home's TV Guide rail, Sport's and News' channel rails): the programme on now and the next,
   // their times ("21:30"), how far in (0-100) and whether the one on now has Time Shift
-  function clock(d){ var m = d.getMinutes(); return d.getHours() + ':' + (m < 10 ? '0' : '') + m; }   // 24-hour H:MM, everywhere
+  function clock(d){ var m = d.getMinutes(); return ('0' + d.getHours()).slice(-2) + ':' + (m < 10 ? '0' : '') + m; }   // 24-hour HH:MM, everywhere
   function onNow(c, when){
     when = when || new Date();
     var i = onAt(c, when), p = c.progs[i], n = c.progs[i + 1] || p;

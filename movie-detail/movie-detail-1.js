@@ -101,7 +101,7 @@
   }
   // ---- a channel's programme: LIVE (Play, or View Package / Buy on a premium channel not in the package) or Upcoming
   //      (its start time on a disabled button: a countdown in the last hour; it turns LIVE when it starts) ----
-  function hm(t){ var d = new Date(t); return d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
+  function hm(t){ var d = new Date(t); return ('0' + d.getHours()).slice(-2) + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes(); }
   // the start, as the cards say it (content.js LIVE.label), in Figma's words on the button: "Starting in 44:21" in the last hour
   function startsLabel(){ return LIVE.label({start:PROG.start}).replace(/^Start in/, 'Starting in'); }
   function progRange(){ return LIVE.range(PROG); }   // content.js: Home's screen text says the same
